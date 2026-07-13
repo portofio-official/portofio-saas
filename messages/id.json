@@ -1,0 +1,215 @@
+{
+  "Nav": {
+    "features": "Fitur",
+    "templates": "Template",
+    "pricing": "Harga",
+    "login": "Masuk",
+    "openMenu": "Buka menu",
+    "closeMenu": "Tutup menu"
+  },
+  "Hero": {
+    "eyebrow": "Portfolio builder",
+    "title": "Portofolio profesional, tanpa drag-and-drop.",
+    "subtitle": "Isi form sekali, pilih template, dan portofoliomu siap tayang di subdomain sendiri dalam hitungan menit.",
+    "ctaPrimary": "Mulai gratis",
+    "ctaSecondary": "Lihat template",
+    "previewLabel": "namamu.appku.com",
+    "previewStatus": "Live preview"
+  },
+  "Features": {
+    "eyebrow": "Kenapa Portofio",
+    "title": "Semua yang kamu butuh, tidak lebih.",
+    "items": [
+      { "title": "Cukup isi form", "description": "Tidak ada drag-and-drop yang membingungkan. Isi bio, pengalaman, dan proyekmu lewat form terstruktur." },
+      { "title": "5 template siap pakai", "description": "Pilih tampilan yang cocok — Minimal, Bold, Creative, Corporate, atau Dark — ganti kapan saja." },
+      { "title": "Auto-save", "description": "Progres tersimpan otomatis. Tutup tab, lanjutkan nanti, tidak ada yang hilang." },
+      { "title": "Publish instan", "description": "Terbitkan ke namamu.appku.com begitu langgananmu aktif." }
+    ]
+  },
+  "Templates": {
+    "eyebrow": "Template",
+    "title": "5 gaya, satu data.",
+    "subtitle": "Ganti template kapan saja — datamu otomatis menyesuaikan ke tampilan baru.",
+    "items": [
+      { "name": "Minimal", "description": "Putih bersih, tipografi serif, satu kolom, fokus ke teks." },
+      { "name": "Bold", "description": "Warna aksen kuat, heading besar, cocok untuk creative/marketer." },
+      { "name": "Creative", "description": "Grid project menonjol di atas, cocok untuk desainer/fotografer." },
+      { "name": "Corporate", "description": "Rapi dan formal, timeline pengalaman kerja menonjol." },
+      { "name": "Dark", "description": "Tema gelap, aksen neon, cocok untuk developer/tech." }
+    ]
+  },
+  "Pricing": {
+    "eyebrow": "Harga",
+    "title": "Satu paket, semua fitur.",
+    "subtitle": "Gratis untuk membangun dan melihat pratinjau. Bayar hanya saat kamu siap tayang.",
+    "price": "Rp[X]",
+    "period": "/bulan",
+    "cta": "Mulai berlangganan",
+    "features": [
+      "Publish ke subdomain sendiri",
+      "5 template premium",
+      "Auto-save tanpa batas",
+      "Ganti template kapan saja"
+    ]
+  },
+  "Footer": {
+    "tagline": "Portofolio profesional, dibangun dalam hitungan menit.",
+    "rights": "Seluruh hak cipta dilindungi."
+  },
+  "Auth": {
+    "login": {
+      "eyebrow": "Selamat datang kembali",
+      "title": "Masuk ke akunmu",
+      "emailLabel": "Email",
+      "passwordLabel": "Kata sandi",
+      "submit": "Masuk",
+      "submitPending": "Memproses…",
+      "forgotPasswordLink": "Lupa kata sandi?",
+      "noAccount": "Belum punya akun?",
+      "signUpLink": "Daftar"
+    },
+    "signup": {
+      "eyebrow": "Mulai gratis",
+      "title": "Buat akun baru",
+      "emailLabel": "Email",
+      "passwordLabel": "Kata sandi",
+      "passwordHint": "Minimal 8 karakter.",
+      "submit": "Daftar",
+      "submitPending": "Memproses…",
+      "haveAccount": "Sudah punya akun?",
+      "loginLink": "Masuk"
+    },
+    "forgotPassword": {
+      "eyebrow": "Reset kata sandi",
+      "title": "Lupa kata sandi?",
+      "subtitle": "Masukkan email akunmu, kami kirimkan tautan untuk mengatur ulang kata sandi.",
+      "emailLabel": "Email",
+      "submit": "Kirim tautan reset",
+      "submitPending": "Mengirim…",
+      "backToLogin": "Kembali ke halaman masuk"
+    },
+    "resetPassword": {
+      "eyebrow": "Reset kata sandi",
+      "title": "Atur kata sandi baru",
+      "passwordLabel": "Kata sandi baru",
+      "passwordHint": "Minimal 8 karakter.",
+      "submit": "Simpan kata sandi",
+      "submitPending": "Menyimpan…"
+    },
+    "errors": {
+      "userExists": "Email ini sudah terdaftar.",
+      "invalidCredentials": "Email atau kata sandi salah.",
+      "weakPassword": "Kata sandi minimal 8 karakter.",
+      "emailNotConfirmed": "Verifikasi emailmu terlebih dahulu.",
+      "confirmFailed": "Tautan tidak valid atau sudah kedaluwarsa.",
+      "rateLimited": "Terlalu banyak percobaan. Coba lagi dalam beberapa menit.",
+      "generic": "Terjadi kesalahan. Coba lagi."
+    },
+    "success": {
+      "checkYourEmail": "Cek emailmu",
+      "checkYourEmailSubtitle": "Kami sudah mengirim tautan konfirmasi ke emailmu."
+    }
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "loggedInAs": "Masuk sebagai",
+    "editData": "Isi data portofolio",
+    "chooseTemplate": "Pilih template",
+    "logout": "Keluar"
+  },
+  "PortfolioForm": {
+    "eyebrow": "Data portofolio",
+    "title": "Isi data portofoliomu",
+    "backToDashboard": "Kembali ke dashboard",
+    "saveStatus": {
+      "idle": "",
+      "saving": "Menyimpan…",
+      "saved": "Tersimpan",
+      "error": "Gagal menyimpan"
+    },
+    "profile": {
+      "eyebrow": "Profil",
+      "title": "Identitas diri",
+      "photoLabel": "Foto profil",
+      "photoUpload": "Unggah",
+      "photoReplace": "Ganti",
+      "fullNameLabel": "Nama lengkap",
+      "headlineLabel": "Headline",
+      "headlinePlaceholder": "mis. Product Designer",
+      "bioLabel": "Ringkasan/bio",
+      "locationLabel": "Lokasi"
+    },
+    "experience": {
+      "eyebrow": "Pengalaman",
+      "title": "Pengalaman kerja",
+      "addLabel": "Tambah pengalaman",
+      "removeLabel": "Hapus",
+      "companyLabel": "Perusahaan",
+      "roleLabel": "Posisi",
+      "startDateLabel": "Mulai",
+      "endDateLabel": "Selesai",
+      "endDateHint": "Kosongkan jika masih berjalan",
+      "descriptionLabel": "Deskripsi"
+    },
+    "education": {
+      "eyebrow": "Pendidikan",
+      "title": "Riwayat pendidikan",
+      "addLabel": "Tambah pendidikan",
+      "removeLabel": "Hapus",
+      "institutionLabel": "Institusi",
+      "degreeLabel": "Gelar",
+      "fieldLabel": "Bidang studi",
+      "startYearLabel": "Tahun mulai",
+      "endYearLabel": "Tahun selesai"
+    },
+    "skills": {
+      "eyebrow": "Skill",
+      "title": "Daftar skill",
+      "placeholder": "Ketik skill lalu tekan Enter",
+      "removeLabel": "Hapus"
+    },
+    "projects": {
+      "eyebrow": "Proyek",
+      "title": "Daftar proyek",
+      "addLabel": "Tambah proyek",
+      "removeLabel": "Hapus",
+      "titleLabel": "Judul",
+      "descriptionLabel": "Deskripsi",
+      "linkLabel": "Tautan",
+      "imageLabel": "Gambar",
+      "imageUpload": "Unggah",
+      "imageReplace": "Ganti"
+    },
+    "contact": {
+      "eyebrow": "Kontak",
+      "title": "Informasi kontak",
+      "emailLabel": "Email publik",
+      "phoneLabel": "Telepon",
+      "whatsappLabel": "WhatsApp"
+    },
+    "socials": {
+      "eyebrow": "Sosial media",
+      "title": "Tautan sosial media",
+      "addLabel": "Tambah tautan",
+      "removeLabel": "Hapus",
+      "platformLabel": "Platform",
+      "urlLabel": "URL"
+    }
+  },
+  "TemplatePicker": {
+    "eyebrow": "Template",
+    "title": "Pilih template",
+    "backToDashboard": "Kembali ke dashboard",
+    "selectedLabel": "Dipilih",
+    "selectLabel": "Pilih",
+    "accentColorLabel": "Warna aksen",
+    "fontLabel": "Font",
+    "previewLabel": "Pratinjau langsung",
+    "fontOptions": {
+      "sans": "Sans",
+      "serif": "Serif",
+      "mono": "Mono",
+      "rounded": "Rounded"
+    }
+  }
+}

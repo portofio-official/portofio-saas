@@ -1,0 +1,215 @@
+{
+  "Nav": {
+    "features": "Features",
+    "templates": "Templates",
+    "pricing": "Pricing",
+    "login": "Log in",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "Hero": {
+    "eyebrow": "Portfolio builder",
+    "title": "A professional portfolio, no drag-and-drop.",
+    "subtitle": "Fill in a form once, pick a template, and your portfolio is live on your own subdomain in minutes.",
+    "ctaPrimary": "Start for free",
+    "ctaSecondary": "See templates",
+    "previewLabel": "yourname.appku.com",
+    "previewStatus": "Live preview"
+  },
+  "Features": {
+    "eyebrow": "Why Portofio",
+    "title": "Everything you need, nothing you don't.",
+    "items": [
+      { "title": "Just fill a form", "description": "No confusing drag-and-drop. Add your bio, experience, and projects through a structured form." },
+      { "title": "5 ready-made templates", "description": "Pick a look that fits — Minimal, Bold, Creative, Corporate, or Dark — switch anytime." },
+      { "title": "Auto-save", "description": "Progress saves automatically. Close the tab, come back later, nothing is lost." },
+      { "title": "Publish instantly", "description": "Go live at yourname.appku.com the moment your subscription is active." }
+    ]
+  },
+  "Templates": {
+    "eyebrow": "Templates",
+    "title": "5 styles, one dataset.",
+    "subtitle": "Switch templates anytime — your data reflows into the new look automatically.",
+    "items": [
+      { "name": "Minimal", "description": "Clean white, serif type, single column, text-first." },
+      { "name": "Bold", "description": "Strong accent color, oversized headings, built for creatives and marketers." },
+      { "name": "Creative", "description": "Project grid takes center stage — ideal for designers and photographers." },
+      { "name": "Corporate", "description": "Tidy and formal, work-experience timeline front and center." },
+      { "name": "Dark", "description": "Dark theme, neon accent, made for developers and tech folks." }
+    ]
+  },
+  "Pricing": {
+    "eyebrow": "Pricing",
+    "title": "One plan, every feature.",
+    "subtitle": "Free to build and preview. Pay only when you're ready to publish.",
+    "price": "Rp[X]",
+    "period": "/month",
+    "cta": "Start subscription",
+    "features": [
+      "Publish to your own subdomain",
+      "5 premium templates",
+      "Unlimited auto-save",
+      "Switch templates anytime"
+    ]
+  },
+  "Footer": {
+    "tagline": "A professional portfolio, built in minutes.",
+    "rights": "All rights reserved."
+  },
+  "Auth": {
+    "login": {
+      "eyebrow": "Welcome back",
+      "title": "Log in to your account",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submit": "Log in",
+      "submitPending": "Signing in…",
+      "forgotPasswordLink": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up"
+    },
+    "signup": {
+      "eyebrow": "Start for free",
+      "title": "Create your account",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "passwordHint": "At least 8 characters.",
+      "submit": "Sign up",
+      "submitPending": "Creating account…",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in"
+    },
+    "forgotPassword": {
+      "eyebrow": "Reset password",
+      "title": "Forgot your password?",
+      "subtitle": "Enter your account email and we'll send you a link to reset it.",
+      "emailLabel": "Email",
+      "submit": "Send reset link",
+      "submitPending": "Sending…",
+      "backToLogin": "Back to log in"
+    },
+    "resetPassword": {
+      "eyebrow": "Reset password",
+      "title": "Set a new password",
+      "passwordLabel": "New password",
+      "passwordHint": "At least 8 characters.",
+      "submit": "Save password",
+      "submitPending": "Saving…"
+    },
+    "errors": {
+      "userExists": "This email is already registered.",
+      "invalidCredentials": "Incorrect email or password.",
+      "weakPassword": "Password must be at least 8 characters.",
+      "emailNotConfirmed": "Please verify your email first.",
+      "confirmFailed": "This link is invalid or has expired.",
+      "rateLimited": "Too many attempts. Please try again in a few minutes.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "success": {
+      "checkYourEmail": "Check your email",
+      "checkYourEmailSubtitle": "We've sent a confirmation link to your inbox."
+    }
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "loggedInAs": "Logged in as",
+    "editData": "Fill in portfolio data",
+    "chooseTemplate": "Choose template",
+    "logout": "Log out"
+  },
+  "PortfolioForm": {
+    "eyebrow": "Portfolio data",
+    "title": "Fill in your portfolio data",
+    "backToDashboard": "Back to dashboard",
+    "saveStatus": {
+      "idle": "",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "error": "Failed to save"
+    },
+    "profile": {
+      "eyebrow": "Profile",
+      "title": "Personal details",
+      "photoLabel": "Profile photo",
+      "photoUpload": "Upload",
+      "photoReplace": "Replace",
+      "fullNameLabel": "Full name",
+      "headlineLabel": "Headline",
+      "headlinePlaceholder": "e.g. Product Designer",
+      "bioLabel": "Bio",
+      "locationLabel": "Location"
+    },
+    "experience": {
+      "eyebrow": "Experience",
+      "title": "Work experience",
+      "addLabel": "Add experience",
+      "removeLabel": "Remove",
+      "companyLabel": "Company",
+      "roleLabel": "Role",
+      "startDateLabel": "Start",
+      "endDateLabel": "End",
+      "endDateHint": "Leave blank if still ongoing",
+      "descriptionLabel": "Description"
+    },
+    "education": {
+      "eyebrow": "Education",
+      "title": "Education history",
+      "addLabel": "Add education",
+      "removeLabel": "Remove",
+      "institutionLabel": "Institution",
+      "degreeLabel": "Degree",
+      "fieldLabel": "Field of study",
+      "startYearLabel": "Start year",
+      "endYearLabel": "End year"
+    },
+    "skills": {
+      "eyebrow": "Skills",
+      "title": "Skill list",
+      "placeholder": "Type a skill and press Enter",
+      "removeLabel": "Remove"
+    },
+    "projects": {
+      "eyebrow": "Projects",
+      "title": "Project list",
+      "addLabel": "Add project",
+      "removeLabel": "Remove",
+      "titleLabel": "Title",
+      "descriptionLabel": "Description",
+      "linkLabel": "Link",
+      "imageLabel": "Image",
+      "imageUpload": "Upload",
+      "imageReplace": "Replace"
+    },
+    "contact": {
+      "eyebrow": "Contact",
+      "title": "Contact info",
+      "emailLabel": "Public email",
+      "phoneLabel": "Phone",
+      "whatsappLabel": "WhatsApp"
+    },
+    "socials": {
+      "eyebrow": "Social",
+      "title": "Social links",
+      "addLabel": "Add link",
+      "removeLabel": "Remove",
+      "platformLabel": "Platform",
+      "urlLabel": "URL"
+    }
+  },
+  "TemplatePicker": {
+    "eyebrow": "Templates",
+    "title": "Choose a template",
+    "backToDashboard": "Back to dashboard",
+    "selectedLabel": "Selected",
+    "selectLabel": "Select",
+    "accentColorLabel": "Accent color",
+    "fontLabel": "Font",
+    "previewLabel": "Live preview",
+    "fontOptions": {
+      "sans": "Sans",
+      "serif": "Serif",
+      "mono": "Mono",
+      "rounded": "Rounded"
+    }
+  }
+}

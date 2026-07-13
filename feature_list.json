@@ -1,0 +1,176 @@
+{
+  "project": "portofyo",
+  "last_updated": "2026-07-13",
+  "rules": {
+    "single_active_feature": true,
+    "passing_requires_evidence": true,
+    "do_not_skip_verification": true
+  },
+  "status_legend": {
+    "not_started": "Work has not begun.",
+    "in_progress": "The feature is the current active task.",
+    "blocked": "Work cannot continue until a documented blocker is resolved.",
+    "passing": "Required verification has passed and evidence is recorded."
+  },
+  "features": [
+    {
+      "id": "setup-001",
+      "priority": 1,
+      "area": "setup",
+      "title": "Scaffold Next.js + Supabase project",
+      "user_visible_behavior": "Project runs locally with `npm run dev` and connects to a Supabase instance.",
+      "status": "passing",
+      "verification": [
+        "Run init.sh and confirm install + dev server start without error.",
+        "Confirm a Supabase client can read/write a test row."
+      ],
+      "evidence": [
+        "2026-07-13: `npm run lint`, `npx tsc --noEmit`, and `npm run build` all pass clean on the scaffolded app (Next.js 16 App Router + TS + Tailwind, src/ layout, @/* alias).",
+        "2026-07-13: next-intl wired (id default, en) — curl to / redirects to /id; /id and /en render distinct translated copy from messages/{locale}.json.",
+        "2026-07-13: src/proxy.ts (Next.js 16 proxy convention, replaces deprecated middleware.ts) rewrites <subdomain>.localhost:3000 to /sites/[subdomain]; verified via curl with Host header, placeholder page renders.",
+        "2026-07-13: Supabase browser/server clients created (src/lib/supabase/{client,server}.ts) and .env.example documents required vars.",
+        "2026-07-13: Real Supabase project connected. User provided project URL + anon + service_role keys, now in `.env.local` (gitignored); `AUTH_DUMMY_MODE` set to false. Schema created via `supabase/migrations/20260713000000_init_schema.sql` (workspaces, portfolio_data, sites, subscriptions, all RLS-enabled per PRD 9.4/9.5), run by the user in the Supabase SQL Editor. Verified: (1) `GET /auth/v1/health` on the real project returns 200 with the anon key; (2) all 4 tables queryable via REST with the service-role key; (3) end-to-end smoke test — created a real `auth.users` row via the admin API, inserted a `workspaces` row referencing it, read it back, deleted both — full read/write round-trip against the real database succeeded; (4) `npm run lint` clean; (5) dev server boots against the real project, `GET /id/login` returns 200 and `GET /id/dashboard` redirects (307) with no `ENOTFOUND`/placeholder errors in the server log (previously the known failure mode with placeholder credentials).",
+        "2026-07-13 (follow-up smoke test): found a real bug the first pass didn't cover — anon-role reads on `workspaces`/`sites`/`portfolio_data` fail with `infinite recursion detected in policy for relation \"workspaces\"`. Root cause: the four `_owner_*` policies had no `to authenticated` restriction, so Postgres also evaluates them for `anon`; `workspaces_public_read_published` (anon) queries `sites`, whose unrestricted `sites_owner_all` policy queries `workspaces` again, cycling. Confirmed authenticated (logged-in, non-service) sessions are NOT affected — re-ran the insert/read cycle signed in as a real (non-service-role) user and it worked cleanly on both `workspaces` and `portfolio_data`. Fix written as a new migration, `supabase/migrations/20260713000001_fix_workspaces_rls_recursion.sql` (adds `to authenticated` to the 4 owner policies via `ALTER POLICY`) — NOT YET APPLIED to the live project; I don't have direct SQL execution access (no Postgres connection string or Management API token), only the REST/service-role client, which can't run DDL. User needs to run this migration in the Supabase SQL Editor, same way as the first one. Does not block workspace-001/data-001/template-001 (all authenticated-only), but MUST be applied before publish-001, which needs anon to read published sites."
+      ],
+      "notes": "Blocks every other feature. See PRD section 9.2 for stack rationale. i18n via next-intl (id default + en; PRD 7.7) done. .env.example with vars from PRD 9.7 done. Local subdomain routing via *.localhost (PRD 9.7) done. RESOLVED 2026-07-13: real Supabase project connected, schema created, read/write verified — see evidence. CONSEQUENCE for auth-001: turning `AUTH_DUMMY_MODE` off means the dummy cookie-login bypass (src/lib/auth/dummy.ts) is no longer active — the app now requires real Supabase Auth for signup/login. auth-001's own verification steps (email delivery, real login, real password reset) have NOT been re-run yet; do not assume they pass just because setup-001 does. Also note: data-001/template-001 still persist to local JSON files (src/lib/portfolio/store.ts, src/lib/templates/store.ts), NOT to the new `portfolio_data`/`sites` tables — that swap is workspace-001's job (keying by workspace_id), still not_started. OPEN ITEM: `supabase/migrations/20260713000001_fix_workspaces_rls_recursion.sql` needs to be run by the user in the SQL Editor before publish-001 — anon reads are currently broken (RLS recursion), see evidence."
+    },
+    {
+      "id": "auth-001",
+      "priority": 2,
+      "area": "auth",
+      "title": "Registration and login (email/password)",
+      "user_visible_behavior": "A user can sign up, verify email, log in, and reset password.",
+      "status": "in_progress",
+      "verification": [
+        "Sign up with a new email, confirm verification email arrives.",
+        "Log in with the verified account.",
+        "Trigger password reset and complete it."
+      ],
+      "evidence": [
+        "2026-07-13: Full flow built — /login, /signup, /forgot-password, /reset-password pages (src/app/[locale]/), server actions (src/lib/auth/actions.ts: signUpAction, signInAction, requestPasswordResetAction, updatePasswordAction, signOutAction), /auth/confirm route handler (verifyOtp), Supabase session-refresh added to src/proxy.ts, minimal protected /dashboard placeholder (redirects to /login when unauthenticated).",
+        "2026-07-13: npm run lint, npx tsc --noEmit, npm run build all pass clean; all 8 routes compile.",
+        "2026-07-13: Playwright-driven browser check against a clean dev server — all 4 auth pages + dashboard render with no console errors; unauthenticated /dashboard correctly redirects to /login; submitting signup with placeholder Supabase credentials was caught gracefully (dev log shows the real cause: `TypeError: fetch failed` / `getaddrinfo ENOTFOUND placeholder.supabase.co`) and surfaced as the bilingual generic-error message rather than crashing — proves the action/error-mapping code path is correct.",
+        "GAP (same root cause as setup-001): none of this feature's own verification criteria (email actually arrives, real login succeeds, real password reset completes) can be exercised until a real Supabase project replaces the placeholder credentials in .env.local. Do not mark passing until that's done and these three steps are re-run against a real project.",
+        "2026-07-13: Added a dummy-auth bypass (AUTH_DUMMY_MODE=true in .env.local, src/lib/auth/dummy.ts) at the user's request so the app is demoable before a real Supabase project exists — any email/password logs in via a plain cookie session, no real account/password/email involved. Verified end-to-end with Playwright: /dashboard redirects to /login when logged out, login redirects to /dashboard and shows the entered email, session persists across a direct reload, logout clears it and /dashboard gates again. This is a stand-in for demoing only — it does NOT satisfy this feature's verification criteria above and must be turned off (AUTH_DUMMY_MODE=false) once a real Supabase project is wired up."
+      ],
+      "notes": "PRD section 7.1. Email/password only — Google OAuth is Phase 2, out of MVP scope. UNBLOCKED 2026-07-13: setup-001 now has a real Supabase project and AUTH_DUMMY_MODE is off, so the dummy bypass in evidence above no longer applies. This feature's own verification steps (real signup + email delivery, real login, real password reset) still have not been run against the real project — that is the next work here, not yet done."
+    },
+    {
+      "id": "workspace-001",
+      "priority": 3,
+      "area": "workspace",
+      "title": "Create and manage workspaces (brand profiles)",
+      "user_visible_behavior": "After signing up, a user creates their first workspace (brand profile) as part of onboarding. From the dashboard, they can create additional workspaces and switch between them; each workspace has its own portfolio data, template, and publish status.",
+      "status": "not_started",
+      "verification": [
+        "Sign up and confirm the flow requires creating a first workspace (name/brand profile) before reaching the main dashboard.",
+        "From the dashboard, create a second workspace and confirm both workspaces are listed and independently switchable.",
+        "Confirm data-001/template-001 entered under one workspace does not leak into or overwrite another workspace's data."
+      ],
+      "evidence": [],
+      "notes": "PRD section 6, 7.1, 9.4 (added v1.3 at user's request 2026-07-13 — model is 1 account -> many workspaces, each workspace = 1 portfolio_data + 1 template selection + 1 site, replacing the earlier 1 account -> 1 portfolio assumption). This is new scope that data-001 and template-001 were built BEFORE — their dummy stores currently key by user email directly (one PortfolioData / one templateId per user, not per workspace) and will need reworking to key by workspace_id once this lands. Recommend building this before further work on publish-001/dashboard-001 so those aren't built against the stale per-user assumption too."
+    },
+    {
+      "id": "data-001",
+      "priority": 4,
+      "area": "portfolio-data",
+      "title": "Structured portfolio data form with auto-save",
+      "user_visible_behavior": "A user fills bio, experience, education, skills, projects, and contact info, and progress is auto-saved as draft.",
+      "status": "in_progress",
+      "verification": [
+        "Fill the form partially, reload the page, confirm data persisted.",
+        "Upload a profile photo and confirm it is compressed/stored."
+      ],
+      "evidence": [
+        "2026-07-13: Full form built at /dashboard/data — src/lib/portfolio/types.ts (PortfolioData contract, verbatim from PRD 9.4), src/components/portfolio/{PortfolioForm,PhotoUploadField,RepeatableSection}.tsx + sections/{Profile,Experience,Education,Skills,Projects,Contact,Socials}Section.tsx. Debounced client autosave (src/hooks/useAutosave.ts, 800ms) calls src/lib/portfolio/actions.ts:savePortfolioDataAction, which persists via src/lib/portfolio/store.ts.",
+        "2026-07-13: npm run lint, npx tsc --noEmit, npm run build all pass clean; 9 routes compile including the new /[locale]/dashboard/data.",
+        "2026-07-13: Playwright end-to-end (dummy-auth login -> /dashboard/data -> fill profile/experience/skill -> upload a real PNG through the file input -> autosave shows 'Tersimpan' -> full page reload) confirms both verification steps literally pass: all filled fields (including the added experience row and skill chip) and the compressed photo preview are still present after reload. Zero console errors.",
+        "GAP: persistence is currently src/lib/portfolio/store.ts, a per-user JSON file on local disk keyed by a hash of the session email (see its ponytail comment) — a stand-in for the real `portfolio_data`/Storage tables in PRD 9.4, same pattern as auth-001's dummy cookie session. The two verification steps above pass against this dummy store, but they have NOT been run against a real Supabase table + Storage bucket, and the 'user' the data is keyed to is itself a dummy session (auth-001 gap). Do not treat this as full completion until setup-001 has a real project, auth-001 uses real accounts, and this store is swapped for real Supabase reads/writes.",
+        "GAP (v1.3, workspace): this was built keyed by user email (one PortfolioData per user). PRD v1.3 introduces workspaces — one account can have many, each with its own Data General. src/lib/portfolio/store.ts and actions.ts need reworking to key by workspace_id instead of user email once workspace-001 lands; the form UI/components themselves are unaffected."
+      ],
+      "notes": "PRD section 7.2. The form writes the PortfolioData contract defined in PRD 9.4, one instance per workspace (v1.3). Blocked on the same missing real Supabase project as setup-001/auth-001 for real persistence; dummy JSON-file storage is in place so the form is usable/demoable now. Also needs the workspace_id rework noted above once workspace-001 ships."
+    },
+    {
+      "id": "template-001",
+      "priority": 5,
+      "area": "template",
+      "title": "Template gallery with live preview",
+      "user_visible_behavior": "A user browses 5 templates, picks one, and sees a real-time preview using their own data.",
+      "status": "passing",
+      "verification": [
+        "Switch between templates and confirm the same data renders correctly in each.",
+        "Change accent color/font and confirm preview updates live."
+      ],
+      "evidence": [
+        "2026-07-13: Built all 5 templates (src/components/templates/{Minimal,Bold,Creative,Corporate,Dark}Template.tsx), each accepting the exact PortfolioData contract, each omitting a section entirely when its array is empty (per this feature's notes), each with its own distinct layout (single-column serif / colored-hero+grid / project-grid-first / sidebar+timeline / dark+neon). Shared src/components/templates/shared.tsx (SocialIcon, initials avatar fallback, month formatting) instead of duplicating per template. Registry at src/components/templates/registry.tsx.",
+        "2026-07-13: src/components/dashboard/TemplatePicker.tsx — gallery of 5 cards (reuses the landing page's existing `Templates` translations instead of duplicating name/description copy), 6-swatch accent color picker + 4-option font picker (both PRD 7.3 'kustomisasi terbatas', not a free picker), live preview pane with a 500ms opacity crossfade on template switch (DESIGN.md §7). Both color/font changes and template selection autosave via the same useAutosave hook data-001 introduced.",
+        "2026-07-13: Fonts (Inter/Playfair Display/JetBrains Mono/Poppins for the 4 font options) are self-hosted via next/font/local, NOT next/font/google — build-time fetches to fonts.gstatic.com proved flaky in this environment (intermittent connection failures, confirmed by direct curl succeeding while Next's fetcher failed/hung); woff2s for the 3 needed weights per font were fetched once via curl and committed to public/fonts/, same approach as Clash Display in Session 004.",
+        "2026-07-13: npm run lint, npx tsc --noEmit, npm run build all pass clean; build lists all 10 routes including the new /[locale]/dashboard/template, with no network calls required at build time.",
+        "2026-07-13: Playwright end-to-end (dummy-logged-in, real portfolio data filled first) against /dashboard/template: default template renders the filled data correctly; switching to Bold shows the colored hero band with the same name/headline/experience/skill; switching to Dark shows the dark background with the same data; clicking an accent swatch changes the color live in the preview (screenshotted); clicking a font option updates the rendered font live; autosave indicator shows 'Tersimpan'; full page reload confirms both the template selection and the customization persisted. Zero console errors. Both listed verification steps pass on their own terms — neither mentions or requires a real Supabase backend, unlike auth-001/data-001's own criteria.",
+        "SCOPE NOTE: this passes on exactly what it's asked to verify (template rendering correctness + live customization), which is genuinely backend-independent — the template components take PortfolioData as a prop and don't care where it came from. It still runs on top of data-001's dummy portfolio store and auth-001's dummy session, so end-to-end 'a real user's real data' still depends on those features' own remaining gaps; this feature's rendering/live-preview logic itself won't need to change when that's resolved.",
+        "NOTE (v1.3, workspace): src/lib/templates/store.ts currently keys the selected templateId by user email (one selection per user) — same rework needed as data-001 once workspace-001 lands (key by workspace_id instead). Does not affect this feature's `passing` status: the rendering/live-preview verification already passed and doesn't depend on the storage key. Also, per the updated PRD 6/7.3 flow, the dashboard gallery should show demo data on the browse/compare step and only switch to the workspace's real Data General after \"Gunakan template ini\" is clicked — the current implementation shows live real-data preview immediately on selection, which is a minor sequencing difference from the v1.3 flow, worth revisiting alongside the workspace rework rather than as its own pass."
+      ],
+      "notes": "PRD section 7.3 (five template specs listed there). Every template must accept the PortfolioData contract from PRD 9.4 and render sensibly when optional fields are empty. Templates are explicitly out of DESIGN.md's scope (DESIGN.md §0) — they do not follow the app-shell design system."
+    },
+    {
+      "id": "template-002",
+      "priority": 6,
+      "area": "template",
+      "title": "Public template gallery on the landing page (Framer/Canva-style)",
+      "user_visible_behavior": "A visitor (no account) browses the 5 templates on the marketing landing page, each rendered with fixed demo data, and can click \"Use this template\" to carry that choice through signup so it's pre-applied to their first workspace.",
+      "status": "not_started",
+      "verification": [
+        "Visit the landing page's template gallery while logged out; confirm all 5 templates render with demo data (not a 401/redirect to login).",
+        "Click \"Use this template\" on one card, complete signup and first-workspace creation, and confirm that workspace's dashboard has the chosen template pre-selected instead of the default.",
+        "Confirm skipping the public gallery and signing up directly still works and falls back to the existing default template behavior."
+      ],
+      "evidence": [],
+      "notes": "PRD section 6 and 7.3 (v1.2 change, added at user's request 2026-07-13 — product model explicitly modeled on Framer/Canva's public template browsing; updated for v1.3's workspace concept — the carried-over template choice applies to the new account's FIRST workspace, not the account directly). Reuses template-001's existing TemplateRenderer/registry.tsx and the 5 template components unchanged — only new work is: (1) fixture demo PortfolioData per template (static in code, not DB-backed, per PRD 7.3), (2) a public, unauthenticated gallery page/section on the landing page, (3) a short-lived mechanism (e.g. cookie or query param) to carry the chosen templateId through signup + first-workspace creation and apply it once that workspace exists. Depends on workspace-001 landing first (needs a workspace to apply the choice to). Does not change or reopen template-001, which already passes on its own (dashboard, authenticated, live-data) scope."
+    },
+    {
+      "id": "publish-001",
+      "priority": 7,
+      "area": "publish",
+      "title": "Publish to a free subdomain via dynamic multi-tenant rendering",
+      "user_visible_behavior": "A user picks a unique subdomain name and publishes a workspace; that workspace's site is reachable at name.appku.com within seconds.",
+      "status": "not_started",
+      "verification": [
+        "Publish a workspace's site and load the subdomain URL, confirm it renders that workspace's chosen template with that workspace's data.",
+        "Attempt a duplicate/forbidden subdomain name and confirm it is rejected.",
+        "Unpublish and confirm the site goes offline; republish and confirm it comes back.",
+        "Confirm a user without an active subscription cannot publish and is directed to checkout instead."
+      ],
+      "evidence": [],
+      "notes": "PRD section 7.4 and 9.3 (middleware host-based rewrite, no per-workspace static build). `sites` belongs to `workspace_id` (v1.3, see 9.4) — depends on workspace-001 landing first. Publish is gated on an active subscription (PRD 7.6); until billing-001 lands, gate on the subscriptions table state set manually. Note the per-account-vs-per-workspace subscription question is still open (PRD 16) and affects how this gate should check."
+    },
+    {
+      "id": "dashboard-001",
+      "priority": 8,
+      "area": "dashboard",
+      "title": "User dashboard (status, manage data/template, billing)",
+      "user_visible_behavior": "A user sees a list of their workspaces, can create a new one, and within a workspace sees published/draft status, can switch template, and manage subscription.",
+      "status": "not_started",
+      "verification": [
+        "Open dashboard and confirm the workspace list matches the account's actual workspaces, with correct publish status per workspace.",
+        "Change template from within a workspace and confirm that workspace's live site updates."
+      ],
+      "evidence": [],
+      "notes": "PRD section 7.5. Workspace list/switcher is v1.3 scope, depends on workspace-001."
+    },
+    {
+      "id": "billing-001",
+      "priority": 9,
+      "area": "billing",
+      "title": "Publish gate: single paid subscription via Xendit",
+      "user_visible_behavior": "A user without a subscription can build and preview but not publish; completing checkout for the single monthly plan unlocks publish. When the subscription lapses, the site auto-unpublishes after a 7-day grace period; data is kept.",
+      "status": "not_started",
+      "verification": [
+        "Complete a test subscription checkout through Xendit sandbox and confirm publish unlocks.",
+        "Confirm webhook updates subscription status in the database.",
+        "Simulate subscription expiry and confirm grace period then auto-unpublish; confirm portfolio data survives and resubscribing restores publish."
+      ],
+      "evidence": [],
+      "notes": "PRD section 7.6, 10, and 15 (must be tested end-to-end including webhooks before go-live). Single plan, no tiers, not freemium. OPEN QUESTION (PRD 16, v1.3): does one subscription cover every workspace on the account, or does each workspace need its own? Current PRD default is per-account (simplest); confirm before building the gate so it isn't built against the wrong assumption."
+    }
+  ]
+}

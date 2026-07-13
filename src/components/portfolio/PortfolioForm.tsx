@@ -14,9 +14,15 @@ import { ProjectsSection } from "@/components/portfolio/sections/ProjectsSection
 import { ContactSection } from "@/components/portfolio/sections/ContactSection";
 import { SocialsSection } from "@/components/portfolio/sections/SocialsSection";
 
-export function PortfolioForm({ initialData }: { initialData: PortfolioData }) {
+export function PortfolioForm({
+  workspaceId,
+  initialData,
+}: {
+  workspaceId: string;
+  initialData: PortfolioData;
+}) {
   const [data, setData] = useState(initialData);
-  const status = useAutosave(data, savePortfolioDataAction);
+  const status = useAutosave(data, (d) => savePortfolioDataAction(workspaceId, d));
 
   const t = useTranslations("PortfolioForm");
   const tProfile = useTranslations("PortfolioForm.profile");

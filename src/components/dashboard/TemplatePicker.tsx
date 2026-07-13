@@ -13,9 +13,11 @@ import { Eyebrow } from "@/components/ui/CtaButton";
 import { FormPanel } from "@/components/ui/FormPanel";
 
 export function TemplatePicker({
+  workspaceId,
   initialData,
   initialTemplateId,
 }: {
+  workspaceId: string;
   initialData: PortfolioData;
   initialTemplateId: TemplateId;
 }) {
@@ -24,8 +26,8 @@ export function TemplatePicker({
   const [visibleTemplateId, setVisibleTemplateId] = useState(initialTemplateId);
   const fading = templateId !== visibleTemplateId;
 
-  const dataStatus = useAutosave(data, savePortfolioDataAction);
-  const templateStatus = useAutosave(templateId, saveTemplateIdAction);
+  const dataStatus = useAutosave(data, (d) => savePortfolioDataAction(workspaceId, d));
+  const templateStatus = useAutosave(templateId, (id) => saveTemplateIdAction(workspaceId, id));
 
   useEffect(() => {
     if (!fading) return;

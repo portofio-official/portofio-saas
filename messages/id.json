@@ -110,12 +110,32 @@
       "checkYourEmailSubtitle": "Kami sudah mengirim tautan konfirmasi ke emailmu."
     }
   },
-  "Dashboard": {
-    "title": "Dashboard",
-    "loggedInAs": "Masuk sebagai",
-    "editData": "Isi data portofolio",
-    "chooseTemplate": "Pilih template",
-    "logout": "Keluar"
+  "Workspace": {
+    "eyebrow": "Dashboard",
+    "title": "Workspace kamu",
+    "logout": "Keluar",
+    "listEyebrow": "Workspace",
+    "listTitle": "Semua workspace",
+    "create": {
+      "eyebrow": "Workspace baru",
+      "titleFirst": "Buat workspace pertamamu",
+      "title": "Tambah workspace",
+      "nameLabel": "Nama workspace",
+      "namePlaceholder": "mis. Portofolio Pribadi",
+      "submit": "Buat workspace",
+      "submitPending": "Membuat…"
+    },
+    "errors": {
+      "nameRequired": "Nama workspace wajib diisi.",
+      "notAuthenticated": "Sesi berakhir, silakan masuk lagi.",
+      "generic": "Terjadi kesalahan. Coba lagi."
+    },
+    "hub": {
+      "eyebrow": "Workspace",
+      "subtitle": "Kelola data dan template untuk workspace ini.",
+      "editData": "Isi data portofolio",
+      "chooseTemplate": "Pilih template"
+    }
   },
   "PortfolioForm": {
     "eyebrow": "Data portofolio",

@@ -110,12 +110,32 @@
       "checkYourEmailSubtitle": "We've sent a confirmation link to your inbox."
     }
   },
-  "Dashboard": {
-    "title": "Dashboard",
-    "loggedInAs": "Logged in as",
-    "editData": "Fill in portfolio data",
-    "chooseTemplate": "Choose template",
-    "logout": "Log out"
+  "Workspace": {
+    "eyebrow": "Dashboard",
+    "title": "Your workspaces",
+    "logout": "Log out",
+    "listEyebrow": "Workspaces",
+    "listTitle": "All workspaces",
+    "create": {
+      "eyebrow": "New workspace",
+      "titleFirst": "Create your first workspace",
+      "title": "Add workspace",
+      "nameLabel": "Workspace name",
+      "namePlaceholder": "e.g. Personal Portfolio",
+      "submit": "Create workspace",
+      "submitPending": "Creating…"
+    },
+    "errors": {
+      "nameRequired": "Workspace name is required.",
+      "notAuthenticated": "Your session has expired, please log in again.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "hub": {
+      "eyebrow": "Workspace",
+      "subtitle": "Manage this workspace's data and template.",
+      "editData": "Fill in portfolio data",
+      "chooseTemplate": "Choose template"
+    }
   },
   "PortfolioForm": {
     "eyebrow": "Portfolio data",

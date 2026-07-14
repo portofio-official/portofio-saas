@@ -305,3 +305,19 @@
   - `auth-001` cannot move to `passing` until the user updates the two Supabase email templates (Dashboard-only action, not something achievable from this environment) and the confirm/reset link flow is re-tested with the fix in place.
   - The existing commit history is 4 commits all literally titled "first commit" — not this session's concern to fix, but worth the user knowing if they care about commit message quality going forward.
 - Next best step: user updates the "Confirm signup" and "Reset Password" email templates per the exact snippets in `feature_list.json`'s auth-001 evidence, then re-run the same `generateLink`-based test to confirm the fix — that closes out `auth-001` entirely. After that, `template-002` or `publish-001` are both ready to start (see Session 012's notes — `publish-001` now has everything it needs except the still-open subscription-scope question in PRD §16).
+
+### Session 014
+
+- Date: 2026-07-14
+- Goal: Implement the new Ponytail-simplified user flow: Dashboard -> Editor (Unified Data + Template Preview).
+- Completed:
+  - Updated `PRD.md` to version 1.4, changing the flow and removing the separate "Data General" step. Documented the "Hybrid Template Storage" strategy (metadata in Supabase, components in `src/templates`).
+  - Created `Editor` component in `src/components/dashboard/Editor.tsx` combining both `PortfolioForm` and `TemplatePicker` functionalities side-by-side.
+  - Refactored `src/app/[locale]/dashboard/[workspaceId]/page.tsx` to directly render the new `Editor`.
+  - Deleted obsolete routes `/dashboard/[workspaceId]/data` and `/dashboard/[workspaceId]/template`.
+- Verification run:
+  - `npm run lint` and `npx tsc --noEmit` pass clean after cleaning `.next` cache.
+- Evidence captured: recorded in `feature_list.json`.
+- Commits: none by me this session.
+- Known risk or unresolved issue: none.
+- Next best step: Build out the remaining backend connections for the unified editor (auto-saving works, but might need UX polish).

@@ -1,9 +1,10 @@
 import { getTranslations } from "next-intl/server";
-import { redirect } from "@/i18n/navigation";
+import { redirect, Link } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { getWorkspace } from "@/lib/workspace/queries";
-import { AuthCard } from "@/components/auth/AuthCard";
-import { CtaButton } from "@/components/ui/CtaButton";
+import { getPortfolioData } from "@/lib/portfolio/store";
+import { getSelectedTemplateId } from "@/lib/templates/store";
+import { Editor } from "@/components/dashboard/Editor";
 
 export default async function WorkspacePage({
   params,
@@ -22,18 +23,21 @@ export default async function WorkspacePage({
     return redirect({ href: "/dashboard", locale });
   }
 
-  const t = await getTranslations("Workspace.hub");
+  const [data, templateId, t] = await Promise.all([
+    getPortfolioData(workspaceId),
+    getSelectedTemplateId(workspaceId),
+    getTranslations("TemplatePicker"),
+  ]);
 
   return (
-    <AuthCard eyebrow={t("eyebrow")} title={workspace.name} subtitle={t("subtitle")}>
-      <div className="flex flex-col gap-4">
-        <CtaButton label={t("editData")} href={`/dashboard/${workspaceId}/data`} />
-        <CtaButton
-          label={t("chooseTemplate")}
-          href={`/dashboard/${workspaceId}/template`}
-          variant="secondary"
-        />
-      </div>
-    </AuthCard>
+    <div className="mx-auto max-w-[90rem] px-4 py-8 md:px-8 md:py-12">
+      <Link
+        href="/dashboard"
+        className="mb-8 inline-block text-sm text-ink-soft hover:text-ink"
+      >
+        &larr; {t("backToDashboard")}
+      </Link>
+      <Editor workspaceId={workspaceId} initialData={data} initialTemplateId={templateId} />
+    </div>
   );
 }

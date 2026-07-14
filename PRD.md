@@ -1,8 +1,8 @@
 # Product Requirements Document (PRD)
 ## Portofio - SaaS Portfolio Website Builder
 
-**Versi**: 1.3
-**Tanggal**: 13 Juli 2026
+**Versi**: 1.4
+**Tanggal**: 14 Juli 2026
 **Disusun oleh**: Maulana Chandra Irawan
 **Status**: Siap untuk development
 
@@ -11,6 +11,8 @@
 > Perubahan v1.2: alur utama diubah mengikuti pola Framer/Canva — galeri 5 template kini juga tampil **publik di landing page** (sebelum daftar), diisi data contoh/demo per template supaya calon pengguna bisa lihat hasil jadi sebelum commit. Memilih template di galeri publik lalu mendaftar akan membawa pilihan itu otomatis ke akun baru; template tetap bisa diganti kapan saja dari dashboard seperti sebelumnya. Lihat section 6 dan 7.3.
 >
 > Perubahan v1.3: ditambahkan konsep **Workspace** — satu akun dapat memiliki lebih dari satu workspace (brand profile), masing-masing dengan data portofolio, pilihan template, dan subdomain publish sendiri-sendiri (sebelumnya diasumsikan 1 akun = 1 portofolio). Alur pengguna dirinci: setelah daftar, pengguna membuat workspace pertama lalu mengisi Data General; di dalam workspace, memilih template menampilkan preview dengan **data dummy** dulu, baru setelah "Gunakan template" pengguna masuk ke form khusus yang auto-fill dari Data General dan hanya minta field yang belum terisi (bukan field unik per template — kontrak data tetap satu untuk semua template, lihat 7.3/9.4). Ditambahkan langkah Review eksplisit sebelum Deploy (=Publish). Skema data (9.4) dan model billing (7.6) disesuaikan; harga per-workspace vs per-akun dicatat sebagai open question (16) karena belum diputuskan.
+>
+> Perubahan v1.4: Menyederhanakan alur pengguna (Ponytail mode). Menghapus langkah isi "Data General" di awal. Pengguna langsung masuk ke Dashboard setelah login untuk memilih template, lalu mengisi data spesifik di dalam Editor (mirip Framer).
 
 ---
 
@@ -57,10 +59,10 @@ Karakteristik:
 ## 5. Ruang Lingkup (Scope)
 
 ### MVP (Fase 1)
-- Registrasi dan autentikasi pengguna
-- **Workspace** (v1.3): satu akun dapat memiliki lebih dari satu workspace/brand profile, masing-masing dengan Data General, pilihan template, dan subdomain publish sendiri. Akun baru membuat workspace pertama sebagai bagian dari onboarding; workspace tambahan dibuat dari dashboard. Lihat section 6, 7.2, 9.4.
-- Galeri 5 template publik di landing page (dapat dilihat tanpa login, diisi data contoh/demo per template) — model ala Framer/Canva, lihat section 6 dan 7.3
-- Form input data terstruktur per workspace (biodata, pengalaman, skill, project/karya, kontak, sosial media) — "Data General"
+- Registrasi dan autentikasi pengguna via email/password.
+- **Workspace**: satu akun dapat memiliki lebih dari satu workspace/brand profile. Workspace tambahan dapat dibuat dari dashboard.
+- Landing page untuk marketing.
+- Editor form per workspace (biodata, pengalaman, skill, project/karya, kontak, sosial media) yang diisi langsung di dalam halaman Editor Template.
 - 5 template siap pakai untuk peluncuran awal (struktur tetap, tanpa kustomisasi bebas; kontrak data sama untuk semua template — tidak ada field unik per template)
 - Kustomisasi dasar tema (warna aksen, pilihan font terbatas)
 - Live preview real-time saat mengisi data — preview galeri (sebelum pilih) memakai data dummy, preview setelah "Gunakan template" memakai Data General workspace yang aktif
@@ -84,20 +86,12 @@ Karakteristik:
 
 ```mermaid
 flowchart TD
-    Z[Landing page: galeri template publik + data demo] -- Pilih template --> Z2[Simpan pilihan sementara]
-    Z -- Lewati --> A
-    Z2 --> A[Daftar / Login]
-    A --> W[Buat Workspace / Brand Profile]
-    W --> B[Isi Data General]
-    B --> Dash[Dashboard]
+    Z[Landing Page] --> A[Daftar / Login]
+    A --> Dash[Dashboard / Templates]
     Dash --> C[Pilih Template]
-    C --> C2[Preview template dengan data dummy]
-    C2 -- Lihat template lain --> C
-    C2 -- Gunakan template ini --> C4[Form Data Template: auto-fill dari Data General + lengkapi field yang kosong]
-    C4 --> D[Live Preview dengan Data General workspace ini]
-    D --> R[Review]
-    R -- Edit data --> C4
-    R -- Ganti template --> C
+    C --> C4[Editor Template: Isi Data Spesifik & Live Preview]
+    C4 --> R[Review]
+    R -- Edit data / Ganti template --> C4
     R -- Siap deploy --> P{Langganan aktif?}
     P -- Belum --> Q[Checkout langganan via Xendit]
     Q --> F[Deploy]
@@ -105,19 +99,16 @@ flowchart TD
     F --> G[Sistem generate subdomain unik]
     G --> H[Website live, dapat diakses publik]
     H --> I[Kelola lewat Dashboard]
-    I -- Tambah workspace baru --> W
-    I -- Update data/template workspace ini --> C
+    I -- Tambah workspace baru --> Dash
     I -- Unpublish sementara --> J[Website offline]
     J -- Republish --> H
 ```
 
-Poin penting dari alur di atas: membuat portofolio dan melihat preview sepenuhnya gratis — pengguna bebas bolak-balik edit data atau ganti template tanpa kehilangan progres. Gerbang berbayar hanya ada di langkah Deploy (=Publish): tanpa langganan aktif, tombol Deploy mengarahkan ke checkout. Setelah live, pengguna tetap bisa memperbarui atau unpublish/republish kapan saja lewat dashboard selama langganan aktif.
-
-**Workspace (baru di v1.3):** satu akun dapat memiliki lebih dari satu workspace — tiap workspace adalah satu brand/portofolio dengan Data General, template, dan subdomain publish sendiri-sendiri (skema: 9.4). Akun baru membuat workspace pertama sebagai bagian onboarding; workspace tambahan dibuat kapan saja dari dashboard ("Tambah workspace baru"). "Data General" (nama, headline, bio, pengalaman, pendidikan, skill, project, kontak, sosmed — kontrak `PortfolioData` yang sama seperti sebelumnya, lihat 9.4) diisi **per workspace**, bukan sekali untuk seluruh akun, karena tiap workspace mewakili identitas/brand yang bisa berbeda-beda.
-
-**Galeri template publik** (v1.2, pola ala Framer/Canva): calon pengguna bisa menjelajahi kelima template di landing page — tanpa login — masing-masing diisi **data contoh/demo**, bukan data pengguna sungguhan. Memilih template di sana menyimpan pilihan itu sementara (mis. cookie/query param berumur pendek); begitu pengguna mendaftar dan membuat workspace pertamanya, pilihan tersebut otomatis diterapkan. Pengguna yang melewati galeri publik tetap mendapat template default. Template tetap 100% bisa diganti kapan saja dari dashboard — galeri publik ini murni mempercepat first impression, bukan mengunci pilihan.
-
-**Galeri template dashboard** (di dalam workspace, v1.3 memperjelas urutannya): memilih kartu template di galeri ini menampilkan preview dengan **data dummy** dulu (bukan langsung Data General workspace) — supaya pengguna bisa bandingkan karakter tiap template dengan cepat tanpa data mereka "melompat-lompat" tampilannya. Baru setelah klik "Gunakan template ini", sistem masuk ke Form Data Template: auto-fill dari Data General workspace yang aktif, lalu hanya minta field yang belum terisi. **Field-nya sama untuk kelima template** — tidak ada field unik per template — jadi berpindah template tidak pernah memaksa isi ulang dari nol, sejalan dengan 7.3. Setelah itu barulah Live Preview memakai data asli, diikuti langkah Review sebelum Deploy.
+Poin penting dari alur di atas (Ponytail simplified flow):
+1. Pengguna daftar/login.
+2. Langsung diarahkan ke Dashboard untuk memilih template.
+3. Setelah klik template, pengguna masuk ke **Editor**. Di sini mereka mengisi biodata dan data portofolio melalui panel form, sembari melihat live preview. Tidak ada langkah "Isi Biodata" yang terpisah (YAGNI).
+4. Gerbang berbayar hanya ada di langkah Deploy (=Publish): tanpa langganan aktif, tombol Deploy mengarahkan ke checkout.
 
 ## 7. Functional Requirements
 
@@ -126,19 +117,19 @@ Poin penting dari alur di atas: membuat portofolio dan melihat preview sepenuhny
 - Verifikasi email
 - Reset password
 - Manajemen profil akun
-- **Workspace (v1.3)**: setelah registrasi, pengguna membuat workspace pertama (nama/brand profile) sebagai bagian onboarding — lihat alur di section 6. Satu akun bisa memiliki banyak workspace, dibuat kapan saja dari dashboard. Setiap workspace punya Data General, pilihan template, dan status publish sendiri-sendiri (skema: 9.4); tidak ada data yang otomatis dibagi antar workspace dalam satu akun
+- **Workspace**: satu akun bisa memiliki banyak workspace, dibuat kapan saja dari dashboard. Setiap workspace memiliki data, pilihan template, dan status publish sendiri-sendiri.
 
-### 7.2 Input Data Portofolio ("Data General")
-- Form terstruktur per workspace: identitas diri, foto profil, ringkasan/bio, pengalaman kerja, pendidikan, skill, daftar project (judul, deskripsi, gambar, link), kontak, tautan sosial media
-- Validasi input dan upload gambar dengan kompresi otomatis
-- Auto-save draft
+### 7.2 Editor dan Input Data Portofolio
+- Form input terintegrasi langsung di halaman **Editor Template** (seperti Framer). Panel form berdampingan dengan Live Preview.
+- Data yang diisi (identitas diri, bio, pengalaman, dll) secara otomatis tersimpan di workspace tersebut.
+- Validasi input dan upload gambar dengan kompresi otomatis.
+- Auto-save draft.
 
 ### 7.3 Template dan Kustomisasi
-- **Galeri publik** di landing page (v1.2): kelima template dapat dijelajahi tanpa login, masing-masing dirender dengan **data contoh/demo** tetap (bukan data pengguna). Tiap kartu template punya CTA "Gunakan template ini" yang membawa pilihan ke proses daftar.
-- **Galeri dashboard**: setelah login, galeri yang sama dirender ulang menggunakan data pengguna sungguhan (live preview) — ini yang sudah dibangun (`template-001`) dan tidak berubah.
-- Setiap template menerima struktur data yang sama (`PortfolioData`, lihat 9.4) sehingga pengguna bebas berganti template tanpa isi ulang data — berlaku baik untuk galeri publik (data demo) maupun galeri dashboard (data asli)
-- Kustomisasi terbatas: skema warna dan pilihan font
-- Preview real-time saat ganti template atau kustomisasi
+- **Dashboard Galeri**: setelah login, user disuguhkan pilihan template.
+- Setiap template menerima struktur data yang sama (`PortfolioData`, lihat 9.4).
+- Kustomisasi terbatas: skema warna dan pilihan font, diatur langsung di Editor.
+- Live Preview real-time: perubahan input data dan kustomisasi langsung terlihat.
 
 Lima template peluncuran (nama kerja, masing-masing satu karakter desain yang jelas):
 
@@ -216,15 +207,19 @@ Mengingat sudah familiar dengan ekosistem Next.js/React dan Supabase, berikut re
 - Vercel direkomendasikan untuk MVP karena dukungan native terhadap wildcard subdomain routing, SSL otomatis, dan overhead DevOps minim
 - Alternatif jika ingin kontrol penuh dan biaya lebih rendah di skala besar: VPS + Docker + Traefik/Nginx untuk wildcard SSL, dengan kompleksitas operasional yang lebih tinggi
 
-### 9.3 Arsitektur Multi-Tenant dan Subdomain Routing
+### 9.3 Arsitektur Multi-Tenant dan Penyimpanan Template
 
-Alur teknis:
+Sistem menggunakan pendekatan **Hybrid Template Storage**:
+- **Metadata Template (di Database)**: Tabel `templates` di Supabase menyimpan data seperti `id`, `name`, `thumbnail_url`, dan `category`. Hal ini memungkinkan Dashboard meload daftar ratusan template secara dinamis.
+- **Kode UI Template (di Codebase)**: Kode desain (React Components / `.tsx`) murni disimpan di codebase `src/templates/`. Pendekatan ini (Ponytail mode) dipilih untuk keamanan (mencegah XSS/eksekusi kode dari DB), menghindari *over-engineering* membuat engine JSON-to-UI, serta memanfaatkan *Code Splitting* bawaan Next.js yang hanya me-load komponen template terkait ke memori.
+
+Alur rendering teknis:
 
 1. DNS wildcard (*.appku.com) diarahkan ke aplikasi
 2. Next.js Middleware membaca header host dari setiap request masuk
 3. Middleware mengekstrak subdomain dan melakukan rewrite ke route dinamis, misalnya /sites/[subdomain]
-4. Route tersebut melakukan query ke database berdasarkan subdomain untuk mengambil data pengguna dan template yang dipilih
-5. Halaman dirender menggunakan komponen template yang sesuai, setiap template adalah komponen React yang menerima struktur data yang sama sebagai props
+4. Route tersebut melakukan query ke database berdasarkan subdomain untuk mengambil data pengguna dan ID template yang dipilih
+5. Halaman dirender menggunakan komponen template dari `src/templates/` yang sesuai, setiap template adalah komponen React yang menerima struktur data yang sama sebagai props
 6. Gunakan ISR (Incremental Static Regeneration) atau caching di edge untuk menjaga performa tanpa perlu build ulang setiap kali data berubah
 
 ### 9.4 Skema Data

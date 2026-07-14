@@ -12,7 +12,16 @@ import { TemplateRenderer } from "@/components/templates/registry";
 import { Eyebrow } from "@/components/ui/CtaButton";
 import { FormPanel } from "@/components/ui/FormPanel";
 
-export function TemplatePicker({
+// Portofolio Form Sections
+import { ProfileSection } from "@/components/portfolio/sections/ProfileSection";
+import { ExperienceSection } from "@/components/portfolio/sections/ExperienceSection";
+import { EducationSection } from "@/components/portfolio/sections/EducationSection";
+import { SkillsSection } from "@/components/portfolio/sections/SkillsSection";
+import { ProjectsSection } from "@/components/portfolio/sections/ProjectsSection";
+import { ContactSection } from "@/components/portfolio/sections/ContactSection";
+import { SocialsSection } from "@/components/portfolio/sections/SocialsSection";
+
+export function Editor({
   workspaceId,
   initialData,
   initialTemplateId,
@@ -41,6 +50,15 @@ export function TemplatePicker({
   const templateItems = tTemplates.raw("items") as { name: string; description: string }[];
   const status = dataStatus === "saving" || templateStatus === "saving" ? "saving" : dataStatus;
 
+  // Form translations
+  const tProfile = useTranslations("PortfolioForm.profile");
+  const tExperience = useTranslations("PortfolioForm.experience");
+  const tEducation = useTranslations("PortfolioForm.education");
+  const tSkills = useTranslations("PortfolioForm.skills");
+  const tProjects = useTranslations("PortfolioForm.projects");
+  const tContact = useTranslations("PortfolioForm.contact");
+  const tSocials = useTranslations("PortfolioForm.socials");
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
@@ -54,7 +72,8 @@ export function TemplatePicker({
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="flex flex-col gap-6 lg:col-span-5">
+        <div className="flex flex-col gap-6 lg:col-span-5 h-[720px] overflow-y-auto pr-2 pb-8">
+          
           <FormPanel eyebrow={tTemplates("eyebrow")} title={tTemplates("title")}>
             <div className="flex flex-col gap-3">
               {TEMPLATE_IDS.map((id, index) => {
@@ -122,14 +141,54 @@ export function TemplatePicker({
               </div>
             </div>
           </FormPanel>
+
+          <ProfileSection
+            t={tProfile}
+            profile={data.profile}
+            onChange={(patch) => setData((d) => ({ ...d, profile: { ...d.profile, ...patch } }))}
+          />
+          <ExperienceSection
+            t={tExperience}
+            items={data.experiences}
+            onChange={(experiences) => setData((d) => ({ ...d, experiences }))}
+          />
+          <EducationSection
+            t={tEducation}
+            items={data.educations}
+            onChange={(educations) => setData((d) => ({ ...d, educations }))}
+          />
+          <SkillsSection
+            eyebrow={tSkills("eyebrow")}
+            title={tSkills("title")}
+            placeholder={tSkills("placeholder")}
+            removeLabel={tSkills("removeLabel")}
+            skills={data.skills}
+            onChange={(skills) => setData((d) => ({ ...d, skills }))}
+          />
+          <ProjectsSection
+            t={tProjects}
+            items={data.projects}
+            onChange={(projects) => setData((d) => ({ ...d, projects }))}
+          />
+          <ContactSection
+            t={tContact}
+            contact={data.contact}
+            onChange={(patch) => setData((d) => ({ ...d, contact: { ...d.contact, ...patch } }))}
+          />
+          <SocialsSection
+            t={tSocials}
+            items={data.socials}
+            onChange={(socials) => setData((d) => ({ ...d, socials }))}
+          />
+
         </div>
 
         <div className="lg:col-span-7">
-          <div className="rounded-[2rem] bg-shell/80 p-1.5 ring-1 ring-black/5">
+          <div className="sticky top-6 rounded-[2rem] bg-shell/80 p-1.5 ring-1 ring-black/5">
             <div className="flex flex-col gap-3 rounded-[calc(2rem-0.375rem)] bg-surface p-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_1px_2px_rgba(23,23,26,0.04)] ring-1 ring-black/[0.04]">
               <span className="px-2 pt-1 text-[13px] text-ink-soft">{t("previewLabel")}</span>
               <div
-                className={`h-[720px] overflow-y-auto rounded-2xl transition-opacity duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+                className={`h-[650px] overflow-y-auto rounded-2xl transition-opacity duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
                   fading ? "opacity-0" : "opacity-100"
                 }`}
               >

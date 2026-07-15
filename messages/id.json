@@ -1,60 +1,141 @@
 {
-  "Nav": {
-    "features": "Fitur",
-    "templates": "Template",
-    "pricing": "Harga",
-    "login": "Masuk",
-    "openMenu": "Buka menu",
-    "closeMenu": "Tutup menu"
-  },
-  "Hero": {
-    "eyebrow": "Portfolio builder",
-    "title": "Portofolio profesional, tanpa drag-and-drop.",
-    "subtitle": "Isi form sekali, pilih template, dan portofoliomu siap tayang di subdomain sendiri dalam hitungan menit.",
-    "ctaPrimary": "Mulai gratis",
-    "ctaSecondary": "Lihat template",
-    "previewLabel": "namamu.appku.com",
-    "previewStatus": "Live preview"
-  },
-  "Features": {
-    "eyebrow": "Kenapa Portofio",
-    "title": "Semua yang kamu butuh, tidak lebih.",
-    "items": [
-      { "title": "Cukup isi form", "description": "Tidak ada drag-and-drop yang membingungkan. Isi bio, pengalaman, dan proyekmu lewat form terstruktur." },
-      { "title": "5 template siap pakai", "description": "Pilih tampilan yang cocok — Minimal, Bold, Creative, Corporate, atau Dark — ganti kapan saja." },
-      { "title": "Auto-save", "description": "Progres tersimpan otomatis. Tutup tab, lanjutkan nanti, tidak ada yang hilang." },
-      { "title": "Publish instan", "description": "Terbitkan ke namamu.appku.com begitu langgananmu aktif." }
-    ]
-  },
-  "Templates": {
-    "eyebrow": "Template",
-    "title": "5 gaya, satu data.",
-    "subtitle": "Ganti template kapan saja — datamu otomatis menyesuaikan ke tampilan baru.",
-    "items": [
-      { "name": "Minimal", "description": "Putih bersih, tipografi serif, satu kolom, fokus ke teks." },
-      { "name": "Bold", "description": "Warna aksen kuat, heading besar, cocok untuk creative/marketer." },
-      { "name": "Creative", "description": "Grid project menonjol di atas, cocok untuk desainer/fotografer." },
-      { "name": "Corporate", "description": "Rapi dan formal, timeline pengalaman kerja menonjol." },
-      { "name": "Dark", "description": "Tema gelap, aksen neon, cocok untuk developer/tech." }
-    ]
-  },
-  "Pricing": {
-    "eyebrow": "Harga",
-    "title": "Satu paket, semua fitur.",
-    "subtitle": "Gratis untuk membangun dan melihat pratinjau. Bayar hanya saat kamu siap tayang.",
-    "price": "Rp[X]",
-    "period": "/bulan",
-    "cta": "Mulai berlangganan",
-    "features": [
-      "Publish ke subdomain sendiri",
-      "5 template premium",
-      "Auto-save tanpa batas",
-      "Ganti template kapan saja"
-    ]
-  },
-  "Footer": {
-    "tagline": "Portofolio profesional, dibangun dalam hitungan menit.",
-    "rights": "Seluruh hak cipta dilindungi."
+  "Landing": {
+    "Navbar": {
+      "home": "Beranda",
+      "templates": "Template",
+      "pricing": "Harga",
+      "login": "Masuk",
+      "dashboard": "Dashboard"
+    },
+    "Hero": {
+      "titleLine1": "Portofolio yang",
+      "titleAccent": "benar-benar",
+      "titleLine2": "membuatmu",
+      "titleLine3": "diterima kerja.",
+      "subtitle": "Buat website profesional yang memukau dalam hitungan menit. Cocok untuk Marketer, Data Analyst, dan Edukator yang ingin tampil menonjol.",
+      "cta": "Mulai Sekarang",
+      "ctaDashboard": "Ke Dashboard",
+      "usersJoining": "Pengguna bergabung"
+    },
+    "TemplateShowcase": {
+      "heading": "Template yang Memukau",
+      "subheading": "Lihat dunia lewat sudut pandang kami: portofolio indah untuk setiap kreator",
+      "basic": "Dasar",
+      "premium": "Premium",
+      "viewMore": "Lihat Lainnya →",
+      "items": [
+        { "category": "Desainer", "name": "Minimalist" },
+        { "category": "Developer", "name": "Clean Code" },
+        { "category": "Penulis", "name": "Typewriter" },
+        { "category": "Marketer", "name": "Brand Story" },
+        { "category": "Kreator", "name": "Vlog Flow" },
+        { "category": "Agensi", "name": "Studio Flow" },
+        { "category": "Tech Pro", "name": "Cyber Space" },
+        { "category": "Korporat", "name": "Business Elite" },
+        { "category": "E-Commerce", "name": "Shop Prime" },
+        { "category": "Fotografer", "name": "Lens Master" }
+      ]
+    },
+    "PricingPlans": {
+      "headingPrefix": "Sederhana, Transparan",
+      "headingHighlight": "Harga",
+      "subheading": "Mulai gratis, upgrade saat butuh lebih. Batalkan kapan saja.",
+      "monthly": "Bulanan",
+      "annually": "Tahunan",
+      "save": "Hemat 20%",
+      "getStarted": "Mulai Sekarang",
+      "contactSales": "Hubungi Sales",
+      "ctaDashboard": "Ke Dashboard",
+      "tiers": [
+        {
+          "title": "Basic",
+          "description": "Cocok untuk memulai",
+          "cta": "Mulai Sekarang",
+          "featuresTitle": "Yang kamu dapatkan:",
+          "features": ["1 Website Portofolio", "Template Standar", "Subdomain Portofio", "Domain Kustom", "Analitik Lanjutan"]
+        },
+        {
+          "title": "Premium",
+          "description": "Untuk kreator serius",
+          "cta": "Mulai Sekarang",
+          "featuresTitle": "Semua di Basic, plus:",
+          "features": ["5 Website Portofolio", "Template Premium", "Dukungan Domain Kustom", "Analitik Dasar", "Hapus Branding"]
+        },
+        {
+          "title": "Custom",
+          "description": "Untuk agensi dan studio",
+          "cta": "Hubungi Sales",
+          "featuresTitle": "Semua di Premium, plus:",
+          "features": ["Website Tanpa Batas", "Analitik Lanjutan", "Alat Serah Terima Klien", "Custom CSS/JS", "Dukungan Prioritas 24/7"]
+        }
+      ]
+    },
+    "Testimonials": {
+      "heading": "Testimoni",
+      "subheading": "Dengarkan cerita sukses dari para profesional yang telah menggunakan platform kami.",
+      "items": [
+        {
+          "name": "Sarah Wijaya",
+          "role": "Digital Marketer",
+          "content": "Berkat portofolio dari sini, saya berhasil memenangkan 3 klien besar bulan ini. Tampilannya sangat profesional dan sangat mudah disesuaikan!"
+        },
+        {
+          "name": "Budi Santoso",
+          "role": "Data Analyst",
+          "content": "Desainnya luar biasa bersih. Saya tidak mengerti coding sama sekali, tapi saya bisa mengatur portofolio data saya dalam waktu kurang dari 10 menit."
+        },
+        {
+          "name": "Amanda Putri",
+          "role": "UI/UX Designer",
+          "content": "Animasi scroll dan detail micro-interaction di sini sangat memukau. Sangat merepresentasikan kualitas dan karakter kerja saya sebagai desainer kreatif."
+        },
+        {
+          "name": "Reza Mahendra",
+          "role": "Freelance Photographer",
+          "content": "Platform ini adalah penyelamat hidup! Klien sering memuji seberapa elegan dan responsifnya galeri foto saya saat diakses melalui smartphone."
+        }
+      ]
+    },
+    "FAQ": {
+      "heading": "Pertanyaan Umum",
+      "subheading": "Beberapa hal yang paling sering ditanyakan oleh pengguna baru kami.",
+      "viewAll": "Lihat Semua Pertanyaan →",
+      "comingSoon": "Halaman Semua FAQ akan segera hadir!",
+      "items": [
+        {
+          "question": "Apakah butuh skill coding?",
+          "answer": "Sama sekali tidak! Platform kami menggunakan sistem visual drag-and-drop yang sangat mudah dipelajari oleh siapa saja."
+        },
+        {
+          "question": "Berapa lama proses pembuatannya?",
+          "answer": "Hanya butuh waktu kurang dari 15 menit untuk online, berkat ratusan template siap pakai yang bisa langsung Anda sesuaikan."
+        },
+        {
+          "question": "Bisa pakai domain sendiri?",
+          "answer": "Tentu! Anda bisa menghubungkan domain kustom (misal: nama-anda.com) di semua paket layanan kami dengan mudah."
+        },
+        {
+          "question": "Adakah bantuan teknis?",
+          "answer": "Ya, tim dukungan pelanggan kami siap membantu Anda 24/7 melalui fitur live chat di dalam dashboard."
+        }
+      ]
+    },
+    "Footer": {
+      "tagline": "Platform pembuatan portofolio terkemuka untuk desainer dan developer.",
+      "productHeading": "Produk",
+      "template": "Template",
+      "pricing": "Harga",
+      "resourcesHeading": "Sumber Daya",
+      "guide": "Panduan",
+      "help": "Bantuan",
+      "companyHeading": "Perusahaan",
+      "aboutUs": "Tentang Kami",
+      "contact": "Kontak",
+      "copyright": "© {year} Portofio. Hak Cipta Dilindungi.",
+      "privacy": "Privasi",
+      "terms": "Syarat",
+      "backToTop": "Kembali ke Atas ↑"
+    }
   },
   "Auth": {
     "login": {

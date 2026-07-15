@@ -11,6 +11,7 @@ export async function createWorkspaceAction(
   formData: FormData,
 ): Promise<CreateWorkspaceState> {
   const name = String(formData.get("name") ?? "").trim();
+  const templateId = String(formData.get("templateId") ?? "").trim();
   if (!name) return { error: "nameRequired" };
 
   const supabase = await createClient();
@@ -27,5 +28,10 @@ export async function createWorkspaceAction(
 
   if (error || !workspace) return { error: "generic" };
 
-  return redirect({ href: `/dashboard/${workspace.id}/data`, locale: await getLocale() });
+  if (templateId) {
+    const { saveTemplateIdAction } = await import("@/lib/templates/actions");
+    await saveTemplateIdAction(workspace.id, templateId as any);
+  }
+
+  return redirect({ href: `/dashboard/${workspace.id}/editor`, locale: await getLocale() });
 }

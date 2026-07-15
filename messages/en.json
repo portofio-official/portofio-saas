@@ -1,60 +1,141 @@
 {
-  "Nav": {
-    "features": "Features",
-    "templates": "Templates",
-    "pricing": "Pricing",
-    "login": "Log in",
-    "openMenu": "Open menu",
-    "closeMenu": "Close menu"
-  },
-  "Hero": {
-    "eyebrow": "Portfolio builder",
-    "title": "A professional portfolio, no drag-and-drop.",
-    "subtitle": "Fill in a form once, pick a template, and your portfolio is live on your own subdomain in minutes.",
-    "ctaPrimary": "Start for free",
-    "ctaSecondary": "See templates",
-    "previewLabel": "yourname.appku.com",
-    "previewStatus": "Live preview"
-  },
-  "Features": {
-    "eyebrow": "Why Portofio",
-    "title": "Everything you need, nothing you don't.",
-    "items": [
-      { "title": "Just fill a form", "description": "No confusing drag-and-drop. Add your bio, experience, and projects through a structured form." },
-      { "title": "5 ready-made templates", "description": "Pick a look that fits — Minimal, Bold, Creative, Corporate, or Dark — switch anytime." },
-      { "title": "Auto-save", "description": "Progress saves automatically. Close the tab, come back later, nothing is lost." },
-      { "title": "Publish instantly", "description": "Go live at yourname.appku.com the moment your subscription is active." }
-    ]
-  },
-  "Templates": {
-    "eyebrow": "Templates",
-    "title": "5 styles, one dataset.",
-    "subtitle": "Switch templates anytime — your data reflows into the new look automatically.",
-    "items": [
-      { "name": "Minimal", "description": "Clean white, serif type, single column, text-first." },
-      { "name": "Bold", "description": "Strong accent color, oversized headings, built for creatives and marketers." },
-      { "name": "Creative", "description": "Project grid takes center stage — ideal for designers and photographers." },
-      { "name": "Corporate", "description": "Tidy and formal, work-experience timeline front and center." },
-      { "name": "Dark", "description": "Dark theme, neon accent, made for developers and tech folks." }
-    ]
-  },
-  "Pricing": {
-    "eyebrow": "Pricing",
-    "title": "One plan, every feature.",
-    "subtitle": "Free to build and preview. Pay only when you're ready to publish.",
-    "price": "Rp[X]",
-    "period": "/month",
-    "cta": "Start subscription",
-    "features": [
-      "Publish to your own subdomain",
-      "5 premium templates",
-      "Unlimited auto-save",
-      "Switch templates anytime"
-    ]
-  },
-  "Footer": {
-    "tagline": "A professional portfolio, built in minutes.",
-    "rights": "All rights reserved."
+  "Landing": {
+    "Navbar": {
+      "home": "Home",
+      "templates": "Templates",
+      "pricing": "Pricing",
+      "login": "Login",
+      "dashboard": "Dashboard"
+    },
+    "Hero": {
+      "titleLine1": "Portfolios that",
+      "titleAccent": "actually",
+      "titleLine2": "get you",
+      "titleLine3": "hired.",
+      "subtitle": "Create stunning, professional websites in minutes. Perfect for Marketers, Data Analysts, and Educators looking to stand out.",
+      "cta": "Get Started",
+      "ctaDashboard": "Go to Dashboard",
+      "usersJoining": "Users joining"
+    },
+    "TemplateShowcase": {
+      "heading": "Stunning Templates",
+      "subheading": "See the world through our lens: beautiful portfolios for every creator",
+      "basic": "Basic",
+      "premium": "Premium",
+      "viewMore": "View More →",
+      "items": [
+        { "category": "Designer", "name": "Minimalist" },
+        { "category": "Developer", "name": "Clean Code" },
+        { "category": "Writer", "name": "Typewriter" },
+        { "category": "Marketer", "name": "Brand Story" },
+        { "category": "Creator", "name": "Vlog Flow" },
+        { "category": "Agency", "name": "Studio Flow" },
+        { "category": "Tech Pro", "name": "Cyber Space" },
+        { "category": "Corporate", "name": "Business Elite" },
+        { "category": "E-Commerce", "name": "Shop Prime" },
+        { "category": "Photographer", "name": "Lens Master" }
+      ]
+    },
+    "PricingPlans": {
+      "headingPrefix": "Simple, Transparent",
+      "headingHighlight": "Pricing",
+      "subheading": "Start for free, upgrade when you need more power. Cancel anytime.",
+      "monthly": "Monthly",
+      "annually": "Annually",
+      "save": "Save 20%",
+      "getStarted": "Get Started",
+      "contactSales": "Contact Sales",
+      "ctaDashboard": "Go to Dashboard",
+      "tiers": [
+        {
+          "title": "Basic",
+          "description": "Perfect to get started",
+          "cta": "Get Started",
+          "featuresTitle": "What's included:",
+          "features": ["1 Portfolio Website", "Standard Templates", "Portofio Subdomain", "Custom Domain", "Advanced Analytics"]
+        },
+        {
+          "title": "Premium",
+          "description": "For serious creators",
+          "cta": "Get Started",
+          "featuresTitle": "Everything in Free, plus:",
+          "features": ["5 Portfolio Websites", "Premium Templates", "Custom Domain Support", "Basic Analytics", "Remove Branding"]
+        },
+        {
+          "title": "Custom",
+          "description": "For agencies and studios",
+          "cta": "Contact Sales",
+          "featuresTitle": "Everything in Pro, plus:",
+          "features": ["Unlimited Websites", "Advanced Analytics", "Client Handoff Tools", "Custom CSS/JS", "Priority 24/7 Support"]
+        }
+      ]
+    },
+    "Testimonials": {
+      "heading": "Testimonials",
+      "subheading": "Listen to success stories from professionals who have used our platform.",
+      "items": [
+        {
+          "name": "Sarah Wijaya",
+          "role": "Digital Marketer",
+          "content": "Thanks to the portfolio from this platform, I landed 3 major clients this month. It looks so professional and is incredibly easy to customize!"
+        },
+        {
+          "name": "Budi Santoso",
+          "role": "Data Analyst",
+          "content": "The design is remarkably clean. I don't know how to code at all, but I set up my data portfolio in under 10 minutes."
+        },
+        {
+          "name": "Amanda Putri",
+          "role": "UI/UX Designer",
+          "content": "The scroll animations and micro-interaction details here are stunning. It really represents the quality and character of my work as a creative designer."
+        },
+        {
+          "name": "Reza Mahendra",
+          "role": "Freelance Photographer",
+          "content": "This platform is a lifesaver! Clients constantly compliment how elegant and responsive my photo gallery looks on their smartphones."
+        }
+      ]
+    },
+    "FAQ": {
+      "heading": "Frequently Asked Questions",
+      "subheading": "A few things our new users ask most often.",
+      "viewAll": "View All Questions →",
+      "comingSoon": "The All Questions page is coming soon!",
+      "items": [
+        {
+          "question": "Do I need coding skills?",
+          "answer": "Not at all! Our platform uses a visual drag-and-drop system that's easy for anyone to learn."
+        },
+        {
+          "question": "How long does it take to build?",
+          "answer": "It only takes under 15 minutes to go live, thanks to hundreds of ready-to-use templates you can customize right away."
+        },
+        {
+          "question": "Can I use my own domain?",
+          "answer": "Of course! You can connect a custom domain (e.g. yourname.com) on any of our plans with ease."
+        },
+        {
+          "question": "Is there technical support?",
+          "answer": "Yes, our customer support team is ready to help you 24/7 through the live chat feature in your dashboard."
+        }
+      ]
+    },
+    "Footer": {
+      "tagline": "The leading portfolio-building platform for designers and developers.",
+      "productHeading": "Product",
+      "template": "Templates",
+      "pricing": "Pricing",
+      "resourcesHeading": "Resources",
+      "guide": "Guide",
+      "help": "Help",
+      "companyHeading": "Company",
+      "aboutUs": "About Us",
+      "contact": "Contact",
+      "copyright": "© {year} Portofio. All rights reserved.",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "backToTop": "Back to Top ↑"
+    }
   },
   "Auth": {
     "login": {

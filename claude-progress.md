@@ -6,7 +6,7 @@
 - Standard startup path: `npm run dev` (Next.js 16 App Router, Turbopack) — app is scaffolded
 - Standard verification path: `npm run lint && npx tsc --noEmit && npm run build`
 - Current highest-priority unfinished feature: `auth-001` — in_progress. Full email/password auth flow is built and passes lint/tsc/build/browser checks, but cannot move to `passing` until a real Supabase project exists (see Session 005). `setup-001` is now `blocked` on that same gap — it is not "in progress" work, just waiting on the user to provision a project.
-- App-shell/marketing UI now implements the `DESIGN.md` system (theme tokens, Clash Display, floating nav, landing page) — see Session 004. Not tied to any single `feature_list.json` entry; it's the shared foundation `auth-001` → `billing-001` build on top of.
+- The marketing landing page (`/[locale]` root route) is no longer the DESIGN.md-based page built in Session 004 — it was fully replaced in Session 015 with a ported design at the user's explicit request (source: an external Vite/React project, not from DESIGN.md). It intentionally does NOT follow DESIGN.md or use next-intl; it's a standalone bilingual-exempt component tree under `src/components/landing/`. The rest of the app (dashboard, auth, editor) still follows DESIGN.md and next-intl as before — this exception is scoped to the landing page only.
 - Current blocker: **not a git repository yet** — `git init` has been proposed twice and not yet approved by the user; do not assume version control exists
 
 ## Session Log
@@ -321,3 +321,80 @@
 - Commits: none by me this session.
 - Known risk or unresolved issue: none.
 - Next best step: Build out the remaining backend connections for the unified editor (auto-saving works, but might need UX polish).
+
+### Session 015
+
+- Date: 2026-07-15
+- Goal: User asked to replace this project's landing page with the code at `/Users/maaullntech/Downloads/Web-Design-main/LandingPage` (an external, unrelated Vite + React project). Not a `feature_list.json` item — a one-off landing-page swap. Asked the user upfront how to reconcile it with DESIGN.md/next-intl; they chose "port as-is" (own CSS, hardcoded English copy, no next-intl).
+- Completed:
+  - Ported all 7 source components (Navbar, Hero, TemplateShowcase, PricingPlans, Testimonials, FAQ, Footer) from plain JSX+CSS to `src/components/landing/*.tsx` + `*.module.css`, TypeScript-typed, `"use client"` boundary only at the new `LandingPage.tsx` wrapper (children inherit it, no per-file directives needed).
+  - Copied all referenced local image assets (`logo.png`, 9 `portrait-*.png`, `hero-portrait.png`, `basic_template_1.png`, `cover-kata-mereka.png`) into `public/`. External Unsplash/pravatar hotlinks left as plain `<img>` (matches the existing codebase's own convention for hotlinked images in the old landing page, avoids next/image domain config).
+  - `shared.module.css` holds the source's `:root` design tokens scoped under a `.landingRoot` wrapper class (not global `:root`) plus `.container`/`.reveal-on-scroll` utilities, so none of it leaks into the Tailwind/DESIGN.md-based dashboard/auth pages.
+  - Fonts: Outfit + Inter loaded via `next/font/google` in `page.tsx` only (not root layout), so they don't load on other routes. Material Symbols Outlined (icon font for the template carousel's play/arrow icons) loaded via a raw `<link>` rendered in `page.tsx` — Next.js hoists it to `<head>`; only requested when this page renders.
+  - `LandingPage.tsx` replicates `App.jsx`'s original effects: manual scroll restoration, clearing the URL hash, an IntersectionObserver-driven `.reveal-on-scroll` reveal, and the "Space key jumps to top" listener.
+  - Deleted now-unused old landing code: `FloatingNav.tsx`, `Reveal.tsx`, `hooks/useReveal.ts`, and `components/landing/{FAQAccordion,EditorialStickyStack,HeroParallax,FiveWaysMenu,InfiniteMarquee}.tsx` (all were exclusively used by the old page.tsx, confirmed via grep before deleting). Removed the now-orphaned `Nav`/`Hero`/`Marquee`/`Story`/`FiveWays`/`Pricing`/`Footer` namespaces from `messages/en.json` and `messages/id.json`.
+  - Deliberate simplifications (flagged per project convention, not silently dropped): (1) skipped the source's document-level `scroll-snap-type: y mandatory` / per-section `scroll-snap-align` — it was `html`-level global CSS in the source and would have forced snap-scroll on every other route (dashboard, login) too; scoping it safely would need a dedicated scroll container, out of scope for a straight port. (2) Fixed one apparent source bug rather than reproducing it: `FAQ.css` referenced an undefined `--bg-secondary` var (falls back to transparent); used the already-defined `--bg-tertiary` (same value used by the pricing section) instead, since the flat/transparent result was almost certainly unintentional.
+  - `src/app/[locale]/page.tsx` rewritten to render `<LandingPage />` (no more next-intl `getTranslations` calls — this route no longer needs them).
+- Verification run:
+  - `npm run lint`: 1 warning (raw Material Symbols `<link>` triggers `@next/next/no-page-custom-font`, expected/unavoidable for an icon font next/font/google doesn't carry — deliberate, not a regression), 0 errors. Fixed one real lint error along the way (`react-hooks/set-state-in-effect` in `TemplateShowcase.tsx`'s tab-reset logic — replaced the `useEffect` that called `setState` with React's recommended "adjust state during render" pattern).
+  - `npx tsc --noEmit`: clean.
+  - `npm run build`: succeeds, all 9 routes compile.
+  - Dev server driven with an ad hoc Playwright script in the scratchpad dir (no `chromium-cli` available, no project run-skill yet — same situation as Session 004): screenshotted desktop (1440×900) and mobile (390×844) at the hero, templates, pricing, testimonials, and FAQ/footer sections. All render correctly, visually matching the source design (green accent, coverflow carousel, marquee testimonials, etc.). `console --errors` equivalent (Playwright console/pageerror listeners) reported zero errors on both viewports.
+- Evidence captured: see verification run above; screenshots were in `/tmp` (Playwright script output), not committed.
+- Commits: none — not requested by the user this session.
+- Known risk or unresolved issue: none blocking. Not tied to any `feature_list.json` entry, so no feature status changed. If a project-level run-skill is ever wanted, `/run-skill-generator` would capture the ad hoc Playwright setup used here and in Session 004.
+- Next best step: none required for this task; resume `feature_list.json` priority order (`auth-001`'s email-template gap, or `workspace-001`+ follow-ons) when the user wants to continue MVP feature work.
+
+### Session 015 (continued)
+
+- Date: 2026-07-15
+- Goal: Follow-up in the same session — user asked to make the just-ported landing page bilingual (id/en), reversing the earlier "hardcoded English, no next-intl" choice now that the port itself was verified.
+- Completed:
+  - Added a `Landing` namespace to `messages/en.json` / `messages/id.json` covering every section (`Navbar`, `Hero`, `TemplateShowcase`, `PricingPlans`, `Testimonials`, `FAQ`, `Footer`), including translated content arrays (10 template category/name pairs, 3 pricing tiers with per-feature text, 4 testimonials, 4 FAQ items) via `t.raw(...)`, matching the `.raw()` pattern already used elsewhere in this codebase (e.g. the old landing page's `FiveWays.items`).
+  - Wired `useTranslations` into all 7 landing components. Static/non-linguistic data (template images, `isPremium` flags, avatar URLs, tier prices, per-feature included/excluded booleans) stayed in code, zipped with translated copy by array index — translation files hold only text.
+  - Added a locale switcher pill (`ID`/`EN`) to the new `Navbar.tsx`, reusing the same `Link`-with-`locale`-prop pattern from the old (now-deleted) `FloatingNav.tsx` (`@/i18n/navigation`'s `Link`/`usePathname`, `routing.locales`), restyled to match the ported design's own CSS-module aesthetic instead of Tailwind.
+  - Bug caught before it shipped: `TemplateShowcase`'s tab state was almost keyed on the *translated* label string (`"Basic"`/`"Premium"`) — comparing against a hardcoded English string, and liable to go stale if a user switched locale without a full remount (React reconciles the same component across a `/id` → `/en` navigation since it's the same route pattern, so `useState`'s initial value wouldn't re-run). Fixed by keying `activeTab` on a locale-independent internal `"basic" | "premium"` value and only using the translated string for the displayed label.
+- Verification run:
+  - `npm run lint`: same single pre-existing warning as before (raw Material Symbols font `<link>`), 0 errors.
+  - `npx tsc --noEmit`: clean.
+  - `npm run build`: succeeds.
+  - Playwright against the dev server: screenshotted `/id` and `/en` hero + pricing sections side by side — all copy, including the pricing feature check/cross lists, renders correctly translated in both. Also drove the actual switcher click (`/id` → click "EN" → confirmed `page.url()` became `/en`), proving the UI control works end-to-end, not just that translations exist. Zero console errors.
+- Evidence captured: see verification run above; screenshots were in `/tmp`, not committed.
+- Commits: none — not requested by the user this session.
+- Known risk or unresolved issue: none blocking.
+- Next best step: none required for this task; resume `feature_list.json` priority order when the user wants to continue MVP feature work.
+
+### Session 015 (continued, part 3)
+
+- Date: 2026-07-15
+- Goal: User asked to reconcile `DESIGN.md` with the now-replaced landing page, since the document's stated scope ("marketing/landing pages, auth screens, dashboard...") no longer matched reality — the landing page uses a completely different token/type/motion system than what section 1–10 mandate, while dashboard/auth/editor still genuinely follow it.
+- Completed:
+  - Updated the Scope section: landing page (`/[locale]` root, `src/components/landing/`) added to the explicit exclusion list alongside the 5 portfolio templates, with the reason (ported at user request, 2026-07-15) and an explicit rule against using the landing page as a reference for the rest of the app, or "fixing" it to match sections 1–10.
+  - Anti-Pattern Checklist (section 10) now states it applies to auth/dashboard/editor/billing only.
+  - Added a new **Appendix: Landing Page** documenting what's actually there (real values pulled from `shared.module.css` and the component files, not invented): `#00cf7c` green accent tokens, Outfit/Inter fonts, Material Symbols icons, sticky bar nav, 3D coverflow carousel, marquee testimonials, and the `cubic-bezier(0.4,0,0.2,1)` motion curve — explicitly framed as descriptive documentation, not a new mandate. Also noted the landing page's next-intl bilingual pattern (from the previous continuation) *does* match the rest of the app and should be kept that way.
+  - Did not touch sections 1–9 or the rest of the checklist — they remain accurate for what they actually govern (auth/dashboard/editor), no rewrite needed there.
+- Verification run: none required — documentation-only change, no code touched.
+- Evidence captured: n/a.
+- Commits: none — not requested by the user this session.
+- Known risk or unresolved issue: none.
+- Next best step: none required for this task.
+
+### Session 015 (continued, part 4)
+
+- Date: 2026-07-15
+- Goal: User asked to connect the landing page to the backend: CTA buttons should reflect auth state — read "Login"/take the user to login/signup when logged out, and go to the right place when already logged in.
+- Completed:
+  - `src/app/[locale]/page.tsx` is now `async`, calls the existing `getCurrentUserEmail()` (`src/lib/auth/session.ts` — already handled both the dummy-auth and real-Supabase paths transparently, no new backend code needed) and passes `userEmail` down through `LandingPage` → `Navbar`/`Hero`/`PricingPlans`.
+  - `Navbar.tsx`: the previously-decorative profile-icon slot is now real — logged out shows a green "Login"/"Masuk" pill linking to `/login`; logged in shows the avatar linking to `/dashboard` (`aria-label`/`alt` now use the real translated "Dashboard" label and the user's email instead of a placeholder).
+  - `Hero.tsx`: the "Get Started" button is now a real `Link` — logged out → `/signup` with the existing `cta` copy; logged in → `/dashboard` with a new `ctaDashboard` translation ("Go to Dashboard"/"Ke Dashboard").
+  - `PricingPlans.tsx`: Basic and Premium tiers' buttons follow the same logged-out→`/signup`, logged-in→`/dashboard` pattern via a `tierIsSignupCta` flag array (parallel to the existing `tierPrices`/`tierFeatureIncluded` static arrays). The Custom tier's "Contact Sales" button was deliberately left as a plain, non-navigating button — it's a sales inquiry, not an account action, out of scope for this request.
+  - Real bug caught and fixed before it shipped: converting `<button>` to `<Link>` (renders `<a>`) for the pricing tier CTAs broke `width: 100%` (inline elements ignore `width`) and lost the default button center-text-alignment — added `display: flex; align-items: center; justify-content: center;` to `.btnPricing` in `PricingPlans.module.css` to fix it structurally rather than special-casing the anchor.
+  - Added `Landing.Navbar.login`/`dashboard` and `Landing.Hero.ctaDashboard`/`Landing.PricingPlans.ctaDashboard` keys to both `messages/en.json` and `messages/id.json`.
+- Verification run:
+  - `npx tsc --noEmit`: clean. `npm run lint`: same single pre-existing warning (Material Symbols font link), 0 errors. `npm run build`: succeeds.
+  - Playwright, logged-out state (`/id`, real Supabase mode): confirmed via DOM query that the nav login link's `href` is `/id/login` and the hero CTA's `href` is `/id/signup`; screenshotted top + pricing sections.
+  - Playwright, logged-in state: temporarily flipped `AUTH_DUMMY_MODE` to `true` in `.env.local` (existing dummy-auth stand-in, see `src/lib/auth/dummy.ts`) *only for this test*, logged in through the real `/login` UI form, confirmed landing on `/dashboard`, then navigated back to `/id` and confirmed via DOM query that the nav avatar link's `href` is now `/id/dashboard` and the hero/pricing CTAs now read "Ke Dashboard" with `href=/id/dashboard`; the Custom tier still correctly showed "Hubungi Sales" untouched. **Reverted `AUTH_DUMMY_MODE` back to `false` immediately after** — the real Supabase project config is unchanged, this was a read-only local test, nothing committed. Zero console errors across both states.
+- Evidence captured: see verification run above; screenshots in `/tmp`, not committed.
+- Commits: none — not requested by the user this session.
+- Known risk or unresolved issue: none blocking.
+- Next best step: none required for this task; resume `feature_list.json` priority order when the user wants to continue MVP feature work.

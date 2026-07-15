@@ -8,13 +8,14 @@ import { SubmitButton } from "@/components/auth/SubmitButton";
 
 const initialState: CreateWorkspaceState = { error: null };
 
-export function CreateWorkspaceForm() {
+export function CreateWorkspaceForm({ templateId }: { templateId?: string } = {}) {
   const t = useTranslations("Workspace.create");
   const tErrors = useTranslations("Workspace.errors");
   const [state, formAction] = useActionState(createWorkspaceAction, initialState);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
+      {templateId && <input type="hidden" name="templateId" value={templateId} />}
       <FormField
         label={t("nameLabel")}
         name="name"

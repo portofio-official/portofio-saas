@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+
 import { Link } from "@/i18n/navigation";
 import { signOutAction } from "@/lib/auth/actions";
 import { useTranslations } from "next-intl";
@@ -9,12 +9,10 @@ import gsap from "gsap";
 import { useRef, useState } from "react";
 
 export function DashboardSidebar({ email }: { email: string }) {
-  const pathname = usePathname();
+
   const t = useTranslations("Workspace");
   const container = useRef<HTMLElement>(null);
   const [search, setSearch] = useState("");
-
-  const isTemplates = pathname.includes("/templates");
 
   useGSAP(
     () => {
@@ -65,21 +63,10 @@ export function DashboardSidebar({ email }: { email: string }) {
         </p>
         <Link
           href="/dashboard"
-          className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors ${
-            !isTemplates ? "bg-black/[0.05] text-ink" : "text-ink-soft hover:bg-black/[0.03] hover:text-ink"
-          }`}
+          className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors bg-black/[0.05] text-ink"
         >
           <span className="material-symbols-outlined text-[17px]">grid_view</span>
           Projects
-        </Link>
-        <Link
-          href="/dashboard/templates"
-          className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors ${
-            isTemplates ? "bg-black/[0.05] text-ink" : "text-ink-soft hover:bg-black/[0.03] hover:text-ink"
-          }`}
-        >
-          <span className="material-symbols-outlined text-[17px]">style</span>
-          Templates
         </Link>
       </nav>
 

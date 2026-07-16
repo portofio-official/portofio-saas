@@ -1,6 +1,6 @@
 {
   "project": "portofyo",
-  "last_updated": "2026-07-13",
+  "last_updated": "2026-07-16",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -147,15 +147,25 @@
       "area": "publish",
       "title": "Publish to a free subdomain via dynamic multi-tenant rendering",
       "user_visible_behavior": "A user picks a unique subdomain name and publishes a workspace; that workspace's site is reachable at name.appku.com within seconds.",
-      "status": "not_started",
+      "status": "in_progress",
       "verification": [
         "Publish a workspace's site and load the subdomain URL, confirm it renders that workspace's chosen template with that workspace's data.",
         "Attempt a duplicate/forbidden subdomain name and confirm it is rejected.",
         "Unpublish and confirm the site goes offline; republish and confirm it comes back.",
         "Confirm a user without an active subscription cannot publish and is directed to checkout instead."
       ],
-      "evidence": [],
-      "notes": "PRD section 7.4 and 9.3 (middleware host-based rewrite, no per-workspace static build). `sites` belongs to `workspace_id` (v1.3, see 9.4) — depends on workspace-001 landing first. Publish is gated on an active subscription (PRD 7.6); until billing-001 lands, gate on the subscriptions table state set manually. Note the per-account-vs-per-workspace subscription question is still open (PRD 16) and affects how this gate should check."
+      "evidence": [
+        "2026-07-16 (Session 018): /sites/[subdomain]/page.tsx — fully implemented server component: queries projects by subdomain+status='published', fetches workspace_profile, renders via TemplateDefinition.renderer. Build passes.",
+        "2026-07-16 (Session 018): publishProjectAction — server action with subdomain validation (slug regex, 3-63 chars, forbidden words list), uniqueness check (neq own project), subscription gate via checkSubscription stub, calls publish_project() RPC.",
+        "2026-07-16 (Session 018): unpublishProjectAction — server action, sets status=draft.",
+        "2026-07-16 (Session 018): Editor.tsx Publish Panel — subdomain input (auto-lowercases, strips invalid chars), publish/unpublish buttons with loading states, live site link in header + sidebar when published, subscription_required error shows billing CTA.",
+        "2026-07-16 (Session 018): unpublishWorkspaceProjectAction — server action in workspace/actions.ts for dashboard-card unpublish (avoids importing server-only store in client bundle).",
+        "2026-07-16 (Session 018): lib/billing/subscription.ts — stub checks subscriptions table by session user_id; billing-001 will add Xendit webhook logic.",
+        "2026-07-16 (Session 018): supabase/migrations/20260716000006_add_subscriptions.sql — subscriptions table with RLS; needs to be applied manually in Supabase Dashboard SQL Editor.",
+        "2026-07-16 (Session 018): npm run lint (0 errors, 0 warnings), npx tsc --noEmit clean, npm run build clean.",
+        "REMAINING: Manual test — publish a real project from editor UI, load subdomain URL, verify render. Subdomain uniqueness rejection test. Unpublish test. Subscription gate test (insert test row in subscriptions table, then publish)."
+      ],
+      "notes": "PRD section 7.4 and 9.3. SUBSCRIPTION MIGRATION: run supabase/migrations/20260716000006_add_subscriptions.sql in Supabase Dashboard SQL Editor. For subscription gate test: manually insert a row into subscriptions (user_id = your user UUID, status='active', expires_at = NULL) and retry publish."
     },
     {
       "id": "dashboard-001",
@@ -163,13 +173,17 @@
       "area": "dashboard",
       "title": "User dashboard (status, manage data/template, billing)",
       "user_visible_behavior": "A user sees a list of their workspaces, can create a new one, and within a workspace sees published/draft status, can switch template, and manage subscription.",
-      "status": "not_started",
+      "status": "in_progress",
       "verification": [
         "Open dashboard and confirm the workspace list matches the account's actual workspaces, with correct publish status per workspace.",
         "Change template from within a workspace and confirm that workspace's live site updates."
       ],
-      "evidence": [],
-      "notes": "PRD section 7.5. Workspace list/switcher is v1.3 scope, depends on workspace-001."
+      "evidence": [
+        "2026-07-16 (Session 018): DashboardClientView.tsx — workspace cards now display real publish status badge (green 'Live' dot or grey 'Draft'), 'View site ↗' link when published, unpublish button (cloud_off icon) on hover.",
+        "2026-07-16 (Session 018): workspace/queries.ts listWorkspaces — now fetches status+subdomain from projects table alongside template_id+draft_json for each workspace's first project. Workspace type gains publishStatus+subdomain fields.",
+        "REMAINING: Billing section in dashboard (billing-001 dependency). Template switch from dashboard card."
+      ],
+      "notes": "PRD section 7.5. Publish status display is done. Billing section blocked on billing-001."
     },
     {
       "id": "billing-001",

@@ -10,6 +10,29 @@
 
 ## Session Log
 
+### Session 018
+
+- Date: 2026-07-16
+- Goal: Implement publish-001 (publish panel + subdomain flow) and dashboard-001 status badges per approved implementation plan.
+- Completed:
+  - **Publish Panel in Editor** (`Editor.tsx`): subdomain input (auto-lowercase, strip invalid chars), publish/unpublish buttons with loading states, "Live" badge in header + sidebar panel, "View site" link, subscription_required error → billing CTA.
+  - **Server actions** (`projects/actions.ts`): `publishProjectAction` (slug validation, uniqueness check, subscription gate, calls `publish_project` RPC), `unpublishProjectAction`.
+  - **Subscription gate stub** (`lib/billing/subscription.ts`): NEW file — queries `subscriptions` table by session `user_id`. Returns false if no active row. billing-001 will replace with Xendit webhook logic.
+  - **Dashboard card status** (`DashboardClientView.tsx`): real "Live" (green dot) / "Draft" badge, "View site ↗" link when published, unpublish (cloud_off) button on hover per card.
+  - **Workspace queries** (`workspace/queries.ts`): `listWorkspaces` now fetches `status` + `subdomain` from `projects` alongside thumbnail data. `Workspace` type gains `publishStatus` + `subdomain` fields.
+  - **Workspace actions** (`workspace/actions.ts`): added `unpublishWorkspaceProjectAction` — server action for dashboard-card unpublish; avoids importing server-only store code into client bundle.
+  - **Editor page** (`editor/page.tsx`): passes `initialSubdomain`, `initialStatus`, `rootDomain` (from `NEXT_PUBLIC_ROOT_DOMAIN`) to Editor so Publish Panel initialises correctly.
+  - **Migration** `supabase/migrations/20260716000006_add_subscriptions.sql`: `subscriptions` table with RLS. Needs manual apply in Supabase Dashboard SQL Editor.
+- Verification run: `npm run lint` (0 errors, 0 warnings) + `npx tsc --noEmit` (clean) + `npm run build` (clean, all 12 routes).
+- Evidence captured: in `feature_list.json` for publish-001 and dashboard-001.
+- Commits: `8e99bf1` feat(publish-001): add publish panel to editor + dashboard status badges
+- Known risk or unresolved issue:
+  - **Migration not applied yet**: `20260716000006_add_subscriptions.sql` must be run in Supabase Dashboard SQL Editor before publish can succeed.
+  - **Publish not end-to-end tested**: UI and server actions are built and compile, but a live publish-then-load-subdomain test has NOT been run yet. Do this first in Session 019.
+  - **Subscription gate is a stub**: publish will always return `subscription_required` until a test `subscriptions` row is manually inserted (or billing-001 lands). To test publish: insert `(user_id = <your uuid>, status = 'active', expires_at = NULL)` into `subscriptions`.
+  - **`NEXT_PUBLIC_ROOT_DOMAIN` not in `.env.local`**: needs to be set to `localhost:3000` for local subdomain rendering to work correctly. Without it, the fallback `"localhost:3000"` applies, which is fine for now.
+- Next best step: (1) Apply migration 0006 in Supabase SQL Editor. (2) Add test subscription row. (3) Run full publish end-to-end test from Editor. (4) Then move to template-002 or billing-001.
+
 ### Session 001
 
 - Date: 2026-07-12

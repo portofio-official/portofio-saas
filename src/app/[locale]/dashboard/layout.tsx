@@ -17,9 +17,9 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-canvas">
+    <div className="flex h-screen w-full overflow-hidden bg-canvas p-6 gap-6 font-sans">
       <DashboardSidebar email={email} />
-      <main className="flex flex-1 flex-col overflow-hidden">
+      <main className="flex flex-1 flex-col overflow-hidden rounded-[2rem] bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
         {children}
       </main>
     </div>

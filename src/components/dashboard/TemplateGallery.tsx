@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useLocale } from "next-intl";
+import { useState, useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+
 import { useRouter } from "@/i18n/navigation";
-import { TEMPLATE_IDS, type TemplateId } from "@/lib/templates/types";
+import { type TemplateId } from "@/lib/templates/types";
 import { LegacyTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
 import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
@@ -94,8 +96,24 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
   const [hoveredId, setHoveredId] = useState<TemplateId | null>(null);
   const [previewId, setPreviewId] = useState<TemplateId | null>(null);
   const [creatingForId, setCreatingForId] = useState<TemplateId | null>(null);
-  const locale = useLocale();
   const router = useRouter();
+  const container = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        ".gsap-template-card",
+        { y: 40, opacity: 0, scale: 0.98 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "var(--ease-fluid)", stagger: 0.08, delay: 0.1 }
+      );
+      gsap.fromTo(
+        ".gsap-header",
+        { y: -20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "var(--ease-fluid)" }
+      );
+    },
+    { scope: container }
+  );
 
   const handleUseTemplate = (id: TemplateId) => {
     if (isLoggedIn) {
@@ -109,23 +127,28 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
 
   return (
     <>
-      <div className="flex h-full w-full overflow-hidden bg-canvas font-sans">
+      <div ref={container} className="flex h-full w-full gap-6 overflow-hidden bg-canvas p-6 font-sans">
         {/* ── Sidebar Categories ── */}
-        <aside className="flex h-full w-56 shrink-0 flex-col border-r border-black/5 bg-surface">
-          <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-2 py-4">
-            <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
+        <aside className="flex h-full w-[260px] shrink-0 flex-col overflow-hidden rounded-[2rem] bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
+          <div className="border-b border-black/5 px-6 py-8">
+            <h2 className="font-display text-lg font-extrabold text-ink">Template Library</h2>
+            <p className="mt-1 text-[11px] font-medium text-ink-soft">Premium foundations for your next project.</p>
+          </div>
+          <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
+            <p className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.15em] text-ink-faint">
               Categories
             </p>
             {CATEGORIES.map((cat) => (
               <button type="button"
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 rounded-[1.25rem] px-4 py-3 text-sm font-semibold transition-all duration-300 ease-[var(--ease-fluid)] ${
                   activeCategory === cat
-                    ? "bg-black/[0.05] text-ink"
-                    : "text-ink-soft hover:bg-black/[0.03] hover:text-ink"
+                    ? "bg-black/[0.04] text-ink"
+                    : "text-ink-soft hover:bg-black/[0.02] hover:text-ink active:scale-[0.98]"
                 }`}
               >
+                {activeCategory === cat && <span className="h-1.5 w-1.5 rounded-full bg-accent" />}
                 {cat}
               </button>
             ))}
@@ -133,39 +156,37 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
         </aside>
 
         {/* ── Main content ── */}
-        <main className="flex flex-1 flex-col overflow-hidden">
+        <main className="flex flex-1 flex-col overflow-hidden rounded-[2rem] bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
           {/* Top hero bar */}
-          <header className="shrink-0 border-b border-black/5 bg-surface/80 px-8 py-6 backdrop-blur-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
-              Templates
-            </p>
-            <h1 className="mt-1 font-display text-2xl font-bold text-ink">
+          <header className="gsap-header shrink-0 px-12 py-12">
+            <p className="mb-3 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-ink-faint w-max bg-black/[0.03]">
               Start with a template
-            </h1>
-            <p className="mt-1 text-sm text-ink-soft">
-              Choose a design for your new project. You can change it later at any time.
             </p>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+              Choose your design
+            </h1>
           </header>
 
           {/* Cards grid */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex-1 overflow-y-auto px-12 pb-24">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((meta) => {
                 return (
                   <div
                     key={meta.id}
-                    className={`group relative flex flex-col overflow-hidden rounded-xl bg-surface ring-1 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ring-black/5 hover:ring-black/10`}
+                    className="gsap-template-card group relative flex flex-col overflow-hidden rounded-[2rem] bg-shell p-2 shadow-[var(--shadow-diffused)] ring-1 ring-black/5 transition-all duration-500 ease-[var(--ease-fluid)] hover:-translate-y-1 hover:shadow-xl hover:ring-black/10"
                     onMouseEnter={() => setHoveredId(meta.id)}
                     onMouseLeave={() => setHoveredId(null)}
                   >
                   {/* Thumbnail */}
                   <div
-                    className={`relative h-48 w-full cursor-pointer overflow-hidden ${meta.accentBg}`}
+                    className={`relative h-56 w-full cursor-pointer overflow-hidden rounded-[1.5rem] shadow-[var(--shadow-inner-bezel)] ${meta.accentBg}`}
                     onClick={() => setPreviewId(meta.id)}
                   >
+                    <div className="absolute inset-0 bg-black/0 transition-colors duration-500 group-hover:bg-black/5" />
                     {/* Scaled-down live template preview */}
                     <div
-                      className="pointer-events-none absolute inset-0 origin-top-left"
+                      className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-700 ease-[var(--ease-fluid)] group-hover:scale-[1.03]"
                       style={{ transform: "scale(0.35)", width: "285%", height: "285%" }}
                     >
                       <TemplateRenderer templateId={meta.id} data={PREVIEW_DATA} />
@@ -173,39 +194,34 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
 
                     {/* Hover overlay */}
                     <div
-                      className={`absolute inset-0 flex items-center justify-center gap-2 bg-black/40 transition-opacity duration-200 ${
+                      className={`absolute inset-0 flex items-center justify-center gap-3 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-[var(--ease-fluid)] ${
                         hoveredId === meta.id ? "opacity-100" : "opacity-0"
                       }`}
                     >
                       <button type="button"
                         onClick={(e) => { e.stopPropagation(); setPreviewId(meta.id); }}
-                        className="flex items-center gap-1.5 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+                        className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all duration-300 ease-[var(--ease-fluid)] hover:scale-110 hover:bg-white/30"
                       >
-                        <span className="material-symbols-outlined text-[16px]">visibility</span>
-                        Preview
+                        <span className="material-symbols-outlined text-[20px]">visibility</span>
                       </button>
                       <button type="button"
                         onClick={(e) => { e.stopPropagation(); handleUseTemplate(meta.id); }}
-                        className="flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-deep"
+                        className="flex items-center gap-2 rounded-full bg-accent py-2 pl-6 pr-2 text-sm font-semibold text-white shadow-lg transition-all duration-300 ease-[var(--ease-fluid)] hover:bg-accent-deep active:scale-[0.98]"
                       >
-                        <span className="material-symbols-outlined text-[16px]">add</span>
                         Use this
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 transition-transform duration-300 ease-[var(--ease-fluid)] group-hover:translate-x-1">
+                          <span className="material-symbols-outlined text-[16px]">add</span>
+                        </div>
                       </button>
                     </div>
                   </div>
 
                   {/* Card footer */}
-                  <div className="flex items-center justify-between px-4 py-3">
+                  <div className="flex items-center justify-between px-5 py-5">
                     <div className="min-w-0 flex-1">
-                      <p className="font-display text-sm font-bold text-ink">{meta.name}</p>
-                      <p className="mt-0.5 truncate text-[11px] text-ink-faint">{meta.description}</p>
+                      <p className="font-display text-base font-bold text-ink">{meta.name}</p>
+                      <p className="mt-1 truncate text-[12px] font-medium text-ink-soft">{meta.description}</p>
                     </div>
-                    <button type="button"
-                      onClick={() => handleUseTemplate(meta.id)}
-                      className="ml-3 shrink-0 rounded-full bg-canvas px-3.5 py-1.5 text-[12px] font-semibold text-ink-soft ring-1 ring-black/10 transition-all hover:bg-accent hover:text-accent hover:text-white"
-                    >
-                      Use
-                    </button>
                   </div>
                 </div>
               );

@@ -30,7 +30,7 @@ export async function createWorkspaceAction(
 
   if (templateId) {
     const { saveTemplateIdAction } = await import("@/lib/templates/actions");
-    await saveTemplateIdAction(workspace.id, templateId as any);
+    await saveTemplateIdAction(workspace.id, templateId as import("@/lib/templates/types").TemplateId);
   }
 
   return redirect({ href: `/dashboard/${workspace.id}/editor`, locale: await getLocale() });

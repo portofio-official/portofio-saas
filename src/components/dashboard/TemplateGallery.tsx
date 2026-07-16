@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { TEMPLATE_IDS, type TemplateId } from "@/lib/templates/types";
-import { TemplateRenderer } from "@/components/templates/registry";
+import { LegacyTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
 import type { PortfolioData } from "@/lib/portfolio/types";
 

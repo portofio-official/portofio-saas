@@ -10,7 +10,7 @@ import { savePortfolioDataAction } from "@/lib/portfolio/actions";
 import { saveTemplateIdAction } from "@/lib/templates/actions";
 import type { PortfolioData } from "@/lib/portfolio/types";
 import { TEMPLATE_IDS, FONT_OPTIONS, ACCENT_COLOR_PRESETS, type TemplateId } from "@/lib/templates/types";
-import { TemplateRenderer } from "@/components/templates/registry";
+import { LegacyTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
 import { Eyebrow } from "@/components/ui/CtaButton";
 import { FormPanel } from "@/components/ui/FormPanel";
 

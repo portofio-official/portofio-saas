@@ -4,8 +4,6 @@ import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
-import { DUMMY_AUTH, setDummySession, clearDummySession } from "@/lib/auth/dummy";
-
 export type ActionState = { error: string | null; success?: string | null };
 
 async function origin() {
@@ -34,11 +32,6 @@ export async function signUpAction(
     return { error: "weakPassword" };
   }
 
-  if (DUMMY_AUTH) {
-    await setDummySession(email);
-    return redirect({ href: "/dashboard", locale: await getLocale() });
-  }
-
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
     email,
@@ -63,11 +56,6 @@ export async function signInAction(
     return { error: "invalidCredentials" };
   }
 
-  if (DUMMY_AUTH) {
-    await setDummySession(email);
-    return redirect({ href: "/dashboard", locale: await getLocale() });
-  }
-
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -80,10 +68,6 @@ export async function requestPasswordResetAction(
   formData: FormData,
 ): Promise<ActionState> {
   const email = String(formData.get("email") ?? "").trim();
-
-  if (DUMMY_AUTH) {
-    return { error: null, success: "checkYourEmail" };
-  }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -104,10 +88,6 @@ export async function updatePasswordAction(
     return { error: "weakPassword" };
   }
 
-  if (DUMMY_AUTH) {
-    return redirect({ href: "/login", locale: await getLocale() });
-  }
-
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
 
@@ -116,11 +96,6 @@ export async function updatePasswordAction(
 }
 
 export async function signOutAction() {
-  if (DUMMY_AUTH) {
-    await clearDummySession();
-    return redirect({ href: "/login", locale: await getLocale() });
-  }
-
   const supabase = await createClient();
   await supabase.auth.signOut();
   return redirect({ href: "/login", locale: await getLocale() });

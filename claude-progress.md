@@ -398,3 +398,35 @@
 - Commits: none — not requested by the user this session.
 - Known risk or unresolved issue: none blocking.
 - Next best step: none required for this task; resume `feature_list.json` priority order when the user wants to continue MVP feature work.
+
+### Session (2026-07-16) — Architecture: Workspace Profile + Project System (Fase 1-2)
+
+- Goal: Migrate dari single PortfolioData global ke Workspace Profile → TemplateDefinition (Zod) → WebsiteDocument → Renderer
+- Approach: Incremental (Opsi B) — additive, no breaking changes
+
+**Completed:**
+- Spec: `docs/superpowers/specs/2026-07-16-workspace-project-architecture.md`
+- Plan: `docs/superpowers/plans/2026-07-16-workspace-project-architecture.md`
+- **Fase 1 — DB migrations:**
+  - `20260716000001`: `workspace_profile` table (1:1 workspace, hybrid structured+JSONB, RLS)
+  - `20260716000002`: `workspace_assets` table (library stub, RLS)
+  - `20260716000003`: `projects` table (many:1 workspace, draft_json+published_json, RLS)
+  - `20260716000004`: `publish_project()` RPC (atomic draft→published copy, SECURITY DEFINER)
+- **Fase 2 — Code:**
+  - `src/lib/templates/definition.ts`: TemplateDefinition<TSchema>, WebsiteDocument, WorkspaceProfile, runMigrations(), parseDocumentData(), buildInitialDocument() (auto-fill)
+  - `src/lib/templates/schemas/_base.ts`: shared Zod schemas (1:1 PortfolioData — no data migration needed)
+  - `src/lib/templates/schemas/{minimal,bold,creative,corporate,dark}.ts`: TemplateDefinition per template with adapter for existing renderers
+  - `src/components/templates/registry.tsx`: new TEMPLATE_REGISTRY + TemplateRenderer(WebsiteDocument) + LegacyTemplateRenderer (backward-compat)
+  - `src/lib/projects/`: types, store, actions (createProject with auto-fill, saveDraftJson, publishProject, unpublishProject)
+  - `src/lib/workspace/profile.ts`: getWorkspaceProfile, saveWorkspaceProfile
+  - `src/lib/workspace/assets.ts`: listAssets stub
+  - Editor.tsx, TemplateGallery.tsx: switched to LegacyTemplateRenderer (no behavior change)
+
+**Verification:** lint clean (0 errors), tsc clean (0 errors), committed as 0b015a9
+
+**Not done yet (Fase 3+4):**
+- Fase 3: Migrate Editor.tsx to read/write `project.draft_json` (WebsiteDocument) instead of `portfolio_data`
+- Fase 4: Drop `portfolio_data`, `sites`, remove `src/lib/portfolio/`, remove `PortfolioData` type
+- Supabase migrations need to be pushed to remote (`npx supabase db push`)
+
+**Next step:** Fase 3 — update Editor to use new projects store + WebsiteDocument flow

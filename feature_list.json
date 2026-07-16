@@ -185,6 +185,18 @@
       ],
       "evidence": [],
       "notes": "PRD section 7.6, 10, and 15 (must be tested end-to-end including webhooks before go-live). Single plan, no tiers, not freemium. OPEN QUESTION (PRD 16, v1.3): does one subscription cover every workspace on the account, or does each workspace need its own? Current PRD default is per-account (simplest); confirm before building the gate so it isn't built against the wrong assumption."
+    },
+    {
+      "id": "arch-001",
+      "name": "Workspace Profile + Project Architecture (Fase 1-2)",
+      "status": "passing",
+      "evidence": {
+        "commit": "0b015a9",
+        "lint": "clean (0 errors)",
+        "tsc": "clean (0 errors)",
+        "description": "DB migrations applied (local), TemplateDefinition+Zod schemas, projects store, workspace_profile store. Editor still uses LegacyTemplateRenderer — Fase 3 pending."
+      },
+      "next": "arch-002: Fase 3 — migrate Editor to WebsiteDocument + draft_json, then Fase 4 cleanup"
     }
   ]
 }

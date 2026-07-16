@@ -84,3 +84,17 @@ export const BASE_SECTIONS = [
   { id: "projects",   label: "Projects" },
   { id: "contact",    label: "Contact & Socials" },
 ];
+
+// Canonical social platforms list — moved here from portfolio/types.ts
+export const SOCIAL_PLATFORMS = [
+  "linkedin",
+  "github",
+  "instagram",
+  "x",
+  "youtube",
+  "tiktok",
+  "website",
+] as const;
+
+export type SocialPlatform = (typeof SOCIAL_PLATFORMS)[number];
+

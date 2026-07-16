@@ -1,7 +1,7 @@
 import type { useTranslations } from "next-intl";
 import { RepeatableSection } from "@/components/portfolio/RepeatableSection";
 import { FormField } from "@/components/ui/FormField";
-import type { PortfolioData } from "@/lib/portfolio/types";
+import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
 
 type Education = PortfolioData["educations"][number];
 

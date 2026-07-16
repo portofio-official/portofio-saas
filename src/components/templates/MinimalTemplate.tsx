@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { templateFontClass } from "@/lib/templates/fonts";
 import { initials, formatMonth, SocialIcon } from "@/components/templates/shared";
-import type { PortfolioData } from "@/lib/portfolio/types";
+import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
 
 // Warm, paper-toned palette — high-end editorial minimal look.
 const INK = "#16150F";

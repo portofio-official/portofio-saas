@@ -1,6 +1,6 @@
 import { templateFontClass } from "@/lib/templates/fonts";
 import { initials, formatMonth, SocialIcon } from "@/components/templates/shared";
-import type { PortfolioData } from "@/lib/portfolio/types";
+import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
 
 export function DarkTemplate({ data }: { data: PortfolioData }) {
   const { profile, experiences, educations, skills, projects, contact, socials, theme } = data;

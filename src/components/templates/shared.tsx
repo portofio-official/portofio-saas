@@ -7,7 +7,7 @@ import {
   XLogo,
   YoutubeLogo,
 } from "@phosphor-icons/react";
-import type { PortfolioData } from "@/lib/portfolio/types";
+import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
 
 const SOCIAL_ICONS: Record<PortfolioData["socials"][number]["platform"], React.ComponentType<{ size?: number; weight?: "regular" | "fill" }>> = {
   linkedin: LinkedinLogo,

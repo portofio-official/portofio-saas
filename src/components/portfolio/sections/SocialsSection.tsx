@@ -1,7 +1,8 @@
 import type { useTranslations } from "next-intl";
 import { RepeatableSection } from "@/components/portfolio/RepeatableSection";
 import { FormField, FormSelect } from "@/components/ui/FormField";
-import { SOCIAL_PLATFORMS, type PortfolioData } from "@/lib/portfolio/types";
+import { type BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
+import { SOCIAL_PLATFORMS } from "@/lib/templates/schemas/_base";
 
 type Social = PortfolioData["socials"][number];
 

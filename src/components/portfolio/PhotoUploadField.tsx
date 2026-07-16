@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Image as ImageIcon, X } from "@phosphor-icons/react";
-import { compressImageToDataUrl } from "@/lib/portfolio/compressImage";
+import { compressImageToDataUrl } from "@/lib/utils/compressImage";
 
 export function PhotoUploadField({
   label,

@@ -10,8 +10,7 @@ import { creativeDefinition } from "@/lib/templates/schemas/creative";
 import { corporateDefinition } from "@/lib/templates/schemas/corporate";
 import { darkDefinition } from "@/lib/templates/schemas/dark";
 
-// Old imports — kept for backward-compat (Editor still uses PortfolioData)
-import type { PortfolioData } from "@/lib/portfolio/types";
+import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
 import type { TemplateId } from "@/lib/templates/types";
 import { MinimalTemplate } from "@/components/templates/MinimalTemplate";
 import { BoldTemplate } from "@/components/templates/BoldTemplate";

@@ -6,7 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { TEMPLATE_IDS, type TemplateId } from "@/lib/templates/types";
 import { LegacyTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
-import type { PortfolioData } from "@/lib/portfolio/types";
+import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
 
 // ─── Template metadata ───────────────────────────────────────────────────────
 

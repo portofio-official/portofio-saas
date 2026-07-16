@@ -229,6 +229,7 @@ export function TemplateShowcase() {
             return (
               <button
                 key={cat.key}
+                type="button"
                 className={`${styles.pillBtn} ${activeTab === cat.key ? styles.active : ""} ${isPremium ? styles.premiumPill : ""}`}
                 onClick={() => setActiveTab(cat.key)}
               >
@@ -285,10 +286,10 @@ export function TemplateShowcase() {
           </div>
 
           <div className={styles.coverflowControls}>
-            <button className={styles.navArrow} onClick={prevSlide}>
+            <button type="button" className={styles.navArrow} onClick={prevSlide}>
               <span className="material-symbols-outlined">arrow_back</span>
             </button>
-            <button className={styles.navArrow} onClick={nextSlide}>
+            <button type="button" className={styles.navArrow} onClick={nextSlide}>
               <span className="material-symbols-outlined">arrow_forward</span>
             </button>
           </div>

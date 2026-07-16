@@ -117,7 +117,7 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
               Categories
             </p>
             {CATEGORIES.map((cat) => (
-              <button
+              <button type="button"
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors ${
@@ -177,14 +177,14 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
                         hoveredId === meta.id ? "opacity-100" : "opacity-0"
                       }`}
                     >
-                      <button
+                      <button type="button"
                         onClick={(e) => { e.stopPropagation(); setPreviewId(meta.id); }}
                         className="flex items-center gap-1.5 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/30"
                       >
                         <span className="material-symbols-outlined text-[16px]">visibility</span>
                         Preview
                       </button>
-                      <button
+                      <button type="button"
                         onClick={(e) => { e.stopPropagation(); handleUseTemplate(meta.id); }}
                         className="flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-deep"
                       >
@@ -200,7 +200,7 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
                       <p className="font-display text-sm font-bold text-ink">{meta.name}</p>
                       <p className="mt-0.5 truncate text-[11px] text-ink-faint">{meta.description}</p>
                     </div>
-                    <button
+                    <button type="button"
                       onClick={() => handleUseTemplate(meta.id)}
                       className="ml-3 shrink-0 rounded-full bg-canvas px-3.5 py-1.5 text-[12px] font-semibold text-ink-soft ring-1 ring-black/10 transition-all hover:bg-accent hover:text-accent hover:text-white"
                     >
@@ -225,7 +225,7 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-4">
-              <button
+              <button type="button"
                 onClick={() => setPreviewId(null)}
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-canvas hover:text-ink"
               >
@@ -235,7 +235,7 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
                 {TEMPLATE_META.find((m) => m.id === previewId)?.name} — Preview
               </span>
             </div>
-            <button
+            <button type="button"
               onClick={() => { handleUseTemplate(previewId); setPreviewId(null); }}
               className="flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-deep active:scale-95"
             >
@@ -270,7 +270,7 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
                   Starting with <span className="font-semibold text-ink">{TEMPLATE_META.find(t => t.id === creatingForId)?.name}</span> template
                 </p>
               </div>
-              <button
+              <button type="button"
                 onClick={() => setCreatingForId(null)}
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-canvas hover:text-ink"
               >

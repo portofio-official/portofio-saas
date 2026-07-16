@@ -277,7 +277,7 @@ export function Editor({
         <div className="fixed inset-0 z-50 flex flex-col bg-surface">
           <div className="flex items-center justify-between border-b border-black/5 px-6 py-4 shadow-sm">
             <span className="font-display text-lg font-bold text-ink">Desktop Preview</span>
-            <button
+            <button type="button"
               onClick={() => setShowDesktopPreview(false)}
               className="group flex items-center gap-2 rounded-full bg-black/5 px-5 py-2.5 text-sm font-medium text-ink transition-all duration-300 hover:bg-black/10 hover:scale-105"
             >

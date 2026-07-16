@@ -92,7 +92,7 @@ export function DashboardClientView({
         <h1 className="font-display text-base font-bold text-ink">Projects</h1>
         <div className="flex items-center gap-3">
           {/* Sort */}
-          <button className="flex items-center gap-1.5 rounded-lg bg-canvas px-3 py-1.5 text-sm font-medium text-ink-soft ring-1 ring-black/5 transition-colors hover:text-ink">
+          <button type="button" className="flex items-center gap-1.5 rounded-lg bg-canvas px-3 py-1.5 text-sm font-medium text-ink-soft ring-1 ring-black/5 transition-colors hover:text-ink">
             Last viewed by me
             <span className="material-symbols-outlined text-[16px]">expand_more</span>
           </button>

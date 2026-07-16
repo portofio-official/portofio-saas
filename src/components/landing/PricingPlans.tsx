@@ -46,6 +46,7 @@ export function PricingPlans({ userEmail }: { userEmail: string | null }) {
           <div className={styles.billingToggle}>
             <span className={!isAnnual ? styles.active : ""}>{t("monthly")}</span>
             <button
+              type="button"
               className={`${styles.toggleBtn} ${isAnnual ? styles.annual : ""}`}
               onClick={() => setIsAnnual(!isAnnual)}
             >
@@ -74,7 +75,7 @@ export function PricingPlans({ userEmail }: { userEmail: string | null }) {
                   {userEmail ? t("ctaDashboard") : tier.cta}
                 </Link>
               ) : (
-                <button className={`${styles.btnPricing} ${styles.outline}`}>{tier.cta}</button>
+                <button type="button" className={`${styles.btnPricing} ${styles.outline}`}>{tier.cta}</button>
               )}
               <div className={styles.cardFeatures}>
                 <p className={styles.featuresTitle}>{tier.featuresTitle}</p>

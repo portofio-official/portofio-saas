@@ -1,39 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Portofio SaaS
 
-## Getting Started
+SaaS portfolio-website builder. Create, customize, and publish beautiful portfolios effortlessly.
 
-First, run the development server:
+**Live Demo:** [https://portofio-beta.vercel.app/](https://portofio-beta.vercel.app/)
+
+---
+
+## 💻 Tech Stack
+
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=for-the-badge&logo=greensock&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+
+---
+
+## ✨ Features
+
+- **Multi-Tenant Architecture**: Users can create multiple workspaces/brands.
+- **Dynamic Portfolios**: Choose from various beautifully designed templates.
+- **Internationalization (i18n)**: Full bilingual support (English & Bahasa Indonesia).
+- **Smooth Animations**: High-end micro-interactions powered by GSAP & Framer Motion.
+- **Subdomain Routing**: Publish portfolios to custom subdomains seamlessly.
+
+---
+
+## 🛠️ Prerequisites & Setup
+
+First, clone the repository and install the dependencies:
+
+```bash
+npm install
+```
+
+### Environment Variables
+
+Create a `.env.local` file in the root directory and configure the following variables:
+
+- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL (used by both client and server).
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key (safe to expose to the browser).
+- `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key (strictly for server-side use, bypasses RLS).
+- `NEXT_PUBLIC_ROOT_DOMAIN`: The root domain of the application (e.g., `localhost:3000` for local development or your production domain on Vercel). This is required for the middleware to handle subdomain routing properly.
+
+### Running the App
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📂 Project Structure
 
-## Learn More
+- **`src/app`**: Next.js App Router containing pages, layouts, and API routes.
+- **`src/components`**: Reusable UI components, separated into domains (e.g., `landing`, `dashboard`, `portfolio`).
+- **`src/lib`**: Core logic including Supabase clients, state stores, and Server Actions.
+- **`messages`**: i18n translation files (`id.json` and `en.json`).
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📚 Related Documentation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+For deeper context on the product and design decisions, please refer to:
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# portofio-saas
-# portofio-saas
-# portofio-saas
+- [**Product Requirements Document (PRD)**](./PRD.md): Contains the complete spec, user flows, and database schema.
+- [**Design System**](./DESIGN.md): Details the design tokens, component anatomy, and UI guidelines.

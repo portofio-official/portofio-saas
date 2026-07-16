@@ -98,7 +98,7 @@ export function DashboardClientView({
           </button>
           {/* New project */}
           <Link
-            href="/dashboard/templates"
+            href="/templates"
             className="flex items-center gap-1.5 rounded-lg bg-accent px-4 py-1.5 text-sm font-semibold text-white transition-all hover:bg-accent-deep active:scale-95"
           >
             <span className="material-symbols-outlined text-[16px]">add</span>

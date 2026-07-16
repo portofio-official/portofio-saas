@@ -17,13 +17,14 @@ Sumber kebenaran untuk status per fitur tetap `feature_list.json` (dibaca ulang 
 | 8 | 0 | 0% | Not Started | Publish ke Subdomain (Deploy) | - | - | - | - | - | User publish satu workspace, situsnya bisa diakses di nama.appku.com dalam hitungan detik | PRD.md §7.4, §9.3 | Bergantung pada task #4 (site kini nempel ke workspace, bukan akun langsung) dan gerbang langganan aktif dari task #10 (sementara dicek manual sampai task #10 selesai). |
 | 9 | 0 | 0% | Not Started | Dashboard Pengguna | - | - | - | - | - | Satu dashboard: daftar workspace, status publish per workspace, ganti data/template, kelola langganan | PRD.md §7.5 | Bergantung pada task #4 untuk daftar/switcher workspace-nya. |
 | 10 | 0 | 0% | Not Started | Billing & Subscription (Xendit) | - | - | - | - | - | Checkout langganan bulanan via Xendit, webhook update status, grace period 7 hari lalu auto-unpublish | PRD.md §7.6, §10, §15 | Open question belum terjawab: satu langganan meng-cover semua workspace dalam satu akun, atau per-workspace? Default sementara di PRD: per-akun. Konfirmasi dulu sebelum mulai, supaya gerbang publish di task #8 tidak dibangun salah asumsi. |
+| 11 | 0 | 100% | Completed | Workspace Profile + Project Architecture | - | - | 2026-07-16 | - | 2026-07-16 | Migrasi dari PortfolioData tunggal ke arsitektur multi-project berbasis Zod schema dan table `projects`. | `feature_list.json` (arch-001), `src/lib/projects/` | Migrasi struktural (Fase 1-4 selesai). Editor membaca `projects.draft_json`. Tabel legacy (`portfolio_data`, `sites`) dihapus. |
 
 ---
 
 ## Ringkasan Progres
 
-- **Selesai (Completed):** 6 dari 10 (#1 PRD, #2 Setup Supabase, #4 Workspace, #5 Data Portofolio, #6 Galeri Template Dashboard)
-- **Sedang berjalan (In Progress):** 1 dari 10 (#3 Auth — login penuh terverifikasi; sisa satu bug nyata di alur konfirmasi email/reset, lihat remarks task #3, butuh aksi user di Supabase Dashboard)
-- **Belum mulai (Not Started):** 3 dari 10 (#7, #8, #9, #10 — publish masih butuh keputusan open question billing dulu)
+- **Selesai (Completed):** 7 dari 11 (#1 PRD, #2 Setup Supabase, #4 Workspace, #5 Data Portofolio, #6 Galeri Template Dashboard, #11 Arsitektur Project)
+- **Sedang berjalan (In Progress):** 1 dari 11 (#3 Auth — login penuh terverifikasi; sisa satu bug nyata di alur konfirmasi email/reset, lihat remarks task #3, butuh aksi user di Supabase Dashboard)
+- **Belum mulai (Not Started):** 3 dari 11 (#7, #8, #9, #10 — publish masih butuh keputusan open question billing dulu)
 - Kedua migration SQL yang sebelumnya pending **sudah dijalankan dan dikonfirmasi aktif** oleh user — tidak ada lagi blocker migration.
 - Repo ini **sudah jadi git repository** dengan remote (`origin` → GitHub), ada commit history. Blocker version-control dari sesi-sesi sebelumnya sudah tidak berlaku lagi.

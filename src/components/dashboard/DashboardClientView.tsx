@@ -7,6 +7,8 @@ import { Link } from "@/i18n/navigation";
 import type { Workspace } from "@/lib/workspace/types";
 import { LegacyTemplateRenderer } from "@/components/templates/registry";
 
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
+
 gsap.registerPlugin(useGSAP);
 
 interface Dict {
@@ -162,19 +164,54 @@ export function DashboardClientView({
                     <div className="flex flex-col border-t border-black/5 px-5 py-4">
                       <div className="mb-1.5 flex items-center justify-between">
                         <p className="truncate font-display text-[15px] font-bold tracking-tight text-ink">{workspace.name}</p>
-                        <span className="shrink-0 rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-ink-soft">
-                          Draft
-                        </span>
+                        {workspace.publishStatus === "published" ? (
+                          <span className="flex items-center gap-1 shrink-0 rounded-full bg-positive/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-positive">
+                            <span className="h-1 w-1 rounded-full bg-positive" />
+                            Live
+                          </span>
+                        ) : (
+                          <span className="shrink-0 rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-ink-soft">
+                            Draft
+                          </span>
+                        )}
                       </div>
-                      <p className="text-[12px] font-medium text-ink-faint">
-                        Edited {timeAgo(workspace.createdAt)}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-[12px] font-medium text-ink-faint">
+                          Edited {timeAgo(workspace.createdAt)}
+                        </p>
+                        {workspace.publishStatus === "published" && workspace.subdomain && (
+                          <a
+                            href={`http://${workspace.subdomain}.${ROOT_DOMAIN}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-[11px] font-medium text-positive hover:underline"
+                          >
+                            View site ↗
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>
 
-                {/* Contextual Action (Visible on hover) */}
-                <div className="absolute right-4 top-4 opacity-0 transition-opacity duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:opacity-100">
+                {/* Contextual Actions (Visible on hover) */}
+                <div className="absolute right-4 top-4 flex gap-1 opacity-0 transition-opacity duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:opacity-100">
+                  {workspace.publishStatus === "published" && (
+                    <button
+                      type="button"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        const { unpublishWorkspaceProjectAction } = await import("@/lib/workspace/actions");
+                        await unpublishWorkspaceProjectAction(workspace.id);
+                        window.location.reload();
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-ink-soft shadow-sm ring-1 ring-black/5 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-danger/10 hover:text-danger hover:scale-110 active:scale-95"
+                      title="Unpublish site"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">cloud_off</span>
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={async (e) => {
@@ -182,6 +219,7 @@ export function DashboardClientView({
                       if (confirm(`Delete ${workspace.name}?`)) {
                         const { deleteWorkspaceAction } = await import("@/lib/workspace/actions");
                         await deleteWorkspaceAction(workspace.id);
+                        window.location.reload();
                       }
                     }}
                     className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-ink-soft shadow-sm ring-1 ring-black/5 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-danger/10 hover:text-danger hover:scale-110 active:scale-95"

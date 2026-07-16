@@ -6,7 +6,7 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useTranslations, useLocale } from "next-intl";
 import { useAutosave } from "@/hooks/useAutosave";
-import { saveDraftAction } from "@/lib/projects/actions";
+import { saveDraftAction, publishProjectAction, unpublishProjectAction } from "@/lib/projects/actions";
 import { FONT_OPTIONS, ACCENT_COLOR_PRESETS, type TemplateId } from "@/lib/templates/types";
 import type { BasePortfolioData } from "@/lib/templates/schemas/_base";
 import type { WebsiteDocument } from "@/lib/templates/definition";
@@ -27,18 +27,33 @@ export function Editor({
   projectId,
   initialDocument,
   initialTemplateId,
+  initialSubdomain,
+  initialStatus,
+  rootDomain,
 }: {
   projectId: string;
   initialDocument: WebsiteDocument;
   initialTemplateId: TemplateId;
+  initialSubdomain?: string | null;
+  initialStatus?: "draft" | "published";
+  rootDomain?: string;
 }) {
-  // data is the parsed portfolio payload from the WebsiteDocument
   const [data, setData] = useState<BasePortfolioData>(
     (initialDocument.data ?? {}) as BasePortfolioData,
   );
   const templateId = initialTemplateId;
   const [showDesktopPreview, setShowDesktopPreview] = useState(false);
   const container = useRef<HTMLDivElement>(null);
+
+  // Publish state
+  const [subdomain, setSubdomain] = useState(initialSubdomain ?? "");
+  const [publishStatus, setPublishStatus] = useState<"draft" | "published">(
+    initialStatus ?? "draft",
+  );
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [publishLoading, setPublishLoading] = useState(false);
+
+  const domain = rootDomain ?? process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
   // Build a WebsiteDocument from current data state for autosave
   const documentForSave = (): WebsiteDocument => ({
@@ -51,10 +66,7 @@ export function Editor({
     data: data as Record<string, unknown>,
   });
 
-  // Autosave: debounce writes to projects.draft_json
   const saveStatus = useAutosave(data, () => saveDraftAction(projectId, documentForSave()));
-
-  // No template changing effect needed
 
   useGSAP(
     () => {
@@ -79,9 +91,7 @@ export function Editor({
 
   const t = useTranslations("TemplatePicker");
   const tSaveStatus = useTranslations("PortfolioForm.saveStatus");
-  const status = saveStatus;
 
-  // Form section translations
   const tProfile = useTranslations("PortfolioForm.profile");
   const tExperience = useTranslations("PortfolioForm.experience");
   const tEducation = useTranslations("PortfolioForm.education");
@@ -91,6 +101,34 @@ export function Editor({
   const tSocials = useTranslations("PortfolioForm.socials");
 
   const locale = useLocale();
+
+  async function handlePublish() {
+    setPublishLoading(true);
+    setPublishError(null);
+    const result = await publishProjectAction(projectId, subdomain);
+    setPublishLoading(false);
+    if (result.ok) {
+      setPublishStatus("published");
+    } else if (result.requiresSubscription) {
+      setPublishError("subscription_required");
+    } else {
+      setPublishError(result.error ?? "Failed to publish.");
+    }
+  }
+
+  async function handleUnpublish() {
+    setPublishLoading(true);
+    setPublishError(null);
+    const result = await unpublishProjectAction(projectId);
+    setPublishLoading(false);
+    if (result.ok) {
+      setPublishStatus("draft");
+    } else {
+      setPublishError(result.error ?? "Failed to unpublish.");
+    }
+  }
+
+  const siteUrl = `${subdomain}.${domain}`;
 
   return (
     <div ref={container} className="flex h-full flex-col overflow-hidden bg-surface text-ink font-sans">
@@ -107,7 +145,19 @@ export function Editor({
           <span className="font-display text-[14px] font-bold tracking-tight text-ink">Editor</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-[12px] font-medium text-ink-soft">{tSaveStatus(status)}</span>
+          <span className="text-[12px] font-medium text-ink-soft">{tSaveStatus(saveStatus)}</span>
+          {/* Live badge in header */}
+          {publishStatus === "published" && subdomain && (
+            <a
+              href={`http://${siteUrl}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-full bg-positive/10 px-3 py-1 text-[11px] font-bold text-positive hover:bg-positive/20 transition-colors"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-positive" />
+              Live
+            </a>
+          )}
           <button
             onClick={() => setShowDesktopPreview(true)}
             className="flex items-center gap-1.5 rounded-full bg-accent px-4 py-1.5 text-[12px] font-bold text-white shadow-sm transition-all hover:scale-105"
@@ -120,7 +170,7 @@ export function Editor({
 
       {/* Main Workspace */}
       <div className="flex flex-1 overflow-hidden">
-        
+
         {/* Left Sidebar: Content & Data */}
         <aside className="gsap-panel flex w-[300px] shrink-0 flex-col border-r border-black/5 bg-surface">
           <div className="flex h-12 shrink-0 items-center border-b border-black/5 px-5">
@@ -188,13 +238,14 @@ export function Editor({
           </div>
         </main>
 
-        {/* Right Sidebar: Design Properties */}
+        {/* Right Sidebar: Design Properties + Publish */}
         <aside className="gsap-panel flex w-[280px] shrink-0 flex-col border-l border-black/5 bg-surface">
           <div className="flex h-12 shrink-0 items-center border-b border-black/5 px-5">
             <span className="text-[10px] font-bold uppercase tracking-widest text-ink-faint">Design Properties</span>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
             <div className="flex flex-col gap-8">
+
               {/* Accent Color Section */}
               <div className="flex flex-col gap-4">
                 <span className="text-[12px] font-bold text-ink">{t("accentColorLabel")}</span>
@@ -239,6 +290,111 @@ export function Editor({
                   ))}
                 </div>
               </div>
+
+              {/* Divider */}
+              <div className="h-px bg-black/5" />
+
+              {/* Publish Panel */}
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] font-bold text-ink">Publish</span>
+                  {publishStatus === "published" && (
+                    <span className="rounded-full bg-positive/10 px-2 py-0.5 text-[10px] font-bold text-positive">
+                      Live
+                    </span>
+                  )}
+                </div>
+
+                {publishStatus === "published" ? (
+                  /* Published state */
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2 rounded-[0.75rem] bg-positive/5 px-3 py-2 ring-1 ring-positive/20">
+                      <span className="material-symbols-outlined text-[14px] text-positive">public</span>
+                      <a
+                        href={`http://${siteUrl}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="truncate text-[12px] font-medium text-positive hover:underline"
+                      >
+                        {siteUrl}
+                      </a>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleUnpublish}
+                      disabled={publishLoading}
+                      className="flex w-full items-center justify-center gap-1.5 rounded-[1rem] bg-black/5 px-4 py-2.5 text-[12px] font-medium text-ink-soft transition-all hover:bg-danger/10 hover:text-danger disabled:opacity-50"
+                    >
+                      {publishLoading ? (
+                        <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>
+                      ) : (
+                        <span className="material-symbols-outlined text-[14px]">cloud_off</span>
+                      )}
+                      {publishLoading ? "Unpublishing…" : "Unpublish"}
+                    </button>
+                    {publishError && (
+                      <p className="text-[11px] text-danger">{publishError}</p>
+                    )}
+                  </div>
+                ) : (
+                  /* Draft state — subdomain input + publish button */
+                  <div className="flex flex-col gap-3">
+                    <div className="text-[11px] text-ink-soft leading-relaxed">
+                      Choose a subdomain to make your portfolio live.
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center overflow-hidden rounded-[0.75rem] ring-1 ring-black/10 focus-within:ring-accent transition-all">
+                        <input
+                          type="text"
+                          value={subdomain}
+                          onChange={(e) => {
+                            setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+                            setPublishError(null);
+                          }}
+                          placeholder="your-name"
+                          className="flex-1 bg-white px-3 py-2 text-[12px] font-medium text-ink placeholder:text-ink-faint focus:outline-none"
+                        />
+                        <span className="shrink-0 bg-black/5 px-2 py-2 text-[11px] text-ink-faint">
+                          .{domain}
+                        </span>
+                      </div>
+                      {publishError && publishError !== "subscription_required" && (
+                        <p className="text-[11px] text-danger">{publishError}</p>
+                      )}
+                    </div>
+
+                    {publishError === "subscription_required" ? (
+                      <div className="flex flex-col gap-2 rounded-[0.75rem] bg-accent/5 p-3 ring-1 ring-accent/20">
+                        <p className="text-[11px] text-ink leading-relaxed">
+                          Publishing requires an active subscription.
+                        </p>
+                        <a
+                          href={`/${locale}/dashboard/billing`}
+                          className="flex items-center justify-center gap-1.5 rounded-[0.75rem] bg-accent px-3 py-2 text-[12px] font-bold text-white transition-all hover:scale-105 hover:shadow-sm"
+                        >
+                          <span className="material-symbols-outlined text-[14px]">workspace_premium</span>
+                          Subscribe
+                        </a>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handlePublish}
+                        disabled={publishLoading || !subdomain}
+                        className="flex w-full items-center justify-center gap-1.5 rounded-[1rem] bg-ink px-4 py-2.5 text-[12px] font-bold text-white shadow-sm transition-all hover:bg-[#1a1a1a] hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {publishLoading ? (
+                          <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>
+                        ) : (
+                          <span className="material-symbols-outlined text-[14px]">rocket_launch</span>
+                        )}
+                        {publishLoading ? "Publishing…" : "Publish"}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
         </aside>

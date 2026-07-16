@@ -72,6 +72,9 @@ export default async function EditorPage({
           projectId={created.id}
           initialDocument={created.draftJson}
           initialTemplateId={created.templateId as TemplateId}
+          initialSubdomain={created.subdomain}
+          initialStatus={created.status}
+          rootDomain={process.env.NEXT_PUBLIC_ROOT_DOMAIN}
         />
       </div>
     );
@@ -99,6 +102,9 @@ export default async function EditorPage({
         projectId={fullProject.id}
         initialDocument={fullProject.draftJson}
         initialTemplateId={templateId}
+        initialSubdomain={fullProject.subdomain}
+        initialStatus={fullProject.status}
+        rootDomain={process.env.NEXT_PUBLIC_ROOT_DOMAIN}
       />
     </div>
   );

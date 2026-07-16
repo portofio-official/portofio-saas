@@ -3,6 +3,7 @@
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
+import { listProjects, unpublishProject } from "@/lib/projects/store";
 
 export type CreateWorkspaceState = { error: string | null };
 
@@ -53,6 +54,16 @@ export async function deleteWorkspaceAction(workspaceId: string): Promise<{ erro
 
   const { revalidatePath } = await import("next/cache");
   revalidatePath("/[locale]/dashboard", "page");
-  
+
   return { error: null };
+}
+
+/** Finds the first project for a workspace and unpublishes it (for dashboard card action). */
+export async function unpublishWorkspaceProjectAction(
+  workspaceId: string,
+): Promise<{ ok: boolean }> {
+  const projects = await listProjects(workspaceId);
+  if (!projects[0]) return { ok: false };
+  const ok = await unpublishProject(projects[0].id);
+  return { ok };
 }

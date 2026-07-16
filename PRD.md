@@ -1,8 +1,8 @@
 # Product Requirements Document (PRD)
 ## Portofio - SaaS Portfolio Website Builder
 
-**Versi**: 1.4
-**Tanggal**: 14 Juli 2026
+**Versi**: 1.5
+**Tanggal**: 16 Juli 2026
 **Disusun oleh**: Maulana Chandra Irawan
 **Status**: Siap untuk development
 
@@ -13,6 +13,8 @@
 > Perubahan v1.3: ditambahkan konsep **Workspace** — satu akun dapat memiliki lebih dari satu workspace (brand profile), masing-masing dengan data portofolio, pilihan template, dan subdomain publish sendiri-sendiri (sebelumnya diasumsikan 1 akun = 1 portofolio). Alur pengguna dirinci: setelah daftar, pengguna membuat workspace pertama lalu mengisi Data General; di dalam workspace, memilih template menampilkan preview dengan **data dummy** dulu, baru setelah "Gunakan template" pengguna masuk ke form khusus yang auto-fill dari Data General dan hanya minta field yang belum terisi (bukan field unik per template — kontrak data tetap satu untuk semua template, lihat 7.3/9.4). Ditambahkan langkah Review eksplisit sebelum Deploy (=Publish). Skema data (9.4) dan model billing (7.6) disesuaikan; harga per-workspace vs per-akun dicatat sebagai open question (16) karena belum diputuskan.
 >
 > Perubahan v1.4: Menyederhanakan alur pengguna (Ponytail mode). Menghapus langkah isi "Data General" di awal. Pengguna langsung masuk ke Dashboard setelah login untuk memilih template, lalu mengisi data spesifik di dalam Editor (mirip Framer).
+>
+> Perubahan v1.5 (2026-07-16, doc-sync pass): §9.3/9.4 ditulis ulang untuk mencocokkan arsitektur yang sudah dibangun ("Workspace Profile + Project Architecture", `arch-001` di `feature_list.json`) dan menggantikan `portfolio_data`+`sites` yang sudah di-drop dari database. Skema baru: `workspace_profile` (data umum 1:1 per workspace) + `projects` (banyak per workspace, `draft_json`/`published_json`, publish via RPC `publish_project()`) + template didefinisikan lewat Zod `TemplateDefinition` di kode (`src/lib/templates/schemas/`), bukan satu interface `PortfolioData` tunggal. Tidak ada perubahan pada alur pengguna (section 6) atau scope (section 5) — murni penyelarasan skema data dengan kode yang sudah berjalan.
 
 ---
 

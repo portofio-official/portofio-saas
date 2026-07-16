@@ -8,6 +8,7 @@ import type { FontOption } from "@/lib/templates/types";
 // public/fonts/ instead.
 const sans = localFont({
   variable: "--tpl-font-sans",
+  preload: false,
   src: [
     { path: "../../../public/fonts/Inter-Regular.woff2", weight: "400", style: "normal" },
     { path: "../../../public/fonts/Inter-SemiBold.woff2", weight: "600", style: "normal" },
@@ -16,6 +17,7 @@ const sans = localFont({
 });
 const serif = localFont({
   variable: "--tpl-font-serif",
+  preload: false,
   src: [
     { path: "../../../public/fonts/PlayfairDisplay-Regular.woff2", weight: "400", style: "normal" },
     { path: "../../../public/fonts/PlayfairDisplay-SemiBold.woff2", weight: "600", style: "normal" },
@@ -24,6 +26,7 @@ const serif = localFont({
 });
 const mono = localFont({
   variable: "--tpl-font-mono",
+  preload: false,
   src: [
     { path: "../../../public/fonts/JetBrainsMono-Regular.woff2", weight: "400", style: "normal" },
     { path: "../../../public/fonts/JetBrainsMono-SemiBold.woff2", weight: "600", style: "normal" },
@@ -32,6 +35,7 @@ const mono = localFont({
 });
 const rounded = localFont({
   variable: "--tpl-font-rounded",
+  preload: false,
   src: [
     { path: "../../../public/fonts/Poppins-Regular.woff2", weight: "400", style: "normal" },
     { path: "../../../public/fonts/Poppins-SemiBold.woff2", weight: "600", style: "normal" },

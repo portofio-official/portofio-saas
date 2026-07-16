@@ -1,13 +1,13 @@
 // src/lib/templates/schemas/creative.ts
 import type { TemplateDefinition, WorkspaceProfile } from "@/lib/templates/definition";
 import { basePortfolioSchema, BASE_DEFAULTS, BASE_SECTIONS, type BasePortfolioData } from "./_base";
-import type React from "react";
+import React from "react";
 
 const getRenderer = (): React.ComponentType<{ data: BasePortfolioData; workspaceProfile: WorkspaceProfile }> => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { CreativeTemplate } = require("@/components/templates/CreativeTemplate");
   return function CreativeAdapter({ data }: { data: BasePortfolioData; workspaceProfile: WorkspaceProfile }) {
-    return CreativeTemplate({ data });
+    return React.createElement(CreativeTemplate, { data });
   };
 };
 

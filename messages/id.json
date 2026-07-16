@@ -1,4 +1,15 @@
 {
+  "Templates": {
+    "eyebrow": "Template",
+    "title": "Pilih template",
+    "items": [
+      { "name": "Minimal", "description": "Bersih, menonjolkan serif, satu kolom. Bagus untuk penulis & konsultan." },
+      { "name": "Bold", "description": "Warna aksen yang kuat, judul besar. Sempurna untuk pekerja kreatif & pemasar." },
+      { "name": "Creative", "description": "Tata letak asimetris, tipografi tebal. Ideal untuk desainer & seniman." },
+      { "name": "Corporate", "description": "Profesional, terstruktur, berbasis grid. Dibuat untuk agensi & bisnis." },
+      { "name": "Dark", "description": "Elegan, mode gelap bawaan, aksen neon. Disesuaikan untuk developer & teknologi." }
+    ]
+  },
   "Landing": {
     "Navbar": {
       "home": "Beranda",

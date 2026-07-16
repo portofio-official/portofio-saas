@@ -12,10 +12,13 @@ const DEFAULT_TEMPLATE: TemplateId = "minimal";
 
 export default async function EditorPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; workspaceId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { locale, workspaceId } = await params;
+  const sp = await searchParams;
   const email = await getCurrentUserEmail();
 
   if (!email) {
@@ -32,13 +35,18 @@ export default async function EditorPage({
 
   if (projects.length === 0) {
     // First time: create a default project with auto-fill from WorkspaceProfile
+    let selectedTemplateId = (sp.templateId as string) || DEFAULT_TEMPLATE;
+    if (!TEMPLATE_IDS.includes(selectedTemplateId as TemplateId)) {
+      selectedTemplateId = DEFAULT_TEMPLATE;
+    }
+
     const profile = await getWorkspaceProfile(workspaceId);
-    const definition = getDefinition(DEFAULT_TEMPLATE);
+    const definition = getDefinition(selectedTemplateId as TemplateId);
     const initialDoc = definition
       ? buildInitialDocument(profile, definition, locale)
       : {
           meta: {
-            templateId: DEFAULT_TEMPLATE,
+            templateId: selectedTemplateId,
             templateVersion: 1,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
@@ -50,7 +58,7 @@ export default async function EditorPage({
     const created = await createProject(
       workspaceId,
       workspace.name,
-      DEFAULT_TEMPLATE,
+      selectedTemplateId,
       initialDoc,
     );
 
@@ -59,14 +67,7 @@ export default async function EditorPage({
     }
 
     return (
-      <div className="mx-auto max-w-[90rem] px-4 py-8 md:px-8 md:py-12">
-        <a
-          href={`/${locale}/dashboard/${workspaceId}`}
-          className="mb-8 inline-flex items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-ink"
-        >
-          <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-          Back to templates
-        </a>
+      <div className="flex h-full w-full flex-col">
         <Editor
           projectId={created.id}
           initialDocument={created.draftJson}
@@ -93,14 +94,7 @@ export default async function EditorPage({
     : DEFAULT_TEMPLATE;
 
   return (
-    <div className="mx-auto max-w-[90rem] px-4 py-8 md:px-8 md:py-12">
-      <a
-        href={`/${locale}/dashboard/${workspaceId}`}
-        className="mb-8 inline-flex items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-ink"
-      >
-        <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-        Back to templates
-      </a>
+    <div className="flex h-full w-full flex-col">
       <Editor
         projectId={fullProject.id}
         initialDocument={fullProject.draftJson}

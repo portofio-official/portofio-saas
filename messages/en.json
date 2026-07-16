@@ -1,4 +1,15 @@
 {
+  "Templates": {
+    "eyebrow": "Templates",
+    "title": "Choose a template",
+    "items": [
+      { "name": "Minimal", "description": "Clean, serif-forward, single column. Great for writers & consultants." },
+      { "name": "Bold", "description": "Strong accent colors, large headings. Perfect for creatives & marketers." },
+      { "name": "Creative", "description": "Asymmetrical layouts, bold typography. Ideal for designers & artists." },
+      { "name": "Corporate", "description": "Professional, structured, grid-based. Built for agencies & businesses." },
+      { "name": "Dark", "description": "Sleek, dark mode by default, neon accents. Tailored for developers & tech." }
+    ]
+  },
   "Landing": {
     "Navbar": {
       "home": "Home",

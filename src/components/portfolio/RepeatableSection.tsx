@@ -1,4 +1,3 @@
-import { Trash } from "@phosphor-icons/react/dist/ssr";
 import { FormPanel } from "@/components/ui/FormPanel";
 
 export function RepeatableSection<T>({
@@ -46,7 +45,7 @@ export function RepeatableSection<T>({
               onClick={() => removeRow(index)}
               className="inline-flex w-max items-center gap-1.5 text-[13px] text-ink-soft hover:text-danger"
             >
-              <Trash size={14} weight="light" />
+              <span className="material-symbols-outlined text-[14px]">delete</span>
               {removeLabel}
             </button>
           </div>

@@ -1,7 +1,7 @@
 // src/lib/templates/schemas/minimal.ts
 import type { TemplateDefinition, WorkspaceProfile } from "@/lib/templates/definition";
 import { basePortfolioSchema, BASE_DEFAULTS, BASE_SECTIONS, type BasePortfolioData } from "./_base";
-import type React from "react";
+import React from "react";
 
 // ponytail: lazy import to avoid bloating the registry module
 const getRenderer = (): React.ComponentType<{ data: BasePortfolioData; workspaceProfile: WorkspaceProfile }> => {
@@ -10,7 +10,7 @@ const getRenderer = (): React.ComponentType<{ data: BasePortfolioData; workspace
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { MinimalTemplate } = require("@/components/templates/MinimalTemplate");
   return function MinimalAdapter({ data }: { data: BasePortfolioData; workspaceProfile: WorkspaceProfile }) {
-    return MinimalTemplate({ data });
+    return React.createElement(MinimalTemplate, { data });
   };
 };
 

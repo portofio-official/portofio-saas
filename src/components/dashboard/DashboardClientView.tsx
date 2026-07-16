@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Link } from "@/i18n/navigation";
 import type { Workspace } from "@/lib/workspace/types";
+import { LegacyTemplateRenderer } from "@/components/templates/registry";
 
 gsap.registerPlugin(useGSAP);
 
@@ -19,16 +20,6 @@ interface Dict {
   createTitle: string;
 }
 
-// Palette of preview background colors for workspace cards (cycling)
-const CARD_PREVIEW_COLORS = [
-  "bg-[#e6faf2]",
-  "bg-[#f0f3f9]",
-  "bg-[#fff7ed]",
-  "bg-[#f0f9ff]",
-  "bg-[#fdf4ff]",
-  "bg-[#fafafa]",
-];
-
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const days = Math.floor(diff / 86400000);
@@ -41,9 +32,7 @@ function timeAgo(dateStr: string): string {
 }
 
 export function DashboardClientView({
-  email,
   workspaces,
-  dict,
 }: {
   email: string;
   workspaces: Workspace[];
@@ -51,134 +40,203 @@ export function DashboardClientView({
 }) {
   const container = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState("");
+  const [sortByName, setSortByName] = useState(false);
+
+  const filtered = workspaces
+    .filter((w) => w.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) =>
+      sortByName
+        ? a.name.localeCompare(b.name)
+        : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 
   useGSAP(
     () => {
       gsap.fromTo(
         ".gsap-header",
         { y: -20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, ease: "var(--ease-fluid)", delay: 0.1 }
+        { y: 0, opacity: 1, duration: 1.2, ease: "cubic-bezier(0.32,0.72,0,1)", delay: 0.1 }
       );
       gsap.fromTo(
         ".gsap-card",
-        { y: 40, opacity: 0, scale: 0.98 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "var(--ease-fluid)", stagger: 0.08, delay: 0.2 }
+        { y: 60, opacity: 0, scale: 0.95 },
+        { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "cubic-bezier(0.32,0.72,0,1)", stagger: 0.1, delay: 0.2 }
       );
     },
     { scope: container }
   );
 
-  const filtered = workspaces.filter((w) =>
-    w.name.toLowerCase().includes(search.toLowerCase())
-  );
-
   return (
-    <>
+    <div ref={container} className="flex h-full flex-col">
       {/* Top bar */}
-      <header className="gsap-header flex shrink-0 items-center justify-between px-10 py-10">
-        <div>
-          <p className="mb-2 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-ink-faint w-max bg-black/[0.03]">
-            Overview
-          </p>
-          <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">Projects</h1>
+      <header className="gsap-header flex shrink-0 items-end justify-between border-b border-black/5 bg-surface/80 px-12 py-10 backdrop-blur-md">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-[12px] font-bold tracking-widest uppercase text-ink-faint">
+            <span>Workspaces</span>
+            <span>/</span>
+            <span className="text-ink-soft">My Workspace</span>
+          </div>
+          <h1 className="mt-2 font-display text-[28px] font-bold tracking-tight text-ink">Projects</h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
+          {/* Search */}
+          <div className="flex items-center gap-2 rounded-[10px] bg-black/[0.03] px-3 py-2 ring-1 ring-transparent transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] focus-within:bg-white focus-within:ring-black/10 focus-within:shadow-sm">
+            <span className="material-symbols-outlined text-[16px] text-ink-faint">search</span>
+            <input
+              type="text"
+              placeholder="Search projects..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-40 bg-transparent text-[13px] font-medium text-ink placeholder:text-ink-faint focus:outline-none"
+            />
+          </div>
           {/* Sort */}
-          <button type="button" className="group flex items-center gap-2 rounded-full bg-shell px-5 py-3 text-sm font-semibold text-ink-soft transition-all duration-300 ease-[var(--ease-fluid)] hover:bg-black/5 hover:text-ink active:scale-[0.98]">
-            Last viewed by me
-            <span className="material-symbols-outlined text-[16px] transition-transform duration-300 group-hover:translate-y-[1px]">expand_more</span>
+          <button
+            type="button"
+            onClick={() => setSortByName((v) => !v)}
+            className="group flex items-center gap-1.5 rounded-[10px] px-3 py-2 text-[13px] font-medium text-ink-soft transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-black/[0.03] hover:text-ink active:scale-[0.98]"
+          >
+            <span className="material-symbols-outlined text-[16px]">sort</span>
+            {sortByName ? "Name" : "Last viewed"}
           </button>
-          {/* New project */}
+          {/* New project Button-in-Button */}
           <Link
             href="/templates"
-            className="group flex items-center gap-2 rounded-full bg-ink py-2 pl-6 pr-2 text-sm font-semibold text-white transition-all duration-300 ease-[var(--ease-fluid)] hover:bg-black active:scale-[0.98] shadow-[0_8px_16px_-4px_rgba(0,0,0,0.15)]"
+            className="group flex items-center gap-3 rounded-[1.25rem] bg-ink pl-5 pr-2 py-2 text-[13px] font-bold text-white shadow-sm transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#1a1a1a] hover:shadow-md active:scale-[0.98]"
           >
             New Project
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 transition-transform duration-300 ease-[var(--ease-fluid)] group-hover:translate-x-1 group-hover:bg-white/30">
-              <span className="material-symbols-outlined text-[16px]">add</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105 group-hover:translate-x-1 group-hover:bg-white/20">
+               <span className="material-symbols-outlined text-[16px]">add</span>
             </div>
           </Link>
         </div>
       </header>
 
-      {/* Cards grid */}
-      <div ref={container} className="flex-1 overflow-y-auto px-10 pb-20">
+      {/* Cards grid (Macro Whitespace px-12 py-12) */}
+      <div className="flex-1 overflow-y-auto bg-canvas px-12 pb-32 pt-12">
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((workspace, i) => (
-              <Link
+            {filtered.map((workspace) => (
+              // OUTER SHELL (Double-Bezel Architecture)
+              <div
                 key={workspace.id}
-                href={`/dashboard/${workspace.id}/editor`}
-                className="gsap-card group flex flex-col overflow-hidden rounded-[2rem] bg-shell p-2 shadow-[var(--shadow-diffused)] ring-1 ring-black/5 transition-all duration-500 ease-[var(--ease-fluid)] hover:-translate-y-1 hover:shadow-xl hover:ring-black/10"
+                className="gsap-card group relative flex flex-col overflow-hidden rounded-[2rem] bg-black/[0.02] p-1.5 ring-1 ring-black/5 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[0.98] hover:bg-black/[0.04]"
               >
-                {/* Card thumbnail (Inner Core) */}
-                <div
-                  className={`relative flex h-48 w-full items-center justify-center overflow-hidden rounded-[1.5rem] shadow-[var(--shadow-inner-bezel)] ${CARD_PREVIEW_COLORS[i % CARD_PREVIEW_COLORS.length]}`}
+                <Link
+                  href={`/dashboard/${workspace.id}/editor`}
+                  className="flex h-full w-full flex-col outline-none"
                 >
-                  <div className="absolute inset-0 bg-black/0 transition-colors duration-500 group-hover:bg-black/5" />
-                  {/* Placeholder browser chrome */}
-                  <div className="w-[85%] overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-transform duration-500 ease-[var(--ease-fluid)] group-hover:scale-[1.02]">
-                    <div className="flex items-center gap-1.5 border-b border-black/5 bg-canvas px-3 py-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-danger/60" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]/60" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-accent/60" />
-                    </div>
-                    <div className="flex flex-col gap-2 p-3">
-                      <div className="h-2 w-3/4 rounded bg-ink/10" />
-                      <div className="h-2 w-1/2 rounded bg-ink/6" />
-                      <div className="mt-2 h-8 w-full rounded bg-ink/5" />
-                    </div>
-                  </div>
-                </div>
+                  {/* INNER CORE */}
+                  <div className="flex flex-col h-full w-full overflow-hidden rounded-[1.6rem] bg-white shadow-sm ring-1 ring-black/5 transition-shadow duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:shadow-md">
+                    {/* Card thumbnail */}
+                    <div className="relative flex h-[200px] w-full items-center justify-center overflow-hidden bg-black/[0.02]">
+                      {workspace.preview ? (
+                        <div
+                          className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-[1.03]"
+                          style={{ transform: "scale(0.35)", width: "285%", height: "285%" }}
+                        >
+                          <LegacyTemplateRenderer
+                            templateId={workspace.preview.templateId}
+                            data={workspace.preview.data}
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          {/* Subtle dot grid pattern */}
+                          <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(#00000015 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
 
-                {/* Card meta */}
-                <div className="flex items-center justify-between px-4 py-4">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-display text-base font-bold text-ink">{workspace.name}</p>
-                    <p className="text-[12px] font-medium text-ink-faint">
-                      Created {timeAgo(workspace.createdAt)}
-                    </p>
+                          {/* Minimal wireframe placeholder — no project data yet */}
+                          <div className="relative w-[70%] rounded-[12px] bg-white p-3 shadow-sm ring-1 ring-black/5 transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105">
+                             <div className="mb-3 h-2 w-1/3 rounded-full bg-black/10" />
+                             <div className="mb-2 h-16 w-full rounded-md bg-black/[0.03]" />
+                             <div className="flex gap-2">
+                               <div className="h-10 w-1/2 rounded-md bg-black/[0.03]" />
+                               <div className="h-10 w-1/2 rounded-md bg-black/[0.03]" />
+                             </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Card meta */}
+                    <div className="flex flex-col border-t border-black/5 px-5 py-4">
+                      <div className="mb-1.5 flex items-center justify-between">
+                        <p className="truncate font-display text-[15px] font-bold tracking-tight text-ink">{workspace.name}</p>
+                        <span className="shrink-0 rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-ink-soft">
+                          Draft
+                        </span>
+                      </div>
+                      <p className="text-[12px] font-medium text-ink-faint">
+                        Edited {timeAgo(workspace.createdAt)}
+                      </p>
+                    </div>
                   </div>
-                  <span className="ml-3 shrink-0 rounded-full bg-canvas px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-soft ring-1 ring-black/5">
-                    Free
-                  </span>
+                </Link>
+
+                {/* Contextual Action (Visible on hover) */}
+                <div className="absolute right-4 top-4 opacity-0 transition-opacity duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:opacity-100">
+                  <button
+                    type="button"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      if (confirm(`Delete ${workspace.name}?`)) {
+                        const { deleteWorkspaceAction } = await import("@/lib/workspace/actions");
+                        await deleteWorkspaceAction(workspace.id);
+                      }
+                    }}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-ink-soft shadow-sm ring-1 ring-black/5 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-danger/10 hover:text-danger hover:scale-110 active:scale-95"
+                    title="Delete Project"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                  </button>
                 </div>
-              </Link>
+              </div>
             ))}
 
-            {/* New project card */}
+            {/* New project card (Nested structural) */}
             <Link
               href="/templates"
-              className="gsap-card group flex h-full min-h-[16rem] flex-col items-center justify-center gap-3 rounded-[2rem] border-[1.5px] border-dashed border-black/10 bg-transparent text-ink-faint transition-all duration-500 ease-[var(--ease-fluid)] hover:border-ink/20 hover:bg-black/[0.02] hover:text-ink"
+              className="gsap-card group relative flex flex-col overflow-hidden rounded-[2rem] bg-transparent p-1.5 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[0.98]"
             >
-              <span className="material-symbols-outlined text-[40px] transition-transform duration-500 ease-[var(--ease-fluid)] group-hover:scale-110 group-hover:text-ink">
-                add_circle
-              </span>
-              <span className="font-display text-base font-bold">New Project</span>
+              <div className="flex h-full min-h-[260px] w-full flex-col items-center justify-center gap-4 rounded-[1.6rem] border border-dashed border-black/15 bg-transparent transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:border-black/30 group-hover:bg-black/[0.02]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/5 text-ink-soft transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-110 group-hover:bg-black/10 group-hover:text-ink">
+                  <span className="material-symbols-outlined text-[24px]">add</span>
+                </div>
+                <span className="text-[14px] font-bold tracking-tight text-ink-soft group-hover:text-ink">Create new project</span>
+              </div>
             </Link>
+          </div>
+        ) : workspaces.length > 0 ? (
+          // No search results
+          <div className="flex h-full flex-col items-center justify-center gap-6 text-center">
+            <span className="material-symbols-outlined text-[48px] text-ink-faint/50">search_off</span>
+            <div>
+              <p className="font-display text-xl font-bold tracking-tight text-ink">No matches</p>
+              <p className="mt-1 text-[13px] text-ink-soft">
+                No projects match &quot;{search}&quot;. Try a different search.
+              </p>
+            </div>
           </div>
         ) : (
           // Empty state
           <div className="flex h-full flex-col items-center justify-center gap-6 text-center">
-            <span className="material-symbols-outlined text-[64px] text-ink-faint/50">
-              layers
+            <span className="material-symbols-outlined text-[48px] text-ink-faint/50">
+              grid_view
             </span>
             <div>
-              <p className="font-display text-2xl font-extrabold tracking-tight text-ink">No projects yet</p>
-              <p className="mt-2 text-base text-ink-soft">Create your first portfolio project to get started.</p>
+              <p className="font-display text-xl font-bold tracking-tight text-ink">No projects yet</p>
+              <p className="mt-1 text-[13px] text-ink-soft">Create your first portfolio project to get started.</p>
             </div>
             <Link
               href="/templates"
-              className="group mt-4 flex items-center gap-2 rounded-full bg-ink py-3 pl-8 pr-3 text-sm font-semibold text-white shadow-[0_8px_16px_-4px_rgba(0,0,0,0.15)] transition-all duration-300 ease-[var(--ease-fluid)] hover:bg-black active:scale-[0.98]"
+              className="mt-2 flex items-center gap-2 rounded-lg bg-ink px-4 py-2 text-[13px] font-medium text-white shadow-sm transition-all hover:bg-black hover:shadow-md active:scale-[0.98]"
             >
-              Create project
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 transition-transform duration-300 ease-[var(--ease-fluid)] group-hover:translate-x-1 group-hover:bg-white/30">
-                <span className="material-symbols-outlined text-[20px]">add</span>
-              </div>
+              <span className="material-symbols-outlined text-[16px]">add</span>
+              New Project
             </Link>
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

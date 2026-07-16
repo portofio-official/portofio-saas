@@ -1,18 +1,16 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAutosave } from "@/hooks/useAutosave";
 import { saveDraftAction } from "@/lib/projects/actions";
-import { FONT_OPTIONS, ACCENT_COLOR_PRESETS, TEMPLATE_IDS, type TemplateId } from "@/lib/templates/types";
+import { FONT_OPTIONS, ACCENT_COLOR_PRESETS, type TemplateId } from "@/lib/templates/types";
 import type { BasePortfolioData } from "@/lib/templates/schemas/_base";
 import type { WebsiteDocument } from "@/lib/templates/definition";
 import { LegacyTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
-import { Eyebrow } from "@/components/ui/CtaButton";
-import { FormPanel } from "@/components/ui/FormPanel";
 
 // Portfolio Form Sections
 import { ProfileSection } from "@/components/portfolio/sections/ProfileSection";
@@ -38,10 +36,8 @@ export function Editor({
   const [data, setData] = useState<BasePortfolioData>(
     (initialDocument.data ?? {}) as BasePortfolioData,
   );
-  const [templateId, setTemplateId] = useState(initialTemplateId);
-  const [visibleTemplateId, setVisibleTemplateId] = useState(initialTemplateId);
+  const templateId = initialTemplateId;
   const [showDesktopPreview, setShowDesktopPreview] = useState(false);
-  const fading = templateId !== visibleTemplateId;
   const container = useRef<HTMLDivElement>(null);
 
   // Build a WebsiteDocument from current data state for autosave
@@ -58,11 +54,7 @@ export function Editor({
   // Autosave: debounce writes to projects.draft_json
   const saveStatus = useAutosave(data, () => saveDraftAction(projectId, documentForSave()));
 
-  useEffect(() => {
-    if (!fading) return;
-    const timeout = setTimeout(() => setVisibleTemplateId(templateId), 250);
-    return () => clearTimeout(timeout);
-  }, [fading, templateId]);
+  // No template changing effect needed
 
   useGSAP(
     () => {
@@ -86,9 +78,7 @@ export function Editor({
   );
 
   const t = useTranslations("TemplatePicker");
-  const tTemplates = useTranslations("Templates");
   const tSaveStatus = useTranslations("PortfolioForm.saveStatus");
-  const templateItems = tTemplates.raw("items") as { name: string; description: string }[];
   const status = saveStatus;
 
   // Form section translations
@@ -100,179 +90,161 @@ export function Editor({
   const tContact = useTranslations("PortfolioForm.contact");
   const tSocials = useTranslations("PortfolioForm.socials");
 
-  return (
-    <div ref={container} className="flex flex-col gap-6">
-      <div className="gsap-header flex items-center justify-between gap-4">
-        <div className="flex flex-col gap-2">
-          <Eyebrow>{t("eyebrow")}</Eyebrow>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
-            {t("title")}
-          </h1>
-        </div>
-        <span className="shrink-0 text-sm font-medium text-ink-soft">{tSaveStatus(status)}</span>
-      </div>
+  const locale = useLocale();
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="flex flex-col gap-8 lg:col-span-5 h-[800px] overflow-y-auto pr-2 pb-16">
-          <div className="gsap-panel">
-            <FormPanel eyebrow={tTemplates("eyebrow")} title={tTemplates("title")}>
-              <div className="flex flex-col gap-3">
-                {TEMPLATE_IDS.map((id, index) => {
-                  const isSelected = id === templateId;
-                  const item = templateItems[index];
-                  return (
+  return (
+    <div ref={container} className="flex h-full flex-col overflow-hidden bg-surface text-ink font-sans">
+      {/* Top Header */}
+      <header className="gsap-header relative z-10 flex h-14 shrink-0 items-center justify-between border-b border-black/5 bg-surface px-6 shadow-sm">
+        <div className="flex items-center gap-4">
+          <a
+            href={`/${locale}/dashboard`}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink"
+            aria-label="Back to Dashboard"
+          >
+            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          </a>
+          <span className="font-display text-[14px] font-bold tracking-tight text-ink">Editor</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-[12px] font-medium text-ink-soft">{tSaveStatus(status)}</span>
+          <button
+            onClick={() => setShowDesktopPreview(true)}
+            className="flex items-center gap-1.5 rounded-full bg-accent px-4 py-1.5 text-[12px] font-bold text-white shadow-sm transition-all hover:scale-105"
+          >
+            <span className="material-symbols-outlined text-[14px]">desktop_windows</span>
+            Preview
+          </button>
+        </div>
+      </header>
+
+      {/* Main Workspace */}
+      <div className="flex flex-1 overflow-hidden">
+        
+        {/* Left Sidebar: Content & Data */}
+        <aside className="gsap-panel flex w-[300px] shrink-0 flex-col border-r border-black/5 bg-surface">
+          <div className="flex h-12 shrink-0 items-center border-b border-black/5 px-5">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-ink-faint">Content Layers</span>
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
+            <div className="flex flex-col gap-6">
+              <ProfileSection
+                t={tProfile}
+                profile={data.profile}
+                onChange={(patch) => setData((d) => ({ ...d, profile: { ...d.profile, ...patch } }))}
+              />
+              <ExperienceSection
+                t={tExperience}
+                items={data.experiences}
+                onChange={(experiences) => setData((d) => ({ ...d, experiences }))}
+              />
+              <EducationSection
+                t={tEducation}
+                items={data.educations}
+                onChange={(educations) => setData((d) => ({ ...d, educations }))}
+              />
+              <SkillsSection
+                eyebrow={tSkills("eyebrow")}
+                title={tSkills("title")}
+                placeholder={tSkills("placeholder")}
+                removeLabel={tSkills("removeLabel")}
+                skills={data.skills}
+                onChange={(skills) => setData((d) => ({ ...d, skills }))}
+              />
+              <ProjectsSection
+                t={tProjects}
+                items={data.projects}
+                onChange={(projects) => setData((d) => ({ ...d, projects }))}
+              />
+              <ContactSection
+                t={tContact}
+                contact={data.contact}
+                onChange={(patch) => setData((d) => ({ ...d, contact: { ...d.contact, ...patch } }))}
+              />
+              <SocialsSection
+                t={tSocials}
+                items={data.socials}
+                onChange={(socials) => setData((d) => ({ ...d, socials }))}
+              />
+            </div>
+          </div>
+        </aside>
+
+        {/* Center Canvas: Preview Area */}
+        <main className="relative flex flex-1 flex-col overflow-y-auto bg-canvas p-6 scrollbar-thin md:p-8">
+          <div className="gsap-preview mx-auto flex w-full max-w-[1200px] flex-col overflow-hidden rounded-[2rem] border border-black/5 bg-white shadow-2xl ring-1 ring-black/5">
+             <div className="flex h-10 shrink-0 items-center justify-between border-b border-black/5 bg-surface px-4">
+               <div className="flex gap-1.5">
+                 <div className="h-3 w-3 rounded-full bg-danger/80" />
+                 <div className="h-3 w-3 rounded-full bg-[#F5A623]/80" />
+                 <div className="h-3 w-3 rounded-full bg-accent/80" />
+               </div>
+               <span className="text-[11px] font-medium text-ink-faint">Live Render</span>
+               <div className="w-10" />
+             </div>
+             <div className="h-[800px] w-full overflow-y-auto bg-white scrollbar-thin">
+               <TemplateRenderer templateId={templateId} data={data} />
+             </div>
+          </div>
+        </main>
+
+        {/* Right Sidebar: Design Properties */}
+        <aside className="gsap-panel flex w-[280px] shrink-0 flex-col border-l border-black/5 bg-surface">
+          <div className="flex h-12 shrink-0 items-center border-b border-black/5 px-5">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-ink-faint">Design Properties</span>
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
+            <div className="flex flex-col gap-8">
+              {/* Accent Color Section */}
+              <div className="flex flex-col gap-4">
+                <span className="text-[12px] font-bold text-ink">{t("accentColorLabel")}</span>
+                <div className="grid grid-cols-3 gap-3">
+                  {ACCENT_COLOR_PRESETS.map((color) => (
                     <button
-                      key={id}
+                      key={color}
                       type="button"
-                      onClick={() => setTemplateId(id)}
-                      className={`group flex items-start justify-between gap-3 rounded-2xl p-4 text-left ring-1 transition-all duration-300 hover:scale-[1.02] hover:shadow-md ${
-                        isSelected
-                          ? "bg-accent-tint ring-accent/20"
-                          : "bg-surface ring-black/10 hover:ring-black/20 shadow-sm"
-                      }`}
+                      aria-label={color}
+                      onClick={() => setData((d) => ({ ...d, theme: { ...d.theme, accentColor: color } }))}
+                      className="group relative flex h-12 w-full items-center justify-center rounded-[1rem] ring-1 ring-black/5 transition-all duration-300 hover:scale-105 hover:shadow-sm"
+                      style={{ backgroundColor: color }}
                     >
-                      <div>
-                        <p className={`font-display text-lg font-bold transition-colors ${isSelected ? "text-accent-deep" : "text-ink"}`}>
-                          {item?.name}
-                        </p>
-                        <p className="mt-0.5 text-sm text-ink-soft">{item?.description}</p>
-                      </div>
-                      {isSelected && (
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-white">
-                          <span className="material-symbols-outlined text-[16px]">check</span>
-                        </span>
+                      {data.theme.accentColor === color && (
+                        <span className="material-symbols-outlined text-white text-[18px]">check</span>
                       )}
                     </button>
-                  );
-                })}
-              </div>
-            </FormPanel>
-          </div>
-
-          <div className="gsap-panel">
-            <FormPanel eyebrow={t("eyebrow")} title={t("accentColorLabel")}>
-              <div className="flex flex-wrap gap-3">
-                {ACCENT_COLOR_PRESETS.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    aria-label={color}
-                    onClick={() => setData((d) => ({ ...d, theme: { ...d.theme, accentColor: color } }))}
-                    className="flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-black/10 transition-all duration-300 hover:scale-110 hover:shadow-md"
-                    style={{ backgroundColor: color }}
-                  >
-                    {data.theme.accentColor === color && (
-                      <span className="material-symbols-outlined text-white text-[20px]">check</span>
-                    )}
-                  </button>
-                ))}
+                  ))}
+                </div>
               </div>
 
-              <div className="mt-6 flex flex-col gap-2">
-                <span className="text-[13px] font-medium text-ink-soft">{t("fontLabel")}</span>
-                <div className="flex flex-wrap gap-2">
+              {/* Typography Section */}
+              <div className="flex flex-col gap-4">
+                <span className="text-[12px] font-bold text-ink">{t("fontLabel")}</span>
+                <div className="flex flex-col gap-2">
                   {FONT_OPTIONS.map((font) => (
                     <button
                       key={font}
                       type="button"
                       onClick={() => setData((d) => ({ ...d, theme: { ...d.theme, font } }))}
-                      className={`rounded-full px-4 py-2 text-sm transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-105 ${
+                      className={`flex w-full items-center justify-between rounded-[1rem] px-4 py-3 text-left text-[13px] transition-all duration-300 ${
                         data.theme.font === font
-                          ? "bg-ink text-white shadow-md"
-                          : "bg-surface ring-1 ring-black/5 text-ink-soft hover:text-ink hover:ring-black/10"
+                          ? "bg-ink text-white font-medium shadow-md"
+                          : "bg-surface ring-1 ring-black/5 text-ink hover:bg-black/5"
                       }`}
                     >
-                      {t(`fontOptions.${font}`)}
+                      <span>{t(`fontOptions.${font}`)}</span>
+                      {data.theme.font === font && (
+                         <span className="material-symbols-outlined text-[16px]">check</span>
+                      )}
                     </button>
                   ))}
                 </div>
               </div>
-            </FormPanel>
-          </div>
-
-          <div className="gsap-panel">
-            <ProfileSection
-              t={tProfile}
-              profile={data.profile}
-              onChange={(patch) => setData((d) => ({ ...d, profile: { ...d.profile, ...patch } }))}
-            />
-          </div>
-          <div className="gsap-panel">
-            <ExperienceSection
-              t={tExperience}
-              items={data.experiences}
-              onChange={(experiences) => setData((d) => ({ ...d, experiences }))}
-            />
-          </div>
-          <div className="gsap-panel">
-            <EducationSection
-              t={tEducation}
-              items={data.educations}
-              onChange={(educations) => setData((d) => ({ ...d, educations }))}
-            />
-          </div>
-          <div className="gsap-panel">
-            <SkillsSection
-              eyebrow={tSkills("eyebrow")}
-              title={tSkills("title")}
-              placeholder={tSkills("placeholder")}
-              removeLabel={tSkills("removeLabel")}
-              skills={data.skills}
-              onChange={(skills) => setData((d) => ({ ...d, skills }))}
-            />
-          </div>
-          <div className="gsap-panel">
-            <ProjectsSection
-              t={tProjects}
-              items={data.projects}
-              onChange={(projects) => setData((d) => ({ ...d, projects }))}
-            />
-          </div>
-          <div className="gsap-panel">
-            <ContactSection
-              t={tContact}
-              contact={data.contact}
-              onChange={(patch) => setData((d) => ({ ...d, contact: { ...d.contact, ...patch } }))}
-            />
-          </div>
-          <div className="gsap-panel">
-            <SocialsSection
-              t={tSocials}
-              items={data.socials}
-              onChange={(socials) => setData((d) => ({ ...d, socials }))}
-            />
-          </div>
-        </div>
-
-        <div className="lg:col-span-7">
-          <div className="gsap-preview sticky top-6 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5 transition-all duration-300 hover:shadow-md">
-            <div className="flex items-center justify-between px-2 pt-1 pb-4">
-              <span className="text-[13px] font-medium text-ink-soft">{t("previewLabel")}</span>
-              <button
-                type="button"
-                onClick={() => setShowDesktopPreview(true)}
-                className="group flex items-center gap-1.5 rounded-full bg-black/5 px-3 py-1.5 text-xs font-medium text-ink transition-all duration-300 hover:bg-black/10 hover:scale-105"
-              >
-                <span className="material-symbols-outlined text-[16px] transition-transform group-hover:text-accent">
-                  desktop_windows
-                </span>{" "}
-                Desktop Preview
-              </button>
-            </div>
-            <div
-              className={`h-[700px] overflow-y-auto rounded-2xl border border-black/5 bg-canvas transition-opacity duration-300 ${
-                fading ? "opacity-0" : "opacity-100"
-              }`}
-            >
-              {/* ponytail: LegacyTemplateRenderer still uses PortfolioData shape,
-                  which BasePortfolioData is identical to. Remove "Legacy" prefix
-                  when templates are updated to accept WebsiteDocument directly. */}
-              <TemplateRenderer templateId={visibleTemplateId} data={data} />
             </div>
           </div>
-        </div>
+        </aside>
       </div>
 
+      {/* Fullscreen Desktop Preview Modal */}
       {showDesktopPreview && (
         <div className="fixed inset-0 z-50 flex flex-col bg-surface">
           <div className="flex items-center justify-between border-b border-black/5 px-6 py-4 shadow-sm">
@@ -289,7 +261,7 @@ export function Editor({
           </div>
           <div className="flex-1 overflow-y-auto bg-canvas p-8">
             <div className="mx-auto w-full max-w-[1440px] overflow-hidden rounded-2xl bg-white shadow-floating ring-1 ring-black/5">
-              <TemplateRenderer templateId={visibleTemplateId} data={data} />
+              <TemplateRenderer templateId={templateId} data={data} />
             </div>
           </div>
         </div>

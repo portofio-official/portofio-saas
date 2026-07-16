@@ -28,10 +28,31 @@ export async function createWorkspaceAction(
 
   if (error || !workspace) return { error: "generic" };
 
+  let href = `/dashboard/${workspace.id}/editor`;
   if (templateId) {
-    const { saveTemplateIdAction } = await import("@/lib/templates/actions");
-    await saveTemplateIdAction(workspace.id, templateId as import("@/lib/templates/types").TemplateId);
+    href += `?templateId=${templateId}`;
   }
 
-  return redirect({ href: `/dashboard/${workspace.id}/editor`, locale: await getLocale() });
+  return redirect({ href, locale: await getLocale() });
+}
+
+export async function deleteWorkspaceAction(workspaceId: string): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "notAuthenticated" };
+
+  const { error } = await supabase
+    .from("workspaces")
+    .delete()
+    .eq("id", workspaceId)
+    .eq("user_id", user.id); // RLS also enforces ownership
+
+  if (error) return { error: "generic" };
+
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/[locale]/dashboard", "page");
+  
+  return { error: null };
 }

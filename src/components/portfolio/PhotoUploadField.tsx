@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Image as ImageIcon, X } from "@phosphor-icons/react";
 import { compressImageToDataUrl } from "@/lib/utils/compressImage";
 
 export function PhotoUploadField({
@@ -39,7 +38,7 @@ export function PhotoUploadField({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={value} alt="" className="h-full w-full object-cover" />
           ) : (
-            <ImageIcon size={20} weight="light" className="text-ink-faint" />
+            <span className="material-symbols-outlined text-[20px] text-ink-faint">image</span>
           )}
         </div>
         <button
@@ -56,7 +55,7 @@ export function PhotoUploadField({
             onClick={() => onChange(undefined)}
             className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft hover:bg-black/[0.04]"
           >
-            <X size={16} weight="light" />
+            <span className="material-symbols-outlined text-[16px]">close</span>
           </button>
         )}
         <input

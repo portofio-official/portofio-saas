@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "@phosphor-icons/react";
 import { FormPanel } from "@/components/ui/FormPanel";
 
 export function SkillsSection({
@@ -46,7 +45,7 @@ export function SkillsSection({
                   onClick={() => onChange(skills.filter((s) => s !== skill))}
                   className="text-ink-soft hover:text-danger"
                 >
-                  <X size={12} weight="bold" />
+                  <span className="material-symbols-outlined text-[12px]">close</span>
                 </button>
               </span>
             ))}

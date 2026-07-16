@@ -1,6 +1,17 @@
 # DESIGN.md — Portofio App UI Design System
 
-**Scope:** the Portofio *application* UI — auth screens, dashboard, portfolio editor, template gallery, billing screens, AND the marketing landing page.
+**Scope:** the Portofio *application* UI — auth screens, dashboard, portfolio
+editor, template gallery, billing screens, and the marketing landing page.
+**NOT in scope:** the 5 user-facing portfolio templates (Minimal, Bold,
+Creative, Corporate, Dark) that a workspace's *visitor* sees — those are
+deliberately varied per-template (own specs in PRD 7.3), render under
+`/sites/[subdomain]`, and must not be pulled toward this brand palette.
+
+The landing page (`src/components/landing/`) shares this palette, type, and
+icon system but implements it via its own scoped CSS Modules
+(`shared.module.css`), not these Tailwind theme tokens directly — same visual
+language, separate implementation. Don't expect to find `bg-canvas` etc. in
+landing component files.
 
 **Mode:** light only. The app UI does not ship a dark mode in MVP. Do not add `dark:` variants or `prefers-color-scheme` handling to app UI code.
 
@@ -62,15 +73,23 @@ Scale (desktop → mobile via Tailwind classes):
 - Standard cards / panels: `rounded-xl`
 - Buttons, inputs: `rounded-full` or `rounded-lg` depending on context (pills vs standard).
 
-### 4.2 Surfaces (No Double-Bezel)
+### 4.2 Surfaces
 
-Premium surfaces use standard CSS shadows and borders, not complex double-bezels.
+Default to flat, single-layer surfaces: standard shadow and a hairline ring.
 
 ```html
 <div class="rounded-xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
   …content…
 </div>
 ```
+
+**Double-bezel (nested outer shell + inner core) is reserved, not banned.**
+Use it only for a page's primary content cards where the extra depth earns
+its keep (workspace grid cards, template gallery cards) — outer shell
+`rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5` wrapping an inner
+`rounded-[1.6rem] bg-white shadow-sm ring-1 ring-black/5` core. Everywhere
+else (panels, sidebar, inputs, modals) stays flat per the rule above. Don't
+mix the two treatments within the same card grid.
 
 ### 4.3 Shadows
 
@@ -129,7 +148,8 @@ Clean inputs with subtle borders.
 ## 8. Anti-Pattern Checklist (review before merging any UI)
 
 - [ ] No Clash Display or Geist Sans anywhere. Use Outfit and Inter.
-- [ ] No Double-Bezel card structures.
-- [ ] No Phosphor Icons. Use Material Symbols Outlined.
+- [ ] Double-bezel only on primary content cards (workspace grid, template gallery) — flat surfaces everywhere else, never mixed within one grid.
+- [ ] No Phosphor Icons in app-shell/editor UI. Use Material Symbols Outlined. (The 5 user-facing portfolio templates are exempt — out of scope, see top.)
 - [ ] Primary CTAs should use the green accent color (`#00cf7c`).
 - [ ] Ensure consistent use of `bg-canvas` for backgrounds and `bg-surface` for cards.
+- [ ] No decorative control that doesn't do anything (fake dropdown chevrons, unwired search/sort) — wire it for real or delete it.

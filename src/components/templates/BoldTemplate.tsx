@@ -1,3 +1,5 @@
+"use client";
+
 import { templateFontClass } from "@/lib/templates/fonts";
 import { formatMonth, SocialIcon } from "@/components/templates/shared";
 import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";

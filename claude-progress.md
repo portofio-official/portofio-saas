@@ -430,3 +430,18 @@
 - Supabase migrations need to be pushed to remote (`npx supabase db push`)
 
 **Next step:** Fase 3 — update Editor to use new projects store + WebsiteDocument flow
+
+### Session (2026-07-16) — Architecture: Workspace Profile + Project System (Fase 3-4 Complete)
+
+**Completed Fase 3 (Editor Migration):**
+- Migrated `Editor.tsx` to accept `WebsiteDocument` from `projects.draft_json`.
+- Updated `EditorPage` to read from `projects` and auto-create the first project for a workspace using `WorkspaceProfile`.
+- Updated `PublicSitePage` (in `sites/[subdomain]/page.tsx`) to render from `projects.published_json` via `TemplateDefinition.renderer`.
+
+**Completed Fase 4 (Cleanup):**
+- Deleted `src/lib/portfolio/` module and `PortfolioForm.tsx`.
+- Moved `compressImage.ts` to `src/lib/utils/`.
+- Updated all template components to rely directly on `BasePortfolioData` from `_base.ts`.
+- Created Supabase migration `20260716000005_drop_legacy_tables.sql` to drop `portfolio_data` and `sites`.
+
+**Status:** The new multi-project architecture with Zod schemas as the source of truth is now fully implemented.

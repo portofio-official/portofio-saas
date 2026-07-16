@@ -188,15 +188,15 @@
     },
     {
       "id": "arch-001",
-      "name": "Workspace Profile + Project Architecture (Fase 1-2)",
+      "name": "Workspace Profile + Project Architecture (Fase 1-4 Complete)",
       "status": "passing",
       "evidence": {
-        "commit": "0b015a9",
+        "commit": "64c42b8",
         "lint": "clean (0 errors)",
         "tsc": "clean (0 errors)",
-        "description": "DB migrations applied (local), TemplateDefinition+Zod schemas, projects store, workspace_profile store. Editor still uses LegacyTemplateRenderer — Fase 3 pending."
+        "description": "Full migration complete. Editor uses WebsiteDocument, PortfolioData legacy removed, Supabase migrations 1-5 ready."
       },
-      "next": "arch-002: Fase 3 — migrate Editor to WebsiteDocument + draft_json, then Fase 4 cleanup"
+      "next": "Any feature on top of new architecture"
     }
   ]
 }

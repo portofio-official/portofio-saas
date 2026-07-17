@@ -1,73 +1,101 @@
-# 🚀 Portofio SaaS
+# Portofio
 
-SaaS portfolio-website builder. Create, customize, and publish beautiful portfolios effortlessly.
+SaaS portfolio-website builder: fill a structured form, pick a template, preview live, publish to a subdomain. No drag-and-drop canvas — form + template, built for non-technical users (fresh graduates, freelancers, job seekers, content creators) who want a professional portfolio site without learning design or code.
 
-**Live Demo:** [https://portofio-beta.vercel.app/](https://portofio-beta.vercel.app/)
+Building and previewing a portfolio is **free**. Publishing it to a live subdomain (`namamu.appku.com`) requires a paid monthly subscription (single plan, no freemium tiers).
 
----
-
-## 💻 Tech Stack
-
-![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
-![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=for-the-badge&logo=greensock&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+**Live demo:** https://portofio-beta.vercel.app/
 
 ---
 
-## ✨ Features
+## Tech Stack
 
-- **Multi-Tenant Architecture**: Users can create multiple workspaces/brands.
-- **Dynamic Portfolios**: Choose from various beautifully designed templates.
-- **Internationalization (i18n)**: Full bilingual support (English & Bahasa Indonesia).
-- **Smooth Animations**: High-end micro-interactions powered by GSAP & Framer Motion.
-- **Subdomain Routing**: Publish portfolios to custom subdomains seamlessly.
+| Layer | Choice |
+|---|---|
+| Framework | [Next.js](https://nextjs.org) 16 (App Router, TypeScript) |
+| Styling | Tailwind CSS v4 |
+| Backend | [Supabase](https://supabase.com) (Postgres, Auth, Storage, RLS) |
+| Billing | [Xendit](https://xendit.co) |
+| Animation | GSAP, Framer Motion |
+| i18n | next-intl (English + Bahasa Indonesia) |
+| Hosting | Vercel (wildcard subdomains) |
 
 ---
 
-## 🛠️ Prerequisites & Setup
-
-First, clone the repository and install the dependencies:
+## Getting Started
 
 ```bash
 npm install
-```
-
-### Environment Variables
-
-Create a `.env.local` file in the root directory and configure the following variables:
-
-- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL (used by both client and server).
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key (safe to expose to the browser).
-- `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key (strictly for server-side use, bypasses RLS).
-- `NEXT_PUBLIC_ROOT_DOMAIN`: The root domain of the application (e.g., `localhost:3000` for local development or your production domain on Vercel). This is required for the middleware to handle subdomain routing properly.
-
-### Running the App
-
-Start the development server:
-
-```bash
+cp .env.example .env.local   # then fill in the values below
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
+
+### Environment variables (`.env.local`)
+
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key (browser-safe) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service-role key — server-side only, bypasses RLS |
+| `XENDIT_SECRET_KEY` | Xendit API key (use sandbox keys in development) |
+| `XENDIT_WEBHOOK_TOKEN` | Verifies incoming Xendit webhook callbacks |
+| `NEXT_PUBLIC_ROOT_DOMAIN` | Root domain the app is served on (`localhost:3000` locally). Lets middleware tell the app apart from a published site's subdomain. |
+
+### Scripts
+
+```bash
+npm run dev      # start dev server
+npm run build    # production build
+npm run start    # run the production build
+npm run lint     # eslint
+```
+
+`./init.sh` runs install + lint as a baseline sanity check (used at the start of each dev session per `CLAUDE.md`).
 
 ---
 
-## 📂 Project Structure
+## Features
 
-- **`src/app`**: Next.js App Router containing pages, layouts, and API routes.
-- **`src/components`**: Reusable UI components, separated into domains (e.g., `landing`, `dashboard`, `portfolio`).
-- **`src/lib`**: Core logic including Supabase clients, state stores, and Server Actions.
-- **`messages`**: i18n translation files (`id.json` and `en.json`).
+- **Workspaces** — one account can hold multiple workspaces (brand profiles), each with its own data, template choice, and subdomain.
+- **7 templates** — Minimal, Bold, Creative, Corporate, Dark, Vanguard Studio ("studio"), Portfolio Pro. The first five share one base data contract (`basePortfolioSchema`); the two newest extend it with their own sections.
+- **Live preview** — real-time as the form is filled; the public template gallery previews with demo data before signup.
+- **Subdomain publishing** — one-click deploy via a `publish_project()` RPC, gated behind an active subscription.
+- **Bilingual UI** — English and Bahasa Indonesia throughout the app.
 
 ---
 
-## 📚 Related Documentation
+## Project Structure
 
-For deeper context on the product and design decisions, please refer to:
+```
+src/
+  app/
+    [locale]/         # localized app routes (dashboard, login, signup, templates, ...)
+    sites/[subdomain]/ # published-site rendering by subdomain
+    auth/              # auth callback routes
+  components/
+    landing/           # marketing/landing page
+    dashboard/         # dashboard + workspace management UI
+    portfolio/         # portfolio rendering (shared sections)
+    templates/         # one folder per template (bold, corporate, creative, dark, minimal, portfolio-pro, studio)
+    workspace/  auth/  ui/
+  lib/
+    supabase/          # Supabase client/server helpers
+    templates/          # TEMPLATE_REGISTRY + per-template Zod schemas
+    workspace/  projects/  billing/  auth/  utils/
+  i18n/                # next-intl config
+messages/              # en.json / id.json translation files
+supabase/               # DB migrations
+```
 
-- [**Product Requirements Document (PRD)**](./PRD.md): Contains the complete spec, user flows, and database schema.
-- [**Design System**](./DESIGN.md): Details the design tokens, component anatomy, and UI guidelines.
+Templates are defined in code via `TEMPLATE_REGISTRY` and per-template Zod schemas under `src/lib/templates/schemas/` — there is no `templates` table in the database.
+
+---
+
+## Documentation
+
+- [`PRD.md`](./PRD.md) — full product spec: user flows, scope, and database schema (source of truth, read before any architecture decision).
+- [`DESIGN.md`](./DESIGN.md) — design tokens, component anatomy, UI guidelines (light mode only).
+- [`claude-progress.md`](./claude-progress.md) — running development log.
+- [`feature_list.json`](./feature_list.json) — feature status tracker (system of record for what's done vs. pending).

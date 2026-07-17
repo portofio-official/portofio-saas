@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, ChevronLeft, ChevronRight, Lock, LockOpen, ZoomIn, ZoomOut } from "lucide-react";
+import { X, CaretLeft as ChevronLeft, CaretRight as ChevronRight, LockKey as Lock, LockKeyOpen as LockOpen, MagnifyingGlassPlus as ZoomIn, MagnifyingGlassMinus as ZoomOut } from "@phosphor-icons/react";
 import type { PortfolioProData } from "./schema";
 import { TAG_COLORS, type ColorScheme } from "./theme";
 import { useDragScroll } from "./useDragScroll";

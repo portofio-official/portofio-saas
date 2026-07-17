@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Calendar, Star, X, ChevronRight } from "lucide-react";
+import { CalendarBlank as Calendar, Star, X, CaretRight as ChevronRight } from "@phosphor-icons/react";
 import type { PortfolioProData } from "./schema";
 import type { ColorScheme } from "./theme";
 import { monogram, MONOGRAM_GRADIENTS, TAG_COLORS } from "./theme";

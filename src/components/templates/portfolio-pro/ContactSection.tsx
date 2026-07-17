@@ -1,7 +1,6 @@
 "use client";
 
-import { Mail, ArrowRight } from "lucide-react";
-import { WhatsAppIcon, LinkedInIcon } from "./icons";
+import { EnvelopeSimple, ArrowRight, WhatsappLogo, LinkedinLogo } from "@phosphor-icons/react";
 import type { PortfolioProData } from "./schema";
 
 export function ContactSection({
@@ -27,7 +26,7 @@ export function ContactSection({
           bg: "bg-gradient-to-br from-[#ea4335] via-[#ea4335] to-[#c5221f]",
           btnTextColor: "text-[#ea4335]",
           btnText: "Send Email",
-          Icon: Mail,
+          Icon: EnvelopeSimple,
         }
       : null,
     contact.whatsapp
@@ -39,7 +38,7 @@ export function ContactSection({
           bg: "bg-gradient-to-br from-emerald-500 to-green-600",
           btnTextColor: "text-[#25d366]",
           btnText: "Chat on WhatsApp",
-          Icon: WhatsAppIcon,
+          Icon: WhatsappLogo,
         }
       : null,
     linkedin
@@ -51,7 +50,7 @@ export function ContactSection({
           bg: "bg-gradient-to-br from-[#0077b5] to-[#005987]",
           btnTextColor: "text-[#0077b5]",
           btnText: "Visit LinkedIn",
-          Icon: LinkedInIcon,
+          Icon: LinkedinLogo,
         }
       : null,
   ].filter((c): c is NonNullable<typeof c> => c !== null);

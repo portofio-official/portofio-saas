@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MapPin, Play, Pause } from "lucide-react";
+import { MapPin, Play, Pause } from "@phosphor-icons/react";
 import type { PortfolioProData } from "./schema";
 import type { ColorScheme } from "./theme";
 
@@ -90,7 +90,7 @@ export function GallerySection({ items, theme, isMobileView }: { items: GalleryI
               }}
               className="flex h-5 w-5 items-center justify-center rounded-full border border-white/10 bg-white/10 shadow-sm transition-all hover:bg-white/20"
             >
-              {isPaused ? <Play size={9} className="fill-white" /> : <Pause size={9} className="fill-white" />}
+              {isPaused ? <Play size={9} weight="fill" className="text-white" /> : <Pause size={9} weight="fill" className="text-white" />}
             </button>
           </div>
           {current.title && (

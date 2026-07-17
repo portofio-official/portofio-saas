@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Star } from "@phosphor-icons/react";
 import shared from "./shared.module.css";
 import styles from "./Testimonials.module.css";
 
@@ -17,7 +18,13 @@ type Testimonial = TestimonialCopy & { avatar: string };
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   return (
     <div className={styles.testimonialCard}>
-      <div className={styles.rating}>★★★★★</div>
+      <div className={styles.rating} style={{ display: "flex", gap: "2px", color: "#FCA311" }}>
+        <Star weight="fill" size={16} />
+        <Star weight="fill" size={16} />
+        <Star weight="fill" size={16} />
+        <Star weight="fill" size={16} />
+        <Star weight="fill" size={16} />
+      </div>
       <p className={styles.testimonialText}>&quot;{testimonial.content}&quot;</p>
       <div className={styles.authorInfo}>
         {/* eslint-disable-next-line @next/next/no-img-element */}

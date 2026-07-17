@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { TemplateDefinition, WorkspaceProfile } from "@/lib/templates/definition";
-import { basePortfolioSchema, BASE_DEFAULTS, BASE_SECTIONS } from "@/lib/templates/schemas/_base";
+import { basePortfolioSchema, BASE_DEFAULTS } from "@/lib/templates/schemas/_base";
 import React from "react";
 
 const heroSchema = z.object({
@@ -46,9 +46,11 @@ const STUDIO_DEFAULTS: StudioData = {
 
 const STUDIO_SECTIONS = [
   { id: "hero", label: "Hero" },
-  ...BASE_SECTIONS,
+  { id: "profile", label: "Profile" },
+  { id: "projects", label: "Projects" },
   { id: "expertise", label: "Expertise & Services" },
   { id: "testimonials", label: "Testimonials" },
+  { id: "contact", label: "Contact & Socials" },
 ];
 
 const getRenderer = (): React.ComponentType<{ data: StudioData; workspaceProfile: WorkspaceProfile }> => {

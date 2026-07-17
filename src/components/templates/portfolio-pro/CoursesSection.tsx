@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 import type { PortfolioProData } from "./schema";
 import type { ColorScheme } from "./theme";
 import { useDragScroll } from "./useDragScroll";

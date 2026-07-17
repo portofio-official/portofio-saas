@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { TemplateDefinition, WorkspaceProfile } from "@/lib/templates/definition";
-import { basePortfolioSchema, BASE_DEFAULTS, BASE_SECTIONS } from "@/lib/templates/schemas/_base";
+import { basePortfolioSchema, BASE_DEFAULTS } from "@/lib/templates/schemas/_base";
 import React from "react";
 
 // Hero reuses profile.fullName/headline/location/bio/photoUrl and
@@ -104,13 +104,14 @@ const PORTFOLIO_PRO_DEFAULTS: PortfolioProData = {
 const PORTFOLIO_PRO_SECTIONS = [
   { id: "hero", label: "Hero" },
   { id: "about", label: "About" },
-  ...BASE_SECTIONS,
+  { id: "profile", label: "Profile" },
   { id: "skillsShowcase", label: "Skills" },
   { id: "experienceDetails", label: "Experience" },
   { id: "educationDetails", label: "Education" },
   { id: "caseStudies", label: "Case Studies" },
   { id: "certificates", label: "Certificates" },
   { id: "gallery", label: "Gallery" },
+  { id: "contact", label: "Contact & Socials" },
 ];
 
 const getRenderer = (): React.ComponentType<{ data: PortfolioProData; workspaceProfile: WorkspaceProfile }> => {

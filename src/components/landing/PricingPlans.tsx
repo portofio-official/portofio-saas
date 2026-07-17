@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { Check, X } from "@phosphor-icons/react";
 import shared from "./shared.module.css";
 import styles from "./PricingPlans.module.css";
 
@@ -84,8 +85,8 @@ export function PricingPlans({ userEmail }: { userEmail: string | null }) {
                     const included = tierFeatureIncluded[i][j];
                     return (
                       <li key={feature}>
-                        <span className={`${styles.icon} ${included ? styles.check : styles.cross}`}>
-                          {included ? "✓" : "✕"}
+                        <span className={`${styles.icon} ${included ? styles.check : styles.cross}`} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                          {included ? <Check weight="bold" size={16} /> : <X weight="bold" size={16} />}
                         </span>{" "}
                         {feature}
                       </li>

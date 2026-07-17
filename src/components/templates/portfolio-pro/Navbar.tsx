@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { List as Menu, X, Sun, Moon } from "@phosphor-icons/react";
 import type { ColorScheme } from "./theme";
 
 const NAV_LINKS = [

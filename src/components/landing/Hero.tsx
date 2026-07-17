@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import shared from "./shared.module.css";
 import styles from "./Hero.module.css";
+import { Users } from "@phosphor-icons/react";
 
 const column1 = ["/portrait-data.png", "/portrait-photographer.png", "/portrait-copywriter.png", "/portrait-data.png"];
 const column2 = ["/portrait-designer.png", "/hero-portrait.png", "/portrait-lecturer.png", "/portrait-designer.png"];
@@ -30,9 +31,9 @@ export function Hero({ userEmail }: { userEmail: string | null }) {
             </Link>
             <div className={styles.heroUsers} style={{ marginTop: "24px" }}>
               <div
-                style={{ background: "#f3f4f6", padding: "12px", borderRadius: "50%", marginRight: "12px" }}
+                style={{ background: "#f3f4f6", padding: "12px", borderRadius: "50%", marginRight: "12px", display: "flex", alignItems: "center" }}
               >
-                👥
+                <Users weight="fill" color="#6b7280" size={24} />
               </div>
               <div>
                 <span style={{ fontSize: "0.85rem", color: "#6b7280" }}>{t("usersJoining")}</span>

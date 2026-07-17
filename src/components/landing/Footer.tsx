@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { TwitterLogo, LinkedinLogo, InstagramLogo } from "@phosphor-icons/react";
 import shared from "./shared.module.css";
 import styles from "./Footer.module.css";
 
@@ -22,13 +23,13 @@ export function Footer() {
             <p>{t("tagline")}</p>
             <div className={styles.socialLinks}>
               <a href="#" className={styles.socialIcon}>
-                Tw
+                <TwitterLogo weight="fill" size={20} />
               </a>
               <a href="#" className={styles.socialIcon}>
-                In
+                <LinkedinLogo weight="fill" size={20} />
               </a>
               <a href="#" className={styles.socialIcon}>
-                Ig
+                <InstagramLogo weight="fill" size={20} />
               </a>
             </div>
           </div>

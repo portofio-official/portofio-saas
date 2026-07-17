@@ -12,7 +12,7 @@ import type { BasePortfolioData } from "@/lib/templates/schemas/_base";
 import type { StudioData } from "@/components/templates/studio/schema";
 import type { PortfolioProData } from "@/components/templates/portfolio-pro/schema";
 import type { WebsiteDocument } from "@/lib/templates/definition";
-import { PreviewTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
+import { PreviewTemplateRenderer as TemplateRenderer, getDefinition } from "@/components/templates/registry";
 
 // Portfolio Form Sections
 import { ProfileSection } from "@/components/portfolio/sections/ProfileSection";
@@ -122,6 +122,10 @@ export function Editor({
 
   const locale = useLocale();
 
+  const definition = getDefinition(templateId);
+  const sectionIds = definition?.sections.map((s) => s.id) || [];
+  const hasSection = (id: string) => sectionIds.includes(id);
+
   async function handlePublish() {
     setPublishLoading(true);
     setPublishError(null);
@@ -198,105 +202,123 @@ export function Editor({
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
             <div className="flex flex-col gap-6">
-              <ProfileSection
-                t={tProfile}
-                profile={data.profile}
-                onChange={(patch) => setData((d) => ({ ...d, profile: { ...d.profile, ...patch } }))}
-              />
-              {templateId === "studio" && (
+              {hasSection("profile") && (
+                <ProfileSection
+                  t={tProfile}
+                  profile={data.profile}
+                  onChange={(patch) => setData((d) => ({ ...d, profile: { ...d.profile, ...patch } }))}
+                />
+              )}
+              {hasSection("hero") && templateId === "studio" && (
                 <StudioHeroSection
                   hero={(data.hero as StudioData["hero"]) || { headline: "", subheadline: "", ctaLabel: "" }}
                   onChange={(patch) => setData((d) => ({ ...d, hero: { ...d.hero, ...patch } as StudioData["hero"] }))}
                 />
               )}
-              {templateId === "portfolio-pro" && (
+              {hasSection("hero") && templateId === "portfolio-pro" && (
+                <PortfolioProHeroSection
+                  hero={(data.hero as PortfolioProData["hero"]) || { badges: [] }}
+                  onChange={(patch) => setData((d) => ({ ...d, hero: { ...d.hero, ...patch } as PortfolioProData["hero"] }))}
+                />
+              )}
+              {hasSection("about") && (
+                <PortfolioProAboutSection
+                  about={data.about || { paragraphs: [], tags: [] }}
+                  onChange={(patch) => setData((d) => ({ ...d, about: { ...d.about, ...patch } as PortfolioProData["about"] }))}
+                />
+              )}
+              {hasSection("experience") && (
+                <ExperienceSection
+                  t={tExperience}
+                  items={data.experiences}
+                  onChange={(experiences) => setData((d) => ({ ...d, experiences }))}
+                />
+              )}
+              {hasSection("education") && (
+                <EducationSection
+                  t={tEducation}
+                  items={data.educations}
+                  onChange={(educations) => setData((d) => ({ ...d, educations }))}
+                />
+              )}
+              {hasSection("skills") && (
+                <SkillsSection
+                  eyebrow={tSkills("eyebrow")}
+                  title={tSkills("title")}
+                  placeholder={tSkills("placeholder")}
+                  removeLabel={tSkills("removeLabel")}
+                  skills={data.skills}
+                  onChange={(skills) => setData((d) => ({ ...d, skills }))}
+                />
+              )}
+              {hasSection("projects") && (
+                <ProjectsSection
+                  t={tProjects}
+                  items={data.projects}
+                  onChange={(projects) => setData((d) => ({ ...d, projects }))}
+                />
+              )}
+              {hasSection("contact") && (
                 <>
-                  <PortfolioProHeroSection
-                    hero={(data.hero as PortfolioProData["hero"]) || { badges: [] }}
-                    onChange={(patch) => setData((d) => ({ ...d, hero: { ...d.hero, ...patch } as PortfolioProData["hero"] }))}
+                  <ContactSection
+                    t={tContact}
+                    contact={data.contact}
+                    onChange={(patch) => setData((d) => ({ ...d, contact: { ...d.contact, ...patch } }))}
                   />
-                  <PortfolioProAboutSection
-                    about={data.about || { paragraphs: [], tags: [] }}
-                    onChange={(patch) => setData((d) => ({ ...d, about: { ...d.about, ...patch } as PortfolioProData["about"] }))}
+                  <SocialsSection
+                    t={tSocials}
+                    items={data.socials}
+                    onChange={(socials) => setData((d) => ({ ...d, socials }))}
                   />
                 </>
               )}
-              {templateId !== "portfolio-pro" && (
-                <>
-                  <ExperienceSection
-                    t={tExperience}
-                    items={data.experiences}
-                    onChange={(experiences) => setData((d) => ({ ...d, experiences }))}
-                  />
-                  <EducationSection
-                    t={tEducation}
-                    items={data.educations}
-                    onChange={(educations) => setData((d) => ({ ...d, educations }))}
-                  />
-                  <SkillsSection
-                    eyebrow={tSkills("eyebrow")}
-                    title={tSkills("title")}
-                    placeholder={tSkills("placeholder")}
-                    removeLabel={tSkills("removeLabel")}
-                    skills={data.skills}
-                    onChange={(skills) => setData((d) => ({ ...d, skills }))}
-                  />
-                  <ProjectsSection
-                    t={tProjects}
-                    items={data.projects}
-                    onChange={(projects) => setData((d) => ({ ...d, projects }))}
-                  />
-                </>
+              {hasSection("expertise") && (
+                <StudioExpertiseSection
+                  items={data.expertise || []}
+                  onChange={(expertise) => setData((d) => ({ ...d, expertise }))}
+                />
               )}
-              <ContactSection
-                t={tContact}
-                contact={data.contact}
-                onChange={(patch) => setData((d) => ({ ...d, contact: { ...d.contact, ...patch } }))}
-              />
-              <SocialsSection
-                t={tSocials}
-                items={data.socials}
-                onChange={(socials) => setData((d) => ({ ...d, socials }))}
-              />
-              {templateId === "studio" && (
-                <>
-                  <StudioExpertiseSection
-                    items={data.expertise || []}
-                    onChange={(expertise) => setData((d) => ({ ...d, expertise }))}
-                  />
-                  <StudioTestimonialsSection
-                    items={data.testimonials || []}
-                    onChange={(testimonials) => setData((d) => ({ ...d, testimonials }))}
-                  />
-                </>
+              {hasSection("testimonials") && (
+                <StudioTestimonialsSection
+                  items={data.testimonials || []}
+                  onChange={(testimonials) => setData((d) => ({ ...d, testimonials }))}
+                />
               )}
-              {templateId === "portfolio-pro" && (
-                <>
-                  <PortfolioProSkillsSection
-                    items={data.skillsShowcase || []}
-                    onChange={(skillsShowcase) => setData((d) => ({ ...d, skillsShowcase }))}
-                  />
-                  <PortfolioProExperienceSection
-                    items={data.experienceDetails || []}
-                    onChange={(experienceDetails) => setData((d) => ({ ...d, experienceDetails }))}
-                  />
-                  <PortfolioProEducationSection
-                    items={data.educationDetails || []}
-                    onChange={(educationDetails) => setData((d) => ({ ...d, educationDetails }))}
-                  />
-                  <PortfolioProCaseStudiesSection
-                    items={data.caseStudies || []}
-                    onChange={(caseStudies) => setData((d) => ({ ...d, caseStudies }))}
-                  />
-                  <PortfolioProCertificatesSection
-                    items={data.certificates || []}
-                    onChange={(certificates) => setData((d) => ({ ...d, certificates }))}
-                  />
-                  <PortfolioProGallerySection
-                    items={data.gallery || []}
-                    onChange={(gallery) => setData((d) => ({ ...d, gallery }))}
-                  />
-                </>
+              {hasSection("skillsShowcase") && (
+                <PortfolioProSkillsSection
+                  items={data.skillsShowcase || []}
+                  onChange={(skillsShowcase) => setData((d) => ({ ...d, skillsShowcase }))}
+                />
+              )}
+              {hasSection("experienceDetails") && (
+                <PortfolioProExperienceSection
+                  items={data.experienceDetails || []}
+                  onChange={(experienceDetails) => setData((d) => ({ ...d, experienceDetails }))}
+                />
+              )}
+              {hasSection("educationDetails") && (
+                <PortfolioProEducationSection
+                  items={data.educationDetails || []}
+                  onChange={(educationDetails) => setData((d) => ({ ...d, educationDetails }))}
+                />
+              )}
+              {hasSection("caseStudies") && (
+                <PortfolioProCaseStudiesSection
+                  items={data.caseStudies || []}
+                  onChange={(caseStudies) => setData((d) => ({ ...d, caseStudies }))}
+                />
+              )}
+              {hasSection("certificates") && (
+                <PortfolioProCertificatesSection
+                  items={data.certificates || []}
+                  onChange={(certificates) => setData((d) => ({ ...d, certificates }))}
+                />
+              )}
+              {hasSection("gallery") && (
+                <PortfolioProGallerySection
+                  items={data.gallery || []}
+                  onChange={(gallery) => setData((d) => ({ ...d, gallery }))}
+                />
               )}
             </div>
           </div>

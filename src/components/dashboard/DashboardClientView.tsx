@@ -43,6 +43,7 @@ export function DashboardClientView({
   const container = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState("");
   const [sortByName, setSortByName] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const filtered = workspaces
     .filter((w) => w.name.toLowerCase().includes(search.toLowerCase()))
@@ -79,6 +80,7 @@ export function DashboardClientView({
             <span className="text-ink-soft">My Workspace</span>
           </div>
           <h1 className="mt-2 font-display text-[28px] font-bold tracking-tight text-ink">Projects</h1>
+          <p className="mt-1 text-[13px] font-medium text-ink-soft">Build, customize, and publish websites</p>
         </div>
         <div className="flex items-center gap-6">
           {/* Search */}
@@ -103,7 +105,7 @@ export function DashboardClientView({
           </button>
           {/* New project Button-in-Button */}
           <Link
-            href="/templates"
+            href="/dashboard/templates"
             className="group flex items-center gap-3 rounded-[1.25rem] bg-ink pl-5 pr-2 py-2 text-[13px] font-bold text-white shadow-sm transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#1a1a1a] hover:shadow-md active:scale-[0.98]"
           >
             New Project
@@ -195,45 +197,67 @@ export function DashboardClientView({
                   </div>
                 </Link>
 
-                {/* Contextual Actions (Visible on hover) */}
-                <div className="absolute right-4 top-4 flex gap-1 opacity-0 transition-opacity duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:opacity-100">
-                  {workspace.publishStatus === "published" && (
-                    <button
-                      type="button"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        const { unpublishWorkspaceProjectAction } = await import("@/lib/workspace/actions");
-                        await unpublishWorkspaceProjectAction(workspace.id);
-                        window.location.reload();
-                      }}
-                      className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-ink-soft shadow-sm ring-1 ring-black/5 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-danger/10 hover:text-danger hover:scale-110 active:scale-95"
-                      title="Unpublish site"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">cloud_off</span>
-                    </button>
-                  )}
+                {/* Contextual menu (Visible on hover) */}
+                <div className="absolute right-4 top-4 opacity-0 transition-opacity duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:opacity-100">
                   <button
                     type="button"
-                    onClick={async (e) => {
+                    onClick={(e) => {
                       e.preventDefault();
-                      if (confirm(`Delete ${workspace.name}?`)) {
-                        const { deleteWorkspaceAction } = await import("@/lib/workspace/actions");
-                        await deleteWorkspaceAction(workspace.id);
-                        window.location.reload();
-                      }
+                      setOpenMenuId((id) => (id === workspace.id ? null : workspace.id));
                     }}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-ink-soft shadow-sm ring-1 ring-black/5 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-danger/10 hover:text-danger hover:scale-110 active:scale-95"
-                    title="Delete Project"
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-ink-soft shadow-sm ring-1 ring-black/5 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:text-ink hover:scale-110 active:scale-95"
+                    title="More options"
                   >
-                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                    <span className="material-symbols-outlined text-[16px]">more_vert</span>
                   </button>
+
+                  {openMenuId === workspace.id && (
+                    <>
+                      {/* Click-outside catcher */}
+                      <div className="fixed inset-0 z-10" onClick={(e) => { e.preventDefault(); setOpenMenuId(null); }} />
+                      <div className="absolute right-0 top-10 z-20 flex w-44 flex-col overflow-hidden rounded-[14px] bg-white p-1 shadow-md ring-1 ring-black/5">
+                        {workspace.publishStatus === "published" && (
+                          <button
+                            type="button"
+                            onClick={async (e) => {
+                              e.preventDefault();
+                              setOpenMenuId(null);
+                              const { unpublishWorkspaceProjectAction } = await import("@/lib/workspace/actions");
+                              await unpublishWorkspaceProjectAction(workspace.id);
+                              window.location.reload();
+                            }}
+                            className="flex items-center gap-2.5 rounded-[10px] px-3 py-2 text-left text-[13px] font-medium text-ink transition-colors hover:bg-black/[0.04]"
+                          >
+                            <span className="material-symbols-outlined text-[16px] text-ink-soft">cloud_off</span>
+                            Unpublish site
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            setOpenMenuId(null);
+                            if (confirm(`Delete ${workspace.name}?`)) {
+                              const { deleteWorkspaceAction } = await import("@/lib/workspace/actions");
+                              await deleteWorkspaceAction(workspace.id);
+                              window.location.reload();
+                            }
+                          }}
+                          className="flex items-center gap-2.5 rounded-[10px] px-3 py-2 text-left text-[13px] font-medium text-danger transition-colors hover:bg-danger/10"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                          Delete project
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
 
             {/* New project card (Nested structural) */}
             <Link
-              href="/templates"
+              href="/dashboard/templates"
               className="gsap-card group relative flex flex-col overflow-hidden rounded-[2rem] bg-transparent p-1.5 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[0.98]"
             >
               <div className="flex h-full min-h-[260px] w-full flex-col items-center justify-center gap-4 rounded-[1.6rem] border border-dashed border-black/15 bg-transparent transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:border-black/30 group-hover:bg-black/[0.02]">
@@ -266,7 +290,7 @@ export function DashboardClientView({
               <p className="mt-1 text-[13px] text-ink-soft">Create your first portfolio project to get started.</p>
             </div>
             <Link
-              href="/templates"
+              href="/dashboard/templates"
               className="mt-2 flex items-center gap-2 rounded-lg bg-ink px-4 py-2 text-[13px] font-medium text-white shadow-sm transition-all hover:bg-black hover:shadow-md active:scale-[0.98]"
             >
               <span className="material-symbols-outlined text-[16px]">add</span>

@@ -179,7 +179,7 @@ const PREVIEW_DATA: PreviewData = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
+export function TemplateGallery({ isLoggedIn = false, embedded = false }: { isLoggedIn?: boolean; embedded?: boolean }) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [hoveredId, setHoveredId] = useState<TemplateId | null>(null);
   const [previewId, setPreviewId] = useState<TemplateId | null>(null);
@@ -213,52 +213,40 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
 
   const filtered = TEMPLATE_META.filter((t) => t.tags.includes(activeCategory));
 
-  return (
+  const galleryContent = (
     <>
-      <div ref={container} className="flex h-full w-full gap-6 overflow-hidden bg-canvas p-6 font-sans">
-        {/* ── Sidebar Categories ── */}
-        <aside className="flex h-full w-[260px] shrink-0 flex-col overflow-hidden rounded-[2rem] bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
-          <div className="border-b border-black/5 px-6 py-8">
-            <h2 className="font-display text-lg font-extrabold text-ink">Template Library</h2>
-            <p className="mt-1 text-[11px] font-medium text-ink-soft">Premium foundations for your next project.</p>
-          </div>
-          <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
-            <p className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.15em] text-ink-faint">
-              Categories
-            </p>
-            {CATEGORIES.map((cat) => (
-              <button type="button"
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`flex items-center gap-3 rounded-[1.25rem] px-4 py-3 text-sm font-semibold transition-all duration-300 ease-[var(--ease-fluid)] ${
-                  activeCategory === cat
-                    ? "bg-black/[0.04] text-ink"
-                    : "text-ink-soft hover:bg-black/[0.02] hover:text-ink active:scale-[0.98]"
-                }`}
-              >
-                {activeCategory === cat && <span className="h-1.5 w-1.5 rounded-full bg-accent" />}
-                {cat}
-              </button>
-            ))}
-          </nav>
-        </aside>
+      {/* Top hero bar */}
+      <header className="gsap-header shrink-0 px-12 pt-12">
+        <p className="mb-3 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-ink-faint w-max bg-black/[0.03]">
+          Start with a template
+        </p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+          Choose your design
+        </h1>
 
-        {/* ── Main content ── */}
-        <main className="flex flex-1 flex-col overflow-hidden rounded-[2rem] bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
-          {/* Top hero bar */}
-          <header className="gsap-header shrink-0 px-12 py-12">
-            <p className="mb-3 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-ink-faint w-max bg-black/[0.03]">
-              Start with a template
-            </p>
-            <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
-              Choose your design
-            </h1>
-          </header>
+        {/* Category filter — horizontal, not a sidebar */}
+        <div className="mt-8 flex flex-wrap gap-2">
+          {CATEGORIES.map((cat) => (
+            <button
+              type="button"
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold transition-all duration-300 ease-[var(--ease-fluid)] ${
+                activeCategory === cat
+                  ? "bg-ink text-white"
+                  : "bg-black/[0.03] text-ink-soft hover:bg-black/[0.06] hover:text-ink active:scale-[0.98]"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </header>
 
-          {/* Cards grid */}
-          <div className="flex-1 overflow-y-auto px-12 pb-24">
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((meta) => {
+      {/* Cards grid */}
+      <div className="flex-1 overflow-y-auto px-12 pb-24 pt-8">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((meta) => {
                 return (
                   <div
                     key={meta.id}
@@ -316,7 +304,20 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
             })}
           </div>
         </div>
-      </main>
+    </>
+  );
+
+  return (
+    <>
+      <div ref={container} className={embedded ? "flex h-full w-full flex-col overflow-hidden font-sans" : "flex h-full w-full gap-6 overflow-hidden bg-canvas p-6 font-sans"}>
+        {embedded ? (
+          galleryContent
+        ) : (
+          <main className="flex flex-1 flex-col overflow-hidden rounded-[2rem] bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
+            {galleryContent}
+          </main>
+        )}
+      </div>
 
       {/* ── Full-screen preview modal ── */}
       {previewId && (
@@ -385,7 +386,6 @@ export function TemplateGallery({ isLoggedIn = false }: { isLoggedIn?: boolean }
           </div>
         </div>
       )}
-    </div>
     </>
   );
 }

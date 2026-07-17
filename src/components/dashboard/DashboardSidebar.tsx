@@ -32,9 +32,21 @@ export function DashboardSidebar({ email }: { email: string }) {
 
   const initials = email.charAt(0).toUpperCase();
 
+  const isTemplates = pathname?.includes("/dashboard/templates");
+  const navItems = [
+    { href: "/dashboard", icon: "grid_view", label: "Projects", active: !isTemplates },
+    { href: "/dashboard/templates", icon: "dashboard_customize", label: "Templates", active: !!isTemplates },
+  ];
+
+  const comingSoonItems = [
+    { icon: "language", label: "Domains" },
+    { icon: "perm_media", label: "Assets" },
+    { icon: "settings", label: "Settings" },
+  ];
+
   return (
     <aside ref={container} className="flex h-full w-[280px] shrink-0 flex-col overflow-hidden rounded-[2rem] bg-surface ring-1 ring-black/5">
-      {/* Workspace */}
+      {/* Workspace identity */}
       <div className="flex items-center gap-3 border-b border-black/5 px-6 py-6">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-ink text-[13px] font-bold text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
           {initials}
@@ -49,29 +61,52 @@ export function DashboardSidebar({ email }: { email: string }) {
         <p className="mb-4 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-ink-faint">
           Navigation
         </p>
-        <Link
-          href="/dashboard"
-          className="group flex items-center gap-3 rounded-[12px] bg-black/[0.03] px-3 py-2.5 text-[13px] font-semibold text-ink transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-black/[0.06] active:scale-[0.98]"
-        >
-          <span className="material-symbols-outlined text-[18px] text-ink transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-110">grid_view</span>
-          Projects
-        </Link>
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`group flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-[13px] font-semibold transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] ${
+              item.active ? "bg-black/[0.03] text-ink hover:bg-black/[0.06]" : "text-ink-soft hover:bg-black/[0.03] hover:text-ink"
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px] transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-110">{item.icon}</span>
+            {item.label}
+          </Link>
+        ))}
+
+        <div className="mt-2 flex flex-col gap-1">
+          {comingSoonItems.map((item) => (
+            <div
+              key={item.label}
+              className="flex cursor-not-allowed items-center justify-between rounded-[12px] px-3 py-2.5 text-[13px] font-semibold text-ink-faint/70"
+              title="Coming soon"
+            >
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
+                {item.label}
+              </div>
+              <span className="rounded-full bg-black/[0.04] px-2 py-0.5 text-[9px] font-bold tracking-wide text-ink-faint uppercase">Soon</span>
+            </div>
+          ))}
+        </div>
       </nav>
 
-      {/* User footer */}
-      <div className="border-t border-black/5 p-4">
+      {/* User profile */}
+      <div className="flex items-center gap-2 border-t border-black/5 p-4">
+        <div className="flex min-w-0 flex-1 items-center gap-3 rounded-[12px] px-2 py-2">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/[0.06] text-[12px] font-bold text-ink">
+            {initials}
+          </span>
+          <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-ink-soft">{email}</span>
+        </div>
         <form action={signOutAction}>
           <button
             type="submit"
-            className="group flex w-full items-center justify-between rounded-[12px] px-3 py-2.5 text-[13px] font-semibold text-ink-soft transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-danger/10 hover:text-danger active:scale-[0.98]"
+            title={t("logout")}
+            aria-label={t("logout")}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-ink-faint transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-danger/10 hover:text-danger active:scale-[0.95]"
           >
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[18px]">logout</span>
-              {t("logout")}
-            </div>
-            <span className="material-symbols-outlined text-[16px] opacity-0 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-1 group-hover:opacity-100">
-              arrow_forward
-            </span>
+            <span className="material-symbols-outlined text-[18px]">logout</span>
           </button>
         </form>
       </div>

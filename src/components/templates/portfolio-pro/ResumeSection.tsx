@@ -8,7 +8,7 @@ import { createPortal } from "react-dom";
 import { Calendar, Star, X, ChevronRight } from "lucide-react";
 import type { PortfolioProData } from "./schema";
 import type { ColorScheme } from "./theme";
-import { monogram, MONOGRAM_GRADIENTS } from "./theme";
+import { monogram, MONOGRAM_GRADIENTS, TAG_COLORS } from "./theme";
 import { useDragScroll } from "./useDragScroll";
 
 type Tab = "education" | "experience" | "skills";
@@ -16,7 +16,6 @@ type Education = PortfolioProData["educationDetails"][number];
 type Experience = PortfolioProData["experienceDetails"][number];
 type SelectedItem = ({ type: "education" } & Education) | ({ type: "experience" } & Experience);
 
-const TOOL_COLORS = ["#0f9d58", "#4285f4", "#db4437", "#f4b400", "#ab47bc", "#00acc1"];
 
 function LogoBadge({ logoUrl, name, gradientIdx, size = "h-12 w-12 rounded-2xl text-[10px]" }: { logoUrl?: string; name: string; gradientIdx: number; size?: string }) {
   return (
@@ -165,7 +164,7 @@ export function ResumeSection({
                             <span
                               key={ti}
                               className="shrink-0 rounded border px-1.5 py-0.5 text-[9px] font-semibold"
-                              style={{ backgroundColor: `${TOOL_COLORS[ti % TOOL_COLORS.length]}15`, borderColor: `${TOOL_COLORS[ti % TOOL_COLORS.length]}30`, color: TOOL_COLORS[ti % TOOL_COLORS.length] }}
+                              style={{ backgroundColor: `${TAG_COLORS[ti % TAG_COLORS.length]}15`, borderColor: `${TAG_COLORS[ti % TAG_COLORS.length]}30`, color: TAG_COLORS[ti % TAG_COLORS.length] }}
                             >
                               {tool}
                             </span>
@@ -301,7 +300,7 @@ export function ResumeSection({
                           <span
                             key={ti}
                             className="flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-bold shadow-sm sm:text-xs"
-                            style={{ backgroundColor: `${TOOL_COLORS[ti % TOOL_COLORS.length]}15`, borderColor: `${TOOL_COLORS[ti % TOOL_COLORS.length]}30`, color: TOOL_COLORS[ti % TOOL_COLORS.length] }}
+                            style={{ backgroundColor: `${TAG_COLORS[ti % TAG_COLORS.length]}15`, borderColor: `${TAG_COLORS[ti % TAG_COLORS.length]}30`, color: TAG_COLORS[ti % TAG_COLORS.length] }}
                           >
                             {tool}
                           </span>

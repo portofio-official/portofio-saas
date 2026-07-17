@@ -12,16 +12,12 @@ export interface ColorScheme {
   darkElementHover: string;
 }
 
-const DARK_CHROME = {
+export const DARK_CHROME = {
   darkBg: "bg-[#0a0a0f]",
   darkCard: "bg-[#15151b]",
   darkElement: "bg-[#1f1f27]",
   darkElementHover: "hover:bg-[#2a2a34]",
 };
-
-export function buildTheme(accentColor: string): ColorScheme {
-  return { accent: accentColor, ...DARK_CHROME };
-}
 
 export function hexToRgba(hex: string, alpha: number): string {
   const clean = hex.replace("#", "");
@@ -53,3 +49,15 @@ export const MONOGRAM_GRADIENTS = [
   "from-violet-600 to-purple-700",
   "from-sky-600 to-cyan-700",
 ];
+
+// Rotation for tag/tool chips (experience tools, project tech tags).
+export const TAG_COLORS = ["#0f9d58", "#4285f4", "#db4437", "#f4b400", "#ab47bc", "#00acc1"];
+
+// Parses a "Mon YYYY" date string into the split month/year pill shown on
+// course and project cards. Returns null for missing/malformed dates.
+export function dateParts(date?: string) {
+  if (!date) return null;
+  const parts = date.trim().split(" ");
+  if (parts.length < 2) return null;
+  return { month: parts[0].slice(0, 3).toUpperCase(), year: parts[1].slice(-2) };
+}

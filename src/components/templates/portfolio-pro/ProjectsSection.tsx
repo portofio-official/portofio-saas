@@ -5,59 +5,11 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight, Lock, LockOpen, ZoomIn, ZoomOut } from "lucide-react";
 import type { PortfolioProData } from "./schema";
-import type { ColorScheme } from "./theme";
+import { TAG_COLORS, type ColorScheme } from "./theme";
 import { useDragScroll } from "./useDragScroll";
+import { MediaCard } from "./MediaCard";
 
 type CaseStudy = PortfolioProData["caseStudies"][number];
-
-const TECH_COLORS = ["#0f9d58", "#4285f4", "#db4437", "#f4b400", "#ab47bc", "#00acc1"];
-
-function dateParts(date?: string) {
-  if (!date) return null;
-  const parts = date.trim().split(" ");
-  if (parts.length < 2) return null;
-  return { month: parts[0].slice(0, 3).toUpperCase(), year: parts[1].slice(-2) };
-}
-
-function ProjectCard({ project, isDark, isGrid, onClick }: { project: CaseStudy; isDark: boolean; isGrid: boolean; onClick: () => void }) {
-  const dp = dateParts(project.date);
-  return (
-    <div
-      onClick={onClick}
-      className={`group relative flex ${isGrid ? "w-full" : "w-[290px] shrink-0 sm:w-[340px]"} h-[420px] cursor-pointer flex-col overflow-hidden rounded-[2rem] border shadow-md transition-all duration-300 hover:-translate-y-1.5 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white"}`}
-    >
-      <div className="flex h-full w-full flex-col justify-between px-6 pt-6 pb-4 text-left">
-        <div className="flex w-full items-center justify-between">
-          {project.category && (
-            <span className={`rounded-full px-3 py-1.5 text-[10px] font-bold tracking-wide shadow-sm sm:text-[11px] ${isDark ? "bg-white text-slate-900" : "bg-slate-900 text-white"}`}>
-              {project.category}
-            </span>
-          )}
-          {dp && (
-            <div className={`flex h-7 items-center overflow-hidden rounded-lg border text-[10px] font-bold shadow-inner ${isDark ? "border-white/10 bg-white/5" : "border-slate-250 bg-slate-100"}`}>
-              <span className="flex h-full items-center justify-center bg-slate-800 px-2.5 text-white">{dp.month}</span>
-              <span className={`flex h-full items-center justify-center px-2.5 ${isDark ? "bg-slate-900 text-white" : "bg-white text-slate-800"}`}>{dp.year}</span>
-            </div>
-          )}
-        </div>
-        <div className="mt-8 mb-7 flex-1">
-          <h3 className={`text-lg leading-tight font-bold tracking-tight whitespace-pre-line sm:text-xl ${isDark ? "text-white" : "text-slate-900"}`}>{project.title}</h3>
-          {project.description && <p className={`mt-2 line-clamp-3 text-xs leading-relaxed sm:text-[13px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{project.description}</p>}
-        </div>
-        <div className="mt-auto w-full" style={{ position: "relative", top: "-18px" }}>
-          <div className={`relative h-[180px] w-full overflow-hidden rounded-[1.5rem] border shadow-sm ${isDark ? "border-white/10" : "border-slate-200"}`}>
-            {project.images[0] ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={project.images[0]} alt={project.title} className="h-full w-full object-cover object-top" />
-            ) : (
-              <div className={`flex h-full w-full items-center justify-center ${isDark ? "bg-white/5" : "bg-slate-100"}`} />
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function Lightbox({ images, index, setIndex, onClose }: { images: string[]; index: number; setIndex: (i: number) => void; onClose: () => void }) {
   const [zoom, setZoom] = useState(1);
@@ -242,7 +194,7 @@ function ProjectDetailModal({ project, isDark, theme, isMobileView, onClose }: {
                       <span
                         key={i}
                         className="flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-bold shadow-sm sm:text-xs"
-                        style={{ backgroundColor: `${TECH_COLORS[i % TECH_COLORS.length]}15`, borderColor: `${TECH_COLORS[i % TECH_COLORS.length]}30`, color: TECH_COLORS[i % TECH_COLORS.length] }}
+                        style={{ backgroundColor: `${TAG_COLORS[i % TAG_COLORS.length]}15`, borderColor: `${TAG_COLORS[i % TAG_COLORS.length]}30`, color: TAG_COLORS[i % TAG_COLORS.length] }}
                       >
                         {t}
                       </span>
@@ -338,9 +290,14 @@ export function ProjectsSection({ items, isDark, theme, isMobileView }: { items:
         >
           {filtered.length ? (
             filtered.map((project, i) => (
-              <ProjectCard
+              <MediaCard
                 key={i}
-                project={project}
+                pillLabel={project.category}
+                date={project.date}
+                title={project.title}
+                titleClassName="whitespace-pre-line"
+                description={project.description}
+                imageUrl={project.images[0]}
                 isDark={isDark}
                 isGrid={false}
                 onClick={() => {
@@ -383,7 +340,18 @@ export function ProjectsSection({ items, isDark, theme, isMobileView }: { items:
               <div className="hide-scrollbar flex-1 overflow-y-auto p-6 lg:p-8">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {filtered.map((project, i) => (
-                    <ProjectCard key={i} project={project} isDark={isDark} isGrid onClick={() => setSelected(project)} />
+                    <MediaCard
+                      key={i}
+                      pillLabel={project.category}
+                      date={project.date}
+                      title={project.title}
+                      titleClassName="whitespace-pre-line"
+                      description={project.description}
+                      imageUrl={project.images[0]}
+                      isDark={isDark}
+                      isGrid
+                      onClick={() => setSelected(project)}
+                    />
                   ))}
                 </div>
               </div>

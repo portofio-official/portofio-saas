@@ -7,52 +7,9 @@ import { X } from "lucide-react";
 import type { PortfolioProData } from "./schema";
 import type { ColorScheme } from "./theme";
 import { useDragScroll } from "./useDragScroll";
+import { MediaCard } from "./MediaCard";
 
 type Certificate = PortfolioProData["certificates"][number];
-
-function dateParts(date?: string) {
-  if (!date) return null;
-  const parts = date.trim().split(" ");
-  if (parts.length < 2) return null;
-  return { month: parts[0].slice(0, 3).toUpperCase(), year: parts[1].slice(-2) };
-}
-
-function CourseCard({ course, isDark, isGrid, onClick }: { course: Certificate; isDark: boolean; isGrid: boolean; onClick: () => void }) {
-  const dp = dateParts(course.date);
-  return (
-    <div
-      onClick={onClick}
-      className={`group relative flex ${isGrid ? "w-full" : "w-[290px] shrink-0 sm:w-[340px]"} h-[420px] cursor-pointer flex-col overflow-hidden rounded-[2rem] border shadow-md transition-all duration-300 hover:-translate-y-1.5 ${isDark ? `${"bg-white/[0.03]"} border-white/10` : "border-slate-200 bg-white"}`}
-    >
-      <div className="flex h-full w-full flex-col justify-between px-6 pt-6 pb-4 text-left">
-        <div className="flex w-full items-center justify-between">
-          <span className={`rounded-full px-3 py-1.5 text-[10px] font-bold tracking-wide shadow-sm sm:text-[11px] ${isDark ? "bg-white text-slate-900" : "bg-slate-900 text-white"}`}>
-            {course.issuer || "Certificate"}
-          </span>
-          {dp && (
-            <div className={`flex h-7 items-center overflow-hidden rounded-lg border text-[10px} font-bold shadow-inner ${isDark ? "border-white/10 bg-white/5" : "border-slate-250 bg-slate-100"}`}>
-              <span className="flex h-full items-center justify-center bg-slate-800 px-2.5 text-white">{dp.month}</span>
-              <span className={`flex h-full items-center justify-center px-2.5 ${isDark ? "bg-slate-900 text-white" : "bg-white text-slate-800"}`}>{dp.year}</span>
-            </div>
-          )}
-        </div>
-        <div className="mt-8 mb-7 flex-1">
-          <h3 className={`text-lg leading-tight font-bold tracking-tight sm:text-xl ${isDark ? "text-white" : "text-slate-900"}`}>{course.title}</h3>
-        </div>
-        <div className="mt-auto w-full" style={{ position: "relative", top: "-18px" }}>
-          <div className={`relative h-[180px] w-full overflow-hidden rounded-[1.5rem] border shadow-sm ${isDark ? "border-white/10" : "border-slate-200"}`}>
-            {course.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={course.imageUrl} alt={course.title} className="h-full w-full object-cover object-top" />
-            ) : (
-              <div className={`flex h-full w-full items-center justify-center ${isDark ? "bg-white/5" : "bg-slate-100"}`} />
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function CoursesSection({ items, isDark, theme, isMobileView }: { items: Certificate[]; isDark: boolean; theme: ColorScheme; isMobileView: boolean }) {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -120,9 +77,12 @@ export function CoursesSection({ items, isDark, theme, isMobileView }: { items: 
           className="hide-scrollbar -mx-2 flex cursor-grab gap-6 overflow-x-auto px-2 pt-4 pb-4 select-none active:cursor-grabbing"
         >
           {filtered.map((course, i) => (
-            <CourseCard
+            <MediaCard
               key={i}
-              course={course}
+              pillLabel={course.issuer || "Certificate"}
+              date={course.date}
+              title={course.title}
+              imageUrl={course.imageUrl}
               isDark={isDark}
               isGrid={false}
               onClick={() => {
@@ -162,7 +122,16 @@ export function CoursesSection({ items, isDark, theme, isMobileView }: { items: 
               <div className="hide-scrollbar flex-1 overflow-y-auto p-6 lg:p-8">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {filtered.map((course, i) => (
-                    <CourseCard key={i} course={course} isDark={isDark} isGrid onClick={() => setSelectedCourse(course)} />
+                    <MediaCard
+                      key={i}
+                      pillLabel={course.issuer || "Certificate"}
+                      date={course.date}
+                      title={course.title}
+                      imageUrl={course.imageUrl}
+                      isDark={isDark}
+                      isGrid
+                      onClick={() => setSelectedCourse(course)}
+                    />
                   ))}
                 </div>
               </div>

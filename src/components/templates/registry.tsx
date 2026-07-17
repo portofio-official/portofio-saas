@@ -4,19 +4,23 @@
 import type { z } from "zod";
 import type { TemplateDefinition, WorkspaceProfile, WebsiteDocument } from "@/lib/templates/definition";
 import { parseDocumentData } from "@/lib/templates/definition";
-import { minimalDefinition } from "@/lib/templates/schemas/minimal";
-import { boldDefinition } from "@/lib/templates/schemas/bold";
-import { creativeDefinition } from "@/lib/templates/schemas/creative";
-import { corporateDefinition } from "@/lib/templates/schemas/corporate";
-import { darkDefinition } from "@/lib/templates/schemas/dark";
+import { minimalDefinition } from "@/components/templates/minimal/schema";
+import { boldDefinition } from "@/components/templates/bold/schema";
+import { creativeDefinition } from "@/components/templates/creative/schema";
+import { corporateDefinition } from "@/components/templates/corporate/schema";
+import { darkDefinition } from "@/components/templates/dark/schema";
+import { studioDefinition } from "@/components/templates/studio/schema";
+import { portfolioProDefinition } from "@/components/templates/portfolio-pro/schema";
 
 import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
 import type { TemplateId } from "@/lib/templates/types";
-import { MinimalTemplate } from "@/components/templates/MinimalTemplate";
-import { BoldTemplate } from "@/components/templates/BoldTemplate";
-import { CreativeTemplate } from "@/components/templates/CreativeTemplate";
-import { CorporateTemplate } from "@/components/templates/CorporateTemplate";
-import { DarkTemplate } from "@/components/templates/DarkTemplate";
+import { MinimalTemplate } from "@/components/templates/minimal/Template";
+import { BoldTemplate } from "@/components/templates/bold/Template";
+import { CreativeTemplate } from "@/components/templates/creative/Template";
+import { CorporateTemplate } from "@/components/templates/corporate/Template";
+import { DarkTemplate } from "@/components/templates/dark/Template";
+import { StudioTemplate } from "@/components/templates/studio/Template";
+import { PortfolioProTemplate } from "@/components/templates/portfolio-pro/Template";
 
 // ── New registry ────────────────────────────────────────────────────────────
 
@@ -26,6 +30,8 @@ export const TEMPLATE_REGISTRY: Record<string, TemplateDefinition<z.ZodTypeAny>>
   creative: creativeDefinition,
   corporate: corporateDefinition,
   dark: darkDefinition,
+  studio: studioDefinition,
+  "portfolio-pro": portfolioProDefinition,
 };
 
 export function getDefinition(templateId: string): TemplateDefinition<z.ZodTypeAny> | null {
@@ -64,6 +70,10 @@ export const TEMPLATE_COMPONENTS: Record<TemplateId, React.ComponentType<{ data:
   creative: CreativeTemplate,
   corporate: CorporateTemplate,
   dark: DarkTemplate,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  studio: StudioTemplate as any, // Cast to any because legacy expects BasePortfolioData
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  "portfolio-pro": PortfolioProTemplate as any, // Cast to any because legacy expects BasePortfolioData
 };
 
 /** @deprecated Use TemplateRenderer with WebsiteDocument instead */

@@ -1,4 +1,4 @@
-export const TEMPLATE_IDS = ["minimal", "bold", "creative", "corporate", "dark"] as const;
+export const TEMPLATE_IDS = ["minimal", "bold", "creative", "corporate", "dark", "studio", "portfolio-pro"] as const;
 export type TemplateId = (typeof TEMPLATE_IDS)[number];
 
 export const FONT_OPTIONS = ["sans", "serif", "mono", "rounded"] as const;

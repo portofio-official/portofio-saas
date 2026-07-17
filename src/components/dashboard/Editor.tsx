@@ -9,6 +9,8 @@ import { useAutosave } from "@/hooks/useAutosave";
 import { saveDraftAction, publishProjectAction, unpublishProjectAction } from "@/lib/projects/actions";
 import { FONT_OPTIONS, ACCENT_COLOR_PRESETS, type TemplateId } from "@/lib/templates/types";
 import type { BasePortfolioData } from "@/lib/templates/schemas/_base";
+import type { StudioData } from "@/components/templates/studio/schema";
+import type { PortfolioProData } from "@/components/templates/portfolio-pro/schema";
 import type { WebsiteDocument } from "@/lib/templates/definition";
 import { LegacyTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
 
@@ -20,8 +22,26 @@ import { SkillsSection } from "@/components/portfolio/sections/SkillsSection";
 import { ProjectsSection } from "@/components/portfolio/sections/ProjectsSection";
 import { ContactSection } from "@/components/portfolio/sections/ContactSection";
 import { SocialsSection } from "@/components/portfolio/sections/SocialsSection";
+import { StudioHeroSection, StudioExpertiseSection, StudioTestimonialsSection } from "@/components/templates/studio/Sections";
+import {
+  PortfolioProHeroSection,
+  PortfolioProAboutSection,
+  PortfolioProSkillsSection,
+  PortfolioProExperienceSection,
+  PortfolioProEducationSection,
+  PortfolioProCaseStudiesSection,
+  PortfolioProCertificatesSection,
+  PortfolioProGallerySection,
+} from "@/components/templates/portfolio-pro/Sections";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+// `studio` and `portfolio-pro` both declare a `hero` field with incompatible
+// shapes, so a plain `Partial<StudioData> & Partial<PortfolioProData>`
+// intersection is unsatisfiable — union the one field that collides instead.
+type EditorData = BasePortfolioData &
+  Partial<Omit<StudioData, "hero">> &
+  Partial<Omit<PortfolioProData, "hero">> & { hero?: StudioData["hero"] | PortfolioProData["hero"] };
 
 export function Editor({
   projectId,
@@ -38,8 +58,8 @@ export function Editor({
   initialStatus?: "draft" | "published";
   rootDomain?: string;
 }) {
-  const [data, setData] = useState<BasePortfolioData>(
-    (initialDocument.data ?? {}) as BasePortfolioData,
+  const [data, setData] = useState<EditorData>(
+    (initialDocument.data ?? {}) as EditorData,
   );
   const templateId = initialTemplateId;
   const [showDesktopPreview, setShowDesktopPreview] = useState(false);
@@ -183,29 +203,51 @@ export function Editor({
                 profile={data.profile}
                 onChange={(patch) => setData((d) => ({ ...d, profile: { ...d.profile, ...patch } }))}
               />
-              <ExperienceSection
-                t={tExperience}
-                items={data.experiences}
-                onChange={(experiences) => setData((d) => ({ ...d, experiences }))}
-              />
-              <EducationSection
-                t={tEducation}
-                items={data.educations}
-                onChange={(educations) => setData((d) => ({ ...d, educations }))}
-              />
-              <SkillsSection
-                eyebrow={tSkills("eyebrow")}
-                title={tSkills("title")}
-                placeholder={tSkills("placeholder")}
-                removeLabel={tSkills("removeLabel")}
-                skills={data.skills}
-                onChange={(skills) => setData((d) => ({ ...d, skills }))}
-              />
-              <ProjectsSection
-                t={tProjects}
-                items={data.projects}
-                onChange={(projects) => setData((d) => ({ ...d, projects }))}
-              />
+              {templateId === "studio" && (
+                <StudioHeroSection
+                  hero={(data.hero as StudioData["hero"]) || { headline: "", subheadline: "", ctaLabel: "" }}
+                  onChange={(patch) => setData((d) => ({ ...d, hero: { ...d.hero, ...patch } as StudioData["hero"] }))}
+                />
+              )}
+              {templateId === "portfolio-pro" && (
+                <>
+                  <PortfolioProHeroSection
+                    hero={(data.hero as PortfolioProData["hero"]) || { badges: [] }}
+                    onChange={(patch) => setData((d) => ({ ...d, hero: { ...d.hero, ...patch } as PortfolioProData["hero"] }))}
+                  />
+                  <PortfolioProAboutSection
+                    about={data.about || { paragraphs: [], tags: [] }}
+                    onChange={(patch) => setData((d) => ({ ...d, about: { ...d.about, ...patch } as PortfolioProData["about"] }))}
+                  />
+                </>
+              )}
+              {templateId !== "portfolio-pro" && (
+                <>
+                  <ExperienceSection
+                    t={tExperience}
+                    items={data.experiences}
+                    onChange={(experiences) => setData((d) => ({ ...d, experiences }))}
+                  />
+                  <EducationSection
+                    t={tEducation}
+                    items={data.educations}
+                    onChange={(educations) => setData((d) => ({ ...d, educations }))}
+                  />
+                  <SkillsSection
+                    eyebrow={tSkills("eyebrow")}
+                    title={tSkills("title")}
+                    placeholder={tSkills("placeholder")}
+                    removeLabel={tSkills("removeLabel")}
+                    skills={data.skills}
+                    onChange={(skills) => setData((d) => ({ ...d, skills }))}
+                  />
+                  <ProjectsSection
+                    t={tProjects}
+                    items={data.projects}
+                    onChange={(projects) => setData((d) => ({ ...d, projects }))}
+                  />
+                </>
+              )}
               <ContactSection
                 t={tContact}
                 contact={data.contact}
@@ -216,6 +258,46 @@ export function Editor({
                 items={data.socials}
                 onChange={(socials) => setData((d) => ({ ...d, socials }))}
               />
+              {templateId === "studio" && (
+                <>
+                  <StudioExpertiseSection
+                    items={data.expertise || []}
+                    onChange={(expertise) => setData((d) => ({ ...d, expertise }))}
+                  />
+                  <StudioTestimonialsSection
+                    items={data.testimonials || []}
+                    onChange={(testimonials) => setData((d) => ({ ...d, testimonials }))}
+                  />
+                </>
+              )}
+              {templateId === "portfolio-pro" && (
+                <>
+                  <PortfolioProSkillsSection
+                    items={data.skillsShowcase || []}
+                    onChange={(skillsShowcase) => setData((d) => ({ ...d, skillsShowcase }))}
+                  />
+                  <PortfolioProExperienceSection
+                    items={data.experienceDetails || []}
+                    onChange={(experienceDetails) => setData((d) => ({ ...d, experienceDetails }))}
+                  />
+                  <PortfolioProEducationSection
+                    items={data.educationDetails || []}
+                    onChange={(educationDetails) => setData((d) => ({ ...d, educationDetails }))}
+                  />
+                  <PortfolioProCaseStudiesSection
+                    items={data.caseStudies || []}
+                    onChange={(caseStudies) => setData((d) => ({ ...d, caseStudies }))}
+                  />
+                  <PortfolioProCertificatesSection
+                    items={data.certificates || []}
+                    onChange={(certificates) => setData((d) => ({ ...d, certificates }))}
+                  />
+                  <PortfolioProGallerySection
+                    items={data.gallery || []}
+                    onChange={(gallery) => setData((d) => ({ ...d, gallery }))}
+                  />
+                </>
+              )}
             </div>
           </div>
         </aside>

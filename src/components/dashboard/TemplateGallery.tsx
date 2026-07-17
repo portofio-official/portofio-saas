@@ -8,7 +8,11 @@ import { useRouter } from "@/i18n/navigation";
 import { type TemplateId } from "@/lib/templates/types";
 import { LegacyTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
-import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
+import type { BasePortfolioData } from "@/lib/templates/schemas/_base";
+import type { StudioData } from "@/components/templates/studio/schema";
+import type { PortfolioProData } from "@/components/templates/portfolio-pro/schema";
+
+type PreviewData = BasePortfolioData & Partial<StudioData> & Partial<PortfolioProData>;
 
 // ─── Template metadata ───────────────────────────────────────────────────────
 
@@ -56,13 +60,27 @@ const TEMPLATE_META: TemplateMeta[] = [
     tags: ["All", "Developer"],
     accentBg: "bg-[#09090b]",
   },
+  {
+    id: "studio",
+    name: "Vanguard Studio",
+    description: "Agency-tier design with asymmetrical bento grids, ethereal glass textures, and fluid motion.",
+    tags: ["All", "Creative", "Portfolio"],
+    accentBg: "bg-[#050505]",
+  },
+  {
+    id: "portfolio-pro",
+    name: "Portfolio Pro",
+    description: "Complete professional portfolio with case studies, certificates, and a gallery. Visitors can switch accent color and dark/light mode.",
+    tags: ["All", "Professional", "Portfolio"],
+    accentBg: "bg-[#0a0a0f]",
+  },
 ];
 
 const CATEGORIES = ["All", "Personal", "Creative", "Portfolio", "Professional", "Developer"];
 
 // ─── Dummy preview data ───────────────────────────────────────────────────────
 
-const PREVIEW_DATA: PortfolioData = {
+const PREVIEW_DATA: PreviewData = {
   profile: {
     fullName: "Alex Rivera",
     headline: "Product Designer & Creative Director",
@@ -87,6 +105,76 @@ const PREVIEW_DATA: PortfolioData = {
     { platform: "github", url: "https://github.com/alexrivera" },
   ],
   theme: { accentColor: "#00cf7c", font: "sans" },
+  hero: {
+    headline: "We build digital experiences.",
+    subheadline: "An independent studio crafting premium interfaces for the web and mobile.",
+    ctaLabel: "View Selected Work",
+    badges: [],
+  },
+  about: {
+    paragraphs: [
+      "I craft digital experiences that are both beautiful and functional.",
+      "5+ years working with startups and global brands across product design and design systems.",
+    ],
+    tags: ["Product Design", "Design Systems", "Prototyping"],
+    yearsExperience: 5,
+  },
+  expertise: [
+    { title: "Digital Product Design", description: "Crafting intuitive and engaging user interfaces." },
+    { title: "Brand Identity", description: "Building cohesive and memorable brand systems." },
+    { title: "Design Engineering", description: "Bridging the gap between design and code." }
+  ],
+  testimonials: [
+    { name: "Sarah Jenkins", role: "CEO at TechFlow", quote: "The team delivered exceptional results that completely transformed our digital presence." }
+  ],
+  skillsShowcase: [
+    { name: "Figma" },
+    { name: "React" },
+    { name: "Framer" },
+    { name: "Tailwind" },
+  ],
+  experienceDetails: [
+    {
+      company: "Figma",
+      role: "Senior Product Designer",
+      period: "2022 - Sekarang",
+      achievements: ["Led a design system overhaul used across 5 product teams."],
+      tools: ["Figma", "React", "Storybook"],
+    },
+  ],
+  educationDetails: [
+    {
+      institution: "Institut Teknologi Bandung",
+      degree: "Bachelor, Visual Communication Design",
+      period: "2015 - 2019",
+      achievements: ["Graduated with honors."],
+    },
+  ],
+  caseStudies: [
+    {
+      title: "Brand Refresh — GoTo",
+      category: "Brand Identity",
+      date: "Mar 2024",
+      images: [],
+      description: "Complete visual identity overhaul for Indonesia's largest tech company.",
+      achievements: ["Unified 6 sub-brands under one visual system."],
+      tech: ["Figma", "Illustrator"],
+      confidential: false,
+      link: "#",
+    },
+  ],
+  certificates: [
+    { title: "Advanced UX Research", issuer: "Nielsen Norman Group" },
+  ],
+  gallery: [
+    {
+      imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Crect width='800' height='600' fill='%23334155'/%3E%3C/svg%3E",
+      title: "Design Systems Workshop",
+      location: "Jakarta",
+      date: "Jun 2025",
+      description: "Led a workshop on scalable design systems for 40+ product designers.",
+    },
+  ],
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────

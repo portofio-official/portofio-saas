@@ -1,11 +1,11 @@
 // src/lib/templates/schemas/dark.ts
 import type { TemplateDefinition, WorkspaceProfile } from "@/lib/templates/definition";
-import { basePortfolioSchema, BASE_DEFAULTS, BASE_SECTIONS, type BasePortfolioData } from "./_base";
+import { basePortfolioSchema, BASE_DEFAULTS, BASE_SECTIONS, type BasePortfolioData } from "@/lib/templates/schemas/_base";
 import React from "react";
 
 const getRenderer = (): React.ComponentType<{ data: BasePortfolioData; workspaceProfile: WorkspaceProfile }> => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { DarkTemplate } = require("@/components/templates/DarkTemplate");
+  const { DarkTemplate } = require("./Template");
   return function DarkAdapter({ data }: { data: BasePortfolioData; workspaceProfile: WorkspaceProfile }) {
     return React.createElement(DarkTemplate, { data });
   };

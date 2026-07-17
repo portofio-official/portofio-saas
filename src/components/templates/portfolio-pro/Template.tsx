@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PortfolioProData } from "./schema";
 import type { WorkspaceProfile } from "@/lib/templates/definition";
-import { COLOR_SCHEMES, type SchemeKey } from "./theme";
+import { buildTheme, hexToRgba } from "./theme";
 import { Navbar } from "./Navbar";
 import { HeroSection } from "./HeroSection";
 import { AboutSection } from "./AboutSection";
@@ -23,10 +23,9 @@ export function PortfolioProTemplate({
   workspaceProfile: WorkspaceProfile;
 }) {
   const [isDark, setIsDark] = useState(true);
-  const [scheme, setScheme] = useState<SchemeKey>("purple");
   const [isMobileView, setIsMobileView] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
-  const theme = COLOR_SCHEMES[scheme];
+  const theme = buildTheme(data.theme.accentColor);
   const isManualScrolling = useRef(false);
 
   useEffect(() => {
@@ -76,10 +75,10 @@ export function PortfolioProTemplate({
     >
       {isDark && (
         <>
-          <div className={`pointer-events-none absolute top-[-2%] left-[-10%] z-0 h-96 w-96 rounded-full opacity-60 mix-blend-screen blur-[100px] ${theme.glow1}`} />
-          <div className={`pointer-events-none absolute top-[15%] right-[-5%] z-0 h-[500px] w-[500px] rounded-full opacity-50 mix-blend-screen blur-[120px] ${theme.glow3}`} />
-          <div className={`pointer-events-none absolute top-[45%] left-[-10%] z-0 h-[450px] w-[450px] rounded-full opacity-40 mix-blend-screen blur-[130px] ${theme.glow2}`} />
-          <div className={`pointer-events-none absolute top-[75%] right-[-5%] z-0 h-[500px] w-[500px] rounded-full opacity-40 mix-blend-screen blur-[140px] ${theme.glow3}`} />
+          <div className="pointer-events-none absolute top-[-2%] left-[-10%] z-0 h-96 w-96 rounded-full opacity-60 mix-blend-screen blur-[100px]" style={{ backgroundColor: hexToRgba(theme.accent, 0.35) }} />
+          <div className="pointer-events-none absolute top-[15%] right-[-5%] z-0 h-[500px] w-[500px] rounded-full opacity-50 mix-blend-screen blur-[120px]" style={{ backgroundColor: hexToRgba(theme.accent, 0.25) }} />
+          <div className="pointer-events-none absolute top-[45%] left-[-10%] z-0 h-[450px] w-[450px] rounded-full opacity-40 mix-blend-screen blur-[130px]" style={{ backgroundColor: hexToRgba(theme.accent, 0.3) }} />
+          <div className="pointer-events-none absolute top-[75%] right-[-5%] z-0 h-[500px] w-[500px] rounded-full opacity-40 mix-blend-screen blur-[140px]" style={{ backgroundColor: hexToRgba(theme.accent, 0.25) }} />
         </>
       )}
 
@@ -87,9 +86,7 @@ export function PortfolioProTemplate({
         fullName={data.profile.fullName || "Your Name"}
         isDark={isDark}
         toggleDark={() => setIsDark((v) => !v)}
-        scheme={scheme}
         theme={theme}
-        setScheme={setScheme}
         isMobileView={isMobileView}
         activeSection={activeSection}
         setActiveSection={handleNavSelect}

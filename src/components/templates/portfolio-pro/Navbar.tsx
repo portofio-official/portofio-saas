@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Menu, X, Palette, Sun, Moon } from "lucide-react";
-import { COLOR_SCHEMES, type SchemeKey, type ColorScheme } from "./theme";
+import { useEffect, useState } from "react";
+import { Menu, X, Sun, Moon } from "lucide-react";
+import type { ColorScheme } from "./theme";
 
 const NAV_LINKS = [
   { id: "home", label: "Home" },
@@ -18,9 +18,7 @@ export function Navbar({
   fullName,
   isDark,
   toggleDark,
-  scheme,
   theme,
-  setScheme,
   isMobileView,
   activeSection,
   setActiveSection,
@@ -28,26 +26,12 @@ export function Navbar({
   fullName: string;
   isDark: boolean;
   toggleDark: () => void;
-  scheme: SchemeKey;
   theme: ColorScheme;
-  setScheme: (v: SchemeKey) => void;
   isMobileView: boolean;
   activeSection: string;
   setActiveSection: (id: string) => void;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [colorPickerOpen, setColorPickerOpen] = useState(false);
-  const pickerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
-        setColorPickerOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -161,35 +145,6 @@ export function Navbar({
         )}
 
         <div className="ml-auto flex items-center gap-3 sm:ml-0 sm:gap-4">
-          <div className="relative" ref={pickerRef}>
-            <button
-              type="button"
-              onClick={() => setColorPickerOpen((v) => !v)}
-              title="Accent color"
-              className={`flex h-7 w-7 items-center justify-center rounded-full ring-2 ring-offset-2 transition-transform hover:scale-110 ${isDark ? "ring-slate-700 ring-offset-black" : "ring-slate-300 ring-offset-slate-50"}`}
-            >
-              <Palette size={14} style={{ color: theme.accent }} />
-            </button>
-            {colorPickerOpen && (
-              <div
-                className={`absolute top-full right-1/2 mt-2 flex translate-x-1/2 gap-2 rounded-xl border p-2 shadow-xl ${isDark ? `${theme.darkCard} border-white/10` : "border-slate-200 bg-white"}`}
-              >
-                {(Object.keys(COLOR_SCHEMES) as SchemeKey[]).map((key) => (
-                  <button
-                    key={key}
-                    type="button"
-                    title={key}
-                    onClick={() => {
-                      setScheme(key);
-                      setColorPickerOpen(false);
-                    }}
-                    className={`h-6 w-6 rounded-full transition-transform hover:scale-110 ${scheme === key ? "ring-2 ring-offset-2 ring-gray-400" : "opacity-70 hover:opacity-100"}`}
-                    style={{ backgroundColor: COLOR_SCHEMES[key].accent }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
           <button
             type="button"
             onClick={toggleDark}

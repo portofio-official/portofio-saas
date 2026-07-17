@@ -83,12 +83,7 @@ export function Navbar({ userEmail }: { userEmail: string | null }) {
 
         {userEmail ? (
           <Link href="/dashboard" aria-label={t("dashboard")} className={styles.profileIconLink}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80"
-              alt={userEmail}
-              className={styles.profileIconImg}
-            />
+            <span className={styles.profileIconInitial}>{userEmail.charAt(0).toUpperCase()}</span>
           </Link>
         ) : (
           <Link href="/login" className={styles.loginLink}>

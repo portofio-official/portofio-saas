@@ -1,5 +1,5 @@
 // ponytail: client-side canvas compression, resulting data URL stored inline
-// in the dummy JSON store. Once a real Supabase project exists, upload the
+// in projects.draft_json/published_json (jsonb). Upgrade path: upload the
 // compressed blob to Supabase Storage (PRD 9.6) and store its URL instead.
 export async function compressImageToDataUrl(
   file: File,

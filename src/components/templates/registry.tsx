@@ -1,6 +1,4 @@
 // Template registry — Zod-based TemplateDefinition system.
-// ponytail: TEMPLATE_COMPONENTS and old TemplateRenderer kept for backward-compat
-// with Editor.tsx until it's migrated to use WebsiteDocument. Remove after Fase 3.
 import type { z } from "zod";
 import type { TemplateDefinition, WorkspaceProfile, WebsiteDocument } from "@/lib/templates/definition";
 import { parseDocumentData } from "@/lib/templates/definition";
@@ -61,8 +59,13 @@ export function TemplateRenderer({
   return <Renderer data={data} workspaceProfile={workspaceProfile} />;
 }
 
-// ── Legacy — backward-compat until Editor is migrated (Fase 3) ─────────────
-// ponytail: delete these after Editor.tsx switches to WebsiteDocument
+// ── Raw-data preview rendering ──────────────────────────────────────────────
+// NOT legacy / not scheduled for removal: TemplateRenderer above needs a
+// persisted WebsiteDocument, but the Editor's live preview, the dashboard
+// card thumbnail, and the template gallery all render from in-memory/demo
+// data that was never wrapped in a WebsiteDocument. PreviewTemplateRenderer
+// is the permanent renderer for that case — see Editor.tsx, TemplateGallery.tsx,
+// DashboardClientView.tsx.
 
 export const TEMPLATE_COMPONENTS: Record<TemplateId, React.ComponentType<{ data: PortfolioData }>> = {
   minimal: MinimalTemplate,
@@ -71,13 +74,12 @@ export const TEMPLATE_COMPONENTS: Record<TemplateId, React.ComponentType<{ data:
   corporate: CorporateTemplate,
   dark: DarkTemplate,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  studio: StudioTemplate as any, // Cast to any because legacy expects BasePortfolioData
+  studio: StudioTemplate as any, // Cast to any because this map expects BasePortfolioData
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  "portfolio-pro": PortfolioProTemplate as any, // Cast to any because legacy expects BasePortfolioData
+  "portfolio-pro": PortfolioProTemplate as any, // Cast to any because this map expects BasePortfolioData
 };
 
-/** @deprecated Use TemplateRenderer with WebsiteDocument instead */
-export function LegacyTemplateRenderer({ templateId, data }: { templateId: TemplateId; data: PortfolioData }) {
+export function PreviewTemplateRenderer({ templateId, data }: { templateId: TemplateId; data: PortfolioData }) {
   const Template = TEMPLATE_COMPONENTS[templateId];
   return <Template data={data} />;
 }

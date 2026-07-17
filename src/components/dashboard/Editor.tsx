@@ -12,7 +12,7 @@ import type { BasePortfolioData } from "@/lib/templates/schemas/_base";
 import type { StudioData } from "@/components/templates/studio/schema";
 import type { PortfolioProData } from "@/components/templates/portfolio-pro/schema";
 import type { WebsiteDocument } from "@/lib/templates/definition";
-import { LegacyTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
+import { PreviewTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
 
 // Portfolio Form Sections
 import { ProfileSection } from "@/components/portfolio/sections/ProfileSection";

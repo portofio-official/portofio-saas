@@ -105,7 +105,7 @@
       "priority": 5,
       "area": "template",
       "title": "Template gallery with live preview",
-      "user_visible_behavior": "A user browses 5 templates, picks one, and sees a real-time preview using their own data.",
+      "user_visible_behavior": "A user browses the templates in TEMPLATE_REGISTRY (7 as of 2026-07-17: Minimal, Bold, Creative, Corporate, Dark, Vanguard Studio, Portfolio Pro), picks one, and sees a real-time preview using their own data.",
       "status": "passing",
       "verification": [
         "Switch between templates and confirm the same data renders correctly in each.",
@@ -124,22 +124,22 @@
         "NOTE (v1.3, sequencing): per the updated PRD 6/7.3 flow, the dashboard gallery should show demo data on the browse/compare step and only switch to the workspace's real Data General after \"Gunakan template ini\" is clicked — the current implementation shows live real-data preview immediately on selection, which is a minor sequencing difference from the v1.3 flow, still deferred (unrelated to the bug above).",
         "2026-07-14 (Session 014): Implemented Unified Editor (Ponytail flow). The separate 'data' and 'template' routes were deleted; both are now unified in a side-by-side Editor at '/dashboard/[workspaceId]'. Verified compilation and linting."
       ],
-      "notes": "PRD section 7.3 (five template specs listed there). Every template must accept the PortfolioData contract from PRD 9.4 and render sensibly when optional fields are empty. Templates are explicitly out of DESIGN.md's scope (DESIGN.md §0) — they do not follow the app-shell design system. Both rendering/live-preview AND per-workspace selection persistence are now fully verified against the real database."
+      "notes": "PRD section 7.3. Originally 5 templates (evidence below is from that build); Studio and Portfolio Pro were added in Session 019/020 (2026-07-17) without this note being updated until now — see PRD v1.6 changelog. Every template must accept its own TemplateDefinition/Zod schema (PRD 9.4 — no longer one global PortfolioData contract) and render sensibly when optional fields are empty. Templates are explicitly out of DESIGN.md's scope (DESIGN.md §0) — they do not follow the app-shell design system. Both rendering/live-preview AND per-workspace selection persistence are fully verified against the real database for the original 5; Studio/Portfolio Pro verified via the shared renderer path (see their own session notes) but not yet via this feature's own authenticated-editor verification steps."
     },
     {
       "id": "template-002",
       "priority": 6,
       "area": "template",
       "title": "Public template gallery on the landing page (Framer/Canva-style)",
-      "user_visible_behavior": "A visitor (no account) browses the 5 templates on the marketing landing page, each rendered with fixed demo data, and can click \"Use this template\" to carry that choice through signup so it's pre-applied to their first workspace.",
+      "user_visible_behavior": "A visitor (no account) browses all templates in TEMPLATE_REGISTRY on the marketing landing page, each rendered with fixed demo data, and can click \"Use this template\" to carry that choice through signup so it's pre-applied to their first workspace.",
       "status": "not_started",
       "verification": [
-        "Visit the landing page's template gallery while logged out; confirm all 5 templates render with demo data (not a 401/redirect to login).",
+        "Visit the landing page's template gallery while logged out; confirm every template in TEMPLATE_REGISTRY renders with demo data (not a 401/redirect to login).",
         "Click \"Use this template\" on one card, complete signup and first-workspace creation, and confirm that workspace's dashboard has the chosen template pre-selected instead of the default.",
         "Confirm skipping the public gallery and signing up directly still works and falls back to the existing default template behavior."
       ],
       "evidence": [],
-      "notes": "PRD section 6 and 7.3 (v1.2 change, added at user's request 2026-07-13 — product model explicitly modeled on Framer/Canva's public template browsing; updated for v1.3's workspace concept — the carried-over template choice applies to the new account's FIRST workspace, not the account directly). Reuses template-001's existing TemplateRenderer/registry.tsx and the 5 template components unchanged — only new work is: (1) fixture demo PortfolioData per template (static in code, not DB-backed, per PRD 7.3), (2) a public, unauthenticated gallery page/section on the landing page, (3) a short-lived mechanism (e.g. cookie or query param) to carry the chosen templateId through signup + first-workspace creation and apply it once that workspace exists. Depends on workspace-001 landing first (needs a workspace to apply the choice to). Does not change or reopen template-001, which already passes on its own (dashboard, authenticated, live-data) scope."
+      "notes": "PRD section 6 and 7.3 (v1.2 change, added at user's request 2026-07-13 — product model explicitly modeled on Framer/Canva's public template browsing; updated for v1.3's workspace concept — the carried-over template choice applies to the new account's FIRST workspace, not the account directly). Reuses template-001's existing TemplateRenderer/registry.tsx and its template components unchanged (7 registered as of 2026-07-17, was 5 when this note was first written — don't hardcode the count again, read it from TEMPLATE_REGISTRY) — only new work is: (1) a fixture demo document per template (static in code, not DB-backed, per PRD 7.3), (2) a public, unauthenticated gallery page/section on the landing page, (3) a short-lived mechanism (e.g. cookie or query param) to carry the chosen templateId through signup + first-workspace creation and apply it once that workspace exists. Depends on workspace-001 landing first (needs a workspace to apply the choice to). Does not change or reopen template-001, which already passes on its own (dashboard, authenticated, live-data) scope."
     },
     {
       "id": "publish-001",

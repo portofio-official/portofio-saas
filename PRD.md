@@ -1,8 +1,8 @@
 # Product Requirements Document (PRD)
 ## Portofio - SaaS Portfolio Website Builder
 
-**Versi**: 1.5
-**Tanggal**: 16 Juli 2026
+**Versi**: 1.6
+**Tanggal**: 17 Juli 2026
 **Disusun oleh**: Maulana Chandra Irawan
 **Status**: Siap untuk development
 
@@ -15,6 +15,8 @@
 > Perubahan v1.4: Menyederhanakan alur pengguna (Ponytail mode). Menghapus langkah isi "Data General" di awal. Pengguna langsung masuk ke Dashboard setelah login untuk memilih template, lalu mengisi data spesifik di dalam Editor (mirip Framer).
 >
 > Perubahan v1.5 (2026-07-16, doc-sync pass): §9.3/9.4 ditulis ulang untuk mencocokkan arsitektur yang sudah dibangun ("Workspace Profile + Project Architecture", `arch-001` di `feature_list.json`) dan menggantikan `portfolio_data`+`sites` yang sudah di-drop dari database. Skema baru: `workspace_profile` (data umum 1:1 per workspace) + `projects` (banyak per workspace, `draft_json`/`published_json`, publish via RPC `publish_project()`) + template didefinisikan lewat Zod `TemplateDefinition` di kode (`src/lib/templates/schemas/`), bukan satu interface `PortfolioData` tunggal. Tidak ada perubahan pada alur pengguna (section 6) atau scope (section 5) — murni penyelarasan skema data dengan kode yang sudah berjalan.
+>
+> Perubahan v1.6 (2026-07-17, maintenance pass): v1.5's changelog note klaim §9.3/9.4 sudah ditulis ulang, tapi isinya ternyata masih versi lama (tabel `portfolio_data`/`sites`, interface `PortfolioData` tunggal, `src/templates/`) — janji changelog yang tidak benar-benar dieksekusi. Kali ini benar-benar diperbaiki: §9.3 (tidak ada tabel `templates` di DB, semua lewat `TEMPLATE_REGISTRY` di kode, path folder per-template yang benar) dan §9.4 (skema real: `workspace_profile`/`workspace_assets`/`projects`/`subscriptions`, `WebsiteDocument`+per-template Zod schema, bukan `PortfolioData` global). §7.3 diperbarui dari 5 jadi 7 template terdaftar (`Vanguard Studio`, `Portfolio Pro` ditambahkan tanpa update PRD sebelumnya).
 
 ---
 
@@ -37,7 +39,7 @@ Portofio mengisi celah ini dengan alur super sederhana: isi data, pilih template
 ## 3. Tujuan Produk dan Success Metrics
 
 **Tujuan Bisnis**
-- Meluncurkan MVP dalam [X bulan] dengan 5 template siap pakai
+- Meluncurkan MVP dalam [X bulan] dengan minimal 5 template siap pakai (7 sudah dibangun per 2026-07-17, lihat 7.3)
 - Mendapatkan [Z] pengguna terdaftar dalam 3 bulan pertama pasca-launch
 - Konversi minimal 5-10% dari pembuat portofolio (akun gratis) menjadi pelanggan berbayar yang publish
 
@@ -65,7 +67,7 @@ Karakteristik:
 - **Workspace**: satu akun dapat memiliki lebih dari satu workspace/brand profile. Workspace tambahan dapat dibuat dari dashboard.
 - Landing page untuk marketing.
 - Editor form per workspace (biodata, pengalaman, skill, project/karya, kontak, sosial media) yang diisi langsung di dalam halaman Editor Template.
-- 5 template siap pakai untuk peluncuran awal (struktur tetap, tanpa kustomisasi bebas; kontrak data sama untuk semua template — tidak ada field unik per template)
+- 7 template siap pakai (Minimal, Bold, Creative, Corporate, Dark + Vanguard Studio, Portfolio Pro ditambahkan 2026-07-17), struktur tetap, tanpa kustomisasi bebas. Lima template pertama berbagi satu kontrak data (`basePortfolioSchema`); dua template terbaru meng-*extend*-nya dengan section unik sendiri (lihat 9.4) — bukan lagi "tidak ada field unik per template" seperti rencana awal
 - Kustomisasi dasar tema (warna aksen, pilihan font terbatas)
 - Live preview real-time saat mengisi data — preview galeri (sebelum pilih) memakai data dummy, preview setelah "Gunakan template" memakai Data General workspace yang aktif
 - Publish (Deploy) ke subdomain (contoh: nama.appku.com) — khusus pelanggan berbayar; per-workspace atau per-akun masih open question, lihat section 16
@@ -129,11 +131,11 @@ Poin penting dari alur di atas (Ponytail simplified flow):
 
 ### 7.3 Template dan Kustomisasi
 - **Dashboard Galeri**: setelah login, user disuguhkan pilihan template.
-- Setiap template menerima struktur data yang sama (`PortfolioData`, lihat 9.4).
+- Setiap template punya `TemplateDefinition` + skema Zod sendiri (lihat 9.4) — kelimanya (Minimal/Bold/Creative/Corporate/Dark) memakai `basePortfolioSchema` apa adanya, sedangkan Vanguard Studio dan Portfolio Pro meng-*extend*-nya dengan section tambahan (mis. case study, sertifikat, gallery).
 - Kustomisasi terbatas: skema warna dan pilihan font, diatur langsung di Editor.
 - Live Preview real-time: perubahan input data dan kustomisasi langsung terlihat.
 
-Lima template peluncuran (nama kerja, masing-masing satu karakter desain yang jelas):
+Tujuh template tersedia (nama kerja, masing-masing satu karakter desain yang jelas — daftar ini adalah source of truth `src/components/templates/registry.tsx`'s `TEMPLATE_REGISTRY`, update di sini setiap kali template ditambah/dihapus dari registry):
 
 | Template | Karakter |
 |---|---|
@@ -142,8 +144,10 @@ Lima template peluncuran (nama kerja, masing-masing satu karakter desain yang je
 | Creative | Grid project menonjol di atas, cocok untuk desainer/fotografer |
 | Corporate | Rapi dan formal, timeline pengalaman kerja menonjol, cocok job seeker |
 | Dark | Tema gelap, aksen neon, cocok untuk developer/tech |
+| Vanguard Studio | Agency-tier, bento grid asimetris, glass texture, motion halus, cocok agency/premium |
+| Portfolio Pro | Portofolio profesional lengkap (skills, case study, sertifikat, gallery) + color/dark-mode switcher yang bisa diganti pengunjung |
 
-Data contoh/demo untuk galeri publik: satu `PortfolioData` demo per template (nama, headline, bio, 1–2 pengalaman, beberapa skill, 1–2 project — cukup untuk menunjukkan karakter template, tidak perlu realistis sempurna), disimpan sebagai fixture statis di kode, bukan di database (tidak terhubung ke akun manapun).
+Data contoh/demo untuk galeri publik: satu dokumen demo per template, sesuai skema Zod milik template itu (nama, headline, bio, 1–2 pengalaman, beberapa skill, 1–2 project, ditambah section unik seperti case study/sertifikat untuk Studio/Portfolio Pro — cukup untuk menunjukkan karakter template, tidak perlu realistis sempurna), disimpan sebagai fixture statis di kode, bukan di database (tidak terhubung ke akun manapun).
 
 ### 7.4 Preview dan Publish
 - Preview mode identik dengan tampilan akhir sebelum publish
@@ -211,78 +215,38 @@ Mengingat sudah familiar dengan ekosistem Next.js/React dan Supabase, berikut re
 
 ### 9.3 Arsitektur Multi-Tenant dan Penyimpanan Template
 
-Sistem menggunakan pendekatan **Hybrid Template Storage**:
-- **Metadata Template (di Database)**: Tabel `templates` di Supabase menyimpan data seperti `id`, `name`, `thumbnail_url`, dan `category`. Hal ini memungkinkan Dashboard meload daftar ratusan template secara dinamis.
-- **Kode UI Template (di Codebase)**: Kode desain (React Components / `.tsx`) murni disimpan di codebase `src/templates/`. Pendekatan ini (Ponytail mode) dipilih untuk keamanan (mencegah XSS/eksekusi kode dari DB), menghindari *over-engineering* membuat engine JSON-to-UI, serta memanfaatkan *Code Splitting* bawaan Next.js yang hanya me-load komponen template terkait ke memori.
+Sistem menggunakan pendekatan **Hybrid Template Storage** — direalisasikan sedikit berbeda dari rencana awal: metadata template ternyata TIDAK di database sama sekali, semuanya di kode (lebih sederhana, tidak butuh sinkronisasi kode↔DB untuk hal yang jarang berubah):
+
+- **Registry Template (di Codebase)**: `TEMPLATE_REGISTRY` di `src/components/templates/registry.tsx` — objek statis `{ [templateId]: TemplateDefinition }`, berisi `meta` (name, description, thumbnailUrl, category, capabilities, tags), skema Zod, defaults, dan renderer. Dashboard/galeri publik membaca registry ini langsung, bukan query database.
+- **Kode UI Template (di Codebase)**: satu folder per template, `src/components/templates/<id>/{schema.ts, Template.tsx, Sections.tsx?}`. Pendekatan ini (Ponytail mode) dipilih untuk keamanan (mencegah XSS/eksekusi kode dari DB), menghindari *over-engineering* membuat engine JSON-to-UI, serta memanfaatkan *Code Splitting* bawaan Next.js yang hanya me-load komponen template terkait ke memori.
 
 Alur rendering teknis:
 
 1. DNS wildcard (*.appku.com) diarahkan ke aplikasi
-2. Next.js Middleware membaca header host dari setiap request masuk
-3. Middleware mengekstrak subdomain dan melakukan rewrite ke route dinamis, misalnya /sites/[subdomain]
-4. Route tersebut melakukan query ke database berdasarkan subdomain untuk mengambil data pengguna dan ID template yang dipilih
-5. Halaman dirender menggunakan komponen template dari `src/templates/` yang sesuai, setiap template adalah komponen React yang menerima struktur data yang sama sebagai props
+2. Next.js Middleware (`src/proxy.ts`) membaca header host dari setiap request masuk
+3. Middleware mengekstrak subdomain dan melakukan rewrite ke route dinamis `/sites/[subdomain]`
+4. Route tersebut query tabel `projects` berdasarkan `subdomain` + `status='published'` untuk mengambil `published_json` dan `template_id`
+5. `TemplateRenderer` (`registry.tsx`) mengambil `TemplateDefinition` dari `template_id`, memvalidasi `published_json` terhadap skema Zod milik template itu (§9.4), lalu merender komponen template yang sesuai — setiap template punya bentuk data sendiri (base atau extended), bukan satu struktur seragam untuk semua
 6. Gunakan ISR (Incremental Static Regeneration) atau caching di edge untuk menjaga performa tanpa perlu build ulang setiap kali data berubah
 
 ### 9.4 Skema Data
 
-Entitas utama:
+> Ditulis ulang 2026-07-17 mengikuti migrasi Workspace Profile + Project System (Fase 1-4, lihat `claude-progress.md`). Versi sebelumnya mendeskripsikan tabel `portfolio_data`/`sites` dan interface `PortfolioData` tunggal — keduanya sudah di-drop (`supabase/migrations/20260716000005_drop_legacy_tables.sql`) dan digantikan struktur di bawah. Riwayat lama ada di `docs/progress-archive.md` kalau perlu konteks kenapa berubah.
 
-- **users**: akun, kredensial, status subscription
-- **workspaces** (v1.3): satu workspace = satu brand/portofolio. Terhubung ke `user_id` (satu user → banyak workspace, relasi one-to-many). Kolom minimal: `id`, `user_id`, `name`, `created_at`
-- **portfolio_data**: data terstruktur (bio, pengalaman, pendidikan, skill, kontak) — terhubung ke `workspace_id` (bukan langsung ke `user_id` lagi sejak v1.3, karena tiap workspace punya Data General sendiri)
-- **projects**: daftar karya/project milik satu portfolio_data, relasi one-to-many
-- **sites**: representasi website (subdomain, template_id, status publish) — terhubung ke `workspace_id` (bukan langsung ke `user_id` lagi sejak v1.3; satu workspace = satu site)
-- **templates**: metadata template yang tersedia (nama, kategori, thumbnail, komponen renderer)
-- **subscriptions**: status langganan dan riwayat pembayaran, terhubung ke payment gateway. Tetap terhubung ke `user_id` (bukan `workspace_id`) — lihat 7.6 untuk status "satu langganan meng-cover semua workspace milik akun" (default sementara, open question 16)
+Entitas utama (lihat `supabase/migrations/2026071600000{1,2,3,6}_*.sql` untuk DDL persis):
 
-Kontrak data portofolio — bentuk data yang diterima **semua template sebagai props**, satu instance per workspace. Ini adalah kontrak inti proyek: form (`data-001`) menulis bentuk ini untuk workspace yang sedang dikelola, kelima template (`template-001`) merendernya (baik dengan data dummy di galeri publik maupun data asli workspace di dashboard/situs publik), dan halaman publik (`publish-001`) mengambilnya dari database berdasarkan workspace yang terhubung ke subdomain tersebut. Field bertanda `?` opsional; template wajib merender wajar saat field opsional kosong. Struktur ini tidak berubah oleh workspace (v1.3) — hanya kepemilikannya yang berpindah dari `user_id` ke `workspace_id`.
+- **workspaces**: satu workspace = satu brand/portofolio. `id`, `user_id` (satu user → banyak workspace), `name`, `created_at`.
+- **workspace_profile** (1:1 dengan workspace): data induk brand yang dipakai untuk auto-fill project baru — `workspace_id` (PK), `name`, `logo_url`, `email`, `phone`, `address`, `website_url`, `extended_data` (jsonb: tagline, description, socials).
+- **workspace_assets**: pustaka aset per workspace (belum ada UI upload khusus, stub) — `id`, `workspace_id`, `name`, `url`, `mime_type`, `size_bytes`.
+- **projects**: satu workspace bisa punya beberapa project/situs, relasi one-to-many — `id`, `workspace_id`, `name`, `template_id`, `template_version`, `draft_json`, `published_json`, `subdomain` (unique, nullable sampai publish), `status` (`draft`/`published`), `published_at`. `publish_project()` RPC (SECURITY DEFINER) menyalin `draft_json` → `published_json` secara atomik.
+- **templates**: TIDAK ada di database — didaftarkan di kode via `TEMPLATE_REGISTRY` (`src/components/templates/registry.tsx`), tujuh template terdaftar (lihat 7.3).
+- **subscriptions**: `user_id` (unique, satu langganan per akun), `status` (`active`/`inactive`/`expired`), `expires_at`. Tetap per-`user_id` bukan per-`workspace_id` — lihat 7.6/16.
 
-```ts
-interface PortfolioData {
-  profile: {
-    fullName: string;
-    headline: string;          // mis. "Product Designer"
-    bio: string;               // ringkasan singkat, plain text
-    photoUrl?: string;         // Supabase Storage
-    location?: string;
-  };
-  experiences: {
-    company: string;
-    role: string;
-    startDate: string;         // "YYYY-MM"
-    endDate?: string;          // kosong = masih berjalan
-    description?: string;
-  }[];
-  educations: {
-    institution: string;
-    degree?: string;
-    field?: string;
-    startYear: number;
-    endYear?: number;
-  }[];
-  skills: string[];            // daftar nama skill sederhana
-  projects: {
-    title: string;
-    description: string;
-    imageUrl?: string;
-    link?: string;
-  }[];
-  contact: {
-    email: string;             // email publik yang ditampilkan
-    phone?: string;
-    whatsapp?: string;
-  };
-  socials: {
-    platform: "linkedin" | "github" | "instagram" | "x" | "youtube" | "tiktok" | "website";
-    url: string;
-  }[];
-  theme: {
-    accentColor: string;       // hex, dari palet terbatas
-    font: string;              // dari daftar font terbatas
-  };
-}
-```
+Kontrak data portofolio — setiap template punya `TemplateDefinition<TSchema>` sendiri (`src/lib/templates/definition.ts`), bukan satu interface global lagi:
+
+- **`WebsiteDocument`** — bentuk yang disimpan di `projects.draft_json`/`published_json`: `{ meta: { templateId, templateVersion, createdAt, updatedAt, locale }, data: Record<string, unknown> }`. `data` divalidasi terhadap skema Zod milik template itu sendiri (`parseDocumentData`), dengan migrasi versi-ke-versi kalau skema berubah (`runMigrations`).
+- **`basePortfolioSchema`** (`src/lib/templates/schemas/_base.ts`) — skema dasar (profile, experiences, educations, skills, projects, contact, socials, theme) yang dipakai apa adanya oleh Minimal/Bold/Creative/Corporate/Dark. Vanguard Studio dan Portfolio Pro meng-*extend* skema ini dengan section tambahan sendiri (mis. `caseStudies`, `certificates`, `gallery` untuk Portfolio Pro) — lihat file `schema.ts` masing-masing template di `src/components/templates/<id>/`.
+- **`WorkspaceProfile`** — dibaca dari tabel `workspace_profile`, dipakai untuk auto-fill project baru (`buildInitialDocument`) dan diteruskan ke setiap renderer template sebagai prop kedua.
 
 Semua teks adalah plain text (tanpa HTML) dan wajib di-escape saat render untuk mencegah XSS (lihat 9.5).
 
@@ -312,7 +276,7 @@ Semua teks adalah plain text (tanpa HTML) dan wajib di-escape saat render untuk 
 |---|---|---|
 | Auth dan onboarding | Rendah | Supabase Auth mempercepat signifikan |
 | Form input data + wizard | Sedang | Perlu UX matang untuk multi-step form |
-| Template system (5 template) | Sedang-Tinggi | Setiap template adalah desain + kode terpisah |
+| Template system (7 template) | Sedang-Tinggi | Setiap template adalah desain + kode terpisah, dua di antaranya (Studio, Portfolio Pro) juga skema data terpisah |
 | Subdomain routing dan rendering | Sedang | Middleware Next.js sudah menyediakan primitif yang dibutuhkan |
 | Billing dan subscription | Sedang | Bergantung kompleksitas integrasi payment gateway |
 | Dashboard pengguna | Rendah-Sedang | CRUD standar |
@@ -369,7 +333,7 @@ Checklist yang berlaku untuk setiap fitur/task sebelum dianggap selesai dikerjak
 Checklist tingkat produk yang harus terpenuhi sebelum MVP diluncurkan ke publik:
 
 - Seluruh functional requirement di section 7 sudah diimplementasi dan lulus DoD
-- 5 template sudah siap dan lulus QA visual di berbagai ukuran layar
+- Ketujuh template sudah siap dan lulus QA visual di berbagai ukuran layar
 - Alur signup sampai publish (termasuk checkout langganan) bisa diselesaikan di bawah 15 menit, sesuai target KPI di section 3
 - Integrasi Xendit sudah diuji end-to-end, termasuk penanganan webhook untuk status pembayaran dan alur langganan berakhir (grace period → auto-unpublish)
 - Terjemahan UI lengkap untuk kedua bahasa (id/en) di seluruh alur inti

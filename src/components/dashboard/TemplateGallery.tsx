@@ -6,7 +6,7 @@ import gsap from "gsap";
 
 import { useRouter } from "@/i18n/navigation";
 import { type TemplateId } from "@/lib/templates/types";
-import { LegacyTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
+import { PreviewTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
 import type { BasePortfolioData } from "@/lib/templates/schemas/_base";
 import type { StudioData } from "@/components/templates/studio/schema";

@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Link } from "@/i18n/navigation";
 import type { Workspace } from "@/lib/workspace/types";
-import { LegacyTemplateRenderer } from "@/components/templates/registry";
+import { PreviewTemplateRenderer } from "@/components/templates/registry";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
@@ -139,7 +139,7 @@ export function DashboardClientView({
                           className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-[1.03]"
                           style={{ transform: "scale(0.35)", width: "285%", height: "285%" }}
                         >
-                          <LegacyTemplateRenderer
+                          <PreviewTemplateRenderer
                             templateId={workspace.preview.templateId}
                             data={workspace.preview.data}
                           />

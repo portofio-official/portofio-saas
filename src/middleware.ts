@@ -23,7 +23,28 @@ async function refreshSupabaseSession(request: NextRequest, response: NextRespon
     },
   );
 
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+  
+  if (pathname.includes('/admin')) {
+    const role = user?.app_metadata?.role || 'user';
+    if (role !== 'admin') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
+    }
+  }
+
+  if (pathname.includes('/designer')) {
+    const role = user?.app_metadata?.role || 'user';
+    if (role !== 'designer' && role !== 'admin') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
+    }
+  }
+
   return response;
 }
 

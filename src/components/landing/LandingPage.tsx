@@ -4,12 +4,16 @@ import { useEffect } from "react";
 import shared from "./shared.module.css";
 import { Navbar } from "./Navbar";
 import { Hero } from "./Hero";
-import { TemplateGallery } from "@/components/dashboard/TemplateGallery";
+import { TemplateShowcase } from "./TemplateShowcase";
 import { PricingPlans } from "./PricingPlans";
 import { Testimonials } from "./Testimonials";
 import { FAQ } from "./FAQ";
 
-export function LandingPage({ userEmail }: { userEmail: string | null }) {
+export function LandingPage({ 
+  userEmail,
+}: { 
+  userEmail: string | null;
+}) {
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
@@ -55,9 +59,65 @@ export function LandingPage({ userEmail }: { userEmail: string | null }) {
 
     window.addEventListener("keydown", handleKeyDown);
 
+    let isScrolling = false;
+    let scrollTimeout: NodeJS.Timeout;
+
+    const handleWheel = (e: WheelEvent) => {
+      const currentDeltaX = Math.abs(e.deltaX);
+      const currentDeltaY = Math.abs(e.deltaY);
+
+      if (currentDeltaX > currentDeltaY) return;
+
+      e.preventDefault();
+
+      if (isScrolling) return;
+      if (currentDeltaY < 10) return;
+
+      const sections = Array.from(document.querySelectorAll("main > section"));
+      if (sections.length === 0) return;
+
+      let currentIndex = 0;
+      let minDistance = Infinity;
+      const viewportCenter = window.innerHeight / 2;
+
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        const sectionCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(sectionCenter - viewportCenter);
+        if (distance < minDistance) {
+          minDistance = distance;
+          currentIndex = index;
+        }
+      });
+
+      let nextIndex = currentIndex;
+      if (e.deltaY > 0) {
+        nextIndex = currentIndex + 1;
+        if (nextIndex >= sections.length) {
+          nextIndex = 0;
+        }
+      } else {
+        nextIndex = currentIndex - 1;
+        if (nextIndex < 0) {
+          nextIndex = 0;
+        }
+      }
+
+      isScrolling = true;
+      sections[nextIndex].scrollIntoView({ behavior: "smooth", block: "center" });
+
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        isScrolling = false;
+      }, 1000);
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+
     return () => {
       revealObserver.disconnect();
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("wheel", handleWheel);
     };
   }, []);
 
@@ -66,11 +126,7 @@ export function LandingPage({ userEmail }: { userEmail: string | null }) {
       <Navbar userEmail={userEmail} />
       <main>
         <Hero userEmail={userEmail} />
-        <section id="templates" className={`h-[900px] w-full bg-surface py-12 ${shared.revealOnScroll}`}>
-          <div className={`${shared.container} h-full flex flex-col rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-white`}>
-            <TemplateGallery embedded isLoggedIn={!!userEmail} />
-          </div>
-        </section>
+        <TemplateShowcase />
         <PricingPlans userEmail={userEmail} />
         <Testimonials />
         <FAQ />

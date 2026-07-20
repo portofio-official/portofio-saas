@@ -35,15 +35,22 @@ export function Navbar({ userEmail, userRole = "user" }: { userEmail: string | n
       const sections = document.querySelectorAll("section[id]");
       let current = "";
 
-      sections.forEach((section) => {
-        const el = section as HTMLElement;
-        const sectionTop = el.offsetTop;
-        const sectionHeight = el.clientHeight;
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
 
-        if (window.scrollY >= sectionTop - sectionHeight / 3) {
-          current = el.getAttribute("id") ?? "";
-        }
-      });
+      if (scrollY + windowHeight >= documentHeight - 50) {
+        current = sections[sections.length - 1]?.getAttribute("id") ?? "";
+      } else {
+        sections.forEach((section) => {
+          const el = section as HTMLElement;
+          const sectionTop = el.offsetTop;
+          
+          if (scrollY >= sectionTop - 250) {
+            current = el.getAttribute("id") ?? "";
+          }
+        });
+      }
 
       if (current) {
         setActiveSection(current);

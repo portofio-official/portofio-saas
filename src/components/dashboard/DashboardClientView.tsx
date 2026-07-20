@@ -75,15 +75,18 @@ export function DashboardClientView({
   return (
     <div ref={container} className="flex h-full flex-col">
       {/* Top bar */}
-      <header className="gsap-header flex shrink-0 items-end justify-between border-b border-black/5 bg-surface/80 px-12 py-10 backdrop-blur-md">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 text-[12px] font-bold tracking-widest uppercase text-ink-faint">
-            <span>Workspaces</span>
-            <span>/</span>
-            <span className="text-ink-soft">My Workspace</span>
+      <header className="gsap-header flex shrink-0 items-center justify-between border-b border-black/5 bg-surface/80 px-12 py-6 backdrop-blur-md sticky top-0 z-50">
+        <div className="flex items-center gap-6">
+          {/* Logo */}
+          <Link href="/" className="flex items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Portofio Logo" className="h-8 w-auto object-contain" />
+          </Link>
+          <div className="h-6 w-px bg-black/10"></div>
+          <div className="flex flex-col">
+            <h1 className="font-display text-[22px] font-bold tracking-tight text-ink leading-none">Projects</h1>
+            <p className="mt-1 text-[13px] font-medium text-ink-soft leading-none">Build, customize, and publish websites</p>
           </div>
-          <h1 className="mt-2 font-display text-[28px] font-bold tracking-tight text-ink">Projects</h1>
-          <p className="mt-1 text-[13px] font-medium text-ink-soft">Build, customize, and publish websites</p>
         </div>
         <div className="flex items-center gap-6">
           {/* Search */}
@@ -109,10 +112,10 @@ export function DashboardClientView({
           {/* New project Button-in-Button */}
           <Link
             href="/dashboard/templates"
-            className="group flex items-center gap-3 rounded-[1.25rem] bg-ink pl-5 pr-2 py-2 text-[13px] font-bold text-white shadow-sm transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#1a1a1a] hover:shadow-md active:scale-[0.98]"
+            className="group flex items-center gap-3 rounded-full bg-accent pl-5 pr-2 py-2 text-[14px] font-bold text-white shadow-[0_4px_14px_0_rgba(0,207,124,0.39)] transition-all duration-300 hover:bg-accent-deep hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,207,124,0.23)] active:scale-[0.98]"
           >
             New Project
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105 group-hover:translate-x-1 group-hover:bg-white/20">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 transition-transform duration-300 group-hover:scale-105 group-hover:bg-white/30">
                <span className="material-symbols-outlined text-[16px]">add</span>
             </div>
           </Link>
@@ -120,7 +123,7 @@ export function DashboardClientView({
       </header>
 
       {/* Cards grid (Macro Whitespace px-12 py-12) */}
-      <div className="flex-1 overflow-y-auto bg-canvas px-12 pb-32 pt-12">
+      <div className="flex-1 overflow-y-auto bg-surface px-12 pb-32 pt-12">
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((workspace) => (
@@ -308,9 +311,9 @@ export function DashboardClientView({
                 </div>
                 <Link
                   href="/dashboard/templates"
-                  className="mt-2 flex items-center gap-2 rounded-lg bg-ink px-4 py-2 text-[13px] font-medium text-white shadow-sm transition-all hover:bg-black hover:shadow-md active:scale-[0.98]"
+                  className="mt-2 flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_4px_14px_0_rgba(0,207,124,0.39)] transition-all hover:bg-accent-deep hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,207,124,0.23)] active:scale-[0.98]"
                 >
-                  <span className="material-symbols-outlined text-[16px]">add</span>
+                  <span className="material-symbols-outlined text-[18px]">add</span>
                   New Project
                 </Link>
               </>

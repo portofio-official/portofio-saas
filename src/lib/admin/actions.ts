@@ -60,3 +60,33 @@ export async function toggleUserSuspensionAction(userId: string, suspend: boolea
 
   revalidatePath("/admin");
 }
+
+export async function updateTemplateStatusAction(
+  submissionId: string,
+  status: "approved" | "rejected" | "revision_requested",
+  reviewNotes?: string,
+  registryId?: string
+) {
+  await requireRole(["admin"]);
+
+  const adminClient = createAdminClient();
+  const { data: { user } } = await adminClient.auth.getUser();
+
+  const { error } = await adminClient
+    .from("template_submissions")
+    .update({
+      status,
+      review_notes: reviewNotes || null,
+      registry_id: registryId || null,
+      reviewed_by: user?.id || null,
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq("id", submissionId);
+
+  if (error) {
+    console.error(`Failed to update template submission ${submissionId}:`, error);
+    throw new Error("Failed to update template status");
+  }
+
+  revalidatePath("/admin/templates");
+}

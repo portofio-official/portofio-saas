@@ -1,5 +1,6 @@
 import { requireRole } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { ReviewTemplateDropdown } from "@/components/admin/ReviewTemplateDropdown";
 
 export default async function TemplatesPage() {
   await requireRole(["admin"]);
@@ -39,6 +40,7 @@ export default async function TemplatesPage() {
                 <th className="pb-3 font-semibold">Designer</th>
                 <th className="pb-3 font-semibold">Status</th>
                 <th className="pb-3 font-semibold">Submitted Date</th>
+                <th className="pb-3 text-right font-semibold">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
@@ -57,11 +59,14 @@ export default async function TemplatesPage() {
                   <td className="py-4 text-ink-soft">
                     {new Date(sub.created_at).toLocaleDateString("id-ID")}
                   </td>
+                  <td className="py-4 text-right">
+                    <ReviewTemplateDropdown submissionId={sub.id} />
+                  </td>
                 </tr>
               ))}
               {(!submissions || submissions.length === 0) && (
                 <tr>
-                  <td colSpan={4} className="py-8 text-center text-ink-soft">
+                  <td colSpan={5} className="py-8 text-center text-ink-soft">
                     No submissions found.
                   </td>
                 </tr>

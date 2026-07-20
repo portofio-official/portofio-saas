@@ -1,5 +1,5 @@
 .faqSection {
-  padding: 72px 0 60px;
+  padding: 72px 0 0;
   background: var(--bg-tertiary);
   position: relative;
   overflow: hidden;
@@ -10,7 +10,7 @@
   flex-direction: column;
   justify-content: center;
   padding-top: 10px;
-  padding-bottom: 20px;
+  padding-bottom: 80px;
   margin: 0 auto;
   width: 100%;
 }

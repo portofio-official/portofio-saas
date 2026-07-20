@@ -211,6 +211,26 @@
         "description": "Full migration complete. Editor uses WebsiteDocument, PortfolioData legacy removed, Supabase migrations 1-5 ready."
       },
       "next": "Any feature on top of new architecture"
+    },
+    {
+      "id": "rbac-001",
+      "priority": 10,
+      "area": "auth",
+      "title": "Role-Based Access Control (RBAC)",
+      "user_visible_behavior": "Unauthorized users cannot access /admin or /designer routes. Admin role has read-only access to user data.",
+      "status": "passing",
+      "verification": [
+        "Verify requireRole utility throws on unauthorized roles.",
+        "Verify middleware blocks unauthorized access to /admin and /designer.",
+        "Verify admin RLS read policies permit select."
+      ],
+      "evidence": [
+        "2026-07-20: Implemented requireRole utility in src/lib/auth/roles.ts.",
+        "2026-07-20: Renamed src/proxy.ts to src/middleware.ts and added role checks for /admin and /designer routes.",
+        "2026-07-20: Created migration 20260720000001_add_admin_read_policies.sql for read-only admin access to workspaces, workspace_profile, projects, subscriptions, and billing_events.",
+        "2026-07-20: Verified with npm run lint and tsc."
+      ],
+      "notes": "Backend protection is complete. UI for admin/designer needs to be built."
     }
   ]
 }

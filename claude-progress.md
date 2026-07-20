@@ -10,6 +10,21 @@
 
 ## Session Log
 
+### Session 019 (2026-07-19) — DB: profiles, billing_events, subdomain_blocklist
+
+- Goal: Tambah tabel-tabel yang hilang dari skema MVP (user profiles, billing audit log, subdomain blocklist).
+- Completed:
+  - **`20260719000001_add_profiles.sql`** (diperbarui): tabel `profiles` + kolom `role` ('user'|'designer'|'admin'), RLS (owner-select, admin-select-all, owner-update), trigger `on_auth_user_created` (auto-create + set role dari raw_user_meta_data), trigger `profiles_sync_role` (auto-sync role ke `auth.users.raw_app_meta_data` setiap kali role berubah), trigger `profiles_updated_at`, fungsi `set_updated_at()` (reusable).
+  - **`20260719000002_add_billing_events.sql`**: tabel `billing_events` — audit log + idempotency key (`xendit_event_id UNIQUE`) untuk webhook Xendit. RLS: authenticated read own events, hanya service_role yang write.
+  - **`20260719000003_add_subdomain_blocklist.sql`**: tabel `subdomain_blocklist` — kata terlarang untuk subdomain. RLS: public read, service_role write. Seed 38 slug.
+  - **`20260719000004_add_template_submissions.sql`**: tabel `template_submissions` (Fase 2 stub) — designer submit template untuk review admin. Status: pending/approved/rejected/revision_requested. RLS berlapis: designer bisa insert/update milik sendiri, admin bisa all. Trigger updated_at.
+  - **`supabase/functions/custom-claims/index.ts`**: Edge Function JWT Hook — setiap login/refresh token, inject `role` dari `profiles` ke `app_metadata` JWT. RLS policies semua tabel pakai `auth.jwt() -> 'app_metadata' ->> 'role'` untuk cek admin/designer tanpa query tambahan.
+- Verification: migrations + edge function ditulis, **BELUM di-apply ke Supabase**.
+- Known risk / next step:
+  - **Apply ke Supabase Dashboard SQL Editor** (urutan: 20260716000006 → 20260719000001 → 0002 → 0003 → 0004).
+  - **Aktifkan JWT Hook**: Supabase Dashboard → Authentication → Hooks → Custom Access Token Hook → pilih edge function `custom-claims`. Deploy edge function dulu via `npx supabase functions deploy custom-claims`.
+  - Untuk assign role admin: `update public.profiles set role = 'admin' where id = '<your-uuid>';` — trigger `profiles_sync_role` akan otomatis update JWT metadata.
+
 ### Session 018
 
 - Date: 2026-07-16
@@ -188,3 +203,22 @@
 - Commits: none — not yet requested this session.
 - Known risk or unresolved issue: none blocking. `docs/progress-archive.md` will itself need a second archiving pass someday if `claude-progress.md` grows large again — no automation added for that (YAGNI until it recurs).
 - Next best step: ask the user whether to commit this pass now, and whether to fold in Session 019/020's still-outstanding "authenticated Editor click-through for `portfolio-pro`" next-step.
+
+### Session 022 (2026-07-20) — RBAC Implementation
+
+- Goal: Implement Role-Based Access Control (RBAC) in the backend based on existing database roles ('user', 'designer', 'admin').
+- Completed:
+  - Created `docs/superpowers/specs/2026-07-20-rbac-design.md` specifying authorities for each role.
+  - Implemented `requireRole` utility in `src/lib/auth/roles.ts`.
+  - Renamed `src/proxy.ts` to `src/middleware.ts` and added route protection blocking unauthorized access to `/admin` and `/designer` endpoints based on the JWT role claim.
+  - Added read-only access RLS policies for `admin` role across `workspaces`, `workspace_profile`, `projects`, `subscriptions`, and `billing_events` via `20260720000001_add_admin_read_policies.sql`.
+- Verification run: `npm run lint` (0 errors in `src`), `npx tsc --noEmit` (clean in `src`, expected Deno errors exist in `supabase/functions/custom-claims/index.ts` from preexisting unrelated code).
+- Evidence captured: Walkthrough artifact presented to user.
+- Commits: 
+  - `docs: add RBAC design spec`
+  - `docs: add RBAC implementation plan`
+  - `feat: add requireRole utility for server actions`
+  - `fix: rename proxy to middleware and add route RBAC protection`
+  - `feat: add admin read-only RLS policies for all resources`
+- Known risk or unresolved issue: Admin and designer UIs don't exist yet, but their endpoints are now protected. Deno types in `supabase/functions` cause `tsc` errors if strictly checked from the root.
+- Next best step: Build the admin dashboard UI at `/admin` to utilize these protected endpoints and RLS policies.

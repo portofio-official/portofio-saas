@@ -231,7 +231,8 @@
   - Created Supabase Service Role client in `src/lib/supabase/admin.ts`.
   - Built secure Server Actions `getUsersAction` and `toggleUserSuspensionAction` in `src/lib/admin/actions.ts` utilizing `requireRole(['admin'])` and Supabase Admin API.
   - Implemented `/admin` users dashboard table (`src/app/[locale]/admin/page.tsx`) with a client-side component `SuspendUserButton.tsx` to handle user banning via `ban_duration`.
-  - Added simple read-only stub pages for `/admin/templates` and `/admin/blocklist` based on ponytail YAGNI rules.
+  - Added simple read-only stub pages for `/admin/templates` and `/admin/blocklist`.
+  - Expanded `/admin/templates` into a working Template Management interface with `updateTemplateStatusAction` and native-prompt `ReviewTemplateDropdown.tsx` (approve/reject/revise capabilities).
 - Verification run: `npm run lint` and `npx tsc --noEmit` pass clean in `src/`. 
 - Commits:
   - `feat(admin): build Admin UI layout, user list dashboard, and moderation server actions`

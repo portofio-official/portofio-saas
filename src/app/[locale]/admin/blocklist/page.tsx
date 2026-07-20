@@ -13,7 +13,7 @@ export default async function BlocklistPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <header className="flex h-20 shrink-0 items-center border-b border-black/5 px-8">
+      <header className="sticky top-0 z-50 flex h-20 shrink-0 items-center border-b border-black/5 bg-surface/80 px-8 backdrop-blur-md">
         <h1 className="font-display text-[24px] font-bold tracking-tight text-ink">
           Subdomain Blocklist
         </h1>

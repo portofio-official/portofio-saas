@@ -17,7 +17,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-canvas p-6 gap-6 font-sans">
+    <div className="flex h-screen w-full overflow-hidden bg-surface p-6 gap-6 font-sans">
       <AdminSidebar email={email} />
       <main className="flex flex-1 flex-col overflow-hidden rounded-[2rem] bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
         {children}

@@ -39,7 +39,7 @@ export function AdminSidebar({ email }: { email: string }) {
     <aside ref={container} className="flex h-full w-[280px] shrink-0 flex-col overflow-hidden rounded-[2rem] bg-surface ring-1 ring-black/5">
       {/* Workspace identity */}
       <div className="flex items-center gap-3 border-b border-black/5 px-6 py-6">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-ink text-[13px] font-bold text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-[13px] font-bold text-white shadow-[0_4px_10px_0_rgba(0,207,124,0.2)]">
           <span className="material-symbols-outlined text-[20px]">shield</span>
         </span>
         <span className="min-w-0 flex-1 truncate font-display text-[14px] font-bold tracking-tight text-ink">
@@ -56,8 +56,8 @@ export function AdminSidebar({ email }: { email: string }) {
           <Link
             key={item.href}
             href={item.href}
-            className={`group flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-[13px] font-semibold transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] ${
-              item.active ? "bg-black/[0.03] text-ink hover:bg-black/[0.06]" : "text-ink-soft hover:bg-black/[0.03] hover:text-ink"
+            className={`group flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-[13px] transition-all duration-300 active:scale-[0.98] ${
+              item.active ? "bg-accent/10 text-accent font-bold" : "text-ink-soft font-semibold hover:bg-black/[0.03] hover:text-ink"
             }`}
           >
             <span className="material-symbols-outlined text-[18px] transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-110">{item.icon}</span>

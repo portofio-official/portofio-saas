@@ -7,7 +7,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* Header */}
-      <header className="flex h-20 shrink-0 items-center justify-between border-b border-black/5 px-8">
+      <header className="sticky top-0 z-50 flex h-20 shrink-0 items-center justify-between border-b border-black/5 bg-surface/80 px-8 backdrop-blur-md">
         <div>
           <h1 className="font-display text-[24px] font-bold tracking-tight text-ink">
             Users

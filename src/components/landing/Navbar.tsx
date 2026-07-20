@@ -66,6 +66,13 @@ export function Navbar({ userEmail }: { userEmail: string | null }) {
           >
             {t("pricing")}
           </a>
+          <a
+            href="#faq"
+            data-text={t("faq")}
+            className={activeSection === "faq" ? styles.active : ""}
+          >
+            {t("faq")}
+          </a>
         </div>
 
         <div className={styles.localeSwitcher}>

@@ -15,6 +15,7 @@
       "home": "Beranda",
       "templates": "Template",
       "pricing": "Harga",
+      "faq": "FAQ",
       "login": "Masuk",
       "dashboard": "Dashboard"
     },
@@ -108,7 +109,7 @@
       ]
     },
     "FAQ": {
-      "heading": "Pertanyaan Umum",
+      "heading": "FAQ",
       "subheading": "Beberapa hal yang paling sering ditanyakan oleh pengguna baru kami.",
       "viewAll": "Lihat Semua Pertanyaan →",
       "comingSoon": "Halaman Semua FAQ akan segera hadir!",

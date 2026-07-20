@@ -234,6 +234,38 @@
   - Added simple read-only stub pages for `/admin/templates` and `/admin/blocklist`.
   - Expanded `/admin/templates` into a working Template Management interface with `updateTemplateStatusAction` and native-prompt `ReviewTemplateDropdown.tsx` (approve/reject/revise capabilities).
 - Verification run: `npm run lint` and `npx tsc --noEmit` pass clean in `src/`. 
-- Commits:
-  - `feat(admin): build Admin UI layout, user list dashboard, and moderation server actions`
 - Next best step: Build the Designer Dashboard UI or add features for template approval moderation in the Admin Dashboard.
+
+### Session 024 (2026-07-20) — Admin Template Visibility Control
+
+- Goal: Allow admins to control which built-in templates are visible to users in the template galleries.
+- Completed:
+  - Created `templates` database table via migration `20260720131552_add_active_templates.sql` to track template visibility (`is_active`).
+  - Updated `src/lib/admin/actions.ts` with `toggleTemplateVisibilityAction` server action.
+  - Added "Active Built-in Templates" management section to `/admin/templates/page.tsx` with a new `ToggleTemplateVisibilityButton` client component.
+  - Updated `TemplateGallery.tsx` to accept `activeTemplateIds` prop.
+  - Updated public landing page, public template gallery, and dashboard template gallery to fetch active templates from the DB and pass them to `TemplateGallery`.
+- Verification run: `npm run lint` and `npx tsc --noEmit` pass clean in `src/`.
+- Evidence captured: Walkthrough artifact presented to user.
+- Commits: none — not yet requested this session.
+- Known risk or unresolved issue: The migration needs to be applied manually via Supabase Dashboard or CLI before the galleries will render templates.
+- Next best step: Apply the migration and then move on to `billing-001` (Xendit integration).
+
+### Session 025 (2026-07-20) — Landing Page Pricing Integration
+
+- Goal: Integrate the provided Shadcn-based animated Pricing component into the landing page.
+- Completed:
+  - Installed dependencies (`lucide-react`, `framer-motion`, `canvas-confetti`, `@number-flow/react`, Radix primitives, etc.).
+  - Created Shadcn utilities `src/lib/utils.ts` (`cn`) and `src/hooks/use-media-query.ts`.
+  - Added UI primitives `button.tsx`, `label.tsx`, `switch.tsx` to `src/components/ui`, carefully mapping their internal Tailwind classes to Portofio's specific `DESIGN.md` tokens (e.g., `bg-accent`, `bg-surface`, `text-ink`) to maintain strict visual consistency.
+  - Implemented the animated pricing grid in `src/components/blocks/pricing.tsx`, adapting the currency formatting to IDR.
+  - Replaced the custom CSS modules pricing block in `src/components/landing/PricingPlans.tsx` with the new component.
+  - Resolved TypeScript errors related to `@number-flow/react` typings and React `useEffect` best practices.
+- Verification run: `npm run lint` and `npx tsc --noEmit` pass clean in `src/`.
+- Evidence captured: Walkthrough artifact presented to user.
+- Commits: none — not yet requested this session.
+- Known risk or unresolved issue: The UI shows 3 pricing tiers which currently contradicts the PRD's "single monthly tier" rule. This is a known discrepancy left as-is per the user's explicit component request.
+- Next best step: Move on to `billing-001` (Xendit integration) or other outstanding tasks in `feature_list.json`.
+- **Update (Reverted):** The user requested to revert the landing page to its original state. The Shadcn Pricing component and its dependencies have been unlinked/removed, and `PricingPlans.tsx` along with `PricingPlans.module.css` were restored via git.
+- **Update (Template Showcase restored):** The user provided the legacy `TemplateShowcase` code to be restored on the landing page instead of the new `TemplateGallery`. The code has been restored and integrated into `LandingPage.tsx`, reverting the landing page's template section to its previous coverflow UI.
+- **Update (Pricing UI fix):** Added an inset box-shadow to the inactive state of the pricing toggle in the landing page (`PricingPlans.module.css`) to create a deep, pressed look, making it more distinguishable from the background as requested by the user.

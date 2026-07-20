@@ -1,0 +1,252 @@
+.templateShowcase {
+  padding: 20px 0 120px;
+  background-color: var(--bg-window);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.abstractSquiggle {
+  position: absolute;
+  top: 12%;
+  left: 0;
+  width: 100%;
+  height: 600px;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.05;
+}
+
+.showcaseHeader {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 30px;
+}
+
+.showcaseHeader h2 {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  letter-spacing: -0.04em;
+}
+
+.showcaseHeader p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.templateTabs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 60px;
+}
+
+.pillBtn {
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.pillBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.pillBtn.active {
+  background: var(--text-primary);
+  color: #fff;
+  border-color: var(--text-primary);
+}
+
+.pillBtn.premiumPill.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 12px rgba(0, 207, 124, 0.3);
+}
+
+.pillBtn.viewMore {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.coverflowContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  perspective: 1500px;
+}
+
+.coverflowWrapper {
+  position: relative;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+}
+
+.coverflowCard {
+  position: absolute;
+  width: 350px;
+  height: 480px;
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  background: var(--bg-card);
+  will-change: transform, opacity;
+}
+
+.coverflowCard.active {
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  cursor: default;
+}
+
+.coverflowImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.cardInfo {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 30px 20px 20px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.premiumBadge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.premiumBadge:hover {
+  transform: scale(1.1);
+}
+
+.coverflowCard.active .cardInfo {
+  opacity: 1;
+}
+
+.cardCategory {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.cardName {
+  color: #fff;
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.cardPlayBtn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.4s ease forwards;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.coverflowControls {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  margin-top: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.navArrow {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 207, 124, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  pointer-events: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.navArrow:hover {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+  transform: scale(1.1);
+  box-shadow: 0 10px 25px rgba(0, 207, 124, 0.3);
+}
+
+@media (max-width: 768px) {
+  .coverflowCard {
+    width: 260px;
+    height: 380px;
+  }
+  .showcaseHeader h2 {
+    font-size: 2.5rem;
+  }
+  .pillBtn {
+    padding: 6px 16px;
+    font-size: 0.8rem;
+  }
+}

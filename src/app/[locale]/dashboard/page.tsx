@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
@@ -11,6 +12,8 @@ export default async function DashboardPage({
 }) {
   const { locale } = await params;
   const email = await getCurrentUserEmail();
+  const cookieStore = await cookies();
+  const preferredTemplateId = cookieStore.get("preferredTemplateId")?.value;
 
   if (!email) {
     return redirect({ href: "/login", locale });
@@ -22,6 +25,7 @@ export default async function DashboardPage({
     <DashboardClientView
       email={email}
       workspaces={workspaces}
+      preferredTemplateId={preferredTemplateId}
       dict={{
         eyebrow: t("eyebrow"),
         title: t("title"),

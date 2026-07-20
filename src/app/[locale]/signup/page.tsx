@@ -1,16 +1,18 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, use } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { signUpAction, type ActionState } from "@/lib/auth/actions";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { FormField } from "@/components/ui/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
+import { TemplateCookieSetter } from "@/components/auth/TemplateCookieSetter";
 
 const initialState: ActionState = { error: null };
 
-export default function SignupPage() {
+export default function SignupPage({ searchParams }: { searchParams: Promise<{ templateId?: string }> }) {
+  const { templateId } = use(searchParams);
   const t = useTranslations("Auth.signup");
   const tErrors = useTranslations("Auth.errors");
   const tSuccess = useTranslations("Auth.success");
@@ -61,6 +63,7 @@ export default function SignupPage() {
         {state.error && <p className="text-sm text-danger">{tErrors(state.error)}</p>}
         <SubmitButton label={t("submit")} pendingLabel={t("submitPending")} />
       </form>
+      {templateId && <TemplateCookieSetter templateId={templateId} />}
     </AuthCard>
   );
 }

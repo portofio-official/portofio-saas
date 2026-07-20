@@ -34,6 +34,10 @@ export async function createWorkspaceAction(
     href += `?templateId=${templateId}`;
   }
 
+  const { cookies } = await import("next/headers");
+  const cookieStore = await cookies();
+  cookieStore.delete("preferredTemplateId");
+
   return redirect({ href, locale: await getLocale() });
 }
 

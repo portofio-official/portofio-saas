@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import { Link } from "@/i18n/navigation";
 import type { Workspace } from "@/lib/workspace/types";
 import { PreviewTemplateRenderer } from "@/components/templates/registry";
+import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
@@ -35,10 +36,12 @@ function timeAgo(dateStr: string): string {
 
 export function DashboardClientView({
   workspaces,
+  preferredTemplateId,
 }: {
   email: string;
   workspaces: Workspace[];
   dict: Dict;
+  preferredTemplateId?: string;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState("");
@@ -285,17 +288,33 @@ export function DashboardClientView({
             <span className="material-symbols-outlined text-[48px] text-ink-faint/50">
               grid_view
             </span>
-            <div>
-              <p className="font-display text-xl font-bold tracking-tight text-ink">No projects yet</p>
-              <p className="mt-1 text-[13px] text-ink-soft">Create your first portfolio project to get started.</p>
-            </div>
-            <Link
-              href="/dashboard/templates"
-              className="mt-2 flex items-center gap-2 rounded-lg bg-ink px-4 py-2 text-[13px] font-medium text-white shadow-sm transition-all hover:bg-black hover:shadow-md active:scale-[0.98]"
-            >
-              <span className="material-symbols-outlined text-[16px]">add</span>
-              New Project
-            </Link>
+            {preferredTemplateId ? (
+              <div className="flex max-w-sm flex-col items-center gap-4 w-full">
+                <div>
+                  <p className="font-display text-xl font-bold tracking-tight text-ink">Name your project</p>
+                  <p className="mt-1 text-[13px] text-ink-soft">
+                    Starting with <span className="font-semibold text-ink capitalize">{preferredTemplateId}</span> template
+                  </p>
+                </div>
+                <div className="w-full text-left">
+                  <CreateWorkspaceForm templateId={preferredTemplateId} />
+                </div>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <p className="font-display text-xl font-bold tracking-tight text-ink">No projects yet</p>
+                  <p className="mt-1 text-[13px] text-ink-soft">Create your first portfolio project to get started.</p>
+                </div>
+                <Link
+                  href="/dashboard/templates"
+                  className="mt-2 flex items-center gap-2 rounded-lg bg-ink px-4 py-2 text-[13px] font-medium text-white shadow-sm transition-all hover:bg-black hover:shadow-md active:scale-[0.98]"
+                >
+                  <span className="material-symbols-outlined text-[16px]">add</span>
+                  New Project
+                </Link>
+              </>
+            )}
           </div>
         )}
       </div>

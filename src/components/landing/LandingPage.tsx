@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import shared from "./shared.module.css";
 import { Navbar } from "./Navbar";
 import { Hero } from "./Hero";
-import { TemplateShowcase } from "./TemplateShowcase";
+import { TemplateGallery } from "@/components/dashboard/TemplateGallery";
 import { PricingPlans } from "./PricingPlans";
 import { Testimonials } from "./Testimonials";
 import { FAQ } from "./FAQ";
@@ -66,7 +66,11 @@ export function LandingPage({ userEmail }: { userEmail: string | null }) {
       <Navbar userEmail={userEmail} />
       <main>
         <Hero userEmail={userEmail} />
-        <TemplateShowcase />
+        <section id="templates" className={`h-[900px] w-full bg-surface py-12 ${shared.revealOnScroll}`}>
+          <div className={`${shared.container} h-full flex flex-col rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-white`}>
+            <TemplateGallery embedded isLoggedIn={!!userEmail} />
+          </div>
+        </section>
         <PricingPlans userEmail={userEmail} />
         <Testimonials />
         <FAQ />

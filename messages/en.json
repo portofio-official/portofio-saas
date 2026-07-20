@@ -17,7 +17,12 @@
       "pricing": "Pricing",
       "faq": "FAQ",
       "login": "Login",
-      "dashboard": "Dashboard"
+      "dashboard": "Dashboard",
+      "profile": "Profile",
+      "myWorkspace": "My Workspace",
+      "adminDashboard": "Admin Dashboard",
+      "designerDashboard": "Designer Dashboard",
+      "logout": "Logout"
     },
     "Hero": {
       "titleLine1": "Portfolios that",

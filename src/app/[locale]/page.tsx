@@ -1,6 +1,7 @@
 import { Outfit, Inter } from "next/font/google";
 import { LandingPage } from "@/components/landing/LandingPage";
 import { getCurrentUserEmail } from "@/lib/auth/session";
+import { getUserRole } from "@/lib/auth/roles";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -15,11 +16,14 @@ const inter = Inter({
 });
 
 export default async function Home() {
-  const userEmail = await getCurrentUserEmail();
+  const [userEmail, userRole] = await Promise.all([
+    getCurrentUserEmail(),
+    getUserRole()
+  ]);
 
   return (
     <div className={`${outfit.variable} ${inter.variable}`}>
-      <LandingPage userEmail={userEmail} />
+      <LandingPage userEmail={userEmail} userRole={userRole} />
     </div>
   );
 }

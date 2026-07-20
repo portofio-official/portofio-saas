@@ -11,8 +11,10 @@ import { FAQ } from "./FAQ";
 
 export function LandingPage({ 
   userEmail,
+  userRole,
 }: { 
   userEmail: string | null;
+  userRole: string;
 }) {
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
@@ -123,7 +125,7 @@ export function LandingPage({
 
   return (
     <div className={shared.landingRoot}>
-      <Navbar userEmail={userEmail} />
+      <Navbar userEmail={userEmail} userRole={userRole} />
       <main>
         <Hero userEmail={userEmail} />
         <TemplateShowcase />

@@ -17,7 +17,12 @@
       "pricing": "Harga",
       "faq": "FAQ",
       "login": "Masuk",
-      "dashboard": "Dashboard"
+      "dashboard": "Dashboard",
+      "profile": "Profil",
+      "myWorkspace": "My Workspace",
+      "adminDashboard": "Dashboard Admin",
+      "designerDashboard": "Dashboard Designer",
+      "logout": "Keluar"
     },
     "Hero": {
       "titleLine1": "Portofolio yang",

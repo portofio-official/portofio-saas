@@ -27,7 +27,11 @@
 }
 
 .faqHeaderText .sectionTitle {
-  margin-bottom: 8px;
+  font-size: 3rem;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-top: 0;
+  margin-bottom: 12px;
 }
 
 .faqHeaderText .sectionSubtitle {

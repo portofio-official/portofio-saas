@@ -222,3 +222,16 @@
   - `feat: add admin read-only RLS policies for all resources`
 - Known risk or unresolved issue: Admin and designer UIs don't exist yet, but their endpoints are now protected. Deno types in `supabase/functions` cause `tsc` errors if strictly checked from the root.
 - Next best step: Build the admin dashboard UI at `/admin` to utilize these protected endpoints and RLS policies.
+
+### Session 023 (2026-07-20) — Admin Dashboard UI
+
+- Goal: Build the UI for the `/admin` area to view and moderate users, consistent with the design system.
+- Completed:
+  - Built `src/app/[locale]/admin/layout.tsx` and `src/components/admin/AdminSidebar.tsx` inheriting design tokens from `DESIGN.md`.
+  - Created Supabase Service Role client in `src/lib/supabase/admin.ts`.
+  - Built secure Server Actions `getUsersAction` and `toggleUserSuspensionAction` in `src/lib/admin/actions.ts` utilizing `requireRole(['admin'])` and Supabase Admin API.
+  - Implemented `/admin` users dashboard table (`src/app/[locale]/admin/page.tsx`) with a client-side component `SuspendUserButton.tsx` to handle user banning via `ban_duration`.
+- Verification run: `npm run lint` and `npx tsc --noEmit` pass clean in `src/`. 
+- Commits:
+  - `feat(admin): build Admin UI layout, user list dashboard, and moderation server actions`
+- Next best step: Build the Designer Dashboard UI or add features for template approval moderation in the Admin Dashboard.

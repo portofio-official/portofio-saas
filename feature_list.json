@@ -228,9 +228,10 @@
         "2026-07-20: Implemented requireRole utility in src/lib/auth/roles.ts.",
         "2026-07-20: Renamed src/proxy.ts to src/middleware.ts and added role checks for /admin and /designer routes.",
         "2026-07-20: Created migration 20260720000001_add_admin_read_policies.sql for read-only admin access to workspaces, workspace_profile, projects, subscriptions, and billing_events.",
-        "2026-07-20: Verified with npm run lint and tsc."
+        "2026-07-20: Verified with npm run lint and tsc.",
+        "2026-07-20: Built Admin UI at /admin with AdminSidebar and SuspendUserButton, utilizing Supabase Service Role client to list and suspend users."
       ],
-      "notes": "Backend protection is complete. UI for admin/designer needs to be built."
+      "notes": "Backend protection and Admin UI are complete. Designer UI needs to be built."
     }
   ]
 }

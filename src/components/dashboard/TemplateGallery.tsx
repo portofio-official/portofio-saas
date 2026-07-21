@@ -179,7 +179,15 @@ const PREVIEW_DATA: PreviewData = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function TemplateGallery({ isLoggedIn = false, embedded = false }: { isLoggedIn?: boolean; embedded?: boolean }) {
+export function TemplateGallery({ 
+  isLoggedIn = false, 
+  embedded = false,
+  activeTemplateIds,
+}: { 
+  isLoggedIn?: boolean; 
+  embedded?: boolean;
+  activeTemplateIds?: string[];
+}) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [hoveredId, setHoveredId] = useState<TemplateId | null>(null);
   const [previewId, setPreviewId] = useState<TemplateId | null>(null);
@@ -211,7 +219,10 @@ export function TemplateGallery({ isLoggedIn = false, embedded = false }: { isLo
     }
   };
 
-  const filtered = TEMPLATE_META.filter((t) => t.tags.includes(activeCategory));
+  const filtered = TEMPLATE_META.filter((t) => 
+    t.tags.includes(activeCategory) && 
+    (!activeTemplateIds || activeTemplateIds.includes(t.id))
+  );
 
   const galleryContent = (
     <>

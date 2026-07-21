@@ -90,3 +90,22 @@ export async function updateTemplateStatusAction(
 
   revalidatePath("/admin/templates");
 }
+
+export async function toggleTemplateVisibilityAction(templateId: string, isActive: boolean) {
+  await requireRole(["admin"]);
+
+  const adminClient = createAdminClient();
+  const { error } = await adminClient
+    .from("templates")
+    .update({ is_active: isActive })
+    .eq("id", templateId);
+
+  if (error) {
+    console.error(`Failed to toggle visibility for template ${templateId}:`, error);
+    throw new Error("Failed to update template visibility");
+  }
+
+  revalidatePath("/admin/templates");
+  revalidatePath("/templates");
+  revalidatePath("/dashboard/templates");
+}

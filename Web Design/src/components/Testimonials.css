@@ -1,0 +1,234 @@
+.testimonials-section {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 72px 0 0 0;
+  background: var(--bg-window);
+  position: relative;
+  overflow: hidden;
+  scroll-margin-top: 0 !important; /* Menimpa offset global agar henti gulir sejajar dengan atap layar */
+  scroll-snap-align: start;
+}
+
+.testimonials-content-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/* Hiasan latar belakang membulat di sudut */
+.testimonials-section::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  right: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 207, 124, 0.04) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.testimonials-section::after {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  left: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(0, 207, 124, 0.03) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+/* --- KONSEP KIRI-KANAN (SPLIT LAYOUT) --- */
+.testimonials-split-layout {
+  display: flex;
+  align-items: stretch; /* Kunci rahasia: tinggi kiri dan kanan akan selalu sama persis */
+  gap: 60px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.testimonials-image-side {
+  flex: 1;
+  max-width: 50%; /* Beri ruang imbang 50% */
+  position: relative; /* Jangkar untuk absolute image */
+}
+
+.collage-image-real {
+  position: absolute;
+  top: 0;
+  left: -100px; /* Dikembalikan ke posisi geser kiri ekstrem sesuai keinginan Anda */
+  width: 100%;
+  height: 100%; /* Gambar akan persis 100% setinggi kotak teks di kanan */
+  object-fit: contain; /* Akan membesar otomatis sampai menyentuh batas atas (headline) dan bawah (kartu) */
+  object-position: right bottom; /* Ditempelkan ke kanan bawah agar batas bawah (Dimas R/Budi H) terkunci absolut */
+  mix-blend-mode: multiply; /* Dikembalikan! Ini akan menghapus background tanpa merusak batas gambar pop chat */
+  filter: contrast(1.05) brightness(1.05); /* Trik pencerah diaktifkan! Ini akan "memutihkan" abu-abu menjadi pure white */
+  transform: scale(1.01); /* Sesuai instruksi Anda: Diatur di angka 1.01 */
+  transform-origin: right bottom; /* Karena membesar dari kanan bawah, gambar hanya akan tumbuh ke Atas dan ke Kiri, menyentuhkan kartu Hijau/Pink ke Headline! */
+}
+
+/* Bagian Kanan: Teks & Grid */
+.testimonials-text-side {
+  flex: 1;
+  max-width: 50%; /* Ruang imbang 50% */
+  display: flex;
+  flex-direction: column;
+  margin-top: 0; /* Reset ke 0 agar sejajar absolut dengan atas */
+}
+
+.testimonials-text-side .section-header {
+  text-align: left;
+  margin-left: -120px; /* Digeser lagi sejauh -60px (Total: -120px) sesuai instruksi Anda */
+  margin-top: 10px; /* Instruksi Anda: Turunkan lagi 5px (kembali ke 10px) */
+  margin-bottom: 30px; /* Kompensasi tinggi */
+}
+
+.testimonials-text-side .section-title {
+  font-size: 3rem;
+  letter-spacing: -0.04em;
+  margin-top: 0; /* Pastikan tidak ada ruang kosong di atas teks */
+  margin-bottom: 12px;
+  line-height: 1; /* Pastikan bounding box teks rata dengan atas */
+}
+
+.marquee-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  transform: translateY(-10px); /* Instruksi Anda: Area Marquee ditarik ke atas sejauh 10px */
+  /* Membuat efek pudar (fade) di ujung kiri dan kanan */
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.marquee-wrapper:hover .marquee-content {
+  animation-play-state: paused; /* Berhenti saat disorot mouse */
+}
+
+.marquee-track {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+}
+
+.marquee-content {
+  display: flex;
+  gap: 20px;
+  flex-shrink: 0;
+  width: max-content;
+}
+
+.scroll-left {
+  animation: scrollLeft 25s linear infinite;
+}
+
+.scroll-right {
+  animation: scrollRight 25s linear infinite;
+}
+
+@keyframes scrollLeft {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-100% - 20px)); } /* 20px adalah gap */
+}
+
+@keyframes scrollRight {
+  from { transform: translateX(calc(-100% - 20px)); }
+  to { transform: translateX(0); }
+}
+
+.testimonial-card {
+  background: var(--bg-window);
+  border-radius: 20px;
+  width: 400px; /* Dibuat lebih lebar agar teks tidak turun ke bawah (yang membuat kartu jadi tinggi menjulang) */
+  flex-shrink: 0;
+  padding: 24px; 
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-normal);
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-floating);
+  border-color: rgba(0, 207, 124, 0.2);
+}
+
+.rating {
+  color: #fbbf24;
+  font-size: 1.15rem;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+
+.testimonial-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem; /* Teks diperkecil agar pas di kartu yang lebih kecil */
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-style: italic;
+  flex-grow: 1;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: auto;
+}
+
+.author-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.author-name {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.author-role {
+  font-size: 0.85rem;
+  color: var(--accent-color);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 1024px) {
+  .testimonials-split-layout {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .testimonials-image-side, .testimonials-text-side {
+    max-width: 100%;
+  }
+  .collage-image-placeholder {
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .testimonials-section {
+    padding: 60px 0;
+  }
+}

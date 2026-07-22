@@ -1,0 +1,27 @@
+{
+  "name": "001--main-web-design",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.config.mjs",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "clean": "rm -rf node_modules package-lock.json",
+    "copy-img": "cp /Users/masman/.gemini/antigravity-ide/brain/f3e5d4f2-795b-4190-9d7f-c118394c4fcf/profile_option_1_white_gradient_1784553982530.png public/profile.png",
+    "copy-logo": "cp '002. Login Design/Logo Portofio - 3.png' 'public/Logo Portofio - 3.png'"
+  },
+  "dependencies": {
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^6.22.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "oxlint": "^1.69.0",
+    "vite": "^8.1.0"
+  }
+}

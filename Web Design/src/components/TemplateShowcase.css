@@ -1,0 +1,278 @@
+.template-showcase {
+  padding: 20px 0 120px; /* Jarak atas dikurangi agar konten lebih naik */
+  background-color: var(--bg-window);
+  position: relative;
+  overflow: hidden;
+  z-index: 1; /* Menciptakan batas lapisan (stacking context) */
+}
+
+/* --- DECORATIVE SQUIGGLE --- */
+.abstract-squiggle {
+  position: absolute;
+  top: 12%; /* Dinaikkan lagi sesuai instruksi Anda */
+  left: 0;
+  width: 100%;
+  height: 600px;
+  z-index: -1; /* Dipaksa mundur ke lapisan paling belakang (di bawah teks dan kartu) */
+  pointer-events: none; /* Agar tidak menghalangi interaksi user */
+  opacity: 0.05; /* Diubah menjadi 5% agar kembali menjadi watermark halus dan elegan */
+}
+
+.showcase-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 30px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.showcase-header h2 {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  letter-spacing: -0.04em;
+}
+
+.showcase-header p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* Pill Tabs */
+.template-tabs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 60px;
+}
+
+.pill-btn {
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.pill-btn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.pill-btn.active {
+  background: var(--text-primary);
+  color: #fff;
+  border-color: var(--text-primary);
+}
+
+.pill-btn.premium-pill.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 12px rgba(0, 207, 124, 0.3);
+}
+
+.lock-icon {
+  font-size: 0.8rem;
+  margin-left: 4px;
+  opacity: 0.9;
+}
+
+.pill-btn.view-more {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Coverflow Container */
+.coverflow-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  perspective: 1500px; /* Essential for 3D effect */
+}
+
+.coverflow-wrapper {
+  position: relative;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+  overscroll-behavior-x: none; /* Mencegah Mac memicu tombol 'Back' history */
+  touch-action: pan-y; /* Mencegah layar sentuh melakukan aksi horizontal bawaan */
+}
+
+/* Individual Card */
+.coverflow-card {
+  position: absolute;
+  width: 350px;
+  height: 480px;
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  cursor: pointer;
+  background: var(--bg-card);
+  will-change: transform, opacity;
+}
+
+/* Active center card gets a glow/bigger shadow */
+.coverflow-card.active {
+  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  cursor: default;
+}
+
+.coverflow-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+/* Card Info Overlay */
+.card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 30px 20px 20px;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* Premium Badge on Top Right */
+.premium-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5); /* Dark Glass */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+}
+
+.premium-badge:hover {
+  transform: scale(1.1);
+}
+
+.coverflow-card.active .card-info {
+  opacity: 1;
+}
+
+.card-category {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.card-name {
+  color: #fff;
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+/* Play Button */
+.card-play-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  animation: scaleIn 0.4s ease forwards;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Controls - Moved to left and right edges */
+.coverflow-controls {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  margin-top: 0;
+  z-index: 20;
+  pointer-events: none; /* Let clicks pass through empty space */
+}
+
+.nav-arrow {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 207, 124, 0.2); /* Border hijau tipis transparan */
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: var(--accent-color); /* Ikon panah diubah menjadi hijau */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  pointer-events: auto; /* Re-enable clicks for the buttons */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.nav-arrow:hover {
+  background: var(--accent-color); /* Background memblok hijau saat di-hover */
+  color: #fff;
+  border-color: var(--accent-color);
+  transform: scale(1.1);
+  box-shadow: 0 10px 25px rgba(0, 207, 124, 0.3); /* Cahaya glow hijau */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .coverflow-card {
+    width: 260px;
+    height: 380px;
+  }
+  .showcase-header h2 {
+    font-size: 2.5rem;
+  }
+  .pill-btn {
+    padding: 6px 16px;
+    font-size: 0.8rem;
+  }
+}

@@ -1,0 +1,142 @@
+.navbar {
+  width: 100%;
+  padding: 20px 0;
+  background: rgba(255, 255, 255, 0.15); /* Sangat tembus pandang */
+  backdrop-filter: blur(16px); /* Kaca buram */
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 1000;
+  position: sticky;
+  top: 0;
+  border-bottom: none; 
+}
+
+.nav-container {
+  display: flex;
+  justify-content: flex-start; /* Memindahkan menu ke kiri */
+  align-items: center;
+  gap: 48px; /* Jarak antara logo dan menu */
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+}
+
+.nav-links {
+  display: flex;
+  gap: 8px; /* Jarak antar tombol */
+  align-items: center;
+  transform: translateY(3px); /* Posisi saat ini: diturunkan 3 piksel */
+}
+
+.nav-links a {
+  font-size: 1rem;
+  font-weight: 400; /* Tidak tebal secara default (diminta pengguna) */
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  padding: 8px 12px; /* Padding dikecilkan karena bukan bentuk kapsul lagi */
+  text-decoration: none;
+}
+
+/* Trik untuk mencegah elemen lain bergeser saat teks ini menjadi tebal (bold) */
+.nav-links a::before {
+  display: block;
+  content: attr(data-text);
+  font-weight: 600;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.nav-links a:hover {
+  color: var(--text-primary);
+}
+
+.nav-links a.active {
+  color: var(--accent-color); /* Hanya ganti warna teks saat aktif */
+  background-color: transparent;
+  font-weight: 600; /* Menjadi tebal hanya saat sedang aktif dipilih */
+}
+
+.nav-links a.active:hover {
+  color: var(--accent-hover);
+}
+
+.nav-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.btn-primary {
+  background: var(--accent-color);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 14px 0 rgba(0, 207, 124, 0.39);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 207, 124, 0.23);
+}
+
+.btn-secondary {
+  color: var(--text-secondary);
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: color var(--transition-fast);
+}
+
+.btn-secondary:hover {
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+}
+
+.mobile-menu-btn {
+  display: none;
+}
+
+/* --- PROFILE ICON --- */
+.profile-icon-link {
+  margin-left: auto; /* Mendorong secara otomatis ke pojok paling kanan */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--accent-color); /* Nyala permanen dengan warna Brand Green */
+  background: transparent;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-icon-link:hover {
+  border-color: var(--accent-hover);
+  box-shadow: 0 6px 12px rgba(0, 207, 124, 0.2); /* Efek cahaya (glow) hijau saat di-hover */
+}
+
+.profile-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

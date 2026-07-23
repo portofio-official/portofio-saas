@@ -160,7 +160,7 @@
       "title": "Log in to your account",
       "emailLabel": "Email",
       "passwordLabel": "Password",
-      "submit": "Log in",
+      "submit": "Sign In",
       "submitPending": "Signing in…",
       "forgotPasswordLink": "Forgot password?",
       "noAccount": "Don't have an account?",

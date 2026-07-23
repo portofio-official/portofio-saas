@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Play, ArrowLeft, ArrowRight, Star } from "@phosphor-icons/react";
+import { Play, ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import shared from "./shared.module.css";
 import styles from "./TemplateShowcase.module.css";
 
@@ -264,7 +264,10 @@ export function TemplateShowcase() {
 
                   {template.isPremium && (
                     <div className={styles.premiumBadge}>
-                      <Star weight="fill" color="#FCA311" size={22} />
+                      <svg viewBox="0 0 24 24" fill="#FCA311" width="22px" height="22px">
+                        <path d="M2.5 6.5l5.5 5.5 4-7.5 4 7.5 5.5-5.5-2 10.5h-15z" strokeLinejoin="round" />
+                        <rect x="3" y="19" width="18" height="2.5" rx="1" />
+                      </svg>
                     </div>
                   )}
 

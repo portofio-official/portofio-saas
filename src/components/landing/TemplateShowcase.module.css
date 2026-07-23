@@ -1,9 +1,10 @@
 .templateShowcase {
-  padding: 20px 0 120px;
+  padding: 100px 0 120px;
   background-color: var(--bg-window);
   position: relative;
   overflow: hidden;
   z-index: 1;
+  scroll-margin-top: 100px;
 }
 
 .abstractSquiggle {

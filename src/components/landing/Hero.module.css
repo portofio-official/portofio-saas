@@ -3,7 +3,7 @@
   --box-height: 350px;
 
   position: relative;
-  padding-top: 60px;
+  padding-top: 160px;
   padding-bottom: 80px;
   overflow: hidden;
 }
@@ -160,7 +160,7 @@
 @media (max-width: 1024px) {
   .heroContainer {
     flex-direction: column;
-    padding-top: 40px;
+    padding-top: 120px;
   }
   .heroContent {
     max-width: 100%;

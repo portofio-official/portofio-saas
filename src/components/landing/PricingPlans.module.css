@@ -4,6 +4,13 @@
   position: relative;
 }
 
+.pricingPlans {
+  padding: 70px 0 80px;
+  background-color: var(--bg-window);
+  position: relative;
+  scroll-margin-top: 100px;
+}
+
 .pricingHeader {
   text-align: center;
   max-width: 800px;

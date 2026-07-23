@@ -3,6 +3,7 @@
   background: var(--bg-tertiary);
   position: relative;
   overflow: hidden;
+  scroll-margin-top: 100px;
 }
 
 .faqContentWrapper {

@@ -108,7 +108,7 @@
   padding: 10px 20px;
   border-radius: var(--radius-full);
   background: var(--accent-color);
-  color: #fff;
+  color: #ffffff !important;
   font-weight: 600;
   font-size: 0.9rem;
   transition: all var(--transition-fast);

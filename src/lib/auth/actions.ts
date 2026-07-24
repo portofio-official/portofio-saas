@@ -6,7 +6,11 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
 export type ActionState = { error: string | null; success?: string | null };
 
-async function origin() {
+async function getAppUrl() {
+  if (process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
+    const domain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+    return domain.includes("localhost") ? `http://${domain}` : `https://${domain}`;
+  }
   const h = await headers();
   const proto = h.get("x-forwarded-proto") ?? "http";
   return `${proto}://${h.get("host")}`;
@@ -37,7 +41,7 @@ export async function signUpAction(
     email,
     password,
     options: {
-      emailRedirectTo: `${await origin()}/auth/confirm?next=${encodeURIComponent("/login?confirmed=1")}`,
+      emailRedirectTo: `${await getAppUrl()}/auth/confirm?next=${encodeURIComponent("/login?confirmed=1")}`,
     },
   });
 
@@ -71,7 +75,7 @@ export async function requestPasswordResetAction(
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${await origin()}/auth/confirm?next=/reset-password`,
+    redirectTo: `${await getAppUrl()}/auth/confirm?next=/reset-password`,
   });
 
   if (error) return { error: mapAuthError(error.message) };

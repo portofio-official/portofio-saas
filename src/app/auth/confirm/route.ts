@@ -8,13 +8,19 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get("type") as EmailOtpType | null;
   const next = searchParams.get("next") ?? "/";
 
+  let appUrl = origin;
+  if (process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
+    const domain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+    appUrl = domain.includes("localhost") ? `http://${domain}` : `https://${domain}`;
+  }
+
   if (token_hash && type) {
     const supabase = await createClient();
     const { error } = await supabase.auth.verifyOtp({ token_hash, type });
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${appUrl}${next}`);
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=confirm_failed`);
+  return NextResponse.redirect(`${appUrl}/login?error=confirm_failed`);
 }

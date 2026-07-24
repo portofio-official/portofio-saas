@@ -152,7 +152,7 @@ export function Editor({
     }
   }
 
-  const siteUrl = `${subdomain}.${domain}`;
+  const siteUrl = `${domain}/sites/${subdomain}`;
 
   return (
     <div ref={container} className="flex h-full flex-col overflow-hidden bg-surface text-ink font-sans">
@@ -448,6 +448,9 @@ export function Editor({
                     </div>
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center overflow-hidden rounded-[0.75rem] ring-1 ring-black/10 focus-within:ring-accent transition-all">
+                        <span className="shrink-0 bg-black/5 px-3 py-2 text-[11px] text-ink-faint border-r border-black/5">
+                          {domain}/sites/
+                        </span>
                         <input
                           type="text"
                           value={subdomain}
@@ -458,9 +461,6 @@ export function Editor({
                           placeholder="your-name"
                           className="flex-1 bg-white px-3 py-2 text-[12px] font-medium text-ink placeholder:text-ink-faint focus:outline-none"
                         />
-                        <span className="shrink-0 bg-black/5 px-2 py-2 text-[11px] text-ink-faint">
-                          .{domain}
-                        </span>
                       </div>
                       {publishError && publishError !== "subscription_required" && (
                         <p className="text-[11px] text-danger">{publishError}</p>

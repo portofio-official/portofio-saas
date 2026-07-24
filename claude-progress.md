@@ -10,6 +10,15 @@
 
 ## Session Log
 
+### Session (2026-07-24) — Path-based Testing Fallback
+
+- Goal: Allow easier MVP testing on Vercel by formatting live-site URLs as paths instead of subdomains.
+- Completed:
+  - Updated `Editor.tsx` to generate `siteUrl` as `${domain}/sites/${subdomain}` and tweaked the subdomain input UI to show this prefix.
+  - Updated `DashboardClientView.tsx` so the "View site" button for published projects points to the path-based URL.
+- Verification: UI updates correctly generate path-based URLs that Next.js middleware natively resolves.
+- Next step: Continue with other tasks (like Xendit billing integration).
+
 ### Session 019 (2026-07-19) — DB: profiles, billing_events, subdomain_blocklist
 
 - Goal: Tambah tabel-tabel yang hilang dari skema MVP (user profiles, billing audit log, subdomain blocklist).
@@ -279,3 +288,5 @@
 - **Update (Navbar Profile Dropdown):** Upgraded the profile icon in the landing page `Navbar` to be an interactive dropdown. The new dropdown menu provides quick access to "Profile", "My Workspace", and a "Logout" button. Role-based access control was integrated by passing the `userRole` from the server; users with the `admin` role will automatically see an "Admin Dashboard" option, and users with the `designer` role will see a "Designer Dashboard" option within the dropdown. Translations were updated to support the new menu labels in both Indonesian and English.
 - **Update (Admin Dashboard Aesthetics):** Applied the same visual alignment to the Admin Dashboard interface. Changed the admin layout background to pristine white (`bg-surface`), updated the `AdminSidebar` to use the primary green `accent` color for the portal identity icon and active menu item highlight, and added a sticky glassmorphism effect (`backdrop-blur-md bg-surface/80`) to the header across all admin pages (Users, Templates, Blocklist).
 - **Update (Navbar Scrollspy):** Fixed the `Navbar.tsx` scrollspy logic to ensure the "FAQ" menu item correctly highlights as active when the user scrolls to the bottom of the page, fixing an issue where it would stay stuck on the previous section.
+- **Update (Template Section Spacing):** Added `scroll-margin-top: 100px` and increased `padding-top` to `100px` in `TemplateShowcase.module.css` to prevent the template section content from overlapping with the fixed navbar when scrolling or clicking anchor links.
+- **Update (Login Button Color):** Enforced white text color on the login button in the landing page navbar by adding `#ffffff !important` to the `.loginLink` class in `Navbar.module.css`.

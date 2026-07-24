@@ -189,7 +189,7 @@ export function DashboardClientView({
                         </p>
                         {workspace.publishStatus === "published" && workspace.subdomain && (
                           <a
-                            href={`http://${workspace.subdomain}.${ROOT_DOMAIN}`}
+                            href={`http://${ROOT_DOMAIN}/sites/${workspace.subdomain}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}

@@ -2,6 +2,7 @@
 
 import { requireRole } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export type AdminUserView = {
@@ -70,7 +71,8 @@ export async function updateTemplateStatusAction(
   await requireRole(["admin"]);
 
   const adminClient = createAdminClient();
-  const { data: { user } } = await adminClient.auth.getUser();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   const { error } = await adminClient
     .from("template_submissions")

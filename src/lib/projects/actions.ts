@@ -63,8 +63,17 @@ export async function publishProjectAction(
   const hasSubscription = await checkSubscription(email);
   if (!hasSubscription) return { ok: false, error: "subscription_required", requiresSubscription: true };
 
-  // Check subdomain uniqueness (skip own project)
   const supabase = await createClient();
+
+  // Check DB blocklist
+  const { data: blocked } = await supabase
+    .from("subdomain_blocklist")
+    .select("slug")
+    .eq("slug", subdomain)
+    .maybeSingle();
+  if (blocked) return { ok: false, error: "This subdomain name is reserved." };
+
+  // Check subdomain uniqueness (skip own project)
   const { data: existing } = await supabase
     .from("projects")
     .select("id")

@@ -14,6 +14,7 @@ export async function createWorkspaceAction(
   const name = String(formData.get("name") ?? "").trim();
   const templateId = String(formData.get("templateId") ?? "").trim();
   if (!name) return { error: "nameRequired" };
+  if (name.length > 50) return { error: "nameTooLong" };
 
   const supabase = await createClient();
   const {

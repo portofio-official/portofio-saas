@@ -30,19 +30,19 @@ export const educationSchema = z.object({
 export const projectItemSchema = z.object({
   title: z.string(),
   description: z.string(),
-  imageUrl: z.string().optional(),
-  link: z.string().optional(),
+  imageUrl: z.string().url().or(z.literal("")).optional(),
+  link: z.string().url().or(z.literal("")).optional(),
 });
 
 export const contactSchema = z.object({
-  email: z.string().default(""),
+  email: z.string().email().or(z.literal("")).default(""),
   phone: z.string().optional(),
   whatsapp: z.string().optional(),
 });
 
 export const socialSchema = z.object({
   platform: z.enum(["linkedin", "github", "instagram", "x", "youtube", "tiktok", "website"]),
-  url: z.string(),
+  url: z.string().url().or(z.literal("")),
 });
 
 export const themeSchema = z.object({

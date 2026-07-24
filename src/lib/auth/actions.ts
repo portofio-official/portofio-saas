@@ -32,7 +32,10 @@ export async function signUpAction(
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
-  if (!email || password.length < 8) {
+  if (!email) {
+    return { error: "invalidCredentials" };
+  }
+  if (password.length < 8) {
     return { error: "weakPassword" };
   }
 
@@ -72,6 +75,9 @@ export async function requestPasswordResetAction(
   formData: FormData,
 ): Promise<ActionState> {
   const email = String(formData.get("email") ?? "").trim();
+  if (!email) {
+    return { error: "invalidCredentials" };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {

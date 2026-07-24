@@ -80,6 +80,13 @@ export const TEMPLATE_COMPONENTS: Record<TemplateId, React.ComponentType<{ data:
 };
 
 export function PreviewTemplateRenderer({ templateId, data }: { templateId: TemplateId; data: PortfolioData }) {
+  const definition = getDefinition(templateId);
   const Template = TEMPLATE_COMPONENTS[templateId];
-  return <Template data={data} />;
+  if (!definition || !Template) return null;
+
+  const parsedResult = definition.schema.safeParse(data);
+  const safeData = parsedResult.success ? parsedResult.data : definition.defaults;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return <Template data={safeData as any} />;
 }

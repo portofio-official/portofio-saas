@@ -21,7 +21,12 @@ export async function checkSubscription(email: string): Promise<boolean> {
 
   if (!data) return false;
   if (data.status !== "active") return false;
-  if (data.expires_at && new Date(data.expires_at) < new Date()) return false;
+  if (data.expires_at) {
+    const expiresDate = new Date(data.expires_at);
+    // Add 7 days grace period
+    expiresDate.setDate(expiresDate.getDate() + 7);
+    if (expiresDate < new Date()) return false;
+  }
   return true;
 }
 

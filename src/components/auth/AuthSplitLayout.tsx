@@ -8,7 +8,7 @@ interface AuthSplitLayoutProps {
   leftSubtitle: string;
   mobileTitle?: string;
   showMobileBack?: boolean;
-  mobileBackHref?: any; // any to satisfy next-intl Link href type issues with literal strings
+  mobileBackHref?: React.ComponentProps<typeof Link>["href"];
   onMobileBackClick?: () => void;
   formTitle: React.ReactNode;
   formSubtitle?: React.ReactNode;

@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
           <>
             Lost access?<br />
             <span className="highlight" style={{ color: "var(--accent)", fontWeight: 300, fontStyle: "italic" }}>
-              We've got
+              We&apos;ve got
             </span> you covered.
           </>
         }
@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
         <>
           Lost access?<br />
           <span className="highlight" style={{ color: "var(--accent)", fontWeight: 300, fontStyle: "italic" }}>
-            Let's fix
+            Let&apos;s fix
           </span> that.
         </>
       }

@@ -290,3 +290,16 @@
 - **Update (Navbar Scrollspy):** Fixed the `Navbar.tsx` scrollspy logic to ensure the "FAQ" menu item correctly highlights as active when the user scrolls to the bottom of the page, fixing an issue where it would stay stuck on the previous section.
 - **Update (Template Section Spacing):** Added `scroll-margin-top: 100px` and increased `padding-top` to `100px` in `TemplateShowcase.module.css` to prevent the template section content from overlapping with the fixed navbar when scrolling or clicking anchor links.
 - **Update (Login Button Color):** Enforced white text color on the login button in the landing page navbar by adding `#ffffff !important` to the `.loginLink` class in `Navbar.module.css`.
+
+### Session 026 (2026-07-25) — QA Pipeline Audit
+
+- Goal: Run a full QA Pipeline pass across the codebase (test-driven correctness, code review, security, performance, browser check).
+- Completed:
+  - Phase 1 (Correctness): Ran baseline verification (`npm run lint`, `npx tsc --noEmit`, `npm run build`). Fixed 4 lint errors across `forgot-password/page.tsx`, `login/page.tsx` (unescaped apostrophe entities) and `AuthSplitLayout.tsx` (replaced `any` type with `React.ComponentProps<typeof Link>["href"]`).
+  - Phase 2 (Debugging): Skipped — Phase 1 passed cleanly after lint fixes.
+  - Phase 3 (Code Review): Verified project structure, multi-route rendering, Zod data validations, and modular component architecture. Noted 2 non-blocking follow-up notes (Deno edge function type scope, pending Supabase remote migration push).
+  - Phase 4 (Security): Verified RBAC middleware route protection for `/admin`, `requireRole(['admin'])` server action checks, RLS policies, and environment secret handling. No Critical/High findings.
+  - Phase 5 (Performance): Skipped — static page generation verified in ~74ms, Turbopack bundling cleanly, no explicit perf budget/baseline set.
+  - Phase 6 (Browser Verification): DevTools MCP not configured in environment — reported as unverified via MCP.
+- Verification: `npm run lint` (0 errors), `npx tsc --noEmit` (clean), `npm run build` (clean, 16 routes static/dynamic generation), `./init.sh` (PASSED).
+- Verdict: PASS.

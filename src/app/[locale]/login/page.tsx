@@ -32,7 +32,7 @@ export default function LoginPage() {
       formSubtitle="Please enter your details to sign in."
       footer={
         <p>
-          Don't have an account? <Link href="/signup">Sign up for free</Link>
+          Don&apos;t have an account? <Link href="/signup">Sign up for free</Link>
         </p>
       }
     >

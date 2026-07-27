@@ -10,6 +10,18 @@
 
 ## Session Log
 
+### Session (2026-07-27) — RLS Audit & Security Fixes
+
+- Goal: Audit and fix Row Level Security (RLS) policies and stale table references across Supabase database tables.
+- Completed:
+  - Created migration `supabase/migrations/20260727000001_fix_rls_policies_and_stale_references.sql`.
+  - Restricted owner policies on `workspace_profile`, `workspace_assets`, and `projects` to `TO authenticated` (stops Postgres from evaluating owner policies on `anon` requests).
+  - Fixed `workspaces_public_read_published` policy on `public.workspaces` to reference `public.projects` (`status = 'published'`) instead of the dropped `public.sites` table.
+  - Fixed `workspace_profile_public_read` policy on `public.workspace_profile` to reference `public.projects` (`status = 'published'`) instead of the dropped `public.sites` table.
+- Verification: `npm run lint && npx tsc --noEmit` clean with 0 errors.
+- Next step: Apply `20260727000001_fix_rls_policies_and_stale_references.sql` in Supabase SQL Editor, then proceed to Point 2 (Billing & Webhooks Xendit).
+
+
 ### Session (2026-07-24) — Path-based Testing Fallback
 
 - Goal: Allow easier MVP testing on Vercel by formatting live-site URLs as paths instead of subdomains.

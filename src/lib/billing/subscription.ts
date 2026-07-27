@@ -1,32 +1,93 @@
-// ponytail: stub for billing-001. Replace with real Xendit webhook-driven check.
 import { createClient } from "@/lib/supabase/server";
+import { SubscriptionRecord, SubscriptionStateDetails } from "./types";
+
+const GRACE_PERIOD_DAYS = 7;
 
 /**
- * Returns true if the currently authenticated user has an active subscription.
- * Subscription is per-account (PRD §7.6 default).
- * `email` param reserved for billing-001 Xendit integration; currently unused.
+ * Returns true if the currently authenticated user (or provided userId) has an active subscription
+ * or is within the 7-day grace period.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function checkSubscription(email: string): Promise<boolean> {
+export async function checkSubscription(_email?: string, targetUserId?: string): Promise<boolean> {
+  const state = await getSubscriptionState(targetUserId);
+  return state.isActive;
+}
+
+/**
+ * Returns detailed subscription state for a user (active status, grace period state, days remaining).
+ */
+export async function getSubscriptionState(targetUserId?: string): Promise<SubscriptionStateDetails> {
+  let userId = targetUserId;
+
+  if (!userId) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return {
+        isActive: false,
+        status: "inactive",
+        isGracePeriod: false,
+        expiresAt: null,
+      };
+    }
+    userId = user.id;
+  }
+
   const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return false;
-
   const { data } = await supabase
     .from("subscriptions")
     .select("status, expires_at")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .maybeSingle();
 
-  if (!data) return false;
-  if (data.status !== "active") return false;
-  if (data.expires_at) {
-    const expiresDate = new Date(data.expires_at);
-    // Add 7 days grace period
-    expiresDate.setDate(expiresDate.getDate() + 7);
-    if (expiresDate < new Date()) return false;
-  }
-  return true;
-}
+  const record = data as Partial<SubscriptionRecord> | null;
 
+  if (!record || !record.status) {
+    return {
+      isActive: false,
+      status: "inactive",
+      isGracePeriod: false,
+      expiresAt: null,
+    };
+  }
+
+  const now = new Date();
+  const expiresAt = record.expires_at ? new Date(record.expires_at) : null;
+
+  // Active status check
+  if (record.status === "active") {
+    if (!expiresAt || expiresAt > now) {
+      return {
+        isActive: true,
+        status: "active",
+        isGracePeriod: false,
+        expiresAt,
+      };
+    }
+  }
+
+  // Grace Period check
+  if (record.status === "grace_period" || (record.status === "active" && expiresAt && expiresAt <= now)) {
+    if (expiresAt) {
+      const gracePeriodEnd = new Date(expiresAt.getTime() + GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+      if (now <= gracePeriodEnd) {
+        const msRemaining = gracePeriodEnd.getTime() - now.getTime();
+        const daysRemaining = Math.max(1, Math.ceil(msRemaining / (1000 * 60 * 60 * 24)));
+        return {
+          isActive: true, // Still allowed to keep published site active during grace period
+          status: "grace_period",
+          isGracePeriod: true,
+          expiresAt,
+          daysRemainingInGracePeriod: daysRemaining,
+        };
+      }
+    }
+  }
+
+  // Expired / Canceled / Inactive
+  return {
+    isActive: false,
+    status: record.status as SubscriptionRecord["status"],
+    isGracePeriod: false,
+    expiresAt,
+  };
+}

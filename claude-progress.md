@@ -10,6 +10,20 @@
 
 ## Session Log
 
+### Session (2026-07-27) — Point 2: Billing & Xendit Webhook Architecture
+
+- Goal: Build production-ready Xendit webhook handling, subscription state machine, signature verification, idempotency protection, and reversible soft-unpublish.
+- Completed:
+  - Created migration `supabase/migrations/20260727000002_update_subscription_statuses.sql` updating constraint to support `('active', 'inactive', 'grace_period', 'expired', 'canceled')`.
+  - Built Xendit signature verification (`verifyXenditWebhookSignature` in `src/lib/billing/xendit.ts`).
+  - Built idempotency protection by checking and logging `xendit_event_id` in `billing_events` table before processing events (`src/app/api/webhooks/xendit/route.ts`).
+  - Built subscription state machine with 7-day grace period logic (`src/lib/billing/subscription.ts`).
+  - Built reversible soft-unpublish (`softUnpublishUserProjects` in `src/lib/billing/unpublish.ts`) which updates `projects.status = 'draft'` while preserving portfolio JSON data intact.
+  - Built Server Actions for subscription invoice checkout (`createCheckoutInvoiceAction` in `src/lib/billing/actions.ts`).
+- Verification: `npm run lint && npx tsc --noEmit` clean with 0 errors and 0 warnings.
+- Next step: User applies migration `20260727000002` in Supabase, set `XENDIT_WEBHOOK_VERIFICATION_TOKEN` & `XENDIT_SECRET_KEY` in `.env.local`.
+
+
 ### Session (2026-07-27) — RLS Audit & Security Fixes
 
 - Goal: Audit and fix Row Level Security (RLS) policies and stale table references across Supabase database tables.

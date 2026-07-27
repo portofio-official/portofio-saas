@@ -1,9 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useAutosave } from "@/hooks/useAutosave";
 import { saveDraftAction, publishProjectAction, unpublishProjectAction } from "@/lib/projects/actions";
@@ -34,8 +31,6 @@ import {
   PortfolioProGallerySection,
 } from "@/components/templates/portfolio-pro/Sections";
 
-gsap.registerPlugin(useGSAP, ScrollTrigger);
-
 // `studio` and `portfolio-pro` both declare a `hero` field with incompatible
 // shapes, so a plain `Partial<StudioData> & Partial<PortfolioProData>`
 // intersection is unsatisfiable — union the one field that collides instead.
@@ -63,7 +58,6 @@ export function Editor({
   );
   const templateId = initialTemplateId;
   const [showDesktopPreview, setShowDesktopPreview] = useState(false);
-  const container = useRef<HTMLDivElement>(null);
 
   // Publish state
   const [subdomain, setSubdomain] = useState(initialSubdomain ?? "");
@@ -87,27 +81,6 @@ export function Editor({
   });
 
   const saveStatus = useAutosave(data, () => saveDraftAction(projectId, documentForSave()));
-
-  useGSAP(
-    () => {
-      gsap.fromTo(
-        ".gsap-header",
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.2, ease: "power3.out" },
-      );
-      gsap.fromTo(
-        ".gsap-panel",
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, stagger: 0.1, duration: 1.2, ease: "power4.out", delay: 0.1 },
-      );
-      gsap.fromTo(
-        ".gsap-preview",
-        { x: 30, opacity: 0 },
-        { x: 0, opacity: 1, duration: 1.2, ease: "power3.out", delay: 0.3 },
-      );
-    },
-    { scope: container },
-  );
 
   const t = useTranslations("TemplatePicker");
   const tSaveStatus = useTranslations("PortfolioForm.saveStatus");
@@ -155,7 +128,7 @@ export function Editor({
   const siteUrl = `${domain}/sites/${subdomain}`;
 
   return (
-    <div ref={container} className="flex h-full flex-col overflow-hidden bg-surface text-ink font-sans">
+    <div className="flex h-full flex-col overflow-hidden bg-surface text-ink font-sans">
       {/* Top Header */}
       <header className="gsap-header relative z-10 flex h-14 shrink-0 items-center justify-between border-b border-black/5 bg-surface px-6 shadow-sm">
         <div className="flex items-center gap-4">

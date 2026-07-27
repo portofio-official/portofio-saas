@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
+import { useState } from "react";
 
 import { useRouter } from "@/i18n/navigation";
 import { type TemplateId } from "@/lib/templates/types";
@@ -182,10 +180,12 @@ const PREVIEW_DATA: PreviewData = {
 export function TemplateGallery({ 
   isLoggedIn = false, 
   embedded = false,
+  landingMode = false,
   activeTemplateIds,
 }: { 
   isLoggedIn?: boolean; 
   embedded?: boolean;
+  landingMode?: boolean;
   activeTemplateIds?: string[];
 }) {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -193,23 +193,6 @@ export function TemplateGallery({
   const [previewId, setPreviewId] = useState<TemplateId | null>(null);
   const [creatingForId, setCreatingForId] = useState<TemplateId | null>(null);
   const router = useRouter();
-  const container = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      gsap.fromTo(
-        ".gsap-template-card",
-        { y: 40, opacity: 0, scale: 0.98 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "var(--ease-fluid)", stagger: 0.08, delay: 0.1 }
-      );
-      gsap.fromTo(
-        ".gsap-header",
-        { y: -20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, ease: "var(--ease-fluid)" }
-      );
-    },
-    { scope: container }
-  );
 
   const handleUseTemplate = (id: TemplateId) => {
     if (isLoggedIn) {
@@ -226,36 +209,38 @@ export function TemplateGallery({
 
   const galleryContent = (
     <>
-      {/* Top hero bar */}
-      <header className="gsap-header shrink-0 px-12 pt-12">
-        <p className="mb-3 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-ink-faint w-max bg-black/[0.03]">
-          Start with a template
-        </p>
-        <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
-          Choose your design
-        </h1>
+      {/* Top hero bar - Hide in landing mode */}
+      {!landingMode && (
+        <header className="gsap-header shrink-0 px-12 pt-12">
+          <p className="mb-3 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-ink-faint w-max bg-black/[0.03]">
+            Start with a template
+          </p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
+            Choose your design
+          </h1>
 
-        {/* Category filter — horizontal, not a sidebar */}
-        <div className="mt-8 flex flex-wrap gap-2">
-          {CATEGORIES.map((cat) => (
-            <button
-              type="button"
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold transition-all duration-300 ease-[var(--ease-fluid)] ${
-                activeCategory === cat
-                  ? "bg-ink text-white"
-                  : "bg-black/[0.03] text-ink-soft hover:bg-black/[0.06] hover:text-ink active:scale-[0.98]"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </header>
+          {/* Category filter — horizontal, not a sidebar */}
+          <div className="mt-8 flex flex-wrap gap-2">
+            {CATEGORIES.map((cat) => (
+              <button
+                type="button"
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold transition-all duration-300 ease-[var(--ease-fluid)] ${
+                  activeCategory === cat
+                    ? "bg-ink text-white"
+                    : "bg-black/[0.03] text-ink-soft hover:bg-black/[0.06] hover:text-ink active:scale-[0.98]"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </header>
+      )}
 
       {/* Cards grid */}
-      <div className="flex-1 overflow-y-auto px-12 pb-24 pt-8">
+      <div className={`flex-1 px-12 pb-24 ${landingMode ? "pt-0" : "overflow-y-auto pt-8"}`}>
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((meta) => {
                 return (
@@ -320,7 +305,7 @@ export function TemplateGallery({
 
   return (
     <>
-      <div ref={container} className={embedded ? "flex h-full w-full flex-col overflow-hidden font-sans" : "flex h-full w-full gap-6 overflow-hidden bg-canvas p-6 font-sans"}>
+      <div className={embedded ? (landingMode ? "flex w-full flex-col font-sans" : "flex h-full w-full flex-col overflow-hidden font-sans") : "flex h-full w-full gap-6 overflow-hidden bg-canvas p-6 font-sans"}>
         {embedded ? (
           galleryContent
         ) : (

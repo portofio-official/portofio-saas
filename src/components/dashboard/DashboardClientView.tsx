@@ -1,16 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { Workspace } from "@/lib/workspace/types";
 import { PreviewTemplateRenderer } from "@/components/templates/registry";
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
-
-gsap.registerPlugin(useGSAP);
 
 interface Dict {
   eyebrow: string;
@@ -43,7 +39,6 @@ export function DashboardClientView({
   dict: Dict;
   preferredTemplateId?: string;
 }) {
-  const container = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState("");
   const [sortByName, setSortByName] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -56,24 +51,8 @@ export function DashboardClientView({
         : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
-  useGSAP(
-    () => {
-      gsap.fromTo(
-        ".gsap-header",
-        { y: -20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.2, ease: "cubic-bezier(0.32,0.72,0,1)", delay: 0.1 }
-      );
-      gsap.fromTo(
-        ".gsap-card",
-        { y: 60, opacity: 0, scale: 0.95 },
-        { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "cubic-bezier(0.32,0.72,0,1)", stagger: 0.1, delay: 0.2 }
-      );
-    },
-    { scope: container }
-  );
-
   return (
-    <div ref={container} className="flex h-full flex-col">
+    <div className="flex h-full flex-col">
       {/* Top bar */}
       <header className="gsap-header flex shrink-0 items-center justify-between border-b border-black/5 bg-surface/80 px-12 py-6 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-6">

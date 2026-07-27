@@ -10,6 +10,18 @@
 
 ## Session Log
 
+### Session (2026-07-27) — Point 3: GSAP Tech Debt Cleanup & Auth Email Template Setup
+
+- Goal: Clean up redundant GSAP animation library imports from app-shell UI components and document auth email template configuration.
+- Completed:
+  - Refactored `DashboardSidebar.tsx` and `AdminSidebar.tsx` to replace GSAP animations with Framer Motion (`motion.aside`).
+  - Purged GSAP imports and hooks from `DashboardClientView.tsx`, `TemplateGallery.tsx`, and `Editor.tsx`.
+  - Verified 0 remaining GSAP imports in app-shell components.
+  - Documented exact Supabase Dashboard Email Template URL shape for verification.
+- Verification: `npm run lint && npx tsc --noEmit` clean with 0 errors and 0 warnings.
+- Next step: All 3 audit points complete! Ready for user deployment and testing.
+
+
 ### Session (2026-07-27) — Point 2: Billing & Xendit Webhook Architecture
 
 - Goal: Build production-ready Xendit webhook handling, subscription state machine, signature verification, idempotency protection, and reversible soft-unpublish.

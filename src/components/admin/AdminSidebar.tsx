@@ -3,27 +3,12 @@
 import { Link } from "@/i18n/navigation";
 import { signOutAction } from "@/lib/auth/actions";
 import { useTranslations } from "next-intl";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { useRef } from "react";
+import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 export function AdminSidebar({ email }: { email: string }) {
   const pathname = usePathname();
   const t = useTranslations("Workspace");
-  const container = useRef<HTMLElement>(null);
-
-  useGSAP(
-    () => {
-      if (!container.current) return;
-      gsap.fromTo(
-        container.current,
-        { x: -30, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.8, ease: "var(--ease-fluid)" }
-      );
-    },
-    { scope: container }
-  );
 
   const initials = email.charAt(0).toUpperCase();
 
@@ -36,7 +21,12 @@ export function AdminSidebar({ email }: { email: string }) {
   ];
 
   return (
-    <aside ref={container} className="flex h-full w-[280px] shrink-0 flex-col overflow-hidden rounded-[2rem] bg-surface ring-1 ring-black/5">
+    <motion.aside
+      initial={{ x: -20, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="flex h-full w-[280px] shrink-0 flex-col overflow-hidden rounded-[2rem] bg-surface ring-1 ring-black/5"
+    >
       {/* Workspace identity */}
       <div className="flex items-center gap-3 border-b border-black/5 px-6 py-6">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-[13px] font-bold text-white shadow-[0_4px_10px_0_rgba(0,207,124,0.2)]">
@@ -85,6 +75,6 @@ export function AdminSidebar({ email }: { email: string }) {
           </button>
         </form>
       </div>
-    </aside>
+    </motion.aside>
   );
 }

@@ -269,3 +269,107 @@
     font-size: 0.8rem;
   }
 }
+
+/* ─── 1-Row Rolling Circle Marquee Carousel ─── */
+.carouselSection {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 20px 0 40px;
+}
+
+.marqueeViewport {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.marqueeTrack {
+  display: flex;
+  gap: 28px;
+  width: max-content;
+  animation: rollRightToLeft 32s linear infinite;
+  will-change: transform;
+}
+
+.marqueeViewport:hover .marqueeTrack {
+  animation-play-state: paused;
+}
+
+@keyframes rollRightToLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.templateCard {
+  width: 360px;
+  flex-shrink: 0;
+  border-radius: 2rem;
+  background: var(--bg-card, #ffffff);
+  padding: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.templateCard:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 207, 124, 0.3);
+}
+
+.cardPreviewArea {
+  position: relative;
+  height: 240px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  cursor: pointer;
+}
+
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+.templateCard:hover .cardOverlay {
+  opacity: 1;
+}
+
+.cardFooter {
+  padding: 16px 14px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.metaInfo h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary, #111);
+  margin: 0;
+}
+
+.metaInfo p {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #666);
+  margin: 4px 0 0;
+}

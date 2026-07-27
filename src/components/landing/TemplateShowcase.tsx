@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import shared from "./shared.module.css";
@@ -107,17 +107,64 @@ export function TemplateShowcase() {
   const router = useRouter();
 
   const [activeCategory, setActiveCategory] = useState("All");
+  const [activeIndex, setActiveIndex] = useState(0);
   const [previewId, setPreviewId] = useState<TemplateId | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   const filteredTemplates = TEMPLATES.filter((tmpl) =>
     activeCategory === "All" ? true : tmpl.tags.includes(activeCategory)
   );
 
-  // Duplicate for seamless 1-row circular marquee roll
-  const rollingList = [...filteredTemplates, ...filteredTemplates];
+  const total = filteredTemplates.length;
+
+  // Auto-roll timer (rolls right to left continuously every 3.5 seconds)
+  useEffect(() => {
+    if (isHovered || total <= 1) return;
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % total);
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [isHovered, total]);
+
+  const handlePrev = () => {
+    setActiveIndex((prev) => (prev - 1 + total) % total);
+  };
+
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev + 1) % total);
+  };
 
   const handleUseTemplate = (id: TemplateId) => {
     router.push(`/signup?templateId=${id}`);
+  };
+
+  /**
+   * Calculates 3D Circular Coverflow style for each card:
+   * Edge cards are SMALL, center card is LARGE & focused.
+   */
+  const getCardStyle = (index: number) => {
+    let offset = index - activeIndex;
+
+    // Wrap around for circular loop
+    if (offset > Math.floor(total / 2)) offset -= total;
+    if (offset < -Math.floor(total / 2)) offset += total;
+
+    const isActive = offset === 0;
+    const absOffset = Math.abs(offset);
+
+    const translateX = offset * 280; // horizontal spacing between 1-row cards
+    const scale = isActive ? 1.1 : Math.max(0.72, 1 - absOffset * 0.18);
+    const opacity = isActive ? 1 : Math.max(0.2, 1 - absOffset * 0.35);
+    const zIndex = 30 - absOffset * 10;
+    const rotateY = offset * -12; // subtle 3D rolling angle
+
+    return {
+      transform: `translateX(${translateX}px) scale(${scale}) rotateY(${rotateY}deg)`,
+      opacity: absOffset > 2 ? 0 : opacity,
+      zIndex,
+      pointerEvents: absOffset > 2 ? ("none" as const) : ("auto" as const),
+    };
   };
 
   return (
@@ -135,7 +182,10 @@ export function TemplateShowcase() {
             <button
               key={cat}
               type="button"
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => {
+                setActiveCategory(cat);
+                setActiveIndex(0);
+              }}
               className={`${styles.pillBtn} ${activeCategory === cat ? styles.active : ""}`}
             >
               {cat}
@@ -144,25 +194,34 @@ export function TemplateShowcase() {
         </div>
       </div>
 
-      {/* ─── 1-Row Circular Marquee Rolling Carousel (Right to Left) ─── */}
-      <div className={styles.carouselSection}>
-        <div className={styles.marqueeViewport}>
-          <div className={styles.marqueeTrack}>
-            {rollingList.map((meta, idx) => (
-              <div key={`${meta.id}-${idx}`} className={styles.templateCard}>
-                {/* Live Preview Card Area */}
-                <div
-                  className={`${styles.cardPreviewArea} ${meta.accentBg}`}
-                  onClick={() => setPreviewId(meta.id)}
-                >
+      {/* ─── 3D Circular Coverflow Rolling Carousel (Edge Small, Center Large) ─── */}
+      <div
+        className={styles.coverflowContainer}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className={styles.coverflowWrapper}>
+          {filteredTemplates.map((meta, index) => {
+            const isActive = index === activeIndex;
+            const cardStyle = getCardStyle(index);
+
+            return (
+              <div
+                key={meta.id}
+                style={cardStyle}
+                onClick={() => setActiveIndex(index)}
+                className={`${styles.coverflowCard} ${isActive ? styles.active : ""}`}
+              >
+                {/* Live Preview Scaled Box */}
+                <div className={`${styles.cardPreviewArea} ${meta.accentBg}`}>
                   <div
-                    className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-700 ease-out group-hover:scale-105"
+                    className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-700 ease-out"
                     style={{ transform: "scale(0.32)", width: "310%", height: "310%" }}
                   >
                     <TemplateRenderer templateId={meta.id} data={PREVIEW_DATA} />
                   </div>
 
-                  {/* Hover Overlay */}
+                  {/* Hover Overlay for Active Card */}
                   <div className={styles.cardOverlay}>
                     <button
                       type="button"
@@ -171,7 +230,7 @@ export function TemplateShowcase() {
                         setPreviewId(meta.id);
                       }}
                       className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-white/30"
-                      title="Preview"
+                      title="Pratinjau"
                     >
                       <span className="material-symbols-outlined text-[20px]">visibility</span>
                     </button>
@@ -189,7 +248,7 @@ export function TemplateShowcase() {
                   </div>
                 </div>
 
-                {/* Card Meta */}
+                {/* Card Info */}
                 <div className={styles.cardFooter}>
                   <div className={styles.metaInfo}>
                     <h3>{meta.name}</h3>
@@ -197,8 +256,41 @@ export function TemplateShowcase() {
                   </div>
                 </div>
               </div>
+            );
+          })}
+        </div>
+
+        {/* Rolling Controls & Dots */}
+        <div className={styles.coverflowControls}>
+          <button
+            type="button"
+            onClick={handlePrev}
+            className={styles.navArrow}
+            aria-label="Previous template"
+          >
+            <span className="material-symbols-outlined text-[24px]">chevron_left</span>
+          </button>
+
+          <div className={styles.dotsContainer}>
+            {filteredTemplates.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setActiveIndex(idx)}
+                className={`${styles.dot} ${idx === activeIndex ? styles.activeDot : ""}`}
+                aria-label={`Go to template slide ${idx + 1}`}
+              />
             ))}
           </div>
+
+          <button
+            type="button"
+            onClick={handleNext}
+            className={styles.navArrow}
+            aria-label="Next template"
+          >
+            <span className="material-symbols-outlined text-[24px]">chevron_right</span>
+          </button>
         </div>
       </div>
 

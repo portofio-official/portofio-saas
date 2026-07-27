@@ -10,6 +10,18 @@
 
 ## Session Log
 
+### Session (2026-07-27) — Template Gallery UI/UX Enhancements
+
+- Goal: Implement modern, high-end UI/UX improvements to `TemplateGallery.tsx` based on industry references (Framer, Vercel, Canva).
+- Completed:
+  - Added macOS dots browser window bar frame to template card thumbnails with custom subdomain labels.
+  - Added instant search bar alongside category filter pills with clear button & empty-state fallback.
+  - Added tags display and "★ Populer" badge highlighting top templates (Studio & Portfolio Pro).
+  - Built interactive Viewport Device Switcher (Desktop 💻 / Tablet 📱 / Mobile 📱) inside the full-screen live preview modal.
+- Verification: `npm run lint && npx tsc --noEmit` passed cleanly with 0 errors.
+- Next step: Ready for user review and testing.
+
+
 ### Session (2026-07-27) — Point 3: GSAP Tech Debt Cleanup & Auth Email Template Setup
 
 - Goal: Clean up redundant GSAP animation library imports from app-shell UI components and document auth email template configuration.

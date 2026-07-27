@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { useRouter } from "@/i18n/navigation";
 import { type TemplateId } from "@/lib/templates/types";
@@ -195,6 +195,25 @@ export function TemplateGallery({
   const [viewportMode, setViewportMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [creatingForId, setCreatingForId] = useState<TemplateId | null>(null);
   const router = useRouter();
+
+  // ponytail: handle ESC key press & disable body scroll when preview modal is open
+  useEffect(() => {
+    if (!previewId) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setPreviewId(null);
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [previewId]);
 
   const handleUseTemplate = (id: TemplateId) => {
     if (isLoggedIn) {
@@ -464,10 +483,10 @@ export function TemplateGallery({
             </button>
           </div>
 
-          {/* Modal Content Frame */}
+          {/* Modal Content Frame (clicking outer area closes modal) */}
           <div 
             className="flex-1 overflow-y-auto bg-black/20 p-6 flex justify-center items-start"
-            onClick={(e) => e.stopPropagation()}
+            onClick={() => setPreviewId(null)}
           >
             <div 
               className={`transition-all duration-300 overflow-hidden bg-white shadow-2xl ring-1 ring-black/10 ${
@@ -477,6 +496,7 @@ export function TemplateGallery({
                   ? "w-[768px] rounded-2xl border-[12px] border-gray-900 shadow-2xl my-4"
                   : "w-[375px] rounded-[2.5rem] border-[14px] border-gray-900 shadow-2xl my-4"
               }`}
+              onClick={(e) => e.stopPropagation()}
             >
               <TemplateRenderer templateId={previewId} data={PREVIEW_DATA} />
             </div>

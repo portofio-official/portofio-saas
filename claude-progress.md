@@ -10,6 +10,18 @@
 
 ## Session Log
 
+### Session (2026-07-27) — Template Preview Overlay Optimization
+
+- Goal: Optimize template live preview modal overlay on Landing Page and Dashboard Gallery so it can be easily closed via backdrop click or ESC key, locks background scroll, and includes responsive viewport switcher.
+- Completed:
+  - Fixed backdrop click event propagation bug in `TemplateShowcase.tsx` and `TemplateGallery.tsx` (clicking outside the template card now smoothly closes the modal).
+  - Added native `Escape` key event listener to close modal on keyboard press.
+  - Added background body scroll lock (`document.body.style.overflow = "hidden"`) while modal is active.
+  - Added interactive Viewport Device Switcher (Desktop 💻 / Tablet 📱 / Mobile 📱) to landing page preview modal (`TemplateShowcase.tsx`).
+- Verification: `npm run lint && npx tsc --noEmit` passed clean with 0 errors and 0 warnings.
+- Next step: Ready for user testing.
+
+
 ### Session (2026-07-27) — Template Gallery UI/UX Enhancements
 
 - Goal: Implement modern, high-end UI/UX improvements to `TemplateGallery.tsx` based on industry references (Framer, Vercel, Canva).

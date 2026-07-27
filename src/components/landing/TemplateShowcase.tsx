@@ -109,7 +109,27 @@ export function TemplateShowcase() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeIndex, setActiveIndex] = useState(0);
   const [previewId, setPreviewId] = useState<TemplateId | null>(null);
+  const [viewportMode, setViewportMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [isHovered, setIsHovered] = useState(false);
+
+  // ponytail: handle ESC key press & disable body scroll when preview modal is open
+  useEffect(() => {
+    if (!previewId) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setPreviewId(null);
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [previewId]);
 
   const filteredTemplates = TEMPLATES.filter((tmpl) =>
     activeCategory === "All" ? true : tmpl.tags.includes(activeCategory)
@@ -297,11 +317,12 @@ export function TemplateShowcase() {
       {/* ─── Full-screen Preview Modal ─── */}
       {previewId && (
         <div
-          className="fixed inset-0 z-50 flex flex-col bg-black/70 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex flex-col bg-black/70 backdrop-blur-md transition-all animate-fadeIn"
           onClick={() => setPreviewId(null)}
         >
+          {/* Header Bar */}
           <div
-            className="flex h-16 shrink-0 items-center justify-between border-b border-black/10 bg-white px-8 shadow-sm"
+            className="flex h-16 shrink-0 items-center justify-between border-b border-black/10 bg-white px-6 shadow-sm"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-4">
@@ -309,31 +330,83 @@ export function TemplateShowcase() {
                 type="button"
                 onClick={() => setPreviewId(null)}
                 className="flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                title="Tutup (Esc)"
               >
                 <span className="material-symbols-outlined text-[22px]">close</span>
               </button>
-              <span className="font-display text-base font-bold text-gray-900">
-                {TEMPLATES.find((m) => m.id === previewId)?.name} — Live Preview
-              </span>
+              <div>
+                <span className="font-display text-base font-bold text-gray-900">
+                  {TEMPLATES.find((m) => m.id === previewId)?.name}
+                </span>
+                <span className="ml-2.5 rounded-full bg-black/[0.05] px-2.5 py-0.5 text-[11px] font-medium text-gray-600">
+                  Live Preview
+                </span>
+              </div>
             </div>
+
+            {/* Viewport Device Switcher */}
+            <div className="hidden sm:flex items-center gap-1 rounded-full bg-gray-100 p-1 ring-1 ring-black/5">
+              <button
+                type="button"
+                onClick={() => setViewportMode("desktop")}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                  viewportMode === "desktop" ? "bg-white text-gray-900 shadow-xs" : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">desktop_windows</span>
+                Desktop
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewportMode("tablet")}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                  viewportMode === "tablet" ? "bg-white text-gray-900 shadow-xs" : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">tablet_mac</span>
+                Tablet
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewportMode("mobile")}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                  viewportMode === "mobile" ? "bg-white text-gray-900 shadow-xs" : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">smartphone</span>
+                Mobile
+              </button>
+            </div>
+
+            {/* CTA Button */}
             <button
               type="button"
               onClick={() => {
                 handleUseTemplate(previewId);
                 setPreviewId(null);
               }}
-              className="flex items-center gap-2 rounded-full bg-[#00cf7c] px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-[#00b86e] active:scale-95"
+              className="flex items-center gap-2 rounded-full bg-[#00cf7c] px-6 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-[#00b86e] active:scale-95"
             >
               Gunakan template ini
               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </button>
           </div>
 
+          {/* Modal Content Frame (clicking outer area closes modal) */}
           <div
-            className="flex-1 overflow-y-auto bg-gray-100 px-6 pt-6"
-            onClick={(e) => e.stopPropagation()}
+            className="flex-1 overflow-y-auto bg-black/20 p-6 flex justify-center items-start"
+            onClick={() => setPreviewId(null)}
           >
-            <div className="mx-auto max-w-[1240px] overflow-hidden rounded-t-2xl bg-white shadow-2xl ring-1 ring-black/5">
+            <div
+              className={`transition-all duration-300 overflow-hidden bg-white shadow-2xl ring-1 ring-black/10 ${
+                viewportMode === "desktop"
+                  ? "w-full max-w-[1200px] rounded-t-2xl"
+                  : viewportMode === "tablet"
+                  ? "w-[768px] rounded-2xl border-[12px] border-gray-900 shadow-2xl my-4"
+                  : "w-[375px] rounded-[2.5rem] border-[14px] border-gray-900 shadow-2xl my-4"
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
               <TemplateRenderer templateId={previewId} data={PREVIEW_DATA} />
             </div>
           </div>

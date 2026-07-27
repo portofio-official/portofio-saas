@@ -483,23 +483,50 @@ export function TemplateGallery({
             </button>
           </div>
 
-          {/* Modal Content Frame (clicking outer area closes modal) */}
-          <div 
-            className="flex-1 overflow-y-auto bg-black/20 p-6 flex justify-center items-start"
-            onClick={() => setPreviewId(null)}
+          {/* Modal Main Viewport / Scroll Canvas */}
+          <div
+            className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center items-start"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setPreviewId(null);
+              }
+            }}
           >
-            <div 
-              className={`transition-all duration-300 overflow-hidden bg-white shadow-2xl ring-1 ring-black/10 ${
-                viewportMode === "desktop" 
-                  ? "w-full max-w-[1200px] rounded-t-2xl" 
-                  : viewportMode === "tablet"
-                  ? "w-[768px] rounded-2xl border-[12px] border-gray-900 shadow-2xl my-4"
-                  : "w-[375px] rounded-[2.5rem] border-[14px] border-gray-900 shadow-2xl my-4"
-              }`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <TemplateRenderer templateId={previewId} data={PREVIEW_DATA} />
-            </div>
+            {viewportMode === "desktop" ? (
+              /* Desktop View: Full width scrollable document */
+              <div
+                className="w-full max-w-[1240px] rounded-t-2xl bg-white shadow-2xl ring-1 ring-black/10 overflow-hidden my-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <TemplateRenderer templateId={previewId} data={PREVIEW_DATA} />
+              </div>
+            ) : viewportMode === "tablet" ? (
+              /* Tablet Device Frame with internal screen scrolling */
+              <div
+                className="my-auto flex h-[820px] max-h-[84vh] w-[768px] flex-col overflow-hidden rounded-[2.5rem] border-[12px] border-gray-900 bg-white shadow-2xl ring-1 ring-black/20"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex h-5 shrink-0 items-center justify-center bg-gray-900">
+                  <div className="h-1.5 w-12 rounded-full bg-gray-700" />
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <TemplateRenderer templateId={previewId} data={PREVIEW_DATA} />
+                </div>
+              </div>
+            ) : (
+              /* Mobile Smartphone Frame with internal screen scrolling */
+              <div
+                className="my-auto flex h-[740px] max-h-[84vh] w-[375px] flex-col overflow-hidden rounded-[3rem] border-[14px] border-gray-900 bg-white shadow-2xl ring-1 ring-black/20"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex h-7 shrink-0 items-center justify-center bg-gray-900">
+                  <div className="h-3.5 w-24 rounded-full bg-black" />
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <TemplateRenderer templateId={previewId} data={PREVIEW_DATA} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

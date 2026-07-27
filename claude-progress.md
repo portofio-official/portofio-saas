@@ -10,6 +10,17 @@
 
 ## Session Log
 
+### Session (2026-07-27) — Template Preview Scroll Canvas Fixes
+
+- Goal: Fix template preview scrolling so the entire template can be viewed from top to bottom across Desktop, Tablet, and Mobile viewports without accidental modal closure when dragging scrollbars.
+- Completed:
+  - Fixed scrollbar click handling via target checking (`e.target === e.currentTarget`), preventing modal dismissal during scroll actions.
+  - Implemented standalone scrollable document canvas in **Desktop Mode** (`w-full max-w-[1240px]`).
+  - Implemented internal screen scroll containers inside realistic **Tablet Device Frames** (`w-[768px]`, `max-h-[84vh]`, `overflow-y-auto`) and **Mobile Smartphone Frames** (`w-[375px]`, `max-h-[84vh]`, `overflow-y-auto`).
+- Verification: `npm run lint && npx tsc --noEmit` passed clean with 0 errors and 0 warnings.
+- Next step: Ready for user testing.
+
+
 ### Session (2026-07-27) — Template Preview Overlay Optimization
 
 - Goal: Optimize template live preview modal overlay on Landing Page and Dashboard Gallery so it can be easily closed via backdrop click or ESC key, locks background scroll, and includes responsive viewport switcher.

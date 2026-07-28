@@ -10,7 +10,28 @@
 
 ## Session Log
 
-### Session (2026-07-27) — Template Preview Scroll Canvas Fixes
+### Session (2026-07-28) — Evolution to `project_versions` Versioned Architecture
+
+- Goal: Evolve the `projects` data model from flat `draft_json`/`published_json` columns to a versioned architecture with a dedicated `project_versions` table (`current_version_id` & `published_version_id` pointers).
+- Completed:
+  - Created SQL migration `supabase/migrations/20260728000001_add_project_versions.sql`:
+    - Created `project_versions` table (`id`, `project_id`, `version_number`, `content_json`, `schema_version`, `is_autosave`, `created_at`, `created_by`).
+    - Added `current_version_id` and `published_version_id` FK pointers to `projects`.
+    - Wrote data migration logic migrating existing `draft_json` (version 1) and `published_json` (version 2) into `project_versions`.
+    - Dropped legacy `draft_json` and `published_json` columns from `projects`.
+    - Set up RLS policies (`owner_all` and `public_read_published`) for `project_versions`.
+    - Updated `publish_project` RPC function to atomically point `published_version_id = current_version_id`.
+  - Updated TypeScript types in `src/lib/projects/types.ts` (`ProjectVersion`, `ProjectWithDraft`, updated `Project`).
+  - Refactored Data Access Layer in `src/lib/projects/store.ts` (`saveDraftJson` creates new `project_versions` row, `getProjectWithDraft`, `getProjectPublishedVersion`, etc.).
+  - Updated Editor Server Page (`src/app/[locale]/dashboard/[workspaceId]/editor/page.tsx`) to fetch and pass `draftVersion.contentJson`.
+  - Updated Workspace Queries (`src/lib/workspace/queries.ts`) to fetch draft previews from `project_versions`.
+  - Updated Public Site Renderer (`src/app/sites/[subdomain]/page.tsx`) to fetch published version content from `project_versions`.
+- Verification:
+  - `npx tsc --noEmit` passed clean with 0 errors.
+  - `npm run lint` passed clean with 0 errors and 0 warnings.
+  - `npm run build` completed successfully with all 17 routes compiled cleanly.
+- Next step: User applies migration `20260728000001_add_project_versions.sql` in Supabase SQL Editor.
+
 
 - Goal: Fix template preview scrolling so the entire template can be viewed from top to bottom across Desktop, Tablet, and Mobile viewports without accidental modal closure when dragging scrollbars.
 - Completed:

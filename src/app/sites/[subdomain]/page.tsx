@@ -8,12 +8,27 @@ async function getPublishedProject(subdomain: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("projects")
-    .select("template_id, template_version, published_json, workspace_id")
+    .select("template_id, template_version, published_version_id, workspace_id")
     .eq("subdomain", subdomain)
     .eq("status", "published")
     .maybeSingle();
-  if (error || !data) return null;
-  return data;
+
+  if (error || !data || !data.published_version_id) return null;
+
+  const { data: versionData, error: versionError } = await supabase
+    .from("project_versions")
+    .select("content_json")
+    .eq("id", data.published_version_id)
+    .maybeSingle();
+
+  if (versionError || !versionData) return null;
+
+  return {
+    template_id: data.template_id,
+    template_version: data.template_version,
+    workspace_id: data.workspace_id,
+    published_json: versionData.content_json,
+  };
 }
 
 async function getWorkspaceProfileForSite(workspaceId: string): Promise<WorkspaceProfile> {

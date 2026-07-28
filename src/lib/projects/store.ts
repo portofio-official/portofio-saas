@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Project, ProjectSummary } from "./types";
+import type { Project, ProjectSummary, ProjectVersion, ProjectWithDraft } from "./types";
 import type { WebsiteDocument } from "@/lib/templates/definition";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -10,13 +10,27 @@ function mapRow(row: Record<string, any>): Project {
     name: row.name as string,
     templateId: row.template_id as string,
     templateVersion: row.template_version as number,
-    draftJson: row.draft_json as WebsiteDocument,
-    publishedJson: (row.published_json as WebsiteDocument | null) ?? null,
+    currentVersionId: (row.current_version_id as string | null) ?? null,
+    publishedVersionId: (row.published_version_id as string | null) ?? null,
     subdomain: (row.subdomain as string | null) ?? null,
     status: row.status as "draft" | "published",
     publishedAt: (row.published_at as string | null) ?? null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapVersionRow(row: Record<string, any>): ProjectVersion {
+  return {
+    id: row.id as string,
+    projectId: row.project_id as string,
+    versionNumber: row.version_number as number,
+    contentJson: row.content_json as WebsiteDocument,
+    schemaVersion: row.schema_version as number,
+    isAutosave: row.is_autosave as boolean,
+    createdAt: row.created_at as string,
+    createdBy: (row.created_by as string | null) ?? null,
   };
 }
 
@@ -49,26 +63,94 @@ export async function getProject(projectId: string): Promise<Project | null> {
   return mapRow(data);
 }
 
+export async function getProjectWithDraft(projectId: string): Promise<ProjectWithDraft | null> {
+  const project = await getProject(projectId);
+  if (!project || !project.currentVersionId) return null;
+
+  const draftVersion = await getProjectVersion(project.currentVersionId);
+  if (!draftVersion) return null;
+
+  return {
+    ...project,
+    draftVersion,
+  };
+}
+
+export async function getProjectVersion(versionId: string): Promise<ProjectVersion | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("project_versions")
+    .select("*")
+    .eq("id", versionId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return mapVersionRow(data);
+}
+
+export async function getProjectCurrentDraft(projectId: string): Promise<ProjectVersion | null> {
+  const project = await getProject(projectId);
+  if (!project || !project.currentVersionId) return null;
+  return getProjectVersion(project.currentVersionId);
+}
+
+export async function getProjectPublishedVersion(projectId: string): Promise<ProjectVersion | null> {
+  const project = await getProject(projectId);
+  if (!project || !project.publishedVersionId) return null;
+  return getProjectVersion(project.publishedVersionId);
+}
+
 export async function createProject(
   workspaceId: string,
   name: string,
   templateId: string,
   initialDocument: WebsiteDocument,
-): Promise<Project | null> {
+): Promise<ProjectWithDraft | null> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+
+  // 1. Create project row
+  const { data: projectRow, error: projectError } = await supabase
     .from("projects")
     .insert({
       workspace_id: workspaceId,
       name,
       template_id: templateId,
       template_version: initialDocument.meta.templateVersion,
-      draft_json: initialDocument,
     })
     .select("*")
     .single();
-  if (error || !data) return null;
-  return mapRow(data);
+
+  if (projectError || !projectRow) return null;
+  const project = mapRow(projectRow);
+
+  // 2. Create initial version 1 in project_versions
+  const { data: versionRow, error: versionError } = await supabase
+    .from("project_versions")
+    .insert({
+      project_id: project.id,
+      version_number: 1,
+      content_json: initialDocument,
+      schema_version: initialDocument.meta.templateVersion,
+      is_autosave: false,
+    })
+    .select("*")
+    .single();
+
+  if (versionError || !versionRow) return null;
+  const draftVersion = mapVersionRow(versionRow);
+
+  // 3. Update current_version_id on projects table
+  const { error: updateError } = await supabase
+    .from("projects")
+    .update({ current_version_id: draftVersion.id })
+    .eq("id", project.id);
+
+  if (updateError) return null;
+
+  return {
+    ...project,
+    currentVersionId: draftVersion.id,
+    draftVersion,
+  };
 }
 
 export async function saveDraftJson(
@@ -76,15 +158,44 @@ export async function saveDraftJson(
   draftJson: WebsiteDocument,
 ): Promise<boolean> {
   const supabase = await createClient();
-  const { error } = await supabase
+
+  // Fetch highest current version number for this project
+  const { data: maxVersion } = await supabase
+    .from("project_versions")
+    .select("version_number")
+    .eq("project_id", projectId)
+    .order("version_number", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextVersionNumber = (maxVersion?.version_number ?? 0) + 1;
+
+  // Insert new version
+  const { data: newVersion, error: versionError } = await supabase
+    .from("project_versions")
+    .insert({
+      project_id: projectId,
+      version_number: nextVersionNumber,
+      content_json: draftJson,
+      schema_version: draftJson.meta.templateVersion,
+      is_autosave: true,
+    })
+    .select("id")
+    .single();
+
+  if (versionError || !newVersion) return false;
+
+  // Update current_version_id and template_version / updated_at
+  const { error: updateError } = await supabase
     .from("projects")
     .update({
-      draft_json: draftJson,
+      current_version_id: newVersion.id,
       template_version: draftJson.meta.templateVersion,
       updated_at: new Date().toISOString(),
     })
     .eq("id", projectId);
-  return !error;
+
+  return !updateError;
 }
 
 export async function publishProject(

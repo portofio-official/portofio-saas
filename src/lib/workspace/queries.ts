@@ -35,22 +35,45 @@ async function getFirstProjectPreviews(workspaceIds: string[]): Promise<
   if (workspaceIds.length === 0) return previews;
 
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data: projectRows, error: projectError } = await supabase
     .from("projects")
-    .select("workspace_id, template_id, draft_json, status, subdomain")
+    .select("workspace_id, template_id, current_version_id, status, subdomain")
     .in("workspace_id", workspaceIds)
     .order("created_at", { ascending: true });
 
-  if (error || !data) return previews;
+  if (projectError || !projectRows) return previews;
 
-  for (const row of data) {
+  // Collect version IDs
+  const versionIds = projectRows
+    .map((r) => r.current_version_id)
+    .filter((id): id is string => Boolean(id));
+
+  const contentMap = new Map<string, Record<string, unknown>>();
+
+  if (versionIds.length > 0) {
+    const { data: versionRows } = await supabase
+      .from("project_versions")
+      .select("id, content_json")
+      .in("id", versionIds);
+
+    if (versionRows) {
+      for (const v of versionRows) {
+        const doc = v.content_json as { data?: Record<string, unknown> } | null;
+        if (doc?.data) {
+          contentMap.set(v.id, doc.data);
+        }
+      }
+    }
+  }
+
+  for (const row of projectRows) {
     if (previews.has(row.workspace_id)) continue;
     if (!TEMPLATE_IDS.includes(row.template_id as TemplateId)) continue;
 
-    const draftJson = row.draft_json as { data?: Record<string, unknown> } | null;
+    const dataObj = row.current_version_id ? contentMap.get(row.current_version_id) : undefined;
     previews.set(row.workspace_id, {
       templateId: row.template_id as TemplateId,
-      data: (draftJson?.data ?? {}) as BasePortfolioData,
+      data: (dataObj ?? {}) as BasePortfolioData,
       status: (row.status as "draft" | "published") ?? "draft",
       subdomain: (row.subdomain as string | null) ?? null,
     });

@@ -1,7 +1,7 @@
 import { redirect } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { getWorkspace } from "@/lib/workspace/queries";
-import { listProjects, createProject } from "@/lib/projects/store";
+import { listProjects, createProject, getProjectWithDraft } from "@/lib/projects/store";
 import { buildInitialDocument } from "@/lib/templates/definition";
 import { getWorkspaceProfile } from "@/lib/workspace/profile";
 import { getDefinition } from "@/components/templates/registry";
@@ -70,7 +70,7 @@ export default async function EditorPage({
       <div className="flex h-full w-full flex-col">
         <Editor
           projectId={created.id}
-          initialDocument={created.draftJson}
+          initialDocument={created.draftVersion.contentJson}
           initialTemplateId={created.templateId as TemplateId}
           initialSubdomain={created.subdomain}
           initialStatus={created.status}
@@ -83,9 +83,8 @@ export default async function EditorPage({
   // Use the first project (most recent workspaces have one project in MVP)
   const project = projects[0];
 
-  // Fetch full project data (summary doesn't include draft_json)
-  const { getProject } = await import("@/lib/projects/store");
-  const fullProject = await getProject(project.id);
+  // Fetch full project with its current draft version
+  const fullProject = await getProjectWithDraft(project.id);
 
   if (!fullProject) {
     return redirect({ href: "/dashboard", locale });
@@ -100,7 +99,7 @@ export default async function EditorPage({
     <div className="flex h-full w-full flex-col">
       <Editor
         projectId={fullProject.id}
-        initialDocument={fullProject.draftJson}
+        initialDocument={fullProject.draftVersion.contentJson}
         initialTemplateId={templateId}
         initialSubdomain={fullProject.subdomain}
         initialStatus={fullProject.status}

@@ -6,13 +6,28 @@ export interface Project {
   name: string;
   templateId: string;
   templateVersion: number;
-  draftJson: WebsiteDocument;
-  publishedJson: WebsiteDocument | null;
+  currentVersionId: string | null;
+  publishedVersionId: string | null;
   subdomain: string | null;
   status: "draft" | "published";
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ProjectVersion {
+  id: string;
+  projectId: string;
+  versionNumber: number;
+  contentJson: WebsiteDocument;
+  schemaVersion: number;
+  isAutosave: boolean;
+  createdAt: string;
+  createdBy: string | null;
+}
+
+export interface ProjectWithDraft extends Project {
+  draftVersion: ProjectVersion;
 }
 
 export type ProjectSummary = Pick<

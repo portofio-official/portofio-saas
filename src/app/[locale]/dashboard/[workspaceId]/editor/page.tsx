@@ -1,12 +1,12 @@
 import { redirect } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { getWorkspace } from "@/lib/workspace/queries";
-import { listProjects, createProject, getProjectWithDraft } from "@/lib/projects/store";
-import { buildInitialDocument } from "@/lib/templates/definition";
+import { listProjects, createProject, getProjectWithDraft, hasProfileDiverged } from "@/lib/projects/store";
+import { buildInitialDocument } from "@/templates/definition";
 import { getWorkspaceProfile } from "@/lib/workspace/profile";
-import { getDefinition } from "@/components/templates/registry";
+import { getDefinition } from "@/templates/registry";
 import { Editor } from "@/components/dashboard/Editor";
-import { TEMPLATE_IDS, type TemplateId } from "@/lib/templates/types";
+import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
 
 const DEFAULT_TEMPLATE: TemplateId = "minimal";
 
@@ -74,6 +74,7 @@ export default async function EditorPage({
           initialTemplateId={created.templateId as TemplateId}
           initialSubdomain={created.subdomain}
           initialStatus={created.status}
+          profileDiverged={false}
           rootDomain={process.env.NEXT_PUBLIC_ROOT_DOMAIN}
         />
       </div>
@@ -90,6 +91,8 @@ export default async function EditorPage({
     return redirect({ href: "/dashboard", locale });
   }
 
+  const profileDiverged = await hasProfileDiverged(fullProject.id);
+
   // Validate templateId
   const templateId = TEMPLATE_IDS.includes(fullProject.templateId as TemplateId)
     ? (fullProject.templateId as TemplateId)
@@ -103,6 +106,7 @@ export default async function EditorPage({
         initialTemplateId={templateId}
         initialSubdomain={fullProject.subdomain}
         initialStatus={fullProject.status}
+        profileDiverged={profileDiverged}
         rootDomain={process.env.NEXT_PUBLIC_ROOT_DOMAIN}
       />
     </div>

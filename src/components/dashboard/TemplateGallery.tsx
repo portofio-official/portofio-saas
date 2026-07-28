@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 
 import { useRouter } from "@/i18n/navigation";
-import { type TemplateId } from "@/lib/templates/types";
-import { PreviewTemplateRenderer as TemplateRenderer } from "@/components/templates/registry";
+import { type TemplateId } from "@/templates/types";
+import { PreviewTemplateRenderer as TemplateRenderer } from "@/templates/registry";
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
-import type { BasePortfolioData } from "@/lib/templates/schemas/_base";
-import type { StudioData } from "@/components/templates/studio/schema";
-import type { PortfolioProData } from "@/components/templates/portfolio-pro/schema";
+import type { BasePortfolioData } from "@/templates/shared/_base";
+import type { StudioData } from "@/templates/definitions/studio/schema";
+import type { PortfolioProData } from "@/templates/definitions/portfolio-pro/schema";
 
 type PreviewData = BasePortfolioData & Partial<StudioData> & Partial<PortfolioProData>;
 

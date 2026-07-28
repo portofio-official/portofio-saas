@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useAutosave } from "@/hooks/useAutosave";
-import { saveDraftAction, publishProjectAction, unpublishProjectAction } from "@/lib/projects/actions";
-import { FONT_OPTIONS, ACCENT_COLOR_PRESETS, type TemplateId } from "@/lib/templates/types";
-import type { BasePortfolioData } from "@/lib/templates/schemas/_base";
-import type { StudioData } from "@/components/templates/studio/schema";
-import type { PortfolioProData } from "@/components/templates/portfolio-pro/schema";
-import type { WebsiteDocument } from "@/lib/templates/definition";
-import { PreviewTemplateRenderer as TemplateRenderer, getDefinition } from "@/components/templates/registry";
+import { saveDraftAction, publishProjectAction, unpublishProjectAction, syncFromProfileAction } from "@/lib/projects/actions";
+import { FONT_OPTIONS, ACCENT_COLOR_PRESETS, type TemplateId } from "@/templates/types";
+import type { BasePortfolioData } from "@/templates/shared/_base";
+import type { StudioData } from "@/templates/definitions/studio/schema";
+import type { PortfolioProData } from "@/templates/definitions/portfolio-pro/schema";
+import type { WebsiteDocument } from "@/templates/definition";
+import { PreviewTemplateRenderer as TemplateRenderer, getDefinition } from "@/templates/registry";
 
 // Portfolio Form Sections
 import { ProfileSection } from "@/components/portfolio/sections/ProfileSection";
@@ -19,7 +19,7 @@ import { SkillsSection } from "@/components/portfolio/sections/SkillsSection";
 import { ProjectsSection } from "@/components/portfolio/sections/ProjectsSection";
 import { ContactSection } from "@/components/portfolio/sections/ContactSection";
 import { SocialsSection } from "@/components/portfolio/sections/SocialsSection";
-import { StudioHeroSection, StudioExpertiseSection, StudioTestimonialsSection } from "@/components/templates/studio/Sections";
+import { StudioHeroSection, StudioExpertiseSection, StudioTestimonialsSection } from "@/templates/definitions/studio/Sections";
 import {
   PortfolioProHeroSection,
   PortfolioProAboutSection,
@@ -29,7 +29,7 @@ import {
   PortfolioProCaseStudiesSection,
   PortfolioProCertificatesSection,
   PortfolioProGallerySection,
-} from "@/components/templates/portfolio-pro/Sections";
+} from "@/templates/definitions/portfolio-pro/Sections";
 
 // `studio` and `portfolio-pro` both declare a `hero` field with incompatible
 // shapes, so a plain `Partial<StudioData> & Partial<PortfolioProData>`
@@ -44,6 +44,7 @@ export function Editor({
   initialTemplateId,
   initialSubdomain,
   initialStatus,
+  profileDiverged,
   rootDomain,
 }: {
   projectId: string;
@@ -51,6 +52,7 @@ export function Editor({
   initialTemplateId: TemplateId;
   initialSubdomain?: string | null;
   initialStatus?: "draft" | "published";
+  profileDiverged?: boolean;
   rootDomain?: string;
 }) {
   const [data, setData] = useState<EditorData>(
@@ -58,6 +60,20 @@ export function Editor({
   );
   const templateId = initialTemplateId;
   const [showDesktopPreview, setShowDesktopPreview] = useState(false);
+
+  // Profile sync banner state
+  const [showProfileBanner, setShowProfileBanner] = useState(profileDiverged ?? false);
+  const [syncingProfile, setSyncingProfile] = useState(false);
+
+  async function handleSyncProfile() {
+    setSyncingProfile(true);
+    const result = await syncFromProfileAction(projectId);
+    setSyncingProfile(false);
+    if (result.ok) {
+      setShowProfileBanner(false);
+      window.location.reload();
+    }
+  }
 
   // Publish state
   const [subdomain, setSubdomain] = useState(initialSubdomain ?? "");
@@ -175,6 +191,33 @@ export function Editor({
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
             <div className="flex flex-col gap-6">
+              {showProfileBanner && (
+                <div className="flex flex-col gap-2 rounded-[1rem] bg-accent/10 p-3 ring-1 ring-accent/20">
+                  <div className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-[16px] text-accent mt-0.5">info</span>
+                    <p className="text-[11px] text-ink leading-relaxed">
+                      Workspace profile has changed. Update this project?
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleSyncProfile}
+                      disabled={syncingProfile}
+                      className="rounded-[0.5rem] bg-accent px-2.5 py-1 text-[11px] font-bold text-white transition-all hover:bg-accent-deep disabled:opacity-50"
+                    >
+                      {syncingProfile ? "Syncing…" : "Sync from Profile"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowProfileBanner(false)}
+                      className="rounded-[0.5rem] bg-black/5 px-2 py-1 text-[11px] font-medium text-ink-soft hover:bg-black/10 transition-colors"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              )}
               {hasSection("profile") && (
                 <ProfileSection
                   t={tProfile}
@@ -247,13 +290,13 @@ export function Editor({
               )}
               {hasSection("expertise") && (
                 <StudioExpertiseSection
-                  items={data.expertise || []}
+                  expertise={data.expertise || []}
                   onChange={(expertise) => setData((d) => ({ ...d, expertise }))}
                 />
               )}
               {hasSection("testimonials") && (
                 <StudioTestimonialsSection
-                  items={data.testimonials || []}
+                  testimonials={data.testimonials || []}
                   onChange={(testimonials) => setData((d) => ({ ...d, testimonials }))}
                 />
               )}

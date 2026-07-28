@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getDefinition } from "@/components/templates/registry";
-import { parseDocumentData, type WebsiteDocument, type WorkspaceProfile } from "@/lib/templates/definition";
-import { TEMPLATE_IDS, type TemplateId } from "@/lib/templates/types";
+import { getDefinition } from "@/templates/registry";
+import { parseDocumentData, type WebsiteDocument, type WorkspaceProfile } from "@/templates/definition";
+import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
 
 async function getPublishedProject(subdomain: string) {
   const supabase = await createClient();
@@ -31,37 +31,6 @@ async function getPublishedProject(subdomain: string) {
   };
 }
 
-async function getWorkspaceProfileForSite(workspaceId: string): Promise<WorkspaceProfile> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("workspace_profile")
-    .select("*")
-    .eq("workspace_id", workspaceId)
-    .maybeSingle();
-  if (!data) {
-    return {
-      workspaceId,
-      name: null,
-      logoUrl: null,
-      email: null,
-      phone: null,
-      address: null,
-      websiteUrl: null,
-      extendedData: {},
-    };
-  }
-  return {
-    workspaceId,
-    name: data.name ?? null,
-    logoUrl: data.logo_url ?? null,
-    email: data.email ?? null,
-    phone: data.phone ?? null,
-    address: data.address ?? null,
-    websiteUrl: data.website_url ?? null,
-    extendedData: (data.extended_data as WorkspaceProfile["extendedData"]) ?? {},
-  };
-}
-
 export default async function PublicSitePage({
   params,
 }: {
@@ -82,7 +51,18 @@ export default async function PublicSitePage({
 
   const doc = project.published_json as WebsiteDocument;
   const data = parseDocumentData(doc, definition);
-  const workspaceProfile = await getWorkspaceProfileForSite(project.workspace_id as string);
+
+  // Snapshot pattern: public site renders strictly from published content_json snapshot
+  const workspaceProfile: WorkspaceProfile = {
+    workspaceId: project.workspace_id,
+    name: null,
+    logoUrl: null,
+    email: null,
+    phone: null,
+    address: null,
+    websiteUrl: null,
+    extendedData: {},
+  };
 
   const Renderer = definition.renderer;
   return <Renderer data={data} workspaceProfile={workspaceProfile} />;

@@ -1,5 +1,5 @@
-import type { TemplateId } from "@/lib/templates/types";
-import type { BasePortfolioData } from "@/lib/templates/schemas/_base";
+import type { TemplateId } from "@/templates/types";
+import type { BasePortfolioData } from "@/templates/shared/_base";
 
 export interface Workspace {
   id: string;

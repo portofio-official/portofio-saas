@@ -1,4 +1,4 @@
-import type { WebsiteDocument } from "@/lib/templates/definition";
+import type { WebsiteDocument } from "@/templates/definition";
 
 export interface Project {
   id: string;
@@ -11,6 +11,7 @@ export interface Project {
   subdomain: string | null;
   status: "draft" | "published";
   publishedAt: string | null;
+  profileSyncedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

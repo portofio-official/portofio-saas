@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Workspace } from "@/lib/workspace/types";
-import { TEMPLATE_IDS, type TemplateId } from "@/lib/templates/types";
-import type { BasePortfolioData } from "@/lib/templates/schemas/_base";
+import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
+import type { BasePortfolioData } from "@/templates/shared/_base";
 
 // RLS (workspaces_owner_all, to authenticated) already scopes these to the
 // caller's own workspaces — no manual user_id filter needed.

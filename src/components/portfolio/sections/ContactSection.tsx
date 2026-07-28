@@ -1,7 +1,7 @@
 import type { useTranslations } from "next-intl";
 import { FormPanel } from "@/components/ui/FormPanel";
 import { FormField } from "@/components/ui/FormField";
-import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
+import type { BasePortfolioData as PortfolioData } from "@/templates/shared/_base";
 
 export function ContactSection({
   t,

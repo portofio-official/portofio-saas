@@ -1,7 +1,7 @@
 import type { useTranslations } from "next-intl";
 import { RepeatableSection } from "@/components/portfolio/RepeatableSection";
 import { FormField, FormTextarea } from "@/components/ui/FormField";
-import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
+import type { BasePortfolioData as PortfolioData } from "@/templates/shared/_base";
 
 type Experience = PortfolioData["experiences"][number];
 

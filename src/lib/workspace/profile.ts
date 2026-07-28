@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { WorkspaceProfile } from "@/lib/templates/definition";
+import type { WorkspaceProfile } from "@/templates/definition";
 
 const EMPTY_EXTENDED: WorkspaceProfile["extendedData"] = {};
 

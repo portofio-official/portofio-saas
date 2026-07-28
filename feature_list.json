@@ -227,6 +227,17 @@
       "next": "Any feature on top of new architecture"
     },
     {
+      "id": "template-arch-001",
+      "name": "Template-as-a-Unit Architecture Refactor",
+      "status": "passing",
+      "evidence": {
+        "date": "2026-07-28",
+        "tsc": "clean (0 errors)",
+        "build": "clean (0 errors)",
+        "description": "Refactored template architecture into modular domain units under src/templates/definitions/{name}/ containing definition, schema, defaults, mapper, migrations, renderer. Created central src/templates/registry.tsx. Verified with tsc and npm run build."
+      }
+    },
+    {
       "id": "rbac-001",
       "priority": 10,
       "area": "auth",

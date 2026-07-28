@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Project, ProjectSummary, ProjectVersion, ProjectWithDraft } from "./types";
-import type { WebsiteDocument } from "@/lib/templates/definition";
+import type { WebsiteDocument } from "@/templates/definition";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapRow(row: Record<string, any>): Project {
@@ -15,6 +15,7 @@ function mapRow(row: Record<string, any>): Project {
     subdomain: (row.subdomain as string | null) ?? null,
     status: row.status as "draft" | "published",
     publishedAt: (row.published_at as string | null) ?? null,
+    profileSyncedAt: (row.profile_synced_at as string | null) ?? null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
   };
@@ -99,6 +100,31 @@ export async function getProjectPublishedVersion(projectId: string): Promise<Pro
   return getProjectVersion(project.publishedVersionId);
 }
 
+export async function hasProfileDiverged(projectId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data: project } = await supabase
+    .from("projects")
+    .select("workspace_id, profile_synced_at")
+    .eq("id", projectId)
+    .maybeSingle();
+
+  if (!project || !project.workspace_id) return false;
+
+  const { data: profile } = await supabase
+    .from("workspace_profile")
+    .select("updated_at")
+    .eq("workspace_id", project.workspace_id)
+    .maybeSingle();
+
+  if (!profile || !profile.updated_at) return false;
+  if (!project.profile_synced_at) return true;
+
+  const profileUpdated = new Date(profile.updated_at).getTime();
+  const projectSynced = new Date(project.profile_synced_at).getTime();
+
+  return profileUpdated > projectSynced;
+}
+
 export async function createProject(
   workspaceId: string,
   name: string,
@@ -106,6 +132,7 @@ export async function createProject(
   initialDocument: WebsiteDocument,
 ): Promise<ProjectWithDraft | null> {
   const supabase = await createClient();
+  const now = new Date().toISOString();
 
   // 1. Create project row
   const { data: projectRow, error: projectError } = await supabase
@@ -115,6 +142,7 @@ export async function createProject(
       name,
       template_id: templateId,
       template_version: initialDocument.meta.templateVersion,
+      profile_synced_at: now,
     })
     .select("*")
     .single();

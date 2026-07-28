@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { Workspace } from "@/lib/workspace/types";
-import { PreviewTemplateRenderer } from "@/components/templates/registry";
+import { PreviewTemplateRenderer } from "@/templates/registry";
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";

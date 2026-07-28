@@ -1,8 +1,8 @@
 "use server";
 
-import { createProject, saveDraftJson, publishProject, unpublishProject } from "./store";
-import { buildInitialDocument, type WebsiteDocument } from "@/lib/templates/definition";
-import { getDefinition } from "@/components/templates/registry";
+import { createProject, saveDraftJson, publishProject, unpublishProject, getProjectWithDraft } from "./store";
+import { buildInitialDocument, type WebsiteDocument } from "@/templates/definition";
+import { getDefinition } from "@/templates/registry";
 import { getWorkspaceProfile } from "@/lib/workspace/profile";
 import { checkSubscription } from "@/lib/billing/subscription";
 import { getCurrentUserEmail } from "@/lib/auth/session";
@@ -31,6 +31,61 @@ export async function saveDraftAction(
 ): Promise<{ ok: boolean }> {
   const ok = await saveDraftJson(projectId, draftJson);
   return { ok };
+}
+
+export async function syncFromProfileAction(
+  projectId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const projectWithDraft = await getProjectWithDraft(projectId);
+  if (!projectWithDraft) return { ok: false, error: "Project not found" };
+
+  const profile = await getWorkspaceProfile(projectWithDraft.workspaceId);
+  const currentDoc = projectWithDraft.draftVersion.contentJson;
+  const currentData = { ...(currentDoc.data ?? {}) } as Record<string, unknown>;
+
+  // Merge profile fields into document data
+  if ("profile" in currentData && typeof currentData.profile === "object" && currentData.profile !== null) {
+    currentData.profile = {
+      ...(currentData.profile as Record<string, unknown>),
+      fullName: profile.name ?? (currentData.profile as Record<string, unknown>).fullName ?? "",
+    };
+  }
+
+  if ("contact" in currentData && typeof currentData.contact === "object" && currentData.contact !== null) {
+    currentData.contact = {
+      ...(currentData.contact as Record<string, unknown>),
+      email: profile.email ?? (currentData.contact as Record<string, unknown>).email ?? "",
+      phone: profile.phone ?? (currentData.contact as Record<string, unknown>).phone ?? "",
+    };
+  }
+
+  if ("socials" in currentData && Array.isArray(currentData.socials)) {
+    if (profile.extendedData.socials && profile.extendedData.socials.length > 0) {
+      currentData.socials = profile.extendedData.socials;
+    }
+  }
+
+  const updatedDoc: WebsiteDocument = {
+    ...currentDoc,
+    meta: {
+      ...currentDoc.meta,
+      updatedAt: new Date().toISOString(),
+    },
+    data: currentData,
+  };
+
+  const saveOk = await saveDraftJson(projectId, updatedDoc);
+  if (!saveOk) return { ok: false, error: "Failed to save synced draft" };
+
+  // Update profile_synced_at timestamp
+  const supabase = await createClient();
+  const now = new Date().toISOString();
+  await supabase
+    .from("projects")
+    .update({ profile_synced_at: now })
+    .eq("id", projectId);
+
+  return { ok: true };
 }
 
 // Forbidden subdomain words (ponytail: minimal list, expand before go-live)

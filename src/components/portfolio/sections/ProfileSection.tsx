@@ -2,7 +2,7 @@ import type { useTranslations } from "next-intl";
 import { FormPanel } from "@/components/ui/FormPanel";
 import { FormField, FormTextarea } from "@/components/ui/FormField";
 import { PhotoUploadField } from "@/components/portfolio/PhotoUploadField";
-import type { BasePortfolioData as PortfolioData } from "@/lib/templates/schemas/_base";
+import type { BasePortfolioData as PortfolioData } from "@/templates/shared/_base";
 
 export function ProfileSection({
   t,

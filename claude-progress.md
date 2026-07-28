@@ -10,7 +10,36 @@
 
 ## Session Log
 
-### Session (2026-07-28) — Evolution to `project_versions` Versioned Architecture
+### Session (2026-07-28) — Template-as-a-Unit Architecture Refactor
+
+- Goal: Refactor the template architecture from a horizontally split structure into a modular "Template-as-a-Unit" domain model under `src/templates/definitions/{name}/`.
+- Completed:
+  - Created core contract types & interfaces in `src/templates/definition.ts`, `src/templates/types.ts`, and `src/templates/shared/_base.ts`.
+  - Refactored all 7 built-in templates (`minimal`, `bold`, `corporate`, `creative`, `dark`, `studio`, `portfolio-pro`) into self-contained packages under `src/templates/definitions/{name}/` containing `definition.ts`, `schema.ts`, `defaults.ts`, `mapper.ts`, `migrations.ts`, and `renderer.tsx`.
+  - Created unified registry at `src/templates/registry.tsx` and font helper at `src/templates/fonts.ts`.
+  - Updated ~35 consumer files across app, dashboard, editor, actions, and store layers to use `@/templates/*`.
+  - Removed legacy directories `src/lib/templates/` and `src/components/templates/`.
+- Verification:
+  - `npx tsc --noEmit` passed clean with 0 errors.
+  - `npm run build` passed clean with 0 errors (compiled in 2.7s).
+- Next step: Continue with planned feature roadmap.
+
+### Session (2026-07-28) — Workspace Profile Snapshot & Optional Sync Pattern
+
+- Goal: Formalize the `workspace_profile` → `project content_json` relationship as "initial auto-fill → independent snapshot → explicit opt-in sync", ensuring profile edits don't unexpectedly modify existing projects.
+- Completed:
+  - Created SQL migration `supabase/migrations/20260728000002_add_profile_synced_at.sql` adding `profile_synced_at` column to `projects`.
+  - Updated `Project` type in `src/lib/projects/types.ts` (`profileSyncedAt`).
+  - Updated `src/lib/projects/store.ts` (`mapRow` maps `profile_synced_at`, added `hasProfileDiverged()` helper).
+  - Added `syncFromProfileAction` in `src/lib/projects/actions.ts` to merge profile fields into current draft `content_json` as a new version and update `profile_synced_at`.
+  - Updated Editor Server Page `src/app/[locale]/dashboard/[workspaceId]/editor/page.tsx` to detect profile divergence via `hasProfileDiverged` and pass `profileDiverged`.
+  - Updated Editor Component `src/components/dashboard/Editor.tsx` to display an interactive Profile Sync banner ("Workspace profile updated. Update this project?") with "Sync from Profile" and "Dismiss" buttons.
+  - Cleaned up Public Site Renderer `src/app/sites/[subdomain]/page.tsx` to stop live-reading `workspace_profile` at render time, enforcing strict snapshot isolation.
+- Verification:
+  - `npx tsc --noEmit` passed clean with 0 errors.
+  - `npm run lint` passed clean with 0 errors and 0 warnings.
+- Next step: Ready for deployment.
+
 
 - Goal: Evolve the `projects` data model from flat `draft_json`/`published_json` columns to a versioned architecture with a dedicated `project_versions` table (`current_version_id` & `published_version_id` pointers).
 - Completed:

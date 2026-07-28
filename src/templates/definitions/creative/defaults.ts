@@ -1,3 +1,10 @@
-import { BASE_DEFAULTS, type BasePortfolioData } from "@/templates/shared/_base";
+import { BASE_PROFILE_DEFAULTS } from "@/templates/shared/_base";
+import type { CreativeData } from "./schema";
 
-export const CREATIVE_DEFAULTS: BasePortfolioData = BASE_DEFAULTS;
+export const CREATIVE_DEFAULTS: CreativeData = {
+  ...BASE_PROFILE_DEFAULTS,
+  projects: [],
+  skills: [],
+  testimonials: [],
+};
+

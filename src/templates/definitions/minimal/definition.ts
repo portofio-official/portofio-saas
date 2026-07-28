@@ -13,7 +13,7 @@ export const minimalDefinition: TemplateDefinition<typeof minimalSchema> = {
     description: "Clean editorial layout. Warm paper tones, serif typography, one column.",
     thumbnailUrl: "",
     category: "portfolio",
-    capabilities: ["projects", "experience", "education", "skills", "contact"],
+    capabilities: ["projects", "skills", "contact"],
     tags: ["clean", "editorial", "serif", "light"],
     author: "portofio",
     price: 0,

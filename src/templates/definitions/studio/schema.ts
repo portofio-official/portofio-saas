@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { basePortfolioSchema } from "@/templates/shared/_base";
+import { baseProfileSchema, projectItemSchema } from "@/templates/shared/_base";
 
 const heroSchema = z.object({
   headline: z.string().default("We build digital experiences."),
@@ -18,12 +18,13 @@ const testimonialSchema = z.object({
   quote: z.string(),
 });
 
-export const studioSchema = basePortfolioSchema.extend({
+export const studioSchema = baseProfileSchema.extend({
   hero: heroSchema.default({
     headline: "We build digital experiences.",
     subheadline: "An independent studio crafting premium interfaces for the web and mobile.",
     ctaLabel: "View Selected Work",
   }),
+  projects: z.array(projectItemSchema).default([]),
   expertise: z.array(expertiseItemSchema).default([]),
   testimonials: z.array(testimonialSchema).default([]),
 });

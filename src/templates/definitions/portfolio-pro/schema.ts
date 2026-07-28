@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { basePortfolioSchema } from "@/templates/shared/_base";
+import {
+  baseProfileSchema,
+  experienceSchema,
+  educationSchema,
+  projectItemSchema,
+  caseStudySchema,
+  galleryItemSchema,
+} from "@/templates/shared/_base";
 
 const heroBadgeSchema = z.object({
   logoUrl: z.string(),
@@ -40,18 +47,6 @@ const educationItemSchema = z.object({
   achievements: z.array(z.string()).default([]),
 });
 
-const caseStudySchema = z.object({
-  title: z.string(),
-  category: z.string().optional(),
-  date: z.string().optional(),
-  images: z.array(z.string()).default([]),
-  description: z.string().optional(),
-  achievements: z.array(z.string()).default([]),
-  tech: z.array(z.string()).default([]),
-  confidential: z.boolean().default(false),
-  link: z.string().optional(),
-});
-
 const certificateSchema = z.object({
   title: z.string(),
   issuer: z.string().optional(),
@@ -59,15 +54,11 @@ const certificateSchema = z.object({
   imageUrl: z.string().optional(),
 });
 
-const galleryItemSchema = z.object({
-  imageUrl: z.string(),
-  title: z.string().optional(),
-  location: z.string().optional(),
-  date: z.string().optional(),
-  description: z.string().optional(),
-});
-
-export const portfolioProSchema = basePortfolioSchema.extend({
+export const portfolioProSchema = baseProfileSchema.extend({
+  experiences: z.array(experienceSchema).default([]),
+  educations: z.array(educationSchema).default([]),
+  skills: z.array(z.string()).default([]),
+  projects: z.array(projectItemSchema).default([]),
   hero: heroSchema.default({ badges: [] }),
   about: aboutSchema.default({ paragraphs: [], tags: [] }),
   skillsShowcase: z.array(skillItemSchema).default([]),

@@ -49,11 +49,11 @@ export function TemplateRenderer({
   return <Renderer data={data} workspaceProfile={workspaceProfile} />;
 }
 
-export function PreviewTemplateRenderer({ templateId, data }: { templateId: TemplateId; data: PortfolioData }) {
+export function PreviewTemplateRenderer({ templateId, data }: { templateId: TemplateId; data: unknown }) {
   const definition = getDefinition(templateId);
   if (!definition) return null;
 
-  const parsedResult = definition.schema.safeParse(data);
+  const parsedResult = definition.schema.safeParse(data ?? {});
   const safeData = parsedResult.success ? parsedResult.data : definition.defaults;
   const Renderer = definition.renderer;
 

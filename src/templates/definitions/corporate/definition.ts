@@ -13,7 +13,7 @@ export const corporateDefinition: TemplateDefinition<typeof corporateSchema> = {
     description: "Structured and formal, experience timeline prominent. For job seekers.",
     thumbnailUrl: "",
     category: "portfolio",
-    capabilities: ["projects", "experience", "education", "skills", "contact"],
+    capabilities: ["experience", "education", "skills", "pricing", "contact"],
     tags: ["formal", "timeline", "job-seeker", "professional"],
     author: "portofio",
     price: 0,

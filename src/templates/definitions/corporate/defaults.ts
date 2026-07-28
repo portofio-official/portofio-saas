@@ -1,3 +1,11 @@
-import { BASE_DEFAULTS, type BasePortfolioData } from "@/templates/shared/_base";
+import { BASE_PROFILE_DEFAULTS } from "@/templates/shared/_base";
+import type { CorporateData } from "./schema";
 
-export const CORPORATE_DEFAULTS: BasePortfolioData = BASE_DEFAULTS;
+export const CORPORATE_DEFAULTS: CorporateData = {
+  ...BASE_PROFILE_DEFAULTS,
+  experiences: [],
+  educations: [],
+  skills: [],
+  pricing: [],
+};
+

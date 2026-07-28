@@ -13,7 +13,7 @@ export const creativeDefinition: TemplateDefinition<typeof creativeSchema> = {
     description: "Project grid front and center. Ideal for designers and photographers.",
     thumbnailUrl: "",
     category: "portfolio",
-    capabilities: ["projects", "skills", "contact"],
+    capabilities: ["projects", "skills", "testimonials", "contact"],
     tags: ["grid", "visual", "design", "photography"],
     author: "portofio",
     price: 0,

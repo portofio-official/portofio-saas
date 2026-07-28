@@ -8,6 +8,7 @@ import { FONT_OPTIONS, ACCENT_COLOR_PRESETS, type TemplateId } from "@/templates
 import type { BasePortfolioData } from "@/templates/shared/_base";
 import type { StudioData } from "@/templates/definitions/studio/schema";
 import type { PortfolioProData } from "@/templates/definitions/portfolio-pro/schema";
+import type { FreelancerData } from "@/templates/definitions/freelancer/schema";
 import type { WebsiteDocument } from "@/templates/definition";
 import { PreviewTemplateRenderer as TemplateRenderer, getDefinition } from "@/templates/registry";
 
@@ -30,13 +31,20 @@ import {
   PortfolioProCertificatesSection,
   PortfolioProGallerySection,
 } from "@/templates/definitions/portfolio-pro/Sections";
+import {
+  FreelancerPricingSection,
+  FreelancerTestimonialsSection,
+} from "@/templates/definitions/freelancer/Sections";
 
 // `studio` and `portfolio-pro` both declare a `hero` field with incompatible
 // shapes, so a plain `Partial<StudioData> & Partial<PortfolioProData>`
 // intersection is unsatisfiable — union the one field that collides instead.
 type EditorData = BasePortfolioData &
   Partial<Omit<StudioData, "hero">> &
-  Partial<Omit<PortfolioProData, "hero">> & { hero?: StudioData["hero"] | PortfolioProData["hero"] };
+  Partial<Omit<PortfolioProData, "hero">> &
+  Partial<Omit<FreelancerData, "profile" | "contact" | "socials" | "theme" | "skills" | "projects" | "testimonials">> & {
+    hero?: StudioData["hero"] | PortfolioProData["hero"];
+  };
 
 export function Editor({
   projectId,
@@ -294,10 +302,19 @@ export function Editor({
                   onChange={(expertise) => setData((d) => ({ ...d, expertise }))}
                 />
               )}
-              {hasSection("testimonials") && (
+              {hasSection("testimonials") && templateId === "studio" && (
                 <StudioTestimonialsSection
                   testimonials={data.testimonials || []}
                   onChange={(testimonials) => setData((d) => ({ ...d, testimonials }))}
+                />
+              )}
+              {hasSection("testimonials") && templateId === "freelancer" && (
+                <FreelancerTestimonialsSection
+                  testimonials={(data.testimonials as FreelancerData["testimonials"]) || []}
+                  onChange={(testimonials) =>
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    setData((d) => ({ ...d, testimonials: testimonials as any }))
+                  }
                 />
               )}
               {hasSection("skillsShowcase") && (
@@ -334,6 +351,12 @@ export function Editor({
                 <PortfolioProGallerySection
                   items={data.gallery || []}
                   onChange={(gallery) => setData((d) => ({ ...d, gallery }))}
+                />
+              )}
+              {hasSection("pricing") && templateId === "freelancer" && (
+                <FreelancerPricingSection
+                  pricing={(data.pricing as FreelancerData["pricing"]) || []}
+                  onChange={(pricing) => setData((d) => ({ ...d, pricing }))}
                 />
               )}
             </div>

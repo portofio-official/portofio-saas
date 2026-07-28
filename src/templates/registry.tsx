@@ -9,6 +9,7 @@ import { corporateDefinition } from "./definitions/corporate/definition";
 import { darkDefinition } from "./definitions/dark/definition";
 import { studioDefinition } from "./definitions/studio/definition";
 import { portfolioProDefinition } from "./definitions/portfolio-pro/definition";
+import { freelancerDefinition } from "./definitions/freelancer/definition";
 
 import type { TemplateId } from "./types";
 
@@ -20,6 +21,7 @@ export const TEMPLATE_REGISTRY: Record<string, TemplateDefinition<z.ZodTypeAny>>
   dark: darkDefinition,
   studio: studioDefinition,
   "portfolio-pro": portfolioProDefinition,
+  freelancer: freelancerDefinition,
 };
 
 export function getDefinition(templateId: string): TemplateDefinition<z.ZodTypeAny> | null {

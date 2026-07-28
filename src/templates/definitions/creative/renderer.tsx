@@ -1,12 +1,12 @@
 "use client";
 
 import { templateFontClass } from "@/templates/fonts";
-import { initials, formatMonth, SocialIcon } from "@/templates/shared";
+import { initials, SocialIcon } from "@/templates/shared";
 import type { CreativeData as PortfolioData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
 
 export function CreativeRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
-  const { profile, experiences, educations, skills, projects, contact, socials, theme } = data;
+  const { profile, projects, skills, testimonials, contact, socials, theme } = data;
 
   return (
     <div className={`${templateFontClass(theme.font)} min-h-screen bg-[#F0F0EA] text-[#111] selection:bg-[#111] selection:text-[#F0F0EA] overflow-hidden relative z-0`}>
@@ -98,29 +98,17 @@ export function CreativeRenderer({ data }: { data: PortfolioData; workspaceProfi
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24">
           
-          {experiences.length > 0 && (
+          {testimonials && testimonials.length > 0 && (
             <div className="lg:col-span-7">
               <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-12">
-                Experience
+                Testimonials
               </h2>
-              <div className="flex flex-col gap-12">
-                {experiences.map((exp, i) => (
-                  <div key={i} className="group relative pl-8 md:pl-12 border-l-4 border-zinc-200 hover:border-zinc-900 transition-colors duration-500 pb-8">
-                    <div className="absolute -left-[14px] top-0 w-6 h-6 bg-zinc-200 rounded-full group-hover:bg-zinc-900 transition-colors duration-500"></div>
-                    <p className="text-sm md:text-base font-bold text-zinc-400 mb-2 uppercase tracking-widest">
-                      {formatMonth(exp.startDate)} — {exp.endDate ? formatMonth(exp.endDate) : "PRESENT"}
-                    </p>
-                    <h3 className="text-3xl md:text-4xl font-black tracking-tight mb-2 text-zinc-900">
-                      {exp.role}
-                    </h3>
-                    <p className="text-xl md:text-2xl text-zinc-500 mb-6 font-medium" style={{ color: theme.accentColor }}>
-                      {exp.company}
-                    </p>
-                    {exp.description && (
-                      <p className="text-lg md:text-xl text-zinc-600 leading-relaxed max-w-2xl">
-                        {exp.description}
-                      </p>
-                    )}
+              <div className="flex flex-col gap-8">
+                {testimonials.map((t, i) => (
+                  <div key={i} className="p-8 bg-white rounded-[2rem] shadow-xl border border-zinc-100">
+                    <p className="text-lg md:text-xl text-zinc-700 italic mb-6">&ldquo;{t.quote || t.body}&rdquo;</p>
+                    <p className="text-base font-bold text-zinc-900">{t.name}</p>
+                    {t.role && <p className="text-sm text-zinc-500">{t.role}</p>}
                   </div>
                 ))}
               </div>
@@ -144,27 +132,6 @@ export function CreativeRenderer({ data }: { data: PortfolioData; workspaceProfi
                       </span>
                     )
                   })}
-                </div>
-              </div>
-            )}
-
-            {educations.length > 0 && (
-              <div>
-                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-10">
-                  Education
-                </h2>
-                <div className="flex flex-col gap-8">
-                  {educations.map((edu, i) => (
-                    <div key={i} className="p-8 bg-white rounded-[2rem] shadow-xl hover:shadow-2xl transition-shadow duration-300 border border-zinc-100">
-                      <h3 className="text-2xl md:text-3xl font-black text-zinc-900 mb-2">{edu.institution}</h3>
-                      {edu.degree && (
-                        <p className="text-lg md:text-xl text-zinc-600 font-medium">{edu.degree}</p>
-                      )}
-                      <p className="mt-6 text-sm font-bold text-zinc-400 uppercase tracking-widest">
-                        {edu.startYear} — {edu.endYear || "PRESENT"}
-                      </p>
-                    </div>
-                  ))}
                 </div>
               </div>
             )}

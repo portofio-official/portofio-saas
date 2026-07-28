@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { templateFontClass } from "@/templates/fonts";
-import { initials, formatMonth, SocialIcon } from "@/templates/shared";
+import { initials, SocialIcon } from "@/templates/shared";
 import type { MinimalData as PortfolioData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
 
 export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
-  const { profile, experiences, educations, skills, projects, contact, socials, theme } = data;
+  const { profile, skills, projects, contact, socials, theme } = data;
 
   const INK = "#16150F";
   const PAPER = "#FAF9F5";
@@ -19,12 +19,10 @@ export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfil
   const sections = useMemo(() => {
     const list: { key: string; label: string }[] = [];
     if (projects.length) list.push({ key: "work", label: "Selected Work" });
-    if (experiences.length) list.push({ key: "experience", label: "Experience" });
-    if (educations.length) list.push({ key: "education", label: "Education" });
     if (skills.length) list.push({ key: "capabilities", label: "Capabilities" });
     if (contact.email || contact.phone || socials.length) list.push({ key: "contact", label: "Contact" });
     return list;
-  }, [projects.length, experiences.length, educations.length, skills.length, contact.email, contact.phone, socials.length]);
+  }, [projects.length, skills.length, contact.email, contact.phone, socials.length]);
 
   const folio = (key: string) => {
     const i = sections.findIndex((s) => s.key === key);
@@ -239,87 +237,7 @@ export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfil
           </section>
         )}
 
-        {experiences.length > 0 && (
-          <section
-            ref={(el) => {
-              sectionRefs.current.experience = el;
-              setRevealRef(el);
-            }}
-            data-section-key="experience"
-            className="mb-32 md:mb-48 scroll-mt-24 transform transition-all duration-1000 opacity-0 translate-y-6"
-          >
-            <div className="flex items-baseline justify-between mb-10 pb-4 border-b" style={{ borderColor: LINE }}>
-              <h3 className="text-lg font-medium" style={{ color: MUTED }}>
-                Experience
-              </h3>
-              <span className="text-xs font-mono tracking-widest hidden sm:inline" style={{ color: FAINT }}>
-                {folio("experience")}
-              </span>
-            </div>
-            
-            <div className="flex flex-col">
-              {experiences.map((exp, i) => (
-                <div key={i} className="py-8 border-b last:border-0" style={{ borderColor: LINE }}>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-8">
-                    <div className="md:col-span-1">
-                      <p className="text-sm font-mono tracking-wide" style={{ color: FAINT }}>
-                        {formatMonth(exp.startDate)}<br className="hidden md:block" />
-                        <span className="md:hidden"> — </span>
-                        {exp.endDate ? formatMonth(exp.endDate) : "Present"}
-                      </p>
-                    </div>
-                    <div className="md:col-span-3">
-                      <h4 className="text-xl font-medium mb-1">{exp.role}</h4>
-                      <p className="text-base mb-4" style={{ color: MUTED }}>
-                        {exp.company}
-                      </p>
-                      {exp.description && (
-                        <p className="text-sm leading-relaxed max-w-2xl" style={{ color: MUTED }}>
-                          {exp.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 mb-32 md:mb-48">
-          {educations.length > 0 && (
-            <section
-              ref={(el) => {
-                sectionRefs.current.education = el;
-                setRevealRef(el);
-              }}
-              data-section-key="education"
-              className="scroll-mt-24 transform transition-all duration-1000 opacity-0 translate-y-6"
-            >
-              <div className="flex items-baseline justify-between mb-10 pb-4 border-b" style={{ borderColor: LINE }}>
-                <h3 className="text-lg font-medium" style={{ color: MUTED }}>
-                  Education
-                </h3>
-                <span className="text-xs font-mono tracking-widest hidden sm:inline" style={{ color: FAINT }}>
-                  {folio("education")}
-                </span>
-              </div>
-              <div className="flex flex-col gap-8">
-                {educations.map((edu, i) => (
-                  <div key={i}>
-                    <h4 className="text-lg font-medium mb-1">{edu.institution}</h4>
-                    <p className="text-base mb-2" style={{ color: MUTED }}>
-                      {edu.degree}
-                    </p>
-                    <p className="text-xs font-mono tracking-wide uppercase" style={{ color: FAINT }}>
-                      {edu.startYear} — {edu.endYear || "Present"}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
+        <div className="mb-32 md:mb-48">
           {skills.length > 0 && (
             <section
               ref={(el) => {

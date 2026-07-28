@@ -10,7 +10,6 @@ import { darkDefinition } from "./definitions/dark/definition";
 import { studioDefinition } from "./definitions/studio/definition";
 import { portfolioProDefinition } from "./definitions/portfolio-pro/definition";
 
-import type { BasePortfolioData as PortfolioData } from "./shared/_base";
 import type { TemplateId } from "./types";
 
 export const TEMPLATE_REGISTRY: Record<string, TemplateDefinition<z.ZodTypeAny>> = {

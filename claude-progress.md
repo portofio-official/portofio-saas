@@ -426,3 +426,17 @@
   - Phase 6 (Browser Verification): DevTools MCP not configured in environment — reported as unverified via MCP.
 - Verification: `npm run lint` (0 errors), `npx tsc --noEmit` (clean), `npm run build` (clean, 16 routes static/dynamic generation), `./init.sh` (PASSED).
 - Verdict: PASS.
+
+### Session 027 (2026-07-28) — Template-Owned Schema Architecture Refactor
+
+- Goal: Refactor the template architecture from a global `basePortfolioSchema` trap to a Template-Owned Schema contract pattern where each template defines its own Zod schema based on its actual capabilities.
+- Completed:
+  - Created `baseProfileSchema` in `src/templates/shared/_base.ts` containing strictly universal fields (`profile`, `contact`, `socials`, `theme`) and defined reusable capability atom schemas (`testimonialSchema`, `pricingTierSchema`, `galleryItemSchema`, `caseStudySchema`).
+  - Refactored `minimal/schema.ts`, `bold/schema.ts`, `creative/schema.ts`, `corporate/schema.ts`, `dark/schema.ts`, `studio/schema.ts`, and `portfolio-pro/schema.ts` to extend `baseProfileSchema` and own their respective capability contracts.
+  - Updated template `defaults.ts`, `mapper.ts`, and `definition.ts` meta capabilities to reflect each template's owned schema capabilities.
+  - Updated template renderers (`BoldRenderer`, `CorporateRenderer`, `CreativeRenderer`, `DarkRenderer`, `MinimalRenderer`) to strip unused props and render template-specific capabilities (e.g. Testimonials in Creative, Pricing in Corporate).
+  - Updated `PreviewTemplateRenderer` in `registry.tsx` to handle generic document payloads.
+- Verification: `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors, 0 warnings), `./init.sh` (PASSED).
+- Evidence captured: `implementation_plan.md` and `task.md` created in artifact directory.
+- Commits: Ready for commit.
+

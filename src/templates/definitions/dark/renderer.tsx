@@ -6,7 +6,7 @@ import type { DarkData as PortfolioData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
 
 export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
-  const { profile, experiences, educations, skills, projects, contact, socials, theme } = data;
+  const { profile, experiences, skills, projects, contact, socials, theme } = data;
 
   return (
     <div className={`${templateFontClass(theme.font)} min-h-screen bg-[#09090b] text-zinc-300 selection:bg-zinc-800 selection:text-white relative overflow-hidden`}>
@@ -148,25 +148,6 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
                     >
                       {skill}
                     </span>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {educations.length > 0 && (
-              <section>
-                <h2 className="text-2xl font-semibold text-white mb-8">Education</h2>
-                <div className="flex flex-col gap-8">
-                  {educations.map((edu, i) => (
-                    <div key={i} className="group">
-                      <h3 className="text-base font-medium text-zinc-200 mb-1 group-hover:text-white transition-colors">{edu.institution}</h3>
-                      <p className="text-sm text-zinc-500 mb-2">
-                        {edu.degree} {edu.field && `in ${edu.field}`}
-                      </p>
-                      <p className="text-xs font-mono text-zinc-600 uppercase tracking-wider">
-                        {edu.startYear} — {edu.endYear || "Present"}
-                      </p>
-                    </div>
                   ))}
                 </div>
               </section>

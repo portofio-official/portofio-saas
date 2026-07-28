@@ -6,7 +6,7 @@ import type { CorporateData as PortfolioData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
 
 export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
-  const { profile, experiences, educations, skills, projects, contact, socials, theme } = data;
+  const { profile, experiences, educations, skills, pricing, contact, socials, theme } = data;
 
   return (
     <div className={`${templateFontClass(theme.font)} min-h-screen bg-[#FDFDFD] text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900`}>
@@ -79,30 +79,28 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
               </section>
             )}
 
-            {projects.length > 0 && (
+            {pricing && pricing.length > 0 && (
               <section>
                 <h2 className="text-sm font-medium text-zinc-900 border-b border-zinc-200 pb-3 mb-8">
-                  Selected Initiatives
+                  Pricing Plans
                 </h2>
-                <div className="flex flex-col gap-12">
-                  {projects.map((project, i) => (
-                    <div key={i} className="group">
-                      <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-                        {project.imageUrl && (
-                          <div className="w-full md:w-56 shrink-0">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={project.imageUrl} alt={project.title} className="w-full aspect-[4/3] object-cover bg-zinc-100 grayscale group-hover:grayscale-0 transition-all duration-500" />
-                          </div>
-                        )}
-                        <div>
-                          <a href={project.link || undefined} className="inline-block text-xl font-medium text-zinc-900 hover:underline underline-offset-4 decoration-zinc-300">
-                            {project.title}
-                          </a>
-                          <p className="mt-3 text-sm md:text-base text-zinc-600 leading-relaxed">
-                            {project.description}
-                          </p>
-                        </div>
-                      </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {pricing.map((tier, i) => (
+                    <div key={i} className={`p-6 border rounded-lg ${tier.highlighted ? "border-zinc-900 bg-zinc-50" : "border-zinc-200 bg-white"}`}>
+                      <h3 className="text-lg font-medium text-zinc-900">{tier.name}</h3>
+                      <p className="mt-2 text-2xl font-bold text-zinc-900">
+                        {tier.currency} {tier.price.toLocaleString()}{" "}
+                        <span className="text-xs font-normal text-zinc-500">/{tier.period}</span>
+                      </p>
+                      {tier.features.length > 0 && (
+                        <ul className="mt-4 space-y-2 text-sm text-zinc-600">
+                          {tier.features.map((feat, fj) => (
+                            <li key={fj} className="flex items-center gap-2">
+                              <span>✓</span> {feat}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   ))}
                 </div>

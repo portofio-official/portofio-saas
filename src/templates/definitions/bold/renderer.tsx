@@ -6,7 +6,7 @@ import type { BoldData as PortfolioData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
 
 export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
-  const { profile, experiences, educations, skills, projects, contact, socials, theme } = data;
+  const { profile, experiences, skills, projects, contact, socials, theme } = data;
 
   return (
     <div className={`${templateFontClass(theme.font)} min-h-screen bg-zinc-50 text-zinc-950 selection:bg-zinc-900 selection:text-zinc-50`}>
@@ -124,29 +124,6 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
                   >
                     {skill}
                   </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {educations.length > 0 && (
-            <div>
-              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-12">Education</h2>
-              <div className="flex flex-col gap-12">
-                {educations.map((edu, i) => (
-                  <div key={i}>
-                    <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight">
-                      {edu.institution}
-                    </h3>
-                    {edu.degree && (
-                      <p className="mt-2 text-xl font-bold text-zinc-600">
-                        {edu.degree}
-                      </p>
-                    )}
-                    <p className="mt-4 text-sm font-mono tracking-widest text-zinc-500">
-                      {edu.startYear} — {edu.endYear || "PRESENT"}
-                    </p>
-                  </div>
                 ))}
               </div>
             </div>

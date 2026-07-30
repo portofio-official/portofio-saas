@@ -10,6 +10,17 @@
 
 ## Session Log
 
+### Session (2026-07-31) — Directory Reorganization & Documentation Grouping
+
+- Goal: Clean up project directory structure by grouping documentation files into `docs/` and updating path references.
+- Completed:
+  - Moved `PRD.md`, `DESIGN.md`, `FLOW.MD`, `REQUIREMENT.md`, `TASK_TRACKER.md`, and `project.md` from root into `docs/` (renamed `FLOW.MD` to `docs/FLOW.md`).
+  - Updated documentation path references in `README.md`, `AGENTS.md`, `CLAUDE.md`, and `.gitignore`.
+  - Kept essential root runtime files (`AGENTS.md`, `CLAUDE.md`, `README.md`, `claude-progress.md`, `feature_list.json`, `init.sh`, config files).
+- Verification:
+  - Executed `./init.sh` baseline verification — `npm install` and `npm run lint` passed cleanly (0 errors).
+  - Verified directory structure with `ls -la` and `git status`.
+
 ### Session (2026-07-28) — Template-as-a-Unit Architecture Refactor
 
 - Goal: Refactor the template architecture from a horizontally split structure into a modular "Template-as-a-Unit" domain model under `src/templates/definitions/{name}/`.

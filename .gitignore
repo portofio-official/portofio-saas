@@ -44,5 +44,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-TASK_TRACKER.md
-REQUIREMENT.md
+docs/TASK_TRACKER.md
+docs/REQUIREMENT.md

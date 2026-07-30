@@ -95,7 +95,7 @@ Templates are defined in code via `TEMPLATE_REGISTRY` and per-template Zod schem
 
 ## Documentation
 
-- [`PRD.md`](./PRD.md) — full product spec: user flows, scope, and database schema (source of truth, read before any architecture decision).
-- [`DESIGN.md`](./DESIGN.md) — design tokens, component anatomy, UI guidelines (light mode only).
+- [`PRD.md`](./docs/PRD.md) — full product spec: user flows, scope, and database schema (source of truth, read before any architecture decision).
+- [`DESIGN.md`](./docs/DESIGN.md) — design tokens, component anatomy, UI guidelines (light mode only).
 - [`claude-progress.md`](./claude-progress.md) — running development log.
 - [`feature_list.json`](./feature_list.json) — feature status tracker (system of record for what's done vs. pending).

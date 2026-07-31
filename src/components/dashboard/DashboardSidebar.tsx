@@ -18,9 +18,11 @@ export function DashboardSidebar({ email }: { email: string }) {
   const initials = email.charAt(0).toUpperCase();
 
   const isTemplates = pathname?.includes("/dashboard/templates");
+  const isBilling = pathname?.includes("/dashboard/billing");
   const navItems = [
-    { href: "/dashboard", icon: "grid_view", label: "Projects", active: !isTemplates },
+    { href: "/dashboard", icon: "grid_view", label: "Projects", active: !isTemplates && !isBilling },
     { href: "/dashboard/templates", icon: "dashboard_customize", label: "Templates", active: !!isTemplates },
+    { href: "/dashboard/billing", icon: "credit_card", label: "Billing", active: !!isBilling },
   ];
 
   const comingSoonItems = [

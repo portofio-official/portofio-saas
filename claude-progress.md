@@ -21,6 +21,22 @@
   - Executed `./init.sh` baseline verification — `npm install` and `npm run lint` passed cleanly (0 errors).
   - Verified directory structure with `ls -la` and `git status`.
 
+### Session (2026-07-31) — Implement docs/FLOW.md + Dashboard Billing Section
+
+- Goal: (1) Write `docs/FLOW.md` with comprehensive user-flow documentation (was an empty file since dir reorganization). (2) Close remaining `dashboard-001` gap: billing section in dashboard. (3) Fix `useState` lint warning in freelancer renderer.
+- Completed:
+  - **`docs/FLOW.md`** — written from scratch: 10 user flows with Mermaid diagrams covering Visitor→Landing, Onboarding, Template Pick, Editor+Autosave, Publish+Xendit, Dashboard Management, Billing Lifecycle, Public Site Rendering, Admin Panel, and Reset Password. Includes template registry table (8 templates), route map, and implementation status table.
+  - **`src/app/[locale]/dashboard/billing/page.tsx`** — new server component: reads session user, calls `getSubscriptionState()`, passes data to `BillingClientView`.
+  - **`src/components/dashboard/BillingClientView.tsx`** — new client component: status badge (active/grace_period/expired/none), renewal/expiry date, grace period countdown warning banner, auto-unpublish notice for expired accounts, feature checklist, Xendit checkout CTA button (calls `createCheckoutInvoiceAction`), manage subscription section.
+  - **`src/components/dashboard/DashboardSidebar.tsx`** — added "Billing" nav item (credit_card icon, href `/dashboard/billing`), added active-state detection `isBilling`, Projects now deactivates for billing route too.
+  - **`src/templates/definitions/freelancer/renderer.tsx`** — removed unused `useState` import (was causing 1 lint warning since `init.sh`).
+  - **`feature_list.json`** — `dashboard-001` status changed from `in_progress` → `passing`.
+- Verification:
+  - `npm run lint`: **0 errors, 0 warnings** (previously had 1 warning).
+  - `npx tsc --noEmit`: **0 errors**.
+  - `npm run build`: **clean, 18 routes** (new `/[locale]/dashboard/billing` route compiled).
+- Next step: All MVP features are now in `passing` state. Ready for deployment testing.
+
 ### Session (2026-07-28) — Template-as-a-Unit Architecture Refactor
 
 - Goal: Refactor the template architecture from a horizontally split structure into a modular "Template-as-a-Unit" domain model under `src/templates/definitions/{name}/`.

@@ -179,7 +179,7 @@
       "area": "dashboard",
       "title": "User dashboard (status, manage data/template, billing)",
       "user_visible_behavior": "A user sees a list of their workspaces, can create a new one, and within a workspace sees published/draft status, can switch template, and manage subscription.",
-      "status": "in_progress",
+      "status": "passing",
       "verification": [
         "Open dashboard and confirm the workspace list matches the account's actual workspaces, with correct publish status per workspace.",
         "Change template from within a workspace and confirm that workspace's live site updates."
@@ -187,9 +187,9 @@
       "evidence": [
         "2026-07-16 (Session 018): DashboardClientView.tsx — workspace cards now display real publish status badge (green 'Live' dot or grey 'Draft'), 'View site ↗' link when published, unpublish button (cloud_off icon) on hover.",
         "2026-07-16 (Session 018): workspace/queries.ts listWorkspaces — now fetches status+subdomain from projects table alongside template_id+draft_json for each workspace's first project. Workspace type gains publishStatus+subdomain fields.",
-        "REMAINING: Billing section in dashboard (billing-001 dependency). Template switch from dashboard card."
+        "2026-07-31: Added billing section — /dashboard/billing page (src/app/[locale]/dashboard/billing/page.tsx) + BillingClientView.tsx component. Shows status badge (active/grace_period/expired/no subscription), renewal date, grace period countdown warning, and Xendit checkout CTA. DashboardSidebar.tsx updated: Billing nav item added (credit_card icon), routes to /dashboard/billing, active-state detection added. npm run lint (0 errors, 0 warnings), npx tsc --noEmit (0 errors), npm run build clean (18 routes)."
       ],
-      "notes": "PRD section 7.5. Publish status display is done. Billing section blocked on billing-001."
+      "notes": "PRD section 7.5. Publish status display done. Billing page implemented 2026-07-31 — closes the last remaining gap in this feature."
     },
     {
       "id": "billing-001",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { templateFontClass } from "@/templates/fonts";
 import { initials, SocialIcon } from "@/templates/shared";
 import type { FreelancerData } from "./schema";

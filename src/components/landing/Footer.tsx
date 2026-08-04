@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { TwitterLogo, LinkedinLogo, InstagramLogo } from "@phosphor-icons/react";
 import shared from "./shared.module.css";
 import styles from "./Footer.module.css";
@@ -56,8 +57,8 @@ export function Footer() {
         <div className={styles.footerBottom}>
           <p>{t("copyright", { year: new Date().getFullYear() })}</p>
           <div className={styles.legalLinks}>
-            <a href="#">{t("privacy")}</a>
-            <a href="#">{t("terms")}</a>
+            <Link href="/privacy">{t("privacy")}</Link>
+            <Link href="/terms">{t("terms")}</Link>
             <a
               href="#"
               onClick={(e) => {

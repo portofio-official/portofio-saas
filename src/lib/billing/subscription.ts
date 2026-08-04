@@ -35,11 +35,11 @@ export async function getSubscriptionState(targetUserId?: string): Promise<Subsc
   const supabase = await createClient();
   const { data } = await supabase
     .from("subscriptions")
-    .select("status, expires_at")
+    .select("status, expires_at, current_period_end")
     .eq("user_id", userId)
     .maybeSingle();
 
-  const record = data as Partial<SubscriptionRecord> | null;
+  const record = data as (Partial<SubscriptionRecord> & { current_period_end?: string }) | null;
 
   if (!record || !record.status) {
     return {
@@ -51,7 +51,8 @@ export async function getSubscriptionState(targetUserId?: string): Promise<Subsc
   }
 
   const now = new Date();
-  const expiresAt = record.expires_at ? new Date(record.expires_at) : null;
+  const rawExpires = record.expires_at || record.current_period_end;
+  const expiresAt = rawExpires ? new Date(rawExpires) : null;
 
   // Active status check
   if (record.status === "active") {

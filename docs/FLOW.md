@@ -233,10 +233,11 @@ flowchart TD
     W --> X[Site live di domain/sites/subdomain]
 ```
 
-**Validasi subdomain:**
+**Validasi subdomain & kuota publish:**
 - Format: `^[a-z0-9-]{3,63}$`
 - Tidak boleh ada di `subdomain_blocklist` (38 kata terlarang: admin, api, www, dll.)
 - Harus unik di tabel `projects`
+- **Batas 1 website publish per akun**: Pengguna hanya dapat mempublikasikan maksimal 1 project/website secara aktif. Jika pengguna mencoba mem-publish project kedua tanpa meng-unpublish project pertama, sistem mengembalikan error: `"Anda hanya dapat mempublikasikan 1 website per akun. Mohon unpublish website Anda yang lain terlebih dahulu."`
 
 **Komponen kunci:**
 - `src/components/dashboard/Editor.tsx` — Publish Panel (inline di editor)

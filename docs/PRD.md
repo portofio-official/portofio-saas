@@ -1,8 +1,8 @@
 # Product Requirements Document (PRD)
 ## Portofio - SaaS Portfolio Website Builder
 
-**Versi**: 1.6
-**Tanggal**: 17 Juli 2026
+**Versi**: 1.7
+**Tanggal**: 1 Agustus 2026
 **Disusun oleh**: Maulana Chandra Irawan
 **Status**: Siap untuk development
 
@@ -17,6 +17,8 @@
 > Perubahan v1.5 (2026-07-16, doc-sync pass): §9.3/9.4 ditulis ulang untuk mencocokkan arsitektur yang sudah dibangun ("Workspace Profile + Project Architecture", `arch-001` di `feature_list.json`) dan menggantikan `portfolio_data`+`sites` yang sudah di-drop dari database. Skema baru: `workspace_profile` (data umum 1:1 per workspace) + `projects` (banyak per workspace, `draft_json`/`published_json`, publish via RPC `publish_project()`) + template didefinisikan lewat Zod `TemplateDefinition` di kode (`src/lib/templates/schemas/`), bukan satu interface `PortfolioData` tunggal. Tidak ada perubahan pada alur pengguna (section 6) atau scope (section 5) — murni penyelarasan skema data dengan kode yang sudah berjalan.
 >
 > Perubahan v1.6 (2026-07-17, maintenance pass): v1.5's changelog note klaim §9.3/9.4 sudah ditulis ulang, tapi isinya ternyata masih versi lama (tabel `portfolio_data`/`sites`, interface `PortfolioData` tunggal, `src/templates/`) — janji changelog yang tidak benar-benar dieksekusi. Kali ini benar-benar diperbaiki: §9.3 (tidak ada tabel `templates` di DB, semua lewat `TEMPLATE_REGISTRY` di kode, path folder per-template yang benar) dan §9.4 (skema real: `workspace_profile`/`workspace_assets`/`projects`/`subscriptions`, `WebsiteDocument`+per-template Zod schema, bukan `PortfolioData` global). §7.3 diperbarui dari 5 jadi 7 template terdaftar (`Vanguard Studio`, `Portfolio Pro` ditambahkan tanpa update PRD sebelumnya).
+>
+> Perubahan v1.7 (2026-08-01, policy enforcement pass): Menetapkan aturan ketat batasan kuota publikasi: **1 user hanya bisa mempublikasikan (deploy) 1 website aktif di 1 akun**. Pengguna bebas membuat draft project lain atau mengganti template pada website tersebut, namun sistem secara tegas memblokir publikasi website kedua kecuali website pertama di-unpublish terlebih dahulu. Lihat section 7.4 & 16.
 
 ---
 
@@ -350,5 +352,5 @@ Tidak memblokir mulainya development (semua punya placeholder yang bisa jalan), 
 - Nama domain produksi (pengganti placeholder `appku.com`)?
 - Durasi grace period saat langganan berakhir — default usulan 7 hari, dikonfirmasi?
 - Target bisnis: `[X bulan]` waktu peluncuran MVP dan `[Z]` jumlah pengguna 3 bulan pertama (section 3)?
-- Langganan per akun atau per workspace (v1.3, section 7.6)? Default sementara: satu langganan per akun meng-cover semua workspace-nya. Perlu dikonfirmasi sebelum go-live karena berdampak ke harga dan ke apakah akun bisa publish banyak website dengan satu paket yang sama.
-- Ada batas maksimum jumlah workspace per akun (v1.3)? Belum ada batas yang diusulkan — perlu diputuskan sebelum go-live terutama jika langganan bersifat per-akun (lihat poin di atas), supaya satu akun tidak bisa publish website tanpa batas dengan satu langganan.
+- Langganan per akun atau per workspace (v1.3/v1.7): **FIXED / TERKUNCI (v1.7)** — Satu akun langganan berlaku per-akun dengan batasan ketat **maksimal 1 website aktif yang dipublikasikan (deploy)**. Pengguna dapat berganti template pada website tersebut, namun tidak bisa mempublikasikan website kedua dalam satu akun sekaligus tanpa meng-unpublish website pertama.
+- Ada batas maksimum jumlah workspace per akun (v1.3): Tidak dibatasi untuk status draft, namun hanya 1 yang dapat memiliki status `published` secara aktif.

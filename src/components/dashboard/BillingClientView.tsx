@@ -9,6 +9,7 @@ interface BillingClientViewProps {
   isGracePeriod: boolean;
   expiresAt: string | null;
   daysRemainingInGracePeriod?: number;
+  checkoutNotice?: "success" | "failed" | "stub" | null;
 }
 
 function formatDate(isoString: string | null): string {
@@ -60,8 +61,10 @@ export function BillingClientView({
   isGracePeriod,
   expiresAt,
   daysRemainingInGracePeriod,
+  checkoutNotice,
 }: BillingClientViewProps) {
   const [loading, setLoading] = useState(false);
+  const [devLoading, setDevLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   async function handleCheckout() {
@@ -79,6 +82,23 @@ export function BillingClientView({
     } catch {
       setCheckoutError("An unexpected error occurred. Please try again.");
       setLoading(false);
+    }
+  }
+
+  async function handleDevActivate() {
+    setDevLoading(true);
+    try {
+      const { activateDevSubscriptionAction } = await import("@/lib/billing/actions");
+      const res = await activateDevSubscriptionAction();
+      if (res.ok) {
+        window.location.href = "/dashboard/billing";
+      } else {
+        setCheckoutError(res.error ?? "Failed to activate dev subscription.");
+        setDevLoading(false);
+      }
+    } catch {
+      setCheckoutError("Failed to activate dev subscription.");
+      setDevLoading(false);
     }
   }
 
@@ -100,6 +120,54 @@ export function BillingClientView({
 
       {/* Content */}
       <div className="flex-1 px-12 py-10 space-y-6">
+        {/* Checkout Status Banners */}
+        {checkoutNotice === "success" && (
+          <div className="flex items-start gap-4 rounded-[16px] bg-accent/10 px-5 py-4 ring-1 ring-accent/30">
+            <span className="material-symbols-outlined mt-0.5 text-[20px] text-accent">
+              check_circle
+            </span>
+            <div>
+              <p className="text-[14px] font-bold text-accent">
+                Pembayaran Berhasil!
+              </p>
+              <p className="mt-0.5 text-[13px] text-ink-soft">
+                Langganan Portofio Pro Anda telah aktif. Anda sekarang dapat mempublikasikan situs web Anda.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {checkoutNotice === "failed" && (
+          <div className="flex items-start gap-4 rounded-[16px] bg-danger/10 px-5 py-4 ring-1 ring-danger/30">
+            <span className="material-symbols-outlined mt-0.5 text-[20px] text-danger">
+              error
+            </span>
+            <div>
+              <p className="text-[14px] font-bold text-danger">
+                Pembayaran Gagal atau Dibatalkan
+              </p>
+              <p className="mt-0.5 text-[13px] text-ink-soft">
+                Proses pembayaran belum selesai. Silakan coba kembali untuk mengaktifkan langganan Anda.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {checkoutNotice === "stub" && (
+          <div className="flex items-start gap-4 rounded-[16px] bg-sky-50 px-5 py-4 ring-1 ring-sky-200">
+            <span className="material-symbols-outlined mt-0.5 text-[20px] text-sky-600">
+              developer_mode
+            </span>
+            <div>
+              <p className="text-[14px] font-bold text-sky-900">
+                Dev Mode: Checkout Disimulasikan
+              </p>
+              <p className="mt-0.5 text-[13px] text-sky-800">
+                `XENDIT_SECRET_KEY` belum dikonfigurasi di environment. Klik tombol di bawah untuk mengaktifkan langganan uji secara instan.
+              </p>
+            </div>
+          </div>
+        )}
         {/* Grace Period Warning Banner */}
         {isGracePeriod && (
           <div className="flex items-start gap-4 rounded-[16px] bg-amber-50 px-5 py-4 ring-1 ring-amber-200">
@@ -225,11 +293,29 @@ export function BillingClientView({
                 ) : (
                   <>
                     <span className="material-symbols-outlined text-[18px]">bolt</span>
-                    {isGracePeriod ? "Renew Now" : "Subscribe — Rp[X]/mo"}
+                    {isGracePeriod ? "Renew Now" : "Subscribe — Rp 49.000 / bulan"}
                   </>
                 )}
               </button>
             </div>
+
+            {/* Dev Mode quick activation shortcut */}
+            {(process.env.NODE_ENV !== "production" || checkoutNotice === "stub") && (
+              <div className="mt-4 flex items-center justify-between border-t border-accent/10 pt-4">
+                <p className="text-[12px] font-medium text-ink-soft">
+                  <span className="font-bold text-accent">Dev Tools:</span> Test subscription activation without payment gateway
+                </p>
+                <button
+                  type="button"
+                  onClick={handleDevActivate}
+                  disabled={devLoading}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-black/5 px-3 py-1.5 text-[12px] font-bold text-ink hover:bg-black/10 transition-colors disabled:opacity-50"
+                >
+                  {devLoading ? "Activating..." : "⚡ Activate Test Sub (30 days)"}
+                </button>
+              </div>
+            )}
+
             {checkoutError && (
               <p className="mt-3 text-[13px] font-medium text-danger">
                 {checkoutError}

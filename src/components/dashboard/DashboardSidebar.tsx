@@ -1,6 +1,5 @@
 "use client";
 
-
 import { Link } from "@/i18n/navigation";
 import { signOutAction } from "@/lib/auth/actions";
 import { useTranslations } from "next-intl";
@@ -12,96 +11,191 @@ export function DashboardSidebar({ email }: { email: string }) {
   const t = useTranslations("Workspace");
 
   const isEditor = pathname?.endsWith("/editor");
-
   if (isEditor) return null;
 
   const initials = email.charAt(0).toUpperCase();
 
   const isTemplates = pathname?.includes("/dashboard/templates");
   const isBilling = pathname?.includes("/dashboard/billing");
-  const navItems = [
-    { href: "/dashboard", icon: "grid_view", label: "Projects", active: !isTemplates && !isBilling },
-    { href: "/dashboard/templates", icon: "dashboard_customize", label: "Templates", active: !!isTemplates },
-    { href: "/dashboard/billing", icon: "credit_card", label: "Billing", active: !!isBilling },
+  const isWebsites = !isTemplates && !isBilling;
+
+  const primaryGroup = [
+    { href: "/dashboard", icon: "web", label: "Websites", active: isWebsites },
+    { href: "/dashboard/templates", icon: "dashboard_customize", label: "Templates", active: isTemplates },
+    { href: "#", icon: "folder_open", label: "Content Library", active: false, comingSoon: true },
   ];
 
-  const comingSoonItems = [
-    { icon: "language", label: "Domains" },
-    { icon: "perm_media", label: "Assets" },
-    { icon: "settings", label: "Settings" },
+  const secondaryGroup = [
+    { href: "#", icon: "analytics", label: "Analytics", active: false, badge: "Pro", comingSoon: true },
+    { href: "#", icon: "language", label: "Domains", active: false, comingSoon: true },
+    { href: "/dashboard/billing", icon: "credit_card", label: "Billing", active: isBilling },
+  ];
+
+  const settingsGroup = [
+    { href: "#", icon: "settings", label: "Settings", active: false, comingSoon: true },
   ];
 
   return (
     <motion.aside
-      initial={{ x: -20, opacity: 0 }}
+      initial={{ x: -16, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="flex h-full w-[280px] shrink-0 flex-col overflow-hidden rounded-[2rem] bg-surface ring-1 ring-black/5"
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      className="flex h-full w-[240px] shrink-0 flex-col overflow-hidden rounded-2xl bg-white border border-[#E5E7EB] shadow-sm select-none"
     >
-      {/* Workspace identity */}
-      <div className="flex items-center gap-3 border-b border-black/5 px-6 py-6">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-[14px] font-bold text-white shadow-[0_4px_10px_0_rgba(0,207,124,0.2)]">
-          {initials}
-        </span>
-        <span className="min-w-0 flex-1 truncate font-display text-[15px] font-bold tracking-tight text-ink">
-          My Workspace
-        </span>
+      {/* Workspace Switcher */}
+      <div className="flex items-center justify-between border-b border-[#F3F4F6] px-4 py-3.5">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#00cf7c] text-[12px] font-bold text-white shadow-[0_4px_10px_rgba(0,207,124,0.3)]">
+            P
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="truncate text-[13px] font-semibold text-[#111827] leading-tight">
+              Portofio Workspace
+            </span>
+            <span className="truncate text-[11px] font-normal text-[#6B7280]">
+              Personal Plan
+            </span>
+          </div>
+        </div>
+        <span className="material-symbols-outlined text-[16px] text-[#9CA3AF]">unfold_more</span>
       </div>
 
-      {/* Nav */}
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-6">
-        <p className="mb-4 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-ink-faint">
-          Navigation
-        </p>
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`group flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-[13px] transition-all duration-300 active:scale-[0.98] ${
-              item.active ? "bg-accent/10 text-accent font-bold" : "text-ink-soft font-semibold hover:bg-black/[0.03] hover:text-ink"
-            }`}
-          >
-            <span className="material-symbols-outlined text-[18px] transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-110">{item.icon}</span>
-            {item.label}
-          </Link>
-        ))}
+      {/* Workflow Navigation */}
+      <nav className="flex flex-1 flex-col overflow-y-auto px-2.5 py-3 gap-0.5">
+        {/* Primary Group: Core Workflow */}
+        <div className="flex flex-col gap-0.5">
+          {primaryGroup.map((item) =>
+            item.comingSoon ? (
+              <div
+                key={item.label}
+                className="flex items-center justify-between rounded-xl px-2.5 py-2 text-[13px] font-medium text-[#9CA3AF] cursor-not-allowed"
+                title="Coming soon"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[18px] text-[#9CA3AF]">{item.icon}</span>
+                  <span>{item.label}</span>
+                </div>
+                <span className="rounded-md bg-[#F3F4F6] px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-[#6B7280] uppercase">Soon</span>
+              </div>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-150 ${
+                  item.active
+                    ? "bg-[#00cf7c]/10 text-[#00b368] font-bold"
+                    : "text-[#4B5563] font-medium hover:bg-[#F9FAFB] hover:text-[#111827]"
+                }`}
+              >
+                <span
+                  className={`material-symbols-outlined text-[18px] transition-colors ${
+                    item.active ? "text-[#00cf7c]" : "text-[#6B7280] group-hover:text-[#111827]"
+                  }`}
+                >
+                  {item.icon}
+                </span>
+                <span className="flex-1 truncate">{item.label}</span>
+              </Link>
+            )
+          )}
+        </div>
 
-        <div className="mt-2 flex flex-col gap-1">
-          {comingSoonItems.map((item) => (
+        {/* Separator */}
+        <div className="my-2 border-t border-[#F3F4F6] mx-1" />
+
+        {/* Secondary Group: Site & Business Operations */}
+        <div className="flex flex-col gap-0.5">
+          {secondaryGroup.map((item) =>
+            item.comingSoon ? (
+              <div
+                key={item.label}
+                className="flex items-center justify-between rounded-xl px-2.5 py-2 text-[13px] font-medium text-[#9CA3AF] cursor-not-allowed"
+                title="Coming soon"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[18px] text-[#9CA3AF]">{item.icon}</span>
+                  <span>{item.label}</span>
+                </div>
+                {item.badge ? (
+                  <span className="rounded-md bg-[#e6faf2] px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-[#00b368] uppercase">
+                    {item.badge}
+                  </span>
+                ) : (
+                  <span className="rounded-md bg-[#F3F4F6] px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-[#6B7280] uppercase">Soon</span>
+                )}
+              </div>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-150 ${
+                  item.active
+                    ? "bg-[#00cf7c]/10 text-[#00b368] font-bold"
+                    : "text-[#4B5563] font-medium hover:bg-[#F9FAFB] hover:text-[#111827]"
+                }`}
+              >
+                <span
+                  className={`material-symbols-outlined text-[18px] transition-colors ${
+                    item.active ? "text-[#00cf7c]" : "text-[#6B7280] group-hover:text-[#111827]"
+                  }`}
+                >
+                  {item.icon}
+                </span>
+                <span className="flex-1 truncate">{item.label}</span>
+                {item.badge && (
+                  <span className="rounded-md bg-[#e6faf2] px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-[#00b368] uppercase">
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            )
+          )}
+        </div>
+
+        {/* Separator */}
+        <div className="my-2 border-t border-[#F3F4F6] mx-1" />
+
+        {/* Settings Group */}
+        <div className="flex flex-col gap-0.5">
+          {settingsGroup.map((item) => (
             <div
               key={item.label}
-              className="flex cursor-not-allowed items-center justify-between rounded-[12px] px-3 py-2.5 text-[13px] font-semibold text-ink-faint/70"
+              className="flex items-center justify-between rounded-xl px-2.5 py-2 text-[13px] font-medium text-[#9CA3AF] cursor-not-allowed"
               title="Coming soon"
             >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
-                {item.label}
+              <div className="flex items-center gap-2.5">
+                <span className="material-symbols-outlined text-[18px] text-[#9CA3AF]">{item.icon}</span>
+                <span>{item.label}</span>
               </div>
-              <span className="rounded-full bg-black/[0.04] px-2 py-0.5 text-[9px] font-bold tracking-wide text-ink-faint uppercase">Soon</span>
+              <span className="rounded-md bg-[#F3F4F6] px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-[#6B7280] uppercase">Soon</span>
             </div>
           ))}
         </div>
       </nav>
 
-      {/* User profile */}
-      <div className="flex items-center gap-2 border-t border-black/5 p-4">
-        <div className="flex min-w-0 flex-1 items-center gap-3 rounded-[12px] px-2 py-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/[0.06] text-[12px] font-bold text-ink">
-            {initials}
-          </span>
-          <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-ink-soft">{email}</span>
+      {/* Fixed User Profile at Bottom */}
+      <div className="border-t border-[#F3F4F6] p-2.5">
+        <div className="flex items-center justify-between gap-2 rounded-xl p-1.5 hover:bg-[#F9FAFB] transition-colors">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#00cf7c]/15 text-[12px] font-bold text-[#00b368]">
+              {initials}
+            </span>
+            <span className="min-w-0 truncate text-[12px] font-medium text-[#374151]">{email}</span>
+          </div>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              title={t("logout")}
+              aria-label={t("logout")}
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#DC2626] transition-colors"
+            >
+              <span className="material-symbols-outlined text-[16px]">logout</span>
+            </button>
+          </form>
         </div>
-        <form action={signOutAction}>
-          <button
-            type="submit"
-            title={t("logout")}
-            aria-label={t("logout")}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-ink-faint transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-danger/10 hover:text-danger active:scale-[0.95]"
-          >
-            <span className="material-symbols-outlined text-[18px]">logout</span>
-          </button>
-        </form>
       </div>
+
     </motion.aside>
   );
 }
+

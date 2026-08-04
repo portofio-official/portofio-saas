@@ -36,7 +36,7 @@ export async function createXenditInvoice(params: {
     // Dev stub fallback if XENDIT_SECRET_KEY is not configured yet
     console.warn("[Xendit] XENDIT_SECRET_KEY not found in environment, returning stub checkout URL.");
     return {
-      invoiceUrl: `/dashboard?billing_stub=true&external_id=${externalId}`,
+      invoiceUrl: `/dashboard/billing?billing_stub=true&external_id=${externalId}`,
       invoiceId: `stub_inv_${Date.now()}`,
     };
   }

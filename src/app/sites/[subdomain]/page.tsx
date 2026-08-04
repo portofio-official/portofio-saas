@@ -1,11 +1,15 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getDefinition } from "@/templates/registry";
 import { parseDocumentData, type WebsiteDocument, type WorkspaceProfile } from "@/templates/definition";
 import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
+import { sanitizeObjectData } from "@/lib/utils/sanitize";
+
+// Revalidate public site pages every 60 seconds (ISR caching)
+export const revalidate = 60;
 
 async function getPublishedProject(subdomain: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("projects")
     .select("template_id, template_version, published_version_id, workspace_id")
@@ -49,7 +53,8 @@ export default async function PublicSitePage({
   const definition = getDefinition(templateId);
   if (!definition) notFound();
 
-  const doc = project.published_json as WebsiteDocument;
+  const rawDoc = project.published_json as WebsiteDocument;
+  const doc = sanitizeObjectData(rawDoc);
   const data = parseDocumentData(doc, definition);
 
   // Snapshot pattern: public site renders strictly from published content_json snapshot

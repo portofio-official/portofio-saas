@@ -15,10 +15,8 @@ export type AdminUserView = {
 };
 
 export async function getUsersAction(): Promise<AdminUserView[]> {
-  // 1. Verify caller is an admin
   await requireRole(["admin"]);
 
-  // 2. Query all users from Auth schema via Service Role
   const adminClient = createAdminClient();
   const { data: { users }, error } = await adminClient.auth.admin.listUsers();
 
@@ -27,9 +25,7 @@ export async function getUsersAction(): Promise<AdminUserView[]> {
     throw new Error("Failed to fetch users");
   }
 
-  // 3. Map to safe view representation
-  return users.map(user => {
-    // A user is suspended if ban_duration is set to '87600h' (10 years)
+  return users.map((user) => {
     const isSuspended = !!user.banned_until;
 
     return {
@@ -47,7 +43,6 @@ export async function toggleUserSuspensionAction(userId: string, suspend: boolea
   await requireRole(["admin"]);
 
   const adminClient = createAdminClient();
-  // We use 87600h (10 years) as an effective permanent ban
   const banDuration = suspend ? "87600h" : "none";
 
   const { error } = await adminClient.auth.admin.updateUserById(userId, {
@@ -66,7 +61,7 @@ export async function updateTemplateStatusAction(
   submissionId: string,
   status: "approved" | "rejected" | "revision_requested",
   reviewNotes?: string,
-  registryId?: string
+  registryId?: string,
 ) {
   await requireRole(["admin"]);
 
@@ -110,4 +105,59 @@ export async function toggleTemplateVisibilityAction(templateId: string, isActiv
   revalidatePath("/admin/templates");
   revalidatePath("/templates");
   revalidatePath("/dashboard/templates");
+}
+
+export async function addBlocklistWordAction(
+  slug: string,
+): Promise<{ ok: boolean; error?: string }> {
+  await requireRole(["admin"]);
+
+  const cleanSlug = slug.toLowerCase().trim();
+  if (!cleanSlug || cleanSlug.length < 2) {
+    return { ok: false, error: "Subdomain must be at least 2 characters." };
+  }
+
+  const supabase = createAdminClient();
+
+  const { data: existing } = await supabase
+    .from("subdomain_blocklist")
+    .select("slug")
+    .eq("slug", cleanSlug)
+    .maybeSingle();
+
+  if (existing) {
+    return { ok: false, error: "Subdomain is already in the blocklist." };
+  }
+
+  const { error } = await supabase
+    .from("subdomain_blocklist")
+    .insert({ slug: cleanSlug });
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+
+  revalidatePath("/[locale]/admin/blocklist", "page");
+  return { ok: true };
+}
+
+export async function removeBlocklistWordAction(
+  slug: string,
+): Promise<{ ok: boolean; error?: string }> {
+  await requireRole(["admin"]);
+
+  const cleanSlug = slug.toLowerCase().trim();
+  const supabase = createAdminClient();
+
+  const { error } = await supabase
+    .from("subdomain_blocklist")
+    .delete()
+    .eq("slug", cleanSlug);
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+
+  revalidatePath("/[locale]/admin/blocklist", "page");
+  return { ok: true };
 }

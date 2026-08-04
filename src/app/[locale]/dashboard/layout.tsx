@@ -17,11 +17,12 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-surface p-6 gap-6 font-sans">
+    <div className="flex h-screen w-full overflow-hidden bg-[#F8F9FB] p-5 gap-5 font-sans">
       <DashboardSidebar email={email} />
-      <main className="flex flex-1 flex-col overflow-hidden rounded-[2rem] bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
+      <main className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-white border border-[#E5E7EB] shadow-sm">
         {children}
       </main>
     </div>
   );
 }
+

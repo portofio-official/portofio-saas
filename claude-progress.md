@@ -10,6 +10,83 @@
 
 ## Session Log
 
+### Session (2026-08-01) — Go-Live Hardening & Quality Engineering (/goal)
+
+- Goal: Complete Sprint 1 & 2 Hardening tasks from `docs/IMPLEMENTATION_PLAN.md`: XSS wiring, rate limiting, cron configuration, legal links, admin blocklist CRUD, and Playwright E2E suite setup.
+- Completed:
+  - **Task B-006 (XSS Sanitization Wiring)**: Wired `sanitizeObjectData` helper into `saveDraftAction` (`src/lib/projects/actions.ts`) and `PublicSitePage` (`src/app/sites/[subdomain]/page.tsx`) to strip malicious `<script>` tags and dangerous `on*` attributes before storage and dynamic rendering.
+  - **Task B-005 (Rate Limiting Middleware)**: Created sliding-window rate limiter in `src/lib/rate-limit.ts`. Enforced IP-based rate limiting on `signUpAction` (5 requests / 15 min) and `requestPasswordResetAction` (3 requests / 15 min) in `src/lib/auth/actions.ts`, and user-based rate limiting on `publishProjectAction` (10 requests / hr) in `src/lib/projects/actions.ts`.
+  - **Task B-007 (Footer Legal Links)**: Updated `src/components/landing/Footer.tsx` legal links to use `@/i18n/navigation` `<Link>` components routing to `/privacy` and `/terms`.
+  - **Task B-008 (Vercel Cron Config)**: Created `vercel.json` defining daily cron job at 02:00 UTC calling `/api/cron/check-subscriptions`. Documented `CRON_SECRET` in `.env.example`.
+  - **Task B-014 (Subdomain Blocklist Admin CRUD)**: Created admin server actions (`addBlocklistWordAction`, `removeBlocklistWordAction` in `src/lib/admin/actions.ts`) and interactive management UI (`src/components/admin/BlocklistClientView.tsx` & `src/app/[locale]/admin/blocklist/page.tsx`). Restored user and template admin actions.
+  - **Task B-004 (Playwright E2E Test Suite)**: Created `playwright.config.ts` configured for Next.js dev server, created automated test specs in `e2e/flows/` (`01-landing.spec.ts`, `02-auth.spec.ts`, `08-public-site.spec.ts`), updated `package.json` with script `"test:e2e": "playwright test"`, and excluded `e2e` in `tsconfig.json`.
+- Verification:
+  - `npm run lint && npx tsc --noEmit && npm run build`: Passed clean with **0 errors, 0 warnings** across all 21 routes.
+
+- Goal: Implement critical architecture improvements while preserving multi-workspace abstraction in MVP: ISR caching, proactive quota UI, legal routes, cron expiry worker, XSS sanitization helper.
+- Completed:
+  - **`src/app/sites/[subdomain]/page.tsx`**: Added `export const revalidate = 60` for ISR caching on public multi-tenant routes to prevent database connection pool exhaustion.
+  - **`src/components/dashboard/DashboardClientView.tsx`**: Implemented proactive Quota Notification Banner in header when `publishedCount >= 1` explaining 1 active published website limit per account.
+  - **`src/app/[locale]/privacy/page.tsx` & `src/app/[locale]/terms/page.tsx`**: Built bilingual (`id`/`en`) Privacy Policy and Terms of Service legal compliance pages.
+  - **`src/app/api/cron/check-subscriptions/route.ts`**: Built Vercel Cron background worker triggering `softUnpublishUserProjects()` for expired accounts beyond 7-day grace period.
+  - **`src/lib/utils/sanitize.ts`**: Created HTML string and object sanitization helper defending against Stored XSS injection in portfolio text inputs.
+- Verification:
+  - `npx tsc --noEmit` & `npm run build`: Clean compilation across all 21 routes in 2.7s.
+
+### Session (2026-08-01) — Single Published Website Limit Policy Enforcement (/goal)
+
+- Goal: Update PRD v1.7, FLOW v1.0, Sprint plan, and backend publish action to strictly enforce 1 published website per user account max.
+- Completed:
+  - **`src/lib/projects/actions.ts`**: Updated `publishProjectAction` to check if the user account already has another project with `status = 'published'`, returning a clear bilingual validation error if a second deploy is attempted.
+  - **`docs/PRD.md`**: Updated to v1.7, resolving Open Question #16 (1 user account = max 1 published website).
+  - **`docs/FLOW.md`**: Updated Flow 5 validation notes with single published site rule.
+  - **`docs/SPRINTS.md` & `implementation_plan.md`**: Updated Sprint 1 Task 1.2 and plan matrix.
+- Verification:
+  - `npm run lint` & `npx tsc --noEmit`: 0 errors.
+  - `npm run build`: Clean compilation across all 18 routes in 3.0s.
+
+### Session (2026-08-01) — Master Implementation & Sprint Plan Creation (/goal)
+
+- Goal: Audit PRD v1.6 and FLOW v1.0, construct a comprehensive 5-Sprint Implementation Plan covering all 10 user flows, pre-launch infra setup, E2E QA, and Phase 2 features.
+- Completed:
+  - **`docs/SPRINTS.md`**: Created durable repository artifact mapping all 10 flows (Visitor Landing, Onboarding/Auth, Template Pick, Editor + Autosave, Xendit Publish, Dashboard, Billing Lifecycle, Multi-tenant Site, Admin RBAC, Reset Password) to code implementation status, and defining Sprint 0 (Infra & Remote DB Sync), Sprint 1 (E2E Playwright Suite & Rate Limiting), Sprint 2 (Legal Pages & Background Cron), Sprint 3 (Production Go-Live & Stopwatch KPI Test), and Sprint 4 (Fase 2 Expansion).
+  - **`docs/TASK_TRACKER.md`**: Updated task tracker reflecting 100% completed MVP user flow backend actions and tracking active sprint tasks.
+  - **Implementation Plan Artifact**: Generated `implementation_plan.md` artifact with executive summary, flow-to-feature matrix, Gantt roadmap, and verification plan.
+- Verification:
+  - Validated all 10 flows in `docs/FLOW.md` against codebase contracts.
+  - Verification run via standard startup path (`npm run lint && npx tsc --noEmit && npm run build` clean).
+
+### Session (2026-07-31) — Subscription Feature Enablement & Dev Sandbox Flow (/ponytail)
+
+- Goal: Make the subscription feature fully usable, testable, and robust across dev/stub and live Xendit production modes per user plan.
+- Completed:
+  - **`src/lib/billing/actions.ts`**: Updated `createCheckoutInvoiceAction` redirect targets to `/dashboard/billing?checkout=success` and `/dashboard/billing?checkout=failed`. Added `activateDevSubscriptionAction` server action using `createAdminClient` with schema-compatible fallback for 1-click test subscription activation.
+  - **`src/proxy.ts`**: Bypassed `next-intl` middleware for path-based `/sites/[subdomain]` fallback requests to prevent unwanted locale prefixing (`/en/sites/...` 404).
+  - **`src/app/sites/[subdomain]/page.tsx`**: Updated `getPublishedProject` to fetch via `createAdminClient` for reliable public site rendering.
+  - **`supabase/migrations/20260731000001_fix_subscriptions_schema.sql` & `20260731000002_fix_published_read_rls.sql`**: Added DB migrations for subscriptions table schema fix and public RLS policies for published projects.
+  - **`src/components/dashboard/BillingClientView.tsx`**: Replaced price placeholder `Rp[X]/mo` with `Rp 49.000 / bulan`. Added checkout status banners and `⚡ Activate Test Sub (30 days)` shortcut button.
+  - **`src/app/sites/layout.tsx`**: Created root layout rendering `<html>` and `<body>` tags for public published sites (`/sites/[subdomain]`), resolving Next.js missing root layout error.
+- Verification:
+  - `npm run lint` & `npx tsc --noEmit`: **0 errors, 0 warnings**.
+  - `npm run build`: **Clean compilation across all 18 routes** in 2.8s.
+
+
+
+### Session (2026-07-31) — Ultra-Premium SaaS Dashboard Redesign & Green Color Unification (/high-end-visual-design)
+
+- Goal: Redesign the Portofio SaaS dashboard UI into an ultra-premium workspace matching Apple, Linear, Framer, and Notion design principles, unified with the brand green palette (`#00cf7c`).
+- Completed:
+  - **`src/app/[locale]/dashboard/layout.tsx`**: Updated container layout to soft neutral background (`#F8F9FB`), rounded corners (`rounded-2xl`), subtle borders (`#E5E7EB`), and clean spacing.
+  - **`src/components/dashboard/DashboardSidebar.tsx`**: Rearchitected to 240px width with green Workspace Switcher logo ("P" monogram, "Portofio Workspace" title), green active navigation highlights (`#00cf7c` / `#00b368`), workflow-grouped navigation (*Websites*, *Templates*, *Content Library* | *Analytics [Pro]*, *Domains*, *Billing* | *Settings*), and user profile footer.
+  - **`src/components/dashboard/DashboardClientView.tsx`**: Built top header with "Websites" title, live subtext metadata counters (Total, Published, Draft, Last updated), search input with `⌘K` keyboard shortcut listener and green focus ring, green filter pills, sort dropdown, and green "New Website" CTA (`#00cf7c`). Created responsive card grid with macOS dots browser frame preview, live template renderer, status badges, timestamp, green hover action bar (*Edit*, *Preview*, *Publish/Unpublish*, *Duplicate*, *More menu*), quick preview modal overlay, and dashed "Create Website" card with green hover.
+  - **`src/lib/workspace/actions.ts`**: Added `duplicateWorkspaceAction` to clone a workspace and its project content in 1 click.
+- Verification:
+  - `npm run lint` & `npx tsc --noEmit`: **0 errors, 0 warnings**.
+  - `npm run build`: **Clean compilation across all 18 routes** in 4.6s.
+
+
+
+
 ### Session (2026-07-31) — Directory Reorganization & Documentation Grouping
 
 - Goal: Clean up project directory structure by grouping documentation files into `docs/` and updating path references.

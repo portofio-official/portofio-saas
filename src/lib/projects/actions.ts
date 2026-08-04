@@ -7,6 +7,8 @@ import { getWorkspaceProfile } from "@/lib/workspace/profile";
 import { checkSubscription } from "@/lib/billing/subscription";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeObjectData } from "@/lib/utils/sanitize";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function createProjectAction(
   workspaceId: string,
@@ -29,7 +31,8 @@ export async function saveDraftAction(
   projectId: string,
   draftJson: WebsiteDocument,
 ): Promise<{ ok: boolean }> {
-  const ok = await saveDraftJson(projectId, draftJson);
+  const sanitizedDraft = sanitizeObjectData(draftJson);
+  const ok = await saveDraftJson(projectId, sanitizedDraft);
   return { ok };
 }
 
@@ -115,6 +118,13 @@ export async function publishProjectAction(
   // Subscription gate
   const email = await getCurrentUserEmail();
   if (!email) return { ok: false, error: "Not authenticated." };
+
+  // Rate limit: 10 publish attempts per hour per user
+  const rate = checkRateLimit(`publish:${email}`, 10, 60 * 60 * 1000);
+  if (!rate.allowed) {
+    return { ok: false, error: `Batas percobaan publish terlampaui. Coba lagi dalam ${rate.retryAfterSeconds} detik.` };
+  }
+
   const hasSubscription = await checkSubscription(email);
   if (!hasSubscription) return { ok: false, error: "subscription_required", requiresSubscription: true };
 
@@ -136,6 +146,26 @@ export async function publishProjectAction(
     .neq("id", projectId)
     .maybeSingle();
   if (existing) return { ok: false, error: "This subdomain is already taken. Please choose another." };
+
+  // Check single published website per user account limit
+  const { data: userWorkspaces } = await supabase.from("workspaces").select("id");
+  if (userWorkspaces && userWorkspaces.length > 0) {
+    const workspaceIds = userWorkspaces.map((w) => w.id);
+    const { data: otherPublished } = await supabase
+      .from("projects")
+      .select("id, name")
+      .in("workspace_id", workspaceIds)
+      .eq("status", "published")
+      .neq("id", projectId)
+      .maybeSingle();
+
+    if (otherPublished) {
+      return {
+        ok: false,
+        error: "Anda hanya dapat mempublikasikan 1 website per akun. Mohon unpublish website Anda yang lain terlebih dahulu.",
+      };
+    }
+  }
 
   const ok = await publishProject(projectId, subdomain);
   if (!ok) return { ok: false, error: "Failed to publish. Please try again." };

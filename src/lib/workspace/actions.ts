@@ -72,3 +72,55 @@ export async function unpublishWorkspaceProjectAction(
   const ok = await unpublishProject(projects[0].id);
   return { ok };
 }
+
+/** Clones a workspace and its primary project content */
+export async function duplicateWorkspaceAction(
+  workspaceId: string,
+): Promise<{ error: string | null; id?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "notAuthenticated" };
+
+  // Fetch target workspace
+  const { data: originalWorkspace, error: wsError } = await supabase
+    .from("workspaces")
+    .select("name")
+    .eq("id", workspaceId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (wsError || !originalWorkspace) return { error: "workspaceNotFound" };
+
+  // Create new workspace
+  const copyName = `${originalWorkspace.name} (Copy)`;
+  const { data: newWorkspace, error: createError } = await supabase
+    .from("workspaces")
+    .insert({ user_id: user.id, name: copyName })
+    .select("id")
+    .single();
+
+  if (createError || !newWorkspace) return { error: "failedToDuplicate" };
+
+  // Clone project if exists
+  const projects = await listProjects(workspaceId);
+  if (projects[0]) {
+    const { getProjectWithDraft, createProject } = await import("@/lib/projects/store");
+    const originalProject = await getProjectWithDraft(projects[0].id);
+    if (originalProject?.draftVersion) {
+      await createProject(
+        newWorkspace.id,
+        originalProject.name,
+        originalProject.templateId,
+        originalProject.draftVersion.contentJson,
+      );
+    }
+  }
+
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/[locale]/dashboard", "page");
+
+  return { error: null, id: newWorkspace.id };
+}
+

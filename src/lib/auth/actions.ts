@@ -4,7 +4,13 @@ import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
+import { checkRateLimit } from "@/lib/rate-limit";
 export type ActionState = { error: string | null; success?: string | null };
+
+async function getClientIp(): Promise<string> {
+  const h = await headers();
+  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown-ip";
+}
 
 async function getAppUrl() {
   if (process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
@@ -29,6 +35,12 @@ export async function signUpAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const ip = await getClientIp();
+  const rate = checkRateLimit(`signup:${ip}`, 5, 15 * 60 * 1000);
+  if (!rate.allowed) {
+    return { error: "rateLimited" };
+  }
+
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
@@ -74,6 +86,12 @@ export async function requestPasswordResetAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const ip = await getClientIp();
+  const rate = checkRateLimit(`reset:${ip}`, 3, 15 * 60 * 1000);
+  if (!rate.allowed) {
+    return { error: "rateLimited" };
+  }
+
   const email = String(formData.get("email") ?? "").trim();
   if (!email) {
     return { error: "invalidCredentials" };

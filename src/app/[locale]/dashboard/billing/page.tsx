@@ -5,15 +5,23 @@ import { BillingClientView } from "@/components/dashboard/BillingClientView";
 
 export default async function BillingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ checkout?: string; billing_stub?: string }>;
 }) {
   const { locale } = await params;
+  const { checkout, billing_stub } = await searchParams;
   const email = await getCurrentUserEmail();
 
   if (!email) {
     return redirect({ href: "/login", locale });
   }
+
+  let checkoutNotice: "success" | "failed" | "stub" | null = null;
+  if (checkout === "success") checkoutNotice = "success";
+  else if (checkout === "failed") checkoutNotice = "failed";
+  else if (billing_stub === "true") checkoutNotice = "stub";
 
   const subscriptionState = await getSubscriptionState();
 
@@ -24,6 +32,8 @@ export default async function BillingPage({
       isGracePeriod={subscriptionState.isGracePeriod}
       expiresAt={subscriptionState.expiresAt?.toISOString() ?? null}
       daysRemainingInGracePeriod={subscriptionState.daysRemainingInGracePeriod}
+      checkoutNotice={checkoutNotice}
     />
   );
 }
+

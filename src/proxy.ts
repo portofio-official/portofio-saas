@@ -81,6 +81,10 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.rewrite(url);
   }
 
+  if (request.nextUrl.pathname.startsWith("/sites/")) {
+    return refreshSupabaseSession(request, NextResponse.next());
+  }
+
   const response = intlMiddleware(request);
   return refreshSupabaseSession(request, response);
 }

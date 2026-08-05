@@ -41,3 +41,17 @@
 - Bound the dropdown to directly update `data.theme.styleOverrides[inlineEditId].fontFamily` via the `setData` hook.
 - Upgraded `TemplateRenderer` and `PreviewTemplateRenderer` in `registry.tsx` to dynamically generate and inject an encapsulated `<style>` block. This block maps `[data-field-id]` to the customized `font-family` property (`!important`), ensuring changes render accurately on both the editor and the final published site.
 - Verified TypeScript compilation and passed `init.sh` tests.
+
+# Session 030: Expanded User Profile & Template Integration
+**Status:** Verified / Passing
+**Latest state:**
+- Created database migration `20260805000000_expand_profiles.sql` to expand `profiles` table with `phone`, `address`, `nickname`, `headline`, `bio`, `contact_email`, `socials`, and `skills`.
+- Updated `UserProfile` type in `src/lib/profile/types.ts`.
+- Updated Server Action `updateUserProfile` in `src/lib/profile/actions.ts`.
+- Expanded Settings UI (`src/components/settings/SettingsClientView.tsx`) to support dynamic inputs for skills and socials, integrating translation dictionaries.
+- Refactored `buildInitialDocument` in `src/templates/definition.ts` to source initial template data from `UserProfile` instead of the legacy `WorkspaceProfile`.
+- Updated `createProjectAction` and `syncFromProfileAction` to pull the latest `UserProfile` fields.
+- Verified TypeScript compilation (`npm run build` completed successfully).
+
+**Next Steps:**
+- Pick a new feature from feature_list.json to implement.

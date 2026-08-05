@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type React from "react";
+import type { UserProfile } from "@/lib/profile/types";
 
 // WorkspaceProfile — data induk bisnis dari workspace_profile table
 export interface WorkspaceProfile {
@@ -117,7 +118,7 @@ export function parseDocumentData<TSchema extends z.ZodTypeAny>(
 
 // Build an initial WebsiteDocument for a new project, using template mapper if available or generic auto-fill
 export function buildInitialDocument(
-  profile: WorkspaceProfile,
+  profile: UserProfile,
   definition: TemplateDefinition<z.ZodTypeAny>,
   locale = "id",
 ): WebsiteDocument {
@@ -125,7 +126,24 @@ export function buildInitialDocument(
   let initialData: Record<string, unknown>;
 
   if (definition.mapper) {
-    initialData = definition.mapper(profile) as Record<string, unknown>;
+    // We pass UserProfile but cast to what mapper expects (if it still expects WorkspaceProfile, we should update mappers too. For now, we adapt).
+    // Let's assume mappers expect the old WorkspaceProfile shape for a bit, or we rewrite mappers.
+    // Actually, it's better to adapt the UserProfile into a mock WorkspaceProfile shape to avoid breaking all mappers immediately.
+    const mockWorkspaceProfile = {
+      workspaceId: "", // Not needed for mapping
+      name: profile.full_name,
+      logoUrl: profile.avatar_url,
+      email: profile.contact_email,
+      phone: profile.phone,
+      address: profile.address,
+      websiteUrl: null,
+      extendedData: {
+        tagline: profile.headline || undefined,
+        description: profile.bio || undefined,
+        socials: profile.socials,
+      }
+    };
+    initialData = definition.mapper(mockWorkspaceProfile) as Record<string, unknown>;
   } else {
     const defs = definition.defaults as Record<string, unknown>;
     const profileOverride: Record<string, unknown> = {};
@@ -133,20 +151,29 @@ export function buildInitialDocument(
     if ("profile" in defs && typeof defs.profile === "object") {
       profileOverride.profile = {
         ...(defs.profile as Record<string, unknown>),
-        fullName: profile.name ?? "",
+        fullName: profile.full_name ?? "",
+        nickname: profile.nickname ?? "",
+        headline: profile.headline ?? "",
+        bio: profile.bio ?? "",
+        location: profile.address ?? "",
+        photoUrl: profile.avatar_url ?? "",
       };
     }
 
     if ("contact" in defs && typeof defs.contact === "object") {
       profileOverride.contact = {
         ...(defs.contact as Record<string, unknown>),
-        email: profile.email ?? "",
+        email: profile.contact_email ?? "",
         phone: profile.phone ?? "",
       };
     }
 
     if ("socials" in defs && Array.isArray(defs.socials)) {
-      profileOverride.socials = profile.extendedData.socials ?? [];
+      profileOverride.socials = profile.socials ?? [];
+    }
+
+    if ("skills" in defs && Array.isArray(defs.skills) && profile.skills?.length > 0) {
+      profileOverride.skills = profile.skills;
     }
 
     initialData = { ...defs, ...profileOverride };

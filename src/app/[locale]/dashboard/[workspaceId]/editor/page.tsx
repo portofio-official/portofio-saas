@@ -3,7 +3,7 @@ import { getCurrentUserEmail } from "@/lib/auth/session";
 import { getWorkspace } from "@/lib/workspace/queries";
 import { listProjects, createProject, getProjectWithDraft, hasProfileDiverged } from "@/lib/projects/store";
 import { buildInitialDocument } from "@/templates/definition";
-import { getWorkspaceProfile } from "@/lib/workspace/profile";
+import { getUserProfile } from "@/lib/profile/queries";
 import { getDefinition } from "@/templates/registry";
 import { Editor } from "@/components/dashboard/Editor";
 import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
@@ -40,7 +40,8 @@ export default async function EditorPage({
       selectedTemplateId = DEFAULT_TEMPLATE;
     }
 
-    const profile = await getWorkspaceProfile(workspaceId);
+    const profile = await getUserProfile();
+    if (!profile) return redirect({ href: "/login", locale });
     const definition = getDefinition(selectedTemplateId as TemplateId);
     const initialDoc = definition
       ? buildInitialDocument(profile, definition, locale)

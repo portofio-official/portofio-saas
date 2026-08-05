@@ -17,5 +17,9 @@ export async function getUserProfile(): Promise<UserProfile | null> {
 
   if (error || !data) return null;
 
-  return data as UserProfile;
+  return {
+    ...data,
+    socials: data.socials ?? [],
+    skills: data.skills ?? [],
+  } as UserProfile;
 }

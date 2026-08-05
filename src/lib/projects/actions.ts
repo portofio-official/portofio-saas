@@ -3,7 +3,7 @@
 import { createProject, saveDraftJson, publishProject, unpublishProject, getProjectWithDraft } from "./store";
 import { buildInitialDocument, type WebsiteDocument } from "@/templates/definition";
 import { getDefinition } from "@/templates/registry";
-import { getWorkspaceProfile } from "@/lib/workspace/profile";
+import { getUserProfile } from "@/lib/profile/queries";
 import { checkSubscription } from "@/lib/billing/subscription";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -19,7 +19,8 @@ export async function createProjectAction(
   const definition = getDefinition(templateId);
   if (!definition) return { ok: false, error: "Template not found" };
 
-  const profile = await getWorkspaceProfile(workspaceId);
+  const profile = await getUserProfile();
+  if (!profile) return { ok: false, error: "notAuthenticated" };
   const initialDoc = buildInitialDocument(profile, definition, locale);
 
   const project = await createProject(workspaceId, name, templateId, initialDoc);
@@ -42,29 +43,42 @@ export async function syncFromProfileAction(
   const projectWithDraft = await getProjectWithDraft(projectId);
   if (!projectWithDraft) return { ok: false, error: "Project not found" };
 
-  const profile = await getWorkspaceProfile(projectWithDraft.workspaceId);
+  const profile = await getUserProfile();
+  if (!profile) return { ok: false, error: "notAuthenticated" };
   const currentDoc = projectWithDraft.draftVersion.contentJson;
   const currentData = { ...(currentDoc.data ?? {}) } as Record<string, unknown>;
 
   // Merge profile fields into document data
-  if ("profile" in currentData && typeof currentData.profile === "object" && currentData.profile !== null) {
+  if ("profile" in currentData && typeof currentData.profile === "object") {
     currentData.profile = {
       ...(currentData.profile as Record<string, unknown>),
-      fullName: profile.name ?? (currentData.profile as Record<string, unknown>).fullName ?? "",
+      fullName: profile.full_name ?? (currentData.profile as Record<string, unknown>).fullName ?? "",
+      nickname: profile.nickname ?? (currentData.profile as Record<string, unknown>).nickname ?? "",
+      headline: profile.headline ?? (currentData.profile as Record<string, unknown>).headline ?? "",
+      bio: profile.bio ?? (currentData.profile as Record<string, unknown>).bio ?? "",
+      location: profile.address ?? (currentData.profile as Record<string, unknown>).location ?? "",
+      photoUrl: profile.avatar_url ?? (currentData.profile as Record<string, unknown>).photoUrl ?? "",
     };
   }
 
-  if ("contact" in currentData && typeof currentData.contact === "object" && currentData.contact !== null) {
+  if ("contact" in currentData && typeof currentData.contact === "object") {
     currentData.contact = {
       ...(currentData.contact as Record<string, unknown>),
-      email: profile.email ?? (currentData.contact as Record<string, unknown>).email ?? "",
+      email: profile.contact_email ?? (currentData.contact as Record<string, unknown>).email ?? "",
       phone: profile.phone ?? (currentData.contact as Record<string, unknown>).phone ?? "",
     };
   }
 
   if ("socials" in currentData && Array.isArray(currentData.socials)) {
-    if (profile.extendedData.socials && profile.extendedData.socials.length > 0) {
-      currentData.socials = profile.extendedData.socials;
+    // Only overwrite if profile has socials, otherwise keep existing
+    if (profile.socials && profile.socials.length > 0) {
+      currentData.socials = profile.socials;
+    }
+  }
+
+  if ("skills" in currentData && Array.isArray(currentData.skills)) {
+    if (profile.skills && profile.skills.length > 0) {
+      currentData.skills = profile.skills;
     }
   }
 

@@ -6,15 +6,17 @@ import type { BasePortfolioData as PortfolioData } from "@/templates/shared/_bas
 
 export function ProfileSection({
   t,
+  description,
   profile,
   onChange,
 }: {
   t: ReturnType<typeof useTranslations>;
+  description?: string;
   profile: PortfolioData["profile"];
   onChange: (patch: Partial<PortfolioData["profile"]>) => void;
 }) {
   return (
-    <FormPanel eyebrow={t("eyebrow")} title={t("title")}>
+    <FormPanel title={t("title")} description={description}>
       <div className="flex flex-col gap-4">
         <PhotoUploadField
           label={t("photoLabel")}

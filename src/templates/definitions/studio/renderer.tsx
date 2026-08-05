@@ -68,29 +68,31 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 
 function HeroSection({ hero, profile }: { hero: StudioData["hero"]; profile: StudioData["profile"] }) {
   return (
-    <section className="relative flex min-h-[100dvh] flex-col items-center justify-center px-4 py-24 text-center">
+    <section id="profile" className="relative flex min-h-[100dvh] flex-col items-center justify-center px-4 py-24 text-center">
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden opacity-30">
         <div className="h-[600px] w-[600px] rounded-full bg-white/5 blur-[100px]" />
       </div>
       
       <div className="relative z-10 flex max-w-4xl flex-col items-center">
         <Reveal>
-          <div className="mb-8 rounded-full px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white/60" style={{ boxShadow: `inset 0 0 0 1px ${BORDER_OUTER}` }}>
+          <div data-field-id="profile.fullName" className="mb-8 rounded-full px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white/60" style={{ boxShadow: `inset 0 0 0 1px ${BORDER_OUTER}` }}>
             {profile.fullName || "Studio"}
           </div>
         </Reveal>
         <Reveal delay={0.1}>
-          <h1 className="mb-6 max-w-3xl text-balance text-5xl font-medium tracking-tight text-white md:text-7xl lg:text-8xl">
+          <h1 data-field-id="hero.headline" className="mb-6 max-w-3xl text-balance text-5xl font-medium tracking-tight text-white md:text-7xl lg:text-8xl">
             {hero.headline}
           </h1>
         </Reveal>
         <Reveal delay={0.2}>
-          <p className="mb-12 max-w-[40ch] text-balance text-lg leading-relaxed text-zinc-400 md:text-xl">
+          <p data-field-id="hero.subheadline" className="mb-12 max-w-[40ch] text-balance text-lg leading-relaxed text-zinc-400 md:text-xl">
             {hero.subheadline || profile.headline}
           </p>
         </Reveal>
         <Reveal delay={0.3}>
-          <MagneticButton href="#work">{hero.ctaLabel}</MagneticButton>
+          <MagneticButton href="#work">
+            <span data-field-id="hero.ctaLabel">{hero.ctaLabel}</span>
+          </MagneticButton>
         </Reveal>
       </div>
     </section>
@@ -100,7 +102,7 @@ function HeroSection({ hero, profile }: { hero: StudioData["hero"]; profile: Stu
 function ExpertiseSection({ expertise }: { expertise: StudioData["expertise"] }) {
   if (!expertise.length) return null;
   return (
-    <section className="px-4 py-24 md:py-40">
+    <section id="expertise" className="px-4 py-24 md:py-40">
       <div className="mx-auto max-w-7xl">
         <Reveal>
           <h2 className="mb-16 text-3xl font-medium tracking-tight text-white md:text-5xl">Capabilities</h2>
@@ -108,12 +110,14 @@ function ExpertiseSection({ expertise }: { expertise: StudioData["expertise"] })
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {expertise.map((item, i) => (
             <Reveal key={i} delay={i * 0.1}>
-              <DoubleBezelCard className="h-full">
-                <div className="flex h-full flex-col p-8 md:p-10">
-                  <h3 className="mb-4 text-xl font-medium text-white">{item.title}</h3>
-                  <p className="text-zinc-400 leading-relaxed">{item.description}</p>
-                </div>
-              </DoubleBezelCard>
+              <div data-item-index={i} data-section-type="expertise" className="h-full">
+                <DoubleBezelCard className="h-full">
+                  <div className="flex h-full flex-col p-8 md:p-10">
+                    <h3 data-field-id={`expertise.${i}.title`} className="mb-4 text-xl font-medium text-white">{item.title}</h3>
+                    <p data-field-id={`expertise.${i}.description`} className="text-zinc-400 leading-relaxed">{item.description}</p>
+                  </div>
+                </DoubleBezelCard>
+              </div>
             </Reveal>
           ))}
         </div>
@@ -137,7 +141,7 @@ function ProjectsSection({ projects }: { projects: StudioData["projects"] }) {
             const spanClass = isFullWidth ? "md:col-span-12" : "md:col-span-6";
             
             return (
-              <div key={i} className={`group ${spanClass}`}>
+              <div key={i} className={`group ${spanClass}`} data-item-index={i} data-section-type="projects">
                 <Reveal delay={i % 3 === 0 ? 0 : 0.1}>
                   <DoubleBezelCard className="h-[400px] md:h-[500px]">
                     <a
@@ -158,8 +162,8 @@ function ProjectsSection({ projects }: { projects: StudioData["projects"] }) {
                       
                       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-8 md:p-10">
                         <div>
-                          <h3 className="mb-2 text-2xl font-medium text-white md:text-3xl">{p.title}</h3>
-                          <p className="max-w-md text-zinc-300 line-clamp-2">{p.description}</p>
+                          <h3 data-field-id={`projects.${i}.title`} className="mb-2 text-2xl font-medium text-white md:text-3xl">{p.title}</h3>
+                          <p data-field-id={`projects.${i}.description`} className="max-w-md text-zinc-300 line-clamp-2">{p.description}</p>
                         </div>
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-all duration-500 group-hover:bg-white group-hover:text-black">
                           <ArrowUpRight weight="bold" />
@@ -180,7 +184,7 @@ function ProjectsSection({ projects }: { projects: StudioData["projects"] }) {
 function TestimonialsSection({ testimonials }: { testimonials: StudioData["testimonials"] }) {
   if (!testimonials.length) return null;
   return (
-    <section className="px-4 py-24 md:py-40">
+    <section id="testimonials" className="px-4 py-24 md:py-40">
       <div className="mx-auto max-w-7xl">
         <Reveal>
           <div className="mb-16 flex items-center gap-4">
@@ -210,7 +214,7 @@ function TestimonialsSection({ testimonials }: { testimonials: StudioData["testi
 
 function ContactSection({ contact }: { contact: StudioData["contact"] }) {
   return (
-    <section className="px-4 py-24 pb-40 md:py-40">
+    <section id="contact" className="px-4 py-24 pb-40 md:py-40">
       <div className="mx-auto max-w-7xl text-center">
         <Reveal>
           <h2 className="mb-8 text-4xl font-medium tracking-tight text-white md:text-6xl lg:text-7xl">

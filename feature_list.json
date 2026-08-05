@@ -238,6 +238,14 @@
       }
     },
     {
+      "id": "editor-architecture",
+      "title": "Variant-Based Theme Engine",
+      "description": "Remove fine-grained design customization (color picker, font selectors, spacing, contextual typography) in favor of predefined template-level Variants (e.g. Default, Emerald, Charcoal).",
+      "status": "completed",
+      "priority": "high",
+      "dependencies": []
+    },
+    {
       "id": "rbac-001",
       "priority": 10,
       "area": "auth",
@@ -257,6 +265,26 @@
         "2026-07-20: Built Admin UI at /admin with AdminSidebar and SuspendUserButton, utilizing Supabase Service Role client to list and suspend users."
       ],
       "notes": "Backend protection and Admin UI are complete. Designer UI needs to be built."
+    },
+    {
+      "id": "editor-003",
+      "priority": 1,
+      "area": "editor",
+      "title": "Phase 3 — Editor Delight & Professional Workflow",
+      "user_visible_behavior": "Editor has inline editing overlay, Quick Action Toolbar on hover, HTML5 drag and drop for lists, progress bar replacing checklist, and publish readiness validation.",
+      "status": "passing",
+      "verification": [
+        "Run npm run build and confirm clean build.",
+        "Verify inline editor works, quick actions show on hover, lists can be reordered via drag and drop."
+      ],
+      "evidence": [
+        "Implemented useHistory for undo/redo.",
+        "Added floating inline editing overlay.",
+        "Implemented Quick Action Toolbar.",
+        "Added HTML5 drag-and-drop to RepeatableSection.",
+        "Replaced checklist with Progress bar and added Publish Validation Modal.",
+        "Verified TypeScript compilation."
+      ]
     }
   ]
 }

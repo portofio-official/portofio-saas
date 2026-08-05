@@ -231,9 +231,27 @@
     "hub": {
       "eyebrow": "Workspace",
       "subtitle": "Kelola data dan template untuk workspace ini.",
-      "editData": "Isi data portofolio",
       "chooseTemplate": "Pilih template"
     }
+  },
+  "Settings": {
+    "eyebrow": "Pengaturan",
+    "title": "Profil Akun",
+    "subtitle": "Kelola informasi pribadi dan preferensi Anda.",
+    "fullNameLabel": "Nama Lengkap",
+    "fullNamePlaceholder": "Masukkan nama lengkap Anda",
+    "save": "Simpan perubahan",
+    "saving": "Menyimpan...",
+    "success": "Profil berhasil diperbarui.",
+    "error": "Gagal memperbarui profil."
+  },
+  "Onboarding": {
+    "eyebrow": "Selamat datang",
+    "title": "Mari buat portofoliomu",
+    "subtitle": "Beri nama untuk workspace pertamamu. Nama ini bisa diubah nanti.",
+    "testimonial": "\"Desain yang bersih dan editor yang intuitif membantu saya membangun profil profesional dalam hitungan menit.\"",
+    "testimonialAuthor": "Alex Chen",
+    "testimonialRole": "Product Designer"
   },
   "PortfolioForm": {
     "eyebrow": "Data portofolio",

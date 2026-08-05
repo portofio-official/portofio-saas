@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { templateFontClass } from "@/templates/fonts";
 import { initials, SocialIcon } from "@/templates/shared";
+import { freelancerDefinition } from "./definition";
 import type { FreelancerData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
 
@@ -47,6 +47,8 @@ export function FreelancerRenderer({
     theme,
     availableForWork,
   } = data;
+  
+  const variant = freelancerDefinition.variants.find((v) => v.id === theme.variantId) || freelancerDefinition.variants[0];
 
   // Reveal animation
   const revealRefs = useRef<HTMLElement[]>([]);
@@ -72,11 +74,11 @@ export function FreelancerRenderer({
     if (el && !revealRefs.current.includes(el)) revealRefs.current.push(el);
   };
 
-  const accent = theme.accentColor;
+  const accent = variant.colors.primary;
 
   return (
     <div
-      className={`${templateFontClass(theme.font)} min-h-screen`}
+      className={`min-h-screen`}
       style={{ backgroundColor: BG, color: INK }}
     >
       {/* ── NAV ── */}
@@ -118,6 +120,7 @@ export function FreelancerRenderer({
       <div className="mx-auto max-w-[960px] px-6 md:px-12">
         {/* ── HERO ── */}
         <header
+          id="profile"
           ref={setReveal}
           className="py-20 md:py-28 opacity-0 translate-y-8 transform transition-all duration-700"
         >
@@ -187,6 +190,7 @@ export function FreelancerRenderer({
         {/* ── PROJECTS ── */}
         {projects.length > 0 && (
           <section
+            id="projects"
             ref={setReveal}
             className="py-16 border-t opacity-0 translate-y-8 transform transition-all duration-700 delay-100"
             style={{ borderColor: LINE }}
@@ -248,6 +252,7 @@ export function FreelancerRenderer({
         {/* ── TESTIMONIALS ── */}
         {testimonials.length > 0 && (
           <section
+            id="testimonials"
             ref={setReveal}
             className="py-16 border-t opacity-0 translate-y-8 transform transition-all duration-700 delay-150"
             style={{ borderColor: LINE }}
@@ -299,6 +304,7 @@ export function FreelancerRenderer({
         {/* ── PRICING ── */}
         {pricing.length > 0 && (
           <section
+            id="pricing"
             ref={setReveal}
             className="py-16 border-t opacity-0 translate-y-8 transform transition-all duration-700 delay-200"
             style={{ borderColor: LINE }}
@@ -373,6 +379,7 @@ export function FreelancerRenderer({
 
         {/* ── CONTACT ── */}
         <footer
+          id="contact"
           ref={setReveal}
           className="py-16 border-t flex flex-col md:flex-row items-start justify-between gap-8 opacity-0 translate-y-8 transform transition-all duration-700 delay-300"
           style={{ borderColor: LINE }}

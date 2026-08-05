@@ -125,7 +125,7 @@ export function Navbar({ userEmail, userRole = "user" }: { userEmail: string | n
             </button>
             {dropdownOpen && (
               <div className={styles.profileDropdownMenu}>
-                <Link href="#" onClick={(e) => { e.preventDefault(); alert("Profile page coming soon"); setDropdownOpen(false); }} className={styles.profileDropdownItem}>
+                <Link href="/dashboard/settings" onClick={() => setDropdownOpen(false)} className={styles.profileDropdownItem}>
                   <span className={`material-symbols-outlined ${styles.dropdownIcon}`}>person</span>
                   {t("profile")}
                 </Link>

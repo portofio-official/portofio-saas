@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -9,8 +11,9 @@ import type { BasePortfolioData } from "@/templates/shared/_base";
 import type { StudioData } from "@/templates/definitions/studio/schema";
 import type { PortfolioProData } from "@/templates/definitions/portfolio-pro/schema";
 import type { FreelancerData } from "@/templates/definitions/freelancer/schema";
-import type { WebsiteDocument } from "@/templates/definition";
+import { WebsiteDocument } from "@/templates/definition";
 import { PreviewTemplateRenderer as TemplateRenderer, getDefinition } from "@/templates/registry";
+import { useHistory } from "@/hooks/useHistory";
 
 // Portfolio Form Sections
 import { ProfileSection } from "@/components/portfolio/sections/ProfileSection";
@@ -63,7 +66,7 @@ export function Editor({
   profileDiverged?: boolean;
   rootDomain?: string;
 }) {
-  const [data, setData] = useState<EditorData>(
+  const [data, setData, history] = useHistory<EditorData>(
     (initialDocument.data ?? {}) as EditorData,
   );
   const templateId = initialTemplateId;
@@ -71,26 +74,82 @@ export function Editor({
 
   // Tab States
   const [activeLeftTab, setActiveLeftTab] = useState<"content" | "sections">("content");
-  const [activeRightTab, setActiveRightTab] = useState<"design" | "settings">("design");
+  const [activeLeftPanel, setActiveLeftPanel] = useState<"layers" | "database" | "media" | "settings">("layers");
+  const [activeRightTab, setActiveRightTab] = useState<"appearance" | "settings">("appearance");
+  
+  // Accordion State
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [activeSectionFields, setActiveSectionFields] = useState<{id: string, label: string}[]>([]);
+  
+  // Publish Readiness State
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const [publishErrors, setPublishErrors] = useState<string[]>([]);
 
-  // Auto-scaling Preview State
+  // Inline Editing State
+  const [inlineEditId, setInlineEditId] = useState<string | null>(null);
+  const [inlineEditValue, setInlineEditValue] = useState("");
+  const [inlineEditStyle, setInlineEditStyle] = useState<React.CSSProperties>({});
+
+  // Quick Action Toolbar State
+  const [hoveredActionCard, setHoveredActionCard] = useState<{
+    sectionType: string;
+    index: number;
+    rect: DOMRect;
+  } | null>(null);
+
+  // Viewport Simulation State
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "laptop" | "tablet" | "mobile">("desktop");
+  const [previewZoom, setPreviewZoom] = useState<"fit-width" | "fit-height" | "fit-screen" | "fit" | "25" | "50" | "75" | "100" | "125">("fit-screen");
+
+  const DEVICE_CONFIG = {
+    desktop: { width: 1440, height: 900, name: "Desktop" },
+    laptop: { width: 1280, height: 800, name: "Laptop" },
+    tablet: { width: 768, height: 1024, name: "Tablet" },
+    mobile: { width: 390, height: 844, name: "Mobile" },
+  };
+
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(1100);
+  const previewScrollRef = useRef<HTMLDivElement>(null); // New ref for the scrollable frame
+  const [containerSize, setContainerSize] = useState({ width: 1100, height: 800 });
 
   useEffect(() => {
     if (!containerRef.current) return;
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        setContainerWidth(entry.contentRect.width);
+        setContainerSize({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height,
+        });
       }
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const desktopTargetWidth = 1280;
-  const desktopScale = Math.min(containerWidth / desktopTargetWidth, 1);
-  const zoomLevel = Math.round(desktopScale * 100);
+  const device = DEVICE_CONFIG[previewDevice];
+  
+  // Panning state
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+
+  // Calculate fit scales
+  const isDesktopOrLaptop = ["desktop", "laptop"].includes(previewDevice);
+  const padding = isDesktopOrLaptop ? 0 : 64;
+  const availableW = Math.max(containerSize.width - padding * 2, 100);
+  const availableH = Math.max(containerSize.height - padding * 2, 100);
+  
+  const scaleFitWidth = availableW / device.width;
+  const scaleFitHeight = availableH / device.height;
+  
+  let scale = 1;
+  if (previewZoom === "fit-width" || previewZoom === "fit" || previewZoom === "fit-screen") scale = scaleFitWidth;
+  else if (previewZoom === "fit-height") scale = isDesktopOrLaptop ? scaleFitWidth : scaleFitHeight;
+  else scale = parseInt(previewZoom) / 100;
+  
+  // Dynamic height for Desktop/Laptop so it spans the full vertical workspace
+  const computedHeight = isDesktopOrLaptop ? containerSize.height / scale : device.height;
+
+  const zoomLevel = Math.round(scale * 100);
 
   // Profile sync banner state
   const [showProfileBanner, setShowProfileBanner] = useState(profileDiverged ?? false);
@@ -116,6 +175,220 @@ export function Editor({
 
   const domain = rootDomain ?? process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
+  const scrollToSection = (sectionKey: string) => {
+    if (sectionKey === "about" || sectionKey === "profile" || sectionKey === "hero") {
+      // Scroll to the top for the "About me" or "Profile" section
+      if (previewScrollRef.current) {
+        previewScrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      return;
+    }
+    
+    // Map some schema IDs to minimal/portfolio-pro renderer's data-section-key or element IDs
+    let query = `[data-section-key="${sectionKey}"], #${sectionKey}`;
+    
+    if (["projects", "caseStudies"].includes(sectionKey)) {
+      query = `[data-section-key="${sectionKey}"], #${sectionKey}, [data-section-key="work"], #work, #projects`;
+    } else if (["skills", "skillsShowcase", "experienceDetails", "educationDetails"].includes(sectionKey)) {
+      query = `[data-section-key="${sectionKey}"], #${sectionKey}, [data-section-key="capabilities"], #capabilities, #skills, #resume`;
+    } else if (sectionKey === "certificates") {
+      query = `[data-section-key="${sectionKey}"], #${sectionKey}, #courses`;
+    } else if (sectionKey === "gallery") {
+      query = `[data-section-key="${sectionKey}"], #${sectionKey}, #activities`;
+    }
+
+    // Find the element by data-section-key or id
+    const element = document.querySelector(query);
+    if (element) {
+      if (previewScrollRef.current && element instanceof HTMLElement) {
+        // Bounding rectangles are scaled by the CSS transform, so we divide by the scale factor
+        const containerRect = previewScrollRef.current.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        
+        // Calculate top offset relative to the container, unscaled
+        const relativeTop = (elementRect.top - containerRect.top) / scale;
+        
+        previewScrollRef.current.scrollTo({ 
+          top: previewScrollRef.current.scrollTop + relativeTop, 
+          behavior: "smooth" 
+        });
+      } else {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
+
+  // Canvas Panning Handlers
+  const handleWheel = (e: React.WheelEvent) => {
+    // Prevent default scrolling on the workspace if it's scrollable, but we handle it via state
+    setPan(p => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
+  };
+
+  const handleWorkspaceMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).id === 'workspace-canvas') {
+      setIsPanning(true);
+    }
+  };
+
+  const handleWorkspaceMouseMove = (e: React.MouseEvent) => {
+    if (isPanning) {
+      setPan(p => ({ x: p.x + e.movementX, y: p.y + e.movementY }));
+    }
+  };
+
+  const handleWorkspaceMouseUp = () => {
+    setIsPanning(false);
+  };
+
+  const handlePreviewDoubleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const editableEl = target.closest("[data-field-id]") as HTMLElement;
+    
+    if (editableEl) {
+      e.stopPropagation();
+      e.preventDefault();
+      
+      const fieldId = editableEl.getAttribute("data-field-id")!;
+      const computed = window.getComputedStyle(editableEl);
+      const rect = editableEl.getBoundingClientRect();
+      const containerRect = previewScrollRef.current?.getBoundingClientRect(); // Use inner container
+      
+      if (!containerRect) return;
+      
+      setInlineEditStyle({
+        top: (rect.top - containerRect.top) / scale,
+        left: (rect.left - containerRect.left) / scale,
+        width: rect.width / scale,
+        height: rect.height / scale,
+        fontSize: computed.fontSize,
+        fontFamily: computed.fontFamily,
+        fontWeight: computed.fontWeight,
+        lineHeight: computed.lineHeight,
+        color: computed.color,
+        letterSpacing: computed.letterSpacing,
+        textAlign: computed.textAlign as any,
+        padding: computed.padding,
+        margin: 0,
+        boxSizing: "border-box",
+        background: "transparent",
+        border: "none",
+        outline: "none",
+        resize: "none",
+        overflow: "hidden",
+      });
+      
+      setInlineEditId(fieldId);
+      
+      // Extract value
+      const parts = fieldId.split(".");
+      let val: any = data;
+      for (const p of parts) {
+        val = val?.[p];
+      }
+      setInlineEditValue((val as string) || "");
+    }
+  };
+
+  const handlePreviewMouseMove = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const itemEl = target.closest("[data-section-type][data-item-index]") as HTMLElement;
+    
+    if (itemEl && previewScrollRef.current) {
+      const rect = itemEl.getBoundingClientRect();
+      const containerRect = previewScrollRef.current.getBoundingClientRect();
+      
+      setHoveredActionCard({
+        sectionType: itemEl.getAttribute("data-section-type")!,
+        index: parseInt(itemEl.getAttribute("data-item-index")!, 10),
+        rect: {
+          ...rect,
+          top: (rect.top - containerRect.top) / scale,
+          left: (rect.left - containerRect.left) / scale,
+          width: rect.width / scale,
+          height: rect.height / scale,
+        } as DOMRect
+      });
+    }
+  };
+
+  const handlePreviewMouseLeave = () => {
+    setHoveredActionCard(null);
+  };
+
+  const handleInlineSave = () => {
+    if (!inlineEditId) return;
+    
+    const parts = inlineEditId.split(".");
+    
+    if (parts.length === 3) {
+      // e.g. projects.0.title
+      const arrayName = parts[0];
+      const index = parseInt(parts[1], 10);
+      const field = parts[2];
+      
+      const arr = (data as any)[arrayName];
+      if (Array.isArray(arr) && arr[index]) {
+         const newArr = [...arr];
+         newArr[index] = { ...newArr[index], [field]: inlineEditValue };
+         setData({
+           ...data,
+           [arrayName]: newArr
+         });
+      }
+    } else if (parts.length === 2) {
+      setData({
+        ...data,
+        [parts[0]]: {
+          ...(data as any)[parts[0]],
+          [parts[1]]: inlineEditValue,
+        }
+      });
+    } else if (parts.length === 1) {
+       setData({
+         ...data,
+         [parts[0]]: inlineEditValue
+       });
+    }
+    
+    setInlineEditId(null);
+  };
+
+  const handlePreviewClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    
+    if (target.closest('a') || target.closest('button')) {
+      return;
+    }
+    
+    const sectionElement = target.closest("section, header, footer, [data-section-key]");
+    if (sectionElement) {
+      let sectionId = sectionElement.id || sectionElement.getAttribute("data-section-key");
+      
+      if (sectionId) {
+        if (sectionId === "work") sectionId = "projects";
+        if (sectionId === "capabilities") sectionId = "skills";
+        if (sectionId === "resume") sectionId = "experienceDetails"; 
+        if (sectionId === "courses") sectionId = "certificates";
+        if (sectionId === "activities") sectionId = "gallery";
+        
+        const validSection = definition?.sections.find(
+          s => s.id === sectionId || s.id === sectionElement.id || s.id === sectionElement.getAttribute("data-section-key")
+        );
+        
+        if (validSection) {
+          setExpandedSection(validSection.id);
+          // Scroll left panel to the expanded accordion after a short delay
+          setTimeout(() => {
+            const accordionEl = document.getElementById(`accordion-${validSection.id}`);
+            if (accordionEl) {
+              accordionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          }, 100);
+        }
+      }
+    }
+  };
+
   // Build a WebsiteDocument from current data state for autosave
   const documentForSave = (): WebsiteDocument => ({
     ...initialDocument,
@@ -127,7 +400,60 @@ export function Editor({
     data: data as Record<string, unknown>,
   });
 
-  const saveStatus = useAutosave(data, () => saveDraftAction(projectId, documentForSave()));
+  const [customSaveStatus, setCustomSaveStatus] = useState<"Saving..." | "Saved just now" | "✓ All changes saved" | "Error saving" | "">("");
+
+  useAutosave(data, async (d) => {
+    setCustomSaveStatus("Saving...");
+    try {
+      const result = await saveDraftAction(projectId, documentForSave());
+      setCustomSaveStatus("Saved just now");
+      setTimeout(() => setCustomSaveStatus("✓ All changes saved"), 2000);
+      return result;
+    } catch (e) {
+      console.error(e);
+      setCustomSaveStatus("Error saving");
+      return { ok: false };
+    }
+  });
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Avoid intercepting when user is typing in native inputs
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        if (e.key === 'Escape') {
+          e.target.blur();
+        }
+        return;
+      }
+      
+      if (e.key === 'Escape') {
+        setExpandedSection(null);
+      }
+      
+      const isCmdOrCtrl = e.metaKey || e.ctrlKey;
+      
+
+      if (isCmdOrCtrl && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          history.redo();
+        } else {
+          history.undo();
+        }
+      }
+      
+      if (isCmdOrCtrl && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        // UI feedback trigger, actual save handled by autosave throttle
+        setCustomSaveStatus("Saved just now");
+        setTimeout(() => setCustomSaveStatus("✓ All changes saved"), 2000);
+      }
+    };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [history]);
 
   const t = useTranslations("TemplatePicker");
   const tSaveStatus = useTranslations("PortfolioForm.saveStatus");
@@ -191,19 +517,24 @@ export function Editor({
           
           <div className="w-8 h-px bg-black/5 mb-2" />
 
-          <button className="w-10 h-10 flex items-center justify-center rounded-[12px] bg-accent/10 text-accent transition-all" title="Content Layers">
+          <button
+            onClick={() => setActiveLeftPanel("layers")}
+            className={`w-10 h-10 flex items-center justify-center rounded-[12px] transition-all ${activeLeftPanel === "layers" ? "bg-accent/10 text-accent" : "text-ink-soft hover:bg-black/5 hover:text-ink"}`} title="Content Layers">
              <span className="material-symbols-outlined text-[20px]">layers</span>
           </button>
-          <button className="w-10 h-10 flex items-center justify-center rounded-[12px] text-ink-soft hover:bg-black/5 hover:text-ink transition-all" title="Database">
+          <button
+            onClick={() => setActiveLeftPanel("database")}
+            className={`w-10 h-10 flex items-center justify-center rounded-[12px] transition-all ${activeLeftPanel === "database" ? "bg-accent/10 text-accent" : "text-ink-soft hover:bg-black/5 hover:text-ink"}`} title="Database">
              <span className="material-symbols-outlined text-[20px]">database</span>
           </button>
-          <button className="w-10 h-10 flex items-center justify-center rounded-[12px] text-ink-soft hover:bg-black/5 hover:text-ink transition-all" title="Media">
+          <button
+            onClick={() => setActiveLeftPanel("media")}
+            className={`w-10 h-10 flex items-center justify-center rounded-[12px] transition-all ${activeLeftPanel === "media" ? "bg-accent/10 text-accent" : "text-ink-soft hover:bg-black/5 hover:text-ink"}`} title="Media">
              <span className="material-symbols-outlined text-[20px]">image</span>
           </button>
-          <button className="w-10 h-10 flex items-center justify-center rounded-[12px] text-ink-soft hover:bg-black/5 hover:text-ink transition-all" title="Code Customization">
-             <span className="material-symbols-outlined text-[20px]">code</span>
-          </button>
-          <button className="w-10 h-10 flex items-center justify-center rounded-[12px] text-ink-soft hover:bg-black/5 hover:text-ink transition-all" title="Global Settings">
+          <button
+            onClick={() => setActiveLeftPanel("settings")}
+            className={`w-10 h-10 flex items-center justify-center rounded-[12px] transition-all ${activeLeftPanel === "settings" ? "bg-accent/10 text-accent" : "text-ink-soft hover:bg-black/5 hover:text-ink"}`} title="Global Settings">
              <span className="material-symbols-outlined text-[20px]">settings</span>
           </button>
         </div>
@@ -240,7 +571,7 @@ export function Editor({
             
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px] text-positive">check</span>
-              <span className="text-[12px] font-medium text-positive">{tSaveStatus(saveStatus)}</span>
+              <span className="text-[12px] font-medium text-positive">{customSaveStatus}</span>
             </div>
           </div>
 
@@ -273,7 +604,19 @@ export function Editor({
             </button>
             <button
               type="button"
-              onClick={() => setActiveRightTab("settings")}
+              onClick={() => {
+                const missing = [];
+                if (!data.profile?.fullName) missing.push("Add your full name");
+                if (!data.profile?.photoUrl) missing.push("Upload a profile photo");
+                if (!data.projects?.length) missing.push("Add at least one project");
+                
+                if (missing.length > 0) {
+                  setPublishErrors(missing);
+                  setShowPublishModal(true);
+                } else {
+                  handlePublish();
+                }
+              }}
               className="flex items-center gap-1.5 rounded-full bg-accent px-5 py-1.5 text-[12px] font-medium text-white shadow-sm transition-all hover:scale-105"
             >
               <span className="material-symbols-outlined text-[14px]">rocket_launch</span>
@@ -287,164 +630,549 @@ export function Editor({
 
           {/* Left Sidebar: Content & Sections */}
         <aside className="gsap-panel flex w-[300px] shrink-0 flex-col border-r border-black/5 bg-surface z-20 shadow-md">
-          <div className="flex h-[52px] shrink-0 items-end px-5 border-b border-black/5 gap-6">
-            <button
-              onClick={() => setActiveLeftTab("content")}
-              className={`pb-3 text-[12px] font-bold border-b-2 transition-colors ${
-                activeLeftTab === "content" ? "border-accent text-accent" : "border-transparent text-ink-soft hover:text-ink"
-              }`}
-            >
-              Content
-            </button>
-            <button
-              onClick={() => setActiveLeftTab("sections")}
-              className={`pb-3 text-[12px] font-bold border-b-2 transition-colors ${
-                activeLeftTab === "sections" ? "border-accent text-accent" : "border-transparent text-ink-soft hover:text-ink"
-              }`}
-            >
-              Sections
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
-            {activeLeftTab === "content" ? (
-            <div className="flex flex-col h-full justify-between pb-6">
-              <div className="flex flex-col gap-3">
-                {/* Projects Card (Active) */}
-                <div className="flex items-center justify-between rounded-[1rem] bg-accent/5 ring-1 ring-accent p-3 cursor-pointer">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-accent shadow-sm">
-                      <span className="material-symbols-outlined text-[16px]">work</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[13px] font-bold text-ink">Projects</span>
-                      <span className="text-[11px] text-ink-soft">3 items</span>
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined text-[18px] text-ink-faint cursor-grab">drag_indicator</span>
-                </div>
-
-                {/* About me Card */}
-                <div className="flex items-center justify-between rounded-[1rem] bg-white ring-1 ring-black/5 p-3 cursor-pointer hover:bg-black/5 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-black/5 flex items-center justify-center text-ink-soft shadow-sm">
-                      <span className="material-symbols-outlined text-[16px]">person</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[13px] font-bold text-ink">About me</span>
-                      <span className="text-[11px] text-ink-soft">1 item</span>
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined text-[18px] text-ink-faint cursor-grab">drag_indicator</span>
-                </div>
-
-                {/* Contact Card */}
-                <div className="flex items-center justify-between rounded-[1rem] bg-white ring-1 ring-black/5 p-3 cursor-pointer hover:bg-black/5 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-black/5 flex items-center justify-center text-ink-soft shadow-sm">
-                      <span className="material-symbols-outlined text-[16px]">mail</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[13px] font-bold text-ink">Contact</span>
-                      <span className="text-[11px] text-ink-soft">3 items</span>
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined text-[18px] text-ink-faint cursor-grab">drag_indicator</span>
-                </div>
-
-                {/* Social links Card */}
-                <div className="flex items-center justify-between rounded-[1rem] bg-white ring-1 ring-black/5 p-3 cursor-pointer hover:bg-black/5 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-black/5 flex items-center justify-center text-ink-soft shadow-sm">
-                      <span className="material-symbols-outlined text-[16px]">link</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[13px] font-bold text-ink">Social links</span>
-                      <span className="text-[11px] text-ink-soft">5 items</span>
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined text-[18px] text-ink-faint cursor-grab">drag_indicator</span>
-                </div>
-
-                {/* Add Section Button */}
-                <button className="flex items-center justify-center gap-2 mt-2 w-full rounded-[1rem] border-2 border-dashed border-accent/20 py-3 text-[13px] font-bold text-accent transition-all hover:bg-accent/5 hover:border-accent/40">
-                  <span className="material-symbols-outlined text-[16px]">add</span>
-                  Add section
+          {activeLeftPanel === "layers" && (
+            <>
+              <div className="flex h-[52px] shrink-0 items-end px-5 border-b border-black/5 gap-6">
+                <button
+                  onClick={() => setActiveLeftTab("content")}
+                  className={`pb-3 text-[12px] font-bold border-b-2 transition-colors ${
+                    activeLeftTab === "content" ? "border-accent text-accent" : "border-transparent text-ink-soft hover:text-ink"
+                  }`}
+                >
+                  Content
+                </button>
+                <button
+                  onClick={() => setActiveLeftTab("sections")}
+                  className={`pb-3 text-[12px] font-bold border-b-2 transition-colors ${
+                    activeLeftTab === "sections" ? "border-accent text-accent" : "border-transparent text-ink-soft hover:text-ink"
+                  }`}
+                >
+                  Sections
                 </button>
               </div>
-
-              <div className="flex flex-col gap-4 mt-8">
-                {/* Site Status Card */}
-                <div className="flex flex-col rounded-[1rem] bg-white ring-1 ring-black/5 p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 rounded-full bg-positive"></div>
-                    <span className="text-[13px] font-bold text-ink">Ready to publish</span>
+              <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
+                {activeLeftTab === "content" ? (
+                <div className="flex flex-col h-full overflow-y-auto scrollbar-thin pb-6 pr-2 relative">
+                  
+                  {/* Sticky Context Header */}
+                  <div className="sticky top-0 z-10 bg-surface/95 backdrop-blur-md pb-4 pt-1 mb-4 border-b border-black/5 -mt-2">
+                    <span className="text-[10px] font-bold text-ink-soft uppercase tracking-[0.05em]">
+                      {expandedSection ? "Editing" : "Select to Edit"}
+                    </span>
+                    <h2 className="text-sm font-bold text-ink mt-0.5">
+                      {expandedSection 
+                        ? (definition?.sections.find(s => s.id === expandedSection)?.label || expandedSection)
+                        : "Content Overview"
+                      }
+                    </h2>
                   </div>
-                  <p className="text-[11px] text-ink-soft leading-relaxed mb-4">
-                    Your portfolio looks great! Don't forget to preview it on mobile.
-                  </p>
-                  <button className="flex items-center justify-center gap-1.5 w-full rounded-full bg-black/5 py-2 text-[12px] font-bold text-ink transition-all hover:bg-black/10">
-                    <span className="material-symbols-outlined text-[16px]">smartphone</span>
-                    Preview on mobile
-                  </button>
-                </div>
 
-                {/* Profile Avatar (Bottom) */}
-                <div className="flex items-center justify-between mt-2 pt-4 border-t border-black/5 cursor-pointer hover:bg-black/5 rounded-lg p-2 transition-colors -mx-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-surface-elevated ring-1 ring-black/10 flex items-center justify-center overflow-hidden">
-                       <img src="https://api.dicebear.com/7.x/notionists/svg?seed=maaulln" alt="Avatar" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[13px] font-bold text-ink">maaulln</span>
-                      <span className="text-[11px] text-ink-soft">maaulln@gmail.com</span>
-                    </div>
+                  {/* Portfolio Completion Progress */}
+                  {(() => {
+                    const tasks = [
+                      { id: "profile", label: "Add Name", done: !!data.profile?.fullName },
+                      { id: "profile", label: "Upload Photo", done: !!data.profile?.photoUrl },
+                      { id: "projects", label: "Add a Project", done: !!data.projects?.length },
+                      { id: "skills", label: "Add a Skill", done: !!data.skills?.length },
+                    ];
+                    const completed = tasks.filter(t => t.done).length;
+                    const progress = Math.round((completed / tasks.length) * 100);
+                    
+                    if (progress === 100) return null;
+                    
+                    return (
+                      <div className="flex flex-col gap-3 mb-6 p-4 rounded-[1.5rem] bg-accent/[0.03] border border-accent/10 shadow-sm transition-all">
+                        <div className="flex justify-between items-end">
+                          <div className="flex flex-col">
+                            <h3 className="text-[13px] font-bold text-ink">Setup Progress</h3>
+                            <span className="text-[11px] text-ink-soft">{completed} of {tasks.length} completed</span>
+                          </div>
+                          <span className="text-[14px] font-black text-accent">{progress}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-black/5 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-accent rounded-full transition-all duration-700 ease-out"
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1 mt-2">
+                          {tasks.filter(t => !t.done).slice(0, 1).map(task => (
+                            <button
+                              key={task.id}
+                              onClick={() => {
+                                setExpandedSection(task.id);
+                              }}
+                              className="text-[11px] font-bold text-accent/80 hover:text-accent flex items-center justify-between group transition-colors"
+                            >
+                              <span>Next: {task.label}</span>
+                              <span className="material-symbols-outlined text-[14px] opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-4px] group-hover:translate-x-0">arrow_forward</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="flex flex-col gap-3">
+                    {definition?.sections.map((section) => {
+                      let icon = "article";
+                      let displayLabel = section.label;
+                      
+                      if (section.id === "profile" || section.id === "hero" || section.id === "about") {
+                        icon = "person";
+                        if (section.id === "hero") displayLabel = "Introduction";
+                        if (section.id === "profile") displayLabel = "Personal Details";
+                      }
+                      else if (section.id === "projects" || section.id === "work" || section.id === "case-studies" || section.id === "caseStudies") icon = "work";
+                      else if (section.id === "contact") icon = "mail";
+                      else if (section.id === "socials") icon = "link";
+                      else if (section.id === "skills" || section.id === "capabilities" || section.id === "expertise" || section.id === "skillsShowcase") icon = "star";
+                      else if (section.id === "experience" || section.id === "experienceDetails") icon = "history";
+                      else if (section.id === "education" || section.id === "educationDetails") icon = "school";
+                      else if (section.id === "pricing") icon = "payments";
+                      else if (section.id === "testimonials") icon = "forum";
+                      else if (section.id === "gallery" || section.id === "certificates") icon = "image";
+
+                      const isExpanded = expandedSection === section.id;
+
+                      const renderSectionForm = (sectionId: string) => {
+                        // Base sections
+                        if (sectionId === "profile" || sectionId === "about") {
+                          if (templateId === "portfolio-pro" && sectionId === "about") {
+                            return <PortfolioProAboutSection about={data.about!} onChange={patch => setData({ ...data, about: { ...data.about!, ...patch } })} />
+                          }
+                          return <ProfileSection t={tProfile} description="Tell visitors who you are and what you do." profile={data.profile} onChange={(patch) => setData({ ...data, profile: { ...data.profile, ...patch } })} />;
+                        }
+                        if (sectionId === "hero") {
+                          if (templateId === "studio") {
+                            return <StudioHeroSection hero={data.hero as StudioData["hero"]} onChange={patch => setData({ ...data, hero: { ...(data.hero as StudioData["hero"]), ...patch } })} />
+                          }
+                          if (templateId === "portfolio-pro") {
+                            return <PortfolioProHeroSection hero={data.hero as PortfolioProData["hero"]} onChange={patch => setData({ ...data, hero: { ...(data.hero as PortfolioProData["hero"]), ...patch } })} />
+                          }
+                          // Fallback to profile section if hero isn't explicitly defined
+                          return <ProfileSection t={tProfile} description="Introduce yourself and set the tone of your portfolio." profile={data.profile} onChange={(patch) => setData({ ...data, profile: { ...data.profile, ...patch } })} />;
+                        }
+                        if (sectionId === "expertise") {
+                          return <StudioExpertiseSection expertise={data.expertise || []} onChange={items => setData({ ...data, expertise: items })} />
+                        }
+                        if (sectionId === "projects" || sectionId === "work") {
+                          return <ProjectsSection t={tProjects} items={data.projects || []} onChange={(items) => setData({ ...data, projects: items })} />;
+                        }
+                        if (sectionId === "caseStudies") {
+                          return <PortfolioProCaseStudiesSection items={data.caseStudies || []} onChange={items => setData({ ...data, caseStudies: items })} />
+                        }
+                        if (sectionId === "skills") {
+                          return (
+                            <SkillsSection 
+                              eyebrow={tSkills("eyebrow")}
+                              title={tSkills("title")}
+                              description="Help recruiters understand your technical expertise."
+                              placeholder={tSkills("placeholder")} // using placeholder as defined in en.json
+                              removeLabel={tSkills("removeLabel")}
+                              skills={data.skills || []} 
+                              onChange={(items) => setData({ ...data, skills: items })} 
+                            />
+                          );
+                        }
+                        if (sectionId === "skillsShowcase") {
+                          return <PortfolioProSkillsSection items={data.skillsShowcase || []} onChange={items => setData({ ...data, skillsShowcase: items })} />
+                        }
+                        if (sectionId === "experience") {
+                          return <ExperienceSection t={tExperience} items={data.experiences || []} onChange={(items) => setData({ ...data, experiences: items })} />;
+                        }
+                        if (sectionId === "experienceDetails") {
+                          return <PortfolioProExperienceSection items={data.experienceDetails || []} onChange={items => setData({ ...data, experienceDetails: items })} />
+                        }
+                        if (sectionId === "education") {
+                          return <EducationSection t={tEducation} items={data.educations || []} onChange={(items) => setData({ ...data, educations: items })} />;
+                        }
+                        if (sectionId === "educationDetails") {
+                          return <PortfolioProEducationSection items={data.educationDetails || []} onChange={items => setData({ ...data, educationDetails: items })} />
+                        }
+                        if (sectionId === "certificates") {
+                          return <PortfolioProCertificatesSection items={data.certificates || []} onChange={items => setData({ ...data, certificates: items })} />
+                        }
+                        if (sectionId === "gallery") {
+                          return <PortfolioProGallerySection items={data.gallery || []} onChange={items => setData({ ...data, gallery: items })} />
+                        }
+                        if (sectionId === "testimonials") {
+                          if (templateId === "studio") {
+                            return <StudioTestimonialsSection testimonials={data.testimonials || []} onChange={testimonials => setData({ ...data, testimonials })} />
+                          }
+                          return <FreelancerTestimonialsSection testimonials={(data.testimonials || []) as any} onChange={testimonials => setData({ ...data, testimonials: testimonials as any })} />
+                        }
+                        if (sectionId === "pricing") {
+                          return <FreelancerPricingSection pricing={data.pricing || []} onChange={pricing => setData({ ...data, pricing })} />
+                        }
+                        if (sectionId === "contact" || sectionId === "socials") {
+                          return (
+                            <div className="flex flex-col gap-6">
+                              <ContactSection t={tContact} contact={data.contact} onChange={(patch) => setData({ ...data, contact: { ...data.contact, ...patch } })} />
+                              {sectionId === "contact" && (
+                                <SocialsSection t={tSocials} items={data.socials} onChange={(items) => setData({ ...data, socials: items })} />
+                              )}
+                            </div>
+                          );
+                        }
+                        return <div className="text-sm text-ink-soft p-4 text-center border border-dashed border-black/10 rounded-xl bg-black/5">No editor available for {sectionId}</div>;
+                      };
+
+                      return (
+                        <div 
+                          id={`accordion-${section.id}`} 
+                          key={section.id} 
+                          className={`flex flex-col rounded-[1rem] bg-white ring-1 overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+                            isExpanded ? "ring-accent/30 shadow-[0_8px_30px_rgb(0,0,0,0.04)] my-1" : "ring-black/5 hover:ring-black/10"
+                          }`}
+                        >
+                          {/* Accordion Header */}
+                          <div 
+                            onClick={() => {
+                              if (isExpanded) {
+                                setExpandedSection(null);
+                              } else {
+                                setExpandedSection(section.id);
+                                scrollToSection(section.id);
+                              }
+                            }} 
+                            className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
+                              isExpanded ? "bg-accent/[0.02] border-b border-black/5" : "hover:bg-black/5"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition-colors duration-300 ${
+                                isExpanded ? "bg-accent/10 text-accent" : "bg-black/5 text-ink-soft"
+                              }`}>
+                                <span className="material-symbols-outlined text-[16px]">{icon}</span>
+                              </div>
+                              <div className="flex flex-col">
+                                <span className={`text-[13px] font-bold transition-colors ${isExpanded ? "text-accent" : "text-ink"}`}>
+                                  {displayLabel}
+                                </span>
+                                {!isExpanded && section.description && <span className="text-[11px] text-ink-soft line-clamp-1">{section.description}</span>}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {isExpanded && (
+                                <span className="text-[10px] font-bold text-accent uppercase tracking-wider bg-accent/10 px-2 py-0.5 rounded-full flex items-center gap-1 animate-in fade-in zoom-in duration-200">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+                                  Editing
+                                </span>
+                              )}
+                              <span className={`material-symbols-outlined text-[18px] text-ink-soft transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}>expand_more</span>
+                            </div>
+                          </div>
+                          
+                          {/* Accordion Body */}
+                          <div 
+                            className={`grid transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+                              isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                            }`}
+                          >
+                            <div className="overflow-hidden">
+                              <div className="p-5 bg-surface/50">
+                                {renderSectionForm(section.id)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Add Section Button */}
+                    <button className="flex items-center justify-center gap-2 mt-2 w-full rounded-[1rem] border-2 border-dashed border-accent/20 py-3 text-[13px] font-bold text-accent transition-all hover:bg-accent/5 hover:border-accent/40">
+                      <span className="material-symbols-outlined text-[16px]">add</span>
+                      Add section
+                    </button>
                   </div>
-                  <span className="material-symbols-outlined text-[18px] text-ink-soft">expand_more</span>
                 </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                    <span className="material-symbols-outlined text-[32px] text-ink-faint mb-3">layers</span>
+                    <span className="text-[13px] font-bold text-ink mb-1">Manage Sections</span>
+                    <span className="text-[12px] text-ink-soft">Reorder and toggle sections visibility here.</span>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {activeLeftPanel === "database" && (
+            <div className="flex-1 flex flex-col px-4 py-6">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="material-symbols-outlined text-[20px] text-ink">database</span>
+                <span className="text-[14px] font-bold text-ink">Database</span>
+              </div>
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <span className="material-symbols-outlined text-[32px] text-ink-faint mb-3">table</span>
+                <span className="text-[13px] font-bold text-ink mb-1">Content Database</span>
+                <span className="text-[12px] text-ink-soft">Connect collections and manage structured data here.</span>
+                <button className="mt-4 rounded-full bg-black/5 px-4 py-2 text-[12px] font-bold text-ink transition-all hover:bg-black/10">
+                  Create Collection
+                </button>
               </div>
             </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                <span className="material-symbols-outlined text-[32px] text-ink-faint mb-3">layers</span>
-                <span className="text-[13px] font-bold text-ink mb-1">Manage Sections</span>
-                <span className="text-[12px] text-ink-soft">Reorder and toggle sections visibility here.</span>
+          )}
+
+          {activeLeftPanel === "media" && (
+            <div className="flex-1 flex flex-col px-4 py-6">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="material-symbols-outlined text-[20px] text-ink">image</span>
+                <span className="text-[14px] font-bold text-ink">Media Library</span>
               </div>
-            )}
-          </div>
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <span className="material-symbols-outlined text-[32px] text-ink-faint mb-3">collections</span>
+                <span className="text-[13px] font-bold text-ink mb-1">Upload Media</span>
+                <span className="text-[12px] text-ink-soft">Manage all your images, videos, and assets.</span>
+                <button className="mt-4 rounded-full bg-black/5 px-4 py-2 text-[12px] font-bold text-ink transition-all hover:bg-black/10">
+                  Upload Files
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeLeftPanel === "settings" && (
+            <div className="flex-1 flex flex-col px-4 py-6">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="material-symbols-outlined text-[20px] text-ink">settings</span>
+                <span className="text-[14px] font-bold text-ink">Global Settings</span>
+              </div>
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <span className="material-symbols-outlined text-[32px] text-ink-faint mb-3">settings_suggest</span>
+                <span className="text-[13px] font-bold text-ink mb-1">Site Configuration</span>
+                <span className="text-[12px] text-ink-soft">Manage SEO, integrations, and custom domains.</span>
+                <button className="mt-4 rounded-full bg-black/5 px-4 py-2 text-[12px] font-bold text-ink transition-all hover:bg-black/10">
+                  Open Settings
+                </button>
+              </div>
+            </div>
+          )}
         </aside>
 
         {/* Center Canvas: Preview Area */}
-        <main className="relative flex flex-1 flex-col overflow-y-auto bg-canvas p-6 scrollbar-thin md:p-8 flex items-center">
-          <div className="flex w-full justify-between items-center max-w-[1280px] mb-4 shrink-0">
+        <main className="relative flex flex-1 flex-col overflow-hidden bg-[#EEF2FF] items-center" ref={containerRef}>
+          {/* Device Toolbar */}
+          <div className="flex w-full justify-between items-center px-8 py-4 shrink-0 bg-white/50 backdrop-blur border-b border-black/5 z-10">
              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-positive" />
-                <span className="text-[12px] font-bold text-ink-soft">Live preview</span>
+                <div className="w-2 h-2 rounded-full bg-positive animate-pulse" />
+                <span className="text-[12px] font-bold text-ink-soft">Live</span>
              </div>
-             <div className="flex items-center gap-3">
-               <div className="flex items-center gap-1 bg-white rounded-full p-1 shadow-sm ring-1 ring-black/5">
-                 <button className="w-6 h-6 rounded-full flex items-center justify-center text-ink-soft hover:text-ink"><span className="material-symbols-outlined text-[14px]">light_mode</span></button>
-                 <button className="w-6 h-6 rounded-full flex items-center justify-center text-ink-soft hover:text-ink"><span className="material-symbols-outlined text-[14px]">dark_mode</span></button>
+             
+             {/* Device Switcher */}
+             <div className="flex items-center bg-black/5 rounded-full p-1 shadow-inner">
+               {(["desktop", "laptop", "tablet", "mobile"] as const).map(d => (
+                 <button
+                   key={d}
+                   onClick={() => setPreviewDevice(d)}
+                   className={`px-3 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all ${
+                     previewDevice === d 
+                       ? "bg-white text-ink shadow-sm ring-1 ring-black/5" 
+                       : "text-ink-soft hover:text-ink hover:bg-black/5"
+                   }`}
+                 >
+                   {d}
+                 </button>
+               ))}
+             </div>
+
+             <div className="flex items-center gap-2">
+               <div className="bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center overflow-hidden">
+                 <select 
+                   value={previewZoom} 
+                   onChange={(e) => setPreviewZoom(e.target.value as any)}
+                   className="text-[11px] font-bold text-ink bg-transparent px-3 py-1.5 outline-none cursor-pointer appearance-none"
+                 >
+                   <option value="fit-width">Fit Width</option>
+                   <option value="fit-height">Fit Height</option>
+                   <option value="fit-screen">Fit Screen</option>
+                   <option disabled>──────────</option>
+                   <option value="25">25%</option>
+                   <option value="50">50%</option>
+                   <option value="75">75%</option>
+                   <option value="100">100%</option>
+                   <option value="125">125%</option>
+                 </select>
+                 <div className="pr-3 pointer-events-none text-ink-soft flex items-center">
+                   <span className="material-symbols-outlined text-[14px]">expand_more</span>
+                 </div>
                </div>
-               <div className="bg-white rounded-full px-3 py-1.5 shadow-sm ring-1 ring-black/5 flex items-center gap-1 cursor-pointer">
-                 <span className="text-[11px] font-bold text-ink">{zoomLevel}%</span>
-                 <span className="material-symbols-outlined text-[14px] text-ink-soft">expand_more</span>
-               </div>
+               <button onClick={() => window.location.reload()} className="w-8 h-8 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all">
+                 <span className="material-symbols-outlined text-[16px]">refresh</span>
+               </button>
+               <button className="w-8 h-8 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all">
+                 <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+               </button>
              </div>
           </div>
           
+          {/* Simulation Workspace */}
           <div 
-            ref={containerRef}
-            className="flex-1 w-full max-w-[1280px] flex justify-center rounded-[2rem] overflow-hidden bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] ring-1 ring-black/5 relative min-h-0"
+            id="workspace-canvas"
+            className={`flex-1 w-full relative overflow-hidden bg-[#EEF2FF] ${isPanning ? 'cursor-grabbing' : 'cursor-grab'}`}
+            onWheel={handleWheel}
+            onMouseDown={handleWorkspaceMouseDown}
+            onMouseMove={handleWorkspaceMouseMove}
+            onMouseUp={handleWorkspaceMouseUp}
+            onMouseLeave={handleWorkspaceMouseUp}
           >
-            <div
-              className="overflow-y-auto overflow-x-hidden scrollbar-thin transition-transform duration-300 origin-top shrink-0"
+            {/* Scale Wrapper */}
+            <div 
+              className="absolute origin-center transition-transform duration-75 flex flex-col pointer-events-none"
               style={{
-                width: "1280px", // Always 1280px to force desktop media queries
-                height: `${100 / desktopScale}%`, // Counter-scale height so inner content has full scroll area
-                transform: `scale(${desktopScale})`, // Scale down visually to fit container
+                top: "50%",
+                left: "50%",
+                transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${scale})`,
+                width: device.width,
+                height: computedHeight,
               }}
             >
-              <TemplateRenderer templateId={templateId} data={data} />
+              {/* Scrollable Device Frame */}
+              <div 
+                ref={previewScrollRef}
+                onWheel={(e) => e.stopPropagation()}
+                className={`flex-1 w-full bg-white relative overflow-y-auto overflow-x-hidden group/preview pointer-events-auto ${
+                  ["desktop", "laptop"].includes(previewDevice) 
+                    ? "" 
+                    : "rounded-[2rem] shadow-2xl ring-1 ring-black/5"
+                }`}
+                onClick={handlePreviewClick}
+              >
+                <style>
+                  {`
+                    .group\\/preview section:hover,
+                    .group\\/preview header:hover,
+                    .group\\/preview footer:hover,
+                    .group\\/preview [data-section-key]:hover {
+                      outline: 2px solid #3b82f6 !important;
+                      outline-offset: -2px;
+                      cursor: pointer;
+                      position: relative;
+                      z-index: 50;
+                      transition: all 0.2s cubic-bezier(0.32,0.72,0,1);
+                      transform: scale(1.002);
+                    }
+                    ${expandedSection ? `
+                      .group\\/preview [data-section-key="${expandedSection}"],
+                      .group\\/preview #${expandedSection} {
+                        outline: 2px solid #3b82f6 !important;
+                        outline-offset: -2px;
+                        box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.15) !important;
+                        position: relative;
+                        z-index: 40;
+                        transform: scale(1.002);
+                        transition: all 0.3s cubic-bezier(0.32,0.72,0,1);
+                      }
+                    ` : ""}
+                  `}
+                </style>
+                <div
+                  className="w-full min-h-full transition-transform duration-300 relative"
+                  onDoubleClick={handlePreviewDoubleClick}
+                  onMouseMove={handlePreviewMouseMove}
+                  onMouseLeave={handlePreviewMouseLeave}
+                >
+                  <div className={showDesktopPreview ? "pointer-events-auto" : "pointer-events-none"}>
+                    <TemplateRenderer
+                      templateId={templateId}
+                      data={data as any}
+                    />
+                  </div>
+              
+              {/* Quick Action Toolbar */}
+              {hoveredActionCard && (
+                <div 
+                  className="absolute z-40 flex items-center gap-1 rounded-full bg-black/80 backdrop-blur-md p-1.5 shadow-xl transition-all"
+                  style={{
+                    top: hoveredActionCard.rect.top - 20,
+                    left: hoveredActionCard.rect.left + hoveredActionCard.rect.width / 2,
+                    transform: "translate(-50%, -100%)",
+                  }}
+                  onMouseEnter={() => {}} 
+                >
+                  <button 
+                    onClick={() => setExpandedSection(hoveredActionCard.sectionType)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">edit</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const arrName = hoveredActionCard.sectionType as keyof EditorData;
+                      const arr = (data as any)[arrName];
+                      const idx = hoveredActionCard.index;
+                      if (Array.isArray(arr) && idx > 0) {
+                        const newArr = [...arr];
+                        const temp = newArr[idx];
+                        newArr[idx] = newArr[idx - 1];
+                        newArr[idx - 1] = temp;
+                        setData({ ...data, [arrName]: newArr });
+                      }
+                    }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">arrow_upward</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const arrName = hoveredActionCard.sectionType as keyof EditorData;
+                      const arr = (data as any)[arrName];
+                      const idx = hoveredActionCard.index;
+                      if (Array.isArray(arr) && idx < arr.length - 1) {
+                        const newArr = [...arr];
+                        const temp = newArr[idx];
+                        newArr[idx] = newArr[idx + 1];
+                        newArr[idx + 1] = temp;
+                        setData({ ...data, [arrName]: newArr });
+                      }
+                    }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">arrow_downward</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const arrName = hoveredActionCard.sectionType as keyof EditorData;
+                      const arr = (data as any)[arrName];
+                      const idx = hoveredActionCard.index;
+                      if (Array.isArray(arr)) {
+                        const newArr = arr.filter((_, i) => i !== idx);
+                        setData({ ...data, [arrName]: newArr });
+                        setHoveredActionCard(null);
+                      }
+                    }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full text-danger/80 hover:text-danger hover:bg-danger/20 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                  </button>
+                </div>
+              )}
+              
+              {/* Inline Editing Overlay */}
+              {inlineEditId && (
+                <>
+                  <textarea
+                    autoFocus
+                    value={inlineEditValue}
+                    onChange={(e) => setInlineEditValue(e.target.value)}
+                    onBlur={handleInlineSave}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleInlineSave();
+                      }
+                      if (e.key === 'Escape') {
+                        e.preventDefault();
+                        setInlineEditId(null);
+                      }
+                    }}
+                    className="absolute z-50 rounded-sm bg-white/10 backdrop-blur-md shadow-2xl ring-2 ring-accent"
+                    style={inlineEditStyle}
+                  />
+                </>
+              )}
+                </div>
+              </div>
             </div>
           </div>
         </main>
@@ -453,12 +1181,12 @@ export function Editor({
         <aside className="gsap-panel flex w-[280px] shrink-0 flex-col border-l border-black/5 bg-surface z-20 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
           <div className="flex h-[52px] shrink-0 items-end px-5 border-b border-black/5 gap-6">
             <button
-              onClick={() => setActiveRightTab("design")}
+              onClick={() => setActiveRightTab("appearance")}
               className={`pb-3 text-[12px] font-bold border-b-2 transition-colors ${
-                activeRightTab === "design" ? "border-accent text-accent" : "border-transparent text-ink-soft hover:text-ink"
+                activeRightTab === "appearance" ? "border-accent text-accent" : "border-transparent text-ink-soft hover:text-ink"
               }`}
             >
-              Design
+              Appearance
             </button>
             <button
               onClick={() => setActiveRightTab("settings")}
@@ -470,131 +1198,51 @@ export function Editor({
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
-            {activeRightTab === "design" ? (
+            {activeRightTab === "appearance" ? (
             <div className="flex flex-col gap-8 pb-6">
 
-              {/* Theme Section */}
-              <div className="flex flex-col gap-3">
-                <span className="text-[12px] font-bold text-ink">Theme</span>
-                <div className="grid grid-cols-6 gap-2">
-                  {/* Active Purple */}
-                  <div className="w-8 h-8 rounded-full bg-[#7c3aed] flex items-center justify-center text-white cursor-pointer ring-2 ring-offset-2 ring-[#7c3aed]">
-                    <span className="material-symbols-outlined text-[16px]">check</span>
-                  </div>
-                  {/* Other Colors */}
-                  <div className="w-8 h-8 rounded-full bg-[#ef4444] cursor-pointer hover:scale-110 transition-transform"></div>
-                  <div className="w-8 h-8 rounded-full bg-[#10b981] cursor-pointer hover:scale-110 transition-transform"></div>
-                  <div className="w-8 h-8 rounded-full bg-[#f97316] cursor-pointer hover:scale-110 transition-transform"></div>
-                  <div className="w-8 h-8 rounded-full bg-[#a855f7] cursor-pointer hover:scale-110 transition-transform"></div>
-                  <div className="w-8 h-8 rounded-full bg-[#3b82f6] cursor-pointer hover:scale-110 transition-transform"></div>
-                </div>
-              </div>
-
-              {/* Typography Section */}
+              {/* Appearance Variants Section */}
               <div className="flex flex-col gap-4">
-                <span className="text-[12px] font-bold text-ink">Typography</span>
+                <span className="text-[12px] font-bold text-ink">Appearance</span>
                 
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-[11px] text-ink-soft">Font family</span>
-                  <div className="flex items-center justify-between rounded-lg bg-white ring-1 ring-black/5 px-3 py-2 cursor-pointer hover:bg-black/5 transition-colors">
-                    <span className="text-[12px] font-medium text-ink">Inter</span>
-                    <span className="material-symbols-outlined text-[16px] text-ink-soft">expand_more</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-[11px] text-ink-soft">Heading font</span>
-                  <div className="flex items-center justify-between rounded-lg bg-white ring-1 ring-black/5 px-3 py-2 cursor-pointer hover:bg-black/5 transition-colors">
-                    <span className="text-[12px] font-medium text-ink">Plus Jakarta Sans</span>
-                    <span className="material-symbols-outlined text-[16px] text-ink-soft">expand_more</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-[11px] text-ink-soft">Base font</span>
-                  <div className="flex bg-black/5 rounded-lg p-1">
-                     <button className="flex-1 bg-white rounded-md py-1.5 text-[11px] font-bold text-accent shadow-sm">Sans (Modern)</button>
-                     <button className="flex-1 rounded-md py-1.5 text-[11px] font-medium text-ink-soft hover:text-ink">Serif (Classic)</button>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-[11px] text-ink-soft">Mono font</span>
-                  <div className="flex items-center justify-between rounded-lg bg-white ring-1 ring-black/5 px-3 py-2 cursor-pointer hover:bg-black/5 transition-colors">
-                    <span className="text-[12px] font-medium text-ink">JetBrains Mono</span>
-                    <span className="material-symbols-outlined text-[16px] text-ink-soft">expand_more</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Spacing Section */}
-              <div className="flex flex-col gap-4">
-                <span className="text-[12px] font-bold text-ink">Spacing</span>
-                
-                <div className="flex flex-col gap-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[11px] text-ink-soft">Content width</span>
-                    <span className="text-[11px] font-bold text-ink">1280px</span>
-                  </div>
-                  <div className="h-1.5 bg-black/10 rounded-full relative">
-                    <div className="absolute top-0 left-0 h-full bg-accent rounded-full w-[60%]"></div>
-                    <div className="absolute top-1/2 left-[60%] -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-white ring-2 ring-accent rounded-full shadow-sm"></div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[11px] text-ink-soft">Section spacing</span>
-                    <span className="text-[11px] font-bold text-ink">64px</span>
-                  </div>
-                  <div className="h-1.5 bg-black/10 rounded-full relative">
-                    <div className="absolute top-0 left-0 h-full bg-accent rounded-full w-[40%]"></div>
-                    <div className="absolute top-1/2 left-[40%] -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-white ring-2 ring-accent rounded-full shadow-sm"></div>
-                  </div>
+                <div className="flex flex-col gap-3">
+                  {definition?.variants?.map((variant) => {
+                    const isActive = data.theme?.variantId === variant.id || (!data.theme?.variantId && variant.id === "default");
+                    return (
+                      <button
+                        key={variant.id}
+                        onClick={() => setData((d: any) => ({ ...d, theme: { variantId: variant.id } }))}
+                        className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                          isActive 
+                            ? "border-accent bg-accent/5 ring-1 ring-accent" 
+                            : "border-black/5 bg-white hover:border-black/15 hover:bg-black/[0.02]"
+                        }`}
+                      >
+                        <div 
+                          className="w-10 h-10 rounded-full flex-shrink-0 shadow-sm border border-black/10 overflow-hidden flex"
+                        >
+                          <div className="w-1/2 h-full" style={{ backgroundColor: variant.colors.primary }}></div>
+                          <div className="w-1/2 h-full" style={{ backgroundColor: variant.colors.background }}></div>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className={`text-[13px] font-bold ${isActive ? "text-accent" : "text-ink"}`}>
+                            {variant.label}
+                          </span>
+                          <span className="text-[11px] text-ink-soft">
+                            {isActive ? "Active Variant" : "Click to apply"}
+                          </span>
+                        </div>
+                        {isActive && (
+                          <span className="material-symbols-outlined text-[18px] text-accent ml-auto">
+                            check_circle
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Radius / Shadows Section */}
-              <div className="flex flex-col gap-4">
-                 <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center">
-                       <span className="text-[12px] font-bold text-ink">Radius</span>
-                       <span className="text-[11px] font-bold text-ink">20px</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                       <button className="w-10 h-10 rounded-lg bg-white ring-1 ring-black/5 flex items-center justify-center hover:bg-black/5 transition-colors">
-                          <div className="w-5 h-5 border-2 border-ink-soft rounded-none"></div>
-                       </button>
-                       <button className="w-10 h-10 rounded-lg bg-accent/5 ring-1 ring-accent flex items-center justify-center text-accent">
-                          <div className="w-5 h-5 border-2 border-accent rounded-[6px]"></div>
-                       </button>
-                       <button className="w-10 h-10 rounded-lg bg-white ring-1 ring-black/5 flex items-center justify-center hover:bg-black/5 transition-colors">
-                          <div className="w-5 h-5 border-2 border-ink-soft rounded-[10px]"></div>
-                       </button>
-                       <button className="w-10 h-10 rounded-lg bg-white ring-1 ring-black/5 flex items-center justify-center hover:bg-black/5 transition-colors">
-                          <div className="w-5 h-5 border-2 border-ink-soft rounded-full"></div>
-                       </button>
-                    </div>
-                 </div>
-
-                 <div className="flex flex-col gap-2">
-                    <span className="text-[12px] font-bold text-ink">Shadows</span>
-                    <div className="flex items-center gap-2">
-                       <button className="w-10 h-10 rounded-lg bg-accent/5 ring-1 ring-accent flex items-center justify-center text-accent">
-                          <div className="w-5 h-5 border border-accent bg-white shadow-sm"></div>
-                       </button>
-                       <button className="w-10 h-10 rounded-lg bg-white ring-1 ring-black/5 flex items-center justify-center hover:bg-black/5 transition-colors">
-                          <div className="w-5 h-5 border border-ink-soft bg-white shadow-md"></div>
-                       </button>
-                       <button className="w-10 h-10 rounded-lg bg-white ring-1 ring-black/5 flex items-center justify-center hover:bg-black/5 transition-colors">
-                          <div className="w-5 h-5 border border-ink-soft bg-white shadow-lg"></div>
-                       </button>
-                       <button className="w-10 h-10 rounded-lg bg-white ring-1 ring-black/5 flex items-center justify-center hover:bg-black/5 transition-colors">
-                          <div className="w-5 h-5 border border-ink-soft bg-white shadow-xl"></div>
-                       </button>
-                    </div>
-                 </div>
-              </div>
 
             </div>
             ) : (
@@ -607,8 +1255,6 @@ export function Editor({
           </div>
         </aside>
       </div>
-      </div>
-
       {/* Fullscreen Desktop Preview Modal */}
       {showDesktopPreview && (
         <div className="fixed inset-0 z-50 flex flex-col bg-surface">
@@ -626,11 +1272,12 @@ export function Editor({
           </div>
           <div className="flex-1 overflow-y-auto bg-canvas p-8">
             <div className="mx-auto w-full max-w-[1440px] overflow-hidden rounded-2xl bg-white shadow-floating ring-1 ring-black/5">
-              <TemplateRenderer templateId={templateId} data={data} />
+              <TemplateRenderer templateId={templateId} data={data as any} />
             </div>
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

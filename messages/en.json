@@ -231,9 +231,27 @@
     "hub": {
       "eyebrow": "Workspace",
       "subtitle": "Manage this workspace's data and template.",
-      "editData": "Fill in portfolio data",
       "chooseTemplate": "Choose template"
     }
+  },
+  "Settings": {
+    "eyebrow": "Settings",
+    "title": "Account Profile",
+    "subtitle": "Manage your personal information and preferences.",
+    "fullNameLabel": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "success": "Profile updated successfully.",
+    "error": "Failed to update profile."
+  },
+  "Onboarding": {
+    "eyebrow": "Welcome",
+    "title": "Let's create your portfolio",
+    "subtitle": "Give your first workspace a name. You can change this later.",
+    "testimonial": "\"The platform's clean design and intuitive editor helped me build my professional presence in minutes.\"",
+    "testimonialAuthor": "Alex Chen",
+    "testimonialRole": "Product Designer"
   },
   "PortfolioForm": {
     "eyebrow": "Portfolio data",

@@ -1,21 +1,22 @@
 "use client";
 
-import { templateFontClass } from "@/templates/fonts";
 import { initials, SocialIcon } from "@/templates/shared";
 import type { CreativeData as PortfolioData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
+import { creativeDefinition } from "./definition";
 
 export function CreativeRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
   const { profile, projects, skills, testimonials, contact, socials, theme } = data;
+  const variant = creativeDefinition.variants.find(v => v.id === theme.variantId) || creativeDefinition.variants[0];
 
   return (
-    <div className={`${templateFontClass(theme.font)} min-h-screen bg-[#F0F0EA] text-[#111] selection:bg-[#111] selection:text-[#F0F0EA] overflow-hidden relative z-0`}>
+    <div className={`min-h-screen bg-[#F0F0EA] text-[#111] selection:bg-[#111] selection:text-[#F0F0EA] overflow-hidden relative z-0`}>
       <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-fuchsia-300/40 rounded-full mix-blend-multiply filter blur-[80px] md:blur-[120px] animate-pulse pointer-events-none -z-10"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-emerald-300/40 rounded-full mix-blend-multiply filter blur-[80px] md:blur-[120px] pointer-events-none -z-10"></div>
 
       <div className="mx-auto max-w-[1400px] px-6 sm:px-8 lg:px-12 py-16 md:py-24">
         
-        <header className="relative mb-24 md:mb-40 pt-8 lg:pt-16">
+        <header id="profile" className="relative mb-24 md:mb-40 pt-8 lg:pt-16">
           <div className="flex flex-col lg:flex-row items-center lg:items-start gap-12 lg:gap-20">
             {profile.photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -40,7 +41,7 @@ export function CreativeRenderer({ data }: { data: PortfolioData; workspaceProfi
         </header>
 
         {profile.bio && (
-          <section className="mb-24 md:mb-40">
+          <section id="bio" className="mb-24 md:mb-40">
             <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-[1.15] tracking-tight max-w-6xl text-zinc-900">
               {profile.bio}
             </h2>
@@ -48,7 +49,7 @@ export function CreativeRenderer({ data }: { data: PortfolioData; workspaceProfi
         )}
 
         {projects.length > 0 && (
-          <section className="mb-24 md:mb-40">
+          <section id="projects" className="mb-24 md:mb-40">
             <div className="flex items-end justify-between mb-12 border-b-4 border-zinc-900 pb-6">
               <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">
                 Selected Work
@@ -76,7 +77,7 @@ export function CreativeRenderer({ data }: { data: PortfolioData; workspaceProfi
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={project.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105" />
                       ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-[10rem] font-black opacity-20 transition-transform duration-1000 group-hover:scale-105" style={{ color: theme.accentColor }}>
+                        <div className="absolute inset-0 flex items-center justify-center text-[10rem] font-black opacity-20 transition-transform duration-1000 group-hover:scale-105" style={{ color: variant.colors.primary }}>
                           {project.title.slice(0, 1)}
                         </div>
                       )}
@@ -99,7 +100,7 @@ export function CreativeRenderer({ data }: { data: PortfolioData; workspaceProfi
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24">
           
           {testimonials && testimonials.length > 0 && (
-            <div className="lg:col-span-7">
+            <div id="testimonials" className="lg:col-span-7">
               <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-12">
                 Testimonials
               </h2>
@@ -118,7 +119,7 @@ export function CreativeRenderer({ data }: { data: PortfolioData; workspaceProfi
           <div className="lg:col-span-5 flex flex-col gap-16 md:gap-24">
             
             {skills.length > 0 && (
-              <div>
+              <div id="skills">
                 <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-10">
                   Superpowers
                 </h2>
@@ -138,7 +139,7 @@ export function CreativeRenderer({ data }: { data: PortfolioData; workspaceProfi
           </div>
         </div>
 
-        <footer className="mt-24 md:mt-40 py-16 md:py-24 border-t-4 border-zinc-900">
+        <footer id="contact" className="mt-24 md:mt-40 py-16 md:py-24 border-t-4 border-zinc-900">
           <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-12">
             <div>
               <h2 className="text-[5rem] sm:text-[7rem] md:text-[10rem] font-black uppercase tracking-tighter leading-none mb-8 text-zinc-900">

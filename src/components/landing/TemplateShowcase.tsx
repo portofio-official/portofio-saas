@@ -7,7 +7,7 @@ import shared from "./shared.module.css";
 import styles from "./TemplateShowcase.module.css";
 import { PreviewTemplateRenderer as TemplateRenderer } from "@/templates/registry";
 import { type TemplateId } from "@/templates/types";
-import type { BasePortfolioData } from "@/templates/shared/_base";
+import { type BasePortfolioData, BASE_PROFILE_DEFAULTS } from "@/templates/shared/_base";
 import type { StudioData } from "@/templates/definitions/studio/schema";
 import type { PortfolioProData } from "@/templates/definitions/portfolio-pro/schema";
 
@@ -99,7 +99,7 @@ const PREVIEW_DATA: PreviewData = {
     { platform: "linkedin", url: "https://linkedin.com/in/alexrivera" },
     { platform: "github", url: "https://github.com/alexrivera" },
   ],
-  theme: { accentColor: "#00cf7c", font: "sans" },
+  theme: { ...BASE_PROFILE_DEFAULTS.theme },
 };
 
 export function TemplateShowcase() {

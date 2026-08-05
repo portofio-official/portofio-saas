@@ -1,5 +1,44 @@
-import type { TemplateDefinition } from "@/templates/definition";
+import type { TemplateDefinition, TemplateVariant } from "@/templates/definition";
 import { boldSchema, BOLD_SECTIONS } from "./schema";
+
+export const BOLD_VARIANTS: TemplateVariant[] = [
+  {
+    id: "default",
+    label: "Yellow",
+    colors: {
+      primary: "#facc15",
+      background: "#fafafa",
+      surface: "#f4f4f5",
+      text: "#09090b",
+      textMuted: "#71717a",
+      border: "#e4e4e7",
+    }
+  },
+  {
+    id: "midnight",
+    label: "Midnight",
+    colors: {
+      primary: "#38bdf8",
+      background: "#020617",
+      surface: "#0f172a",
+      text: "#f8fafc",
+      textMuted: "#94a3b8",
+      border: "#1e293b",
+    }
+  },
+  {
+    id: "cherry",
+    label: "Cherry",
+    colors: {
+      primary: "#f43f5e",
+      background: "#fff1f2",
+      surface: "#ffe4e6",
+      text: "#4c0519",
+      textMuted: "#9f1239",
+      border: "#fecdd3",
+    }
+  }
+];
 import { BOLD_DEFAULTS } from "./defaults";
 import { mapProfileToBold } from "./mapper";
 import { boldMigrations } from "./migrations";
@@ -18,6 +57,7 @@ export const boldDefinition: TemplateDefinition<typeof boldSchema> = {
     author: "portofio",
     price: 0,
   },
+  variants: BOLD_VARIANTS,
   sections: BOLD_SECTIONS,
   schema: boldSchema,
   defaults: BOLD_DEFAULTS,

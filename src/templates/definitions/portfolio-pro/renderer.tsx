@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PortfolioProData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
+import { portfolioProDefinition } from "./definition";
 import { DARK_CHROME, hexToRgba } from "./theme";
 import { Navbar } from "./Navbar";
 import { HeroSection } from "./HeroSection";
@@ -23,7 +24,8 @@ export function PortfolioProRenderer({
   const [isDark, setIsDark] = useState(true);
   const [isMobileView, setIsMobileView] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
-  const theme = { accent: data.theme.accentColor, ...DARK_CHROME };
+  const variant = portfolioProDefinition.variants.find((v) => v.id === data.theme.variantId) || portfolioProDefinition.variants[0];
+  const theme = { accent: variant.colors.primary, ...DARK_CHROME };
   const isManualScrolling = useRef(false);
 
   useEffect(() => {

@@ -4,22 +4,24 @@ import { templateFontClass } from "@/templates/fonts";
 import { initials, formatMonth, SocialIcon } from "@/templates/shared";
 import type { DarkData as PortfolioData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
+import { darkDefinition } from "./definition";
 
 export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
   const { profile, experiences, skills, projects, contact, socials, theme } = data;
+  const variant = darkDefinition.variants.find(v => v.id === theme.variantId) || darkDefinition.variants[0];
 
   return (
-    <div className={`${templateFontClass(theme.font)} min-h-screen bg-[#09090b] text-zinc-300 selection:bg-zinc-800 selection:text-white relative overflow-hidden`}>
+    <div className={`min-h-screen bg-[#09090b] text-zinc-300 selection:bg-zinc-800 selection:text-white relative overflow-hidden`}>
       <div 
         className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-[0.15] blur-[120px] pointer-events-none"
-        style={{ backgroundColor: theme.accentColor }}
+        style={{ backgroundColor: variant.colors.primary }}
       />
 
       <div className="mx-auto max-w-5xl px-6 py-20 md:px-12 md:py-32 relative z-10">
-        <header className="flex flex-col md:flex-row md:items-center gap-10 md:gap-16 mb-20 md:mb-32">
+        <header id="profile" className="flex flex-col md:flex-row md:items-center gap-10 md:gap-16 mb-20 md:mb-32">
           {profile.photoUrl ? (
             <div className="relative group shrink-0">
-              <div className="absolute inset-0 rounded-2xl opacity-50 blur-xl group-hover:opacity-100 transition-opacity duration-700" style={{ backgroundColor: theme.accentColor }} />
+              <div className="absolute inset-0 rounded-2xl opacity-50 blur-xl group-hover:opacity-100 transition-opacity duration-700" style={{ backgroundColor: variant.colors.primary }} />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={profile.photoUrl}
@@ -29,7 +31,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
             </div>
           ) : (
             <div className="relative group shrink-0">
-              <div className="absolute inset-0 rounded-2xl opacity-50 blur-xl group-hover:opacity-100 transition-opacity duration-700" style={{ backgroundColor: theme.accentColor }} />
+              <div className="absolute inset-0 rounded-2xl opacity-50 blur-xl group-hover:opacity-100 transition-opacity duration-700" style={{ backgroundColor: variant.colors.primary }} />
               <div
                 className="relative flex h-32 w-32 md:h-40 md:w-40 items-center justify-center rounded-2xl bg-zinc-900/80 backdrop-blur-md ring-1 ring-white/10 shadow-2xl text-3xl font-medium text-white"
               >
@@ -49,7 +51,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
             )}
             {profile.location && (
               <p className="flex items-center gap-2 text-sm font-mono text-zinc-500 uppercase tracking-wider">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: theme.accentColor }} />
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: variant.colors.primary }} />
                 {profile.location}
               </p>
             )}
@@ -65,7 +67,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
         )}
 
         {projects.length > 0 && (
-          <section className="mb-24 md:mb-32">
+          <section id="projects" className="mb-24 md:mb-32">
             <h2 className="text-2xl font-semibold text-white mb-10">Selected Works</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {projects.map((project, i) => (
@@ -93,7 +95,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
                   <div className="p-8">
                     <h3 className="text-xl font-medium text-white mb-3 flex items-center justify-between">
                       <span>{project.title}</span>
-                      <span className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-sm" style={{ color: theme.accentColor }}>
+                      <span className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-sm" style={{ color: variant.colors.primary }}>
                         ↗
                       </span>
                     </h3>
@@ -109,14 +111,14 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24">
           {experiences.length > 0 && (
-            <section className="lg:col-span-7">
+            <section id="experience" className="lg:col-span-7">
               <h2 className="text-2xl font-semibold text-white mb-10">Experience</h2>
               <div className="flex flex-col gap-12">
                 {experiences.map((exp, i) => (
                   <div key={i} className="relative pl-6 md:pl-8 border-l border-zinc-800 hover:border-zinc-600 transition-colors duration-300">
                     <div 
                       className="absolute -left-[5px] top-2 w-2 h-2 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]" 
-                      style={{ backgroundColor: theme.accentColor }} 
+                      style={{ backgroundColor: variant.colors.primary }} 
                     />
                     <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-4 mb-2">
                       <h3 className="text-lg font-medium text-zinc-100">{exp.role}</h3>
@@ -138,7 +140,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
 
           <div className="lg:col-span-5 flex flex-col gap-16">
             {skills.length > 0 && (
-              <section>
+              <section id="skills">
                 <h2 className="text-2xl font-semibold text-white mb-8">Technical Output</h2>
                 <div className="flex flex-wrap gap-2">
                   {skills.map((skill) => (
@@ -155,7 +157,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
           </div>
         </div>
 
-        <footer className="mt-32 pt-12 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <footer id="contact" className="mt-32 pt-12 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             {contact.email && (
               <a 

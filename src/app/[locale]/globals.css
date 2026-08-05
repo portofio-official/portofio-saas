@@ -25,6 +25,12 @@
   /* Highly diffused ambient shadows */
   --shadow-diffused: 0 24px 48px -12px rgba(0, 0, 0, 0.04);
   --shadow-inner-bezel: inset 0 1px 1px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+
+  /* Editor Preview Dynamic Variables */
+  --radius-preview: var(--theme-radius, 0.5rem);
+  --spacing-preview: var(--theme-section-spacing, 4rem);
+  --container-preview: var(--theme-content-width, 1280px);
+  --shadow-preview: var(--theme-shadow, 0 1px 2px 0 rgb(0 0 0 / 0.05));
 }
 
 body {

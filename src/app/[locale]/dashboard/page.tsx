@@ -21,6 +21,10 @@ export default async function DashboardPage({
 
   const [workspaces, t] = await Promise.all([listWorkspaces(), getTranslations("Workspace")]);
 
+  if (workspaces.length === 0) {
+    return redirect({ href: "/onboarding", locale });
+  }
+
   return (
     <DashboardClientView
       email={email}

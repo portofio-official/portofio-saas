@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { z } from "zod";
 import type { TemplateDefinition, WorkspaceProfile, WebsiteDocument } from "./definition";
 import { parseDocumentData } from "./definition";
@@ -46,6 +47,7 @@ export function TemplateRenderer({
     );
   }
   const data = parseDocumentData(document, definition);
+  
   const Renderer = definition.renderer;
   return <Renderer data={data} workspaceProfile={workspaceProfile} />;
 }
@@ -56,8 +58,8 @@ export function PreviewTemplateRenderer({ templateId, data }: { templateId: Temp
 
   const parsedResult = definition.schema.safeParse(data ?? {});
   const safeData = parsedResult.success ? parsedResult.data : definition.defaults;
+  
   const Renderer = definition.renderer;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return <Renderer data={safeData as any} />;
 }

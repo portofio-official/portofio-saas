@@ -1,20 +1,24 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { templateFontClass } from "@/templates/fonts";
 import { initials, SocialIcon } from "@/templates/shared";
 import type { MinimalData as PortfolioData } from "./schema";
+import { minimalDefinition } from "./definition";
 import type { WorkspaceProfile } from "@/templates/definition";
 
 export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
   const { profile, skills, projects, contact, socials, theme } = data;
 
-  const INK = "#16150F";
-  const PAPER = "#FAF9F5";
-  const MUTED = "#75736A";
-  const FAINT = "#A9A697";
-  const LINE = "#E7E4D9";
-  const SURFACE = "#F1EFE7";
+  const variant = minimalDefinition.variants.find(v => v.id === theme.variantId) || minimalDefinition.variants[0];
+  const {
+    primary: ACCENT,
+    background: PAPER,
+    surface: SURFACE,
+    text: INK,
+    textMuted: MUTED,
+    border: LINE,
+    faint: FAINT,
+  } = variant.colors;
 
   const sections = useMemo(() => {
     const list: { key: string; label: string }[] = [];
@@ -102,17 +106,17 @@ export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfil
     }
   };
 
-  const accentRing: React.CSSProperties = { ["--tw-ring-color" as never]: theme.accentColor };
+  const accentRing: React.CSSProperties = { ["--tw-ring-color" as never]: ACCENT };
 
   return (
     <div
-      className={`${templateFontClass(theme.font)} relative min-h-screen font-light selection:bg-black/10`}
+      className="relative min-h-screen font-light font-serif selection:bg-black/10"
       style={{ backgroundColor: PAPER, color: INK }}
     >
       <div className="fixed top-0 left-0 right-0 z-50 h-[2px] bg-transparent">
         <div
           className="h-full motion-safe:transition-[width] motion-safe:duration-150"
-          style={{ width: `${progress}%`, backgroundColor: theme.accentColor }}
+          style={{ width: `${progress}%`, backgroundColor: ACCENT }}
         />
       </div>
 
@@ -221,7 +225,7 @@ export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfil
                       </h4>
                       <span
                         className="text-sm motion-safe:transition-transform motion-safe:duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
-                        style={{ color: theme.accentColor }}
+                        style={{ color: ACCENT }}
                         aria-hidden="true"
                       >
                         ↗

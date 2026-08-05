@@ -6,7 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { type TemplateId } from "@/templates/types";
 import { PreviewTemplateRenderer as TemplateRenderer } from "@/templates/registry";
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
-import type { BasePortfolioData } from "@/templates/shared/_base";
+import { type BasePortfolioData, BASE_PROFILE_DEFAULTS } from "@/templates/shared/_base";
 import type { StudioData } from "@/templates/definitions/studio/schema";
 import type { PortfolioProData } from "@/templates/definitions/portfolio-pro/schema";
 
@@ -102,7 +102,7 @@ const PREVIEW_DATA: PreviewData = {
     { platform: "linkedin", url: "https://linkedin.com/in/alexrivera" },
     { platform: "github", url: "https://github.com/alexrivera" },
   ],
-  theme: { accentColor: "#00cf7c", font: "sans" },
+  theme: { ...BASE_PROFILE_DEFAULTS.theme },
   hero: {
     headline: "We build digital experiences.",
     subheadline: "An independent studio crafting premium interfaces for the web and mobile.",

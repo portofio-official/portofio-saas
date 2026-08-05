@@ -1,4 +1,5 @@
 import type { FreelancerData } from "./schema";
+import { BASE_PROFILE_DEFAULTS } from "../../shared/_base";
 
 export const freelancerDefaults: FreelancerData = {
   profile: {
@@ -58,7 +59,7 @@ export const freelancerDefaults: FreelancerData = {
   },
   socials: [],
   theme: {
-    accentColor: "#3532E5",
-    font: "sans",
+    ...BASE_PROFILE_DEFAULTS.theme,
+    variantId: "default",
   },
 };

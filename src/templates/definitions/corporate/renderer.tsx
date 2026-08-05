@@ -1,25 +1,26 @@
 "use client";
 
-import { templateFontClass } from "@/templates/fonts";
 import { initials, formatMonth, SocialIcon } from "@/templates/shared";
 import type { CorporateData as PortfolioData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
+import { corporateDefinition } from "./definition";
 
 export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
   const { profile, experiences, educations, skills, pricing, contact, socials, theme } = data;
+  const variant = corporateDefinition.variants.find(v => v.id === theme.variantId) || corporateDefinition.variants[0];
 
   return (
-    <div className={`${templateFontClass(theme.font)} min-h-screen bg-[#FDFDFD] text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900`}>
+    <div className={`min-h-screen bg-[#FDFDFD] text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900`}>
       <div className="mx-auto max-w-6xl px-6 py-16 md:px-12 md:py-24">
         
-        <header className="border-b border-zinc-200 pb-12 md:pb-16 mb-12 md:pb-20 md:mb-20">
+        <header id="profile" className="border-b border-zinc-200 pb-12 md:pb-16 mb-12 md:pb-20 md:mb-20">
           <div className="flex flex-col-reverse md:flex-row md:items-end justify-between gap-10">
             <div className="max-w-2xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-zinc-900 leading-tight">
                 {profile.fullName || "Your Name"}
               </h1>
               {profile.headline && (
-                <p className="mt-4 text-xl md:text-2xl text-zinc-500 font-light" style={{ color: theme.accentColor }}>
+                <p className="mt-4 text-xl md:text-2xl text-zinc-500 font-light" style={{ color: variant.colors.primary }}>
                   {profile.headline}
                 </p>
               )}
@@ -50,7 +51,7 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
           <main className="lg:col-span-8 lg:col-start-5 space-y-20">
             
             {experiences.length > 0 && (
-              <section>
+              <section id="experience">
                 <h2 className="text-sm font-medium text-zinc-900 border-b border-zinc-200 pb-3 mb-8">
                   Professional Experience
                 </h2>
@@ -65,7 +66,7 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
                           {formatMonth(exp.startDate)} — {exp.endDate ? formatMonth(exp.endDate) : "Present"}
                         </p>
                       </div>
-                      <p className="text-base font-medium mb-4" style={{ color: theme.accentColor }}>
+                      <p className="text-base font-medium mb-4" style={{ color: variant.colors.primary }}>
                         {exp.company}
                       </p>
                       {exp.description && (
@@ -80,7 +81,7 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
             )}
 
             {pricing && pricing.length > 0 && (
-              <section>
+              <section id="pricing">
                 <h2 className="text-sm font-medium text-zinc-900 border-b border-zinc-200 pb-3 mb-8">
                   Pricing Plans
                 </h2>
@@ -111,7 +112,7 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
           <aside className="lg:col-span-4 lg:col-start-1 lg:row-start-1 flex flex-col gap-16 lg:pr-8">
             
             {(contact.email || contact.phone || contact.whatsapp || socials.length > 0) && (
-              <section>
+              <section id="contact">
                 <h2 className="text-sm font-medium text-zinc-900 border-b border-zinc-200 pb-3 mb-6">
                   Contact
                 </h2>
@@ -142,7 +143,7 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
             )}
 
             {educations.length > 0 && (
-              <section>
+              <section id="education">
                 <h2 className="text-sm font-medium text-zinc-900 border-b border-zinc-200 pb-3 mb-6">
                   Education
                 </h2>
@@ -164,7 +165,7 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
             )}
 
             {skills.length > 0 && (
-              <section>
+              <section id="skills">
                 <h2 className="text-sm font-medium text-zinc-900 border-b border-zinc-200 pb-3 mb-6">
                   Core Competencies
                 </h2>

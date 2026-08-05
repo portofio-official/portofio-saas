@@ -30,7 +30,7 @@ export async function createWorkspaceAction(
 
   if (error || !workspace) return { error: "generic" };
 
-  let href = `/dashboard/${workspace.id}/editor`;
+  let href = `/workspace-setup/${workspace.id}`;
   if (templateId) {
     href += `?templateId=${templateId}`;
   }

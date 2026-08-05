@@ -44,8 +44,7 @@ export const socialSchema = z.object({
 });
 
 export const themeSchema = z.object({
-  accentColor: z.string().default("#3532E5"),
-  font: z.enum(["sans", "serif", "mono", "rounded"]).default("sans"),
+  variantId: z.string().default("default"),
 });
 
 // Reusable atom schemas for specific template capabilities
@@ -101,7 +100,9 @@ export const BASE_PROFILE_DEFAULTS: BaseProfileData = {
   profile: { fullName: "", headline: "", bio: "" },
   contact: { email: "" },
   socials: [],
-  theme: { accentColor: "#3532E5", font: "sans" },
+  theme: { 
+    variantId: "default",
+  },
 };
 
 // Legacy base portfolio schema — kept for backward compatibility alias during refactor

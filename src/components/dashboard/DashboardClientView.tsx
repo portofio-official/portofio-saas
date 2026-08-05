@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import type { Workspace } from "@/lib/workspace/types";
 import { PreviewTemplateRenderer } from "@/templates/registry";
-import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
@@ -538,7 +538,7 @@ export function DashboardClientView({
               </div>
             </Link>
           </div>
-        ) : workspaces.length > 0 ? (
+        ) : (
           /* Search / Filter Empty State */
           <div className="flex h-64 flex-col items-center justify-center gap-3 text-center">
             <span className="material-symbols-outlined text-[36px] text-[#9CA3AF]">search_off</span>
@@ -558,42 +558,6 @@ export function DashboardClientView({
             >
               Clear filters
             </button>
-          </div>
-        ) : (
-          /* Zero Workspaces Onboarding State */
-          <div className="flex h-80 flex-col items-center justify-center gap-4 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e6faf2] text-[#00b368]">
-              <span className="material-symbols-outlined text-[24px]">web</span>
-            </div>
-            {preferredTemplateId ? (
-              <div className="flex max-w-sm flex-col items-center gap-4 w-full">
-                <div>
-                  <p className="text-[18px] font-bold text-[#111827]">Name your website</p>
-                  <p className="mt-1 text-[13px] text-[#6B7280]">
-                    Starting with <span className="font-semibold text-[#111827] capitalize">{preferredTemplateId}</span> template
-                  </p>
-                </div>
-                <div className="w-full text-left">
-                  <CreateWorkspaceForm templateId={preferredTemplateId} />
-                </div>
-              </div>
-            ) : (
-              <>
-                <div>
-                  <p className="text-[18px] font-bold text-[#111827]">No websites yet</p>
-                  <p className="mt-1 text-[13px] text-[#6B7280]">
-                    Create your portfolio website from our professionally crafted templates.
-                  </p>
-                </div>
-                <Link
-                  href="/dashboard/templates"
-                  className="flex items-center gap-2 rounded-xl bg-[#00cf7c] hover:bg-[#00b368] px-5 py-2.5 text-[13px] font-bold text-white shadow-[0_4px_14px_0_rgba(0,207,124,0.35)] transition-all"
-                >
-                  <span className="material-symbols-outlined text-[18px]">add</span>
-                  Create Website
-                </Link>
-              </>
-            )}
           </div>
         )}
       </div>

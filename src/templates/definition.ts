@@ -35,6 +35,21 @@ export interface SectionDef {
   description?: string;
 }
 
+export interface TemplateVariant {
+  id: string;
+  label: string;
+  colors: {
+    primary: string;
+    secondary?: string;
+    background: string;
+    surface: string;
+    text: string;
+    textMuted: string;
+    border: string;
+    [key: string]: string | undefined;
+  };
+}
+
 export interface MigrationStep {
   from: number;
   to: number;
@@ -57,6 +72,7 @@ export interface TemplateDefinition<TSchema extends z.ZodTypeAny> {
   id: string;
   version: number;
   meta: TemplateMeta;
+  variants: TemplateVariant[];
   sections: SectionDef[];
   schema: TSchema;
   defaults: z.infer<TSchema>;

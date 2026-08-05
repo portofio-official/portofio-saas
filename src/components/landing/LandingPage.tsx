@@ -106,7 +106,15 @@ export function LandingPage({
       }
 
       isScrolling = true;
-      sections[nextIndex].scrollIntoView({ behavior: "smooth", block: "center" });
+      const targetSection = sections[nextIndex] as HTMLElement;
+      const targetY = targetSection.getBoundingClientRect().top + window.scrollY;
+      const offset = (window.innerHeight - targetSection.offsetHeight) / 2;
+      
+      window.scrollTo({
+        top: targetY - (offset > 0 ? offset : 0),
+        left: 0,
+        behavior: "smooth"
+      });
 
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {

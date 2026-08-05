@@ -17,7 +17,8 @@ export function DashboardSidebar({ email }: { email: string }) {
 
   const isTemplates = pathname?.includes("/dashboard/templates");
   const isBilling = pathname?.includes("/dashboard/billing");
-  const isWebsites = !isTemplates && !isBilling;
+  const isSettings = pathname?.includes("/dashboard/settings");
+  const isWebsites = !isTemplates && !isBilling && !isSettings;
 
   const primaryGroup = [
     { href: "/dashboard", icon: "web", label: "Websites", active: isWebsites },
@@ -32,7 +33,7 @@ export function DashboardSidebar({ email }: { email: string }) {
   ];
 
   const settingsGroup = [
-    { href: "#", icon: "settings", label: "Settings", active: false, comingSoon: true },
+    { href: "/dashboard/settings", icon: "settings", label: "Settings", active: isSettings, comingSoon: false },
   ];
 
   return (
@@ -157,19 +158,40 @@ export function DashboardSidebar({ email }: { email: string }) {
 
         {/* Settings Group */}
         <div className="flex flex-col gap-0.5">
-          {settingsGroup.map((item) => (
-            <div
-              key={item.label}
-              className="flex items-center justify-between rounded-xl px-2.5 py-2 text-[13px] font-medium text-[#9CA3AF] cursor-not-allowed"
-              title="Coming soon"
-            >
-              <div className="flex items-center gap-2.5">
-                <span className="material-symbols-outlined text-[18px] text-[#9CA3AF]">{item.icon}</span>
-                <span>{item.label}</span>
+          {settingsGroup.map((item) =>
+            item.comingSoon ? (
+              <div
+                key={item.label}
+                className="flex items-center justify-between rounded-xl px-2.5 py-2 text-[13px] font-medium text-[#9CA3AF] cursor-not-allowed"
+                title="Coming soon"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[18px] text-[#9CA3AF]">{item.icon}</span>
+                  <span>{item.label}</span>
+                </div>
+                <span className="rounded-md bg-[#F3F4F6] px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-[#6B7280] uppercase">Soon</span>
               </div>
-              <span className="rounded-md bg-[#F3F4F6] px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-[#6B7280] uppercase">Soon</span>
-            </div>
-          ))}
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-150 ${
+                  item.active
+                    ? "bg-[#00cf7c]/10 text-[#00b368] font-bold"
+                    : "text-[#4B5563] font-medium hover:bg-[#F9FAFB] hover:text-[#111827]"
+                }`}
+              >
+                <span
+                  className={`material-symbols-outlined text-[18px] transition-colors ${
+                    item.active ? "text-[#00cf7c]" : "text-[#6B7280] group-hover:text-[#111827]"
+                  }`}
+                >
+                  {item.icon}
+                </span>
+                <span className="flex-1 truncate">{item.label}</span>
+              </Link>
+            )
+          )}
         </div>
       </nav>
 

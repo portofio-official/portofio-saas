@@ -5,12 +5,26 @@ import { formatMonth, SocialIcon } from "@/templates/shared";
 import type { BoldData as PortfolioData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
 
+import { boldDefinition } from "./definition";
+
 export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
   const { profile, experiences, skills, projects, contact, socials, theme } = data;
+  
+  const variant = boldDefinition.variants.find(v => v.id === theme.variantId) || boldDefinition.variants[0];
+  const {
+    primary: ACCENT,
+    background: BG,
+    surface: SURFACE,
+    text: TEXT,
+    textMuted: MUTED,
+  } = variant.colors;
 
   return (
-    <div className={`${templateFontClass(theme.font)} min-h-screen bg-zinc-50 text-zinc-950 selection:bg-zinc-900 selection:text-zinc-50`}>
-      <header className="px-6 py-24 md:px-12 md:py-40 max-w-screen-2xl mx-auto">
+    <div 
+      className={`min-h-screen font-sans selection:bg-black/10`}
+      style={{ backgroundColor: BG, color: TEXT }}
+    >
+      <header id="profile" className="px-6 py-24 md:px-12 md:py-40 max-w-screen-2xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
           <div className="lg:col-span-8">
             <h1 className="text-[12vw] lg:text-[10rem] font-black leading-[0.85] tracking-tighter uppercase break-words">
@@ -19,12 +33,12 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
           </div>
           <div className="lg:col-span-4 pb-2 lg:pb-6">
             {profile.headline && (
-              <p className="text-xl md:text-3xl font-bold tracking-tight text-zinc-600 uppercase" style={{ color: theme.accentColor }}>
+              <p className="text-xl md:text-3xl font-bold tracking-tight uppercase" style={{ color: ACCENT }}>
                 {profile.headline}
               </p>
             )}
             {profile.location && (
-              <p className="mt-4 text-sm font-mono tracking-widest uppercase text-zinc-400">
+              <p className="mt-4 text-sm font-mono tracking-widest uppercase" style={{ color: MUTED }}>
                 {"// "} {profile.location}
               </p>
             )}
@@ -33,7 +47,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
       </header>
 
       {profile.bio && (
-        <section className="px-6 md:px-12 py-16 md:py-32 border-t-[6px] border-zinc-950 max-w-screen-2xl mx-auto">
+        <section className="px-6 md:px-12 py-16 md:py-32 max-w-screen-2xl mx-auto border-t-[6px]" style={{ borderColor: TEXT }}>
           <p className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-bold leading-[1.05] tracking-tighter max-w-6xl">
             {profile.bio}
           </p>
@@ -41,7 +55,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
       )}
 
       {projects.length > 0 && (
-        <section className="px-6 md:px-12 py-16 md:py-32 border-t-[6px] border-zinc-950 max-w-screen-2xl mx-auto">
+        <section id="projects" className="px-6 md:px-12 py-16 md:py-32 max-w-screen-2xl mx-auto border-t-[6px]" style={{ borderColor: TEXT }}>
           <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-16">Selected Work</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
             {projects.map((project, i) => (
@@ -50,7 +64,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
                 href={project.link || undefined}
                 className="group block"
               >
-                <div className="aspect-[4/3] w-full overflow-hidden bg-zinc-200 relative">
+                <div className="aspect-[4/3] w-full overflow-hidden relative" style={{ backgroundColor: SURFACE }}>
                   {project.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img 
@@ -61,7 +75,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
                   ) : (
                     <div
                       className="flex h-full w-full items-center justify-center text-[12rem] font-black mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
-                      style={{ backgroundColor: theme.accentColor, color: 'rgba(255,255,255,0.7)' }}
+                      style={{ backgroundColor: ACCENT, color: BG }}
                     >
                       {project.title.slice(0, 1)}
                     </div>
@@ -82,7 +96,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
       )}
 
       {experiences.length > 0 && (
-        <section className="px-6 md:px-12 py-16 md:py-32 border-t-[6px] border-zinc-950 max-w-screen-2xl mx-auto">
+        <section id="experience" className="px-6 md:px-12 py-16 md:py-32 border-t-[6px] border-zinc-950 max-w-screen-2xl mx-auto">
           <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-20">Experience</h2>
           <div className="grid grid-cols-1 gap-16">
             {experiences.map((exp, i) => (
@@ -93,7 +107,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
                   </p>
                 </div>
                 <div className="md:col-span-8 lg:col-span-9">
-                  <h3 className="text-4xl md:text-6xl font-black tracking-tight uppercase leading-none" style={{ color: theme.accentColor }}>
+                  <h3 className="text-4xl md:text-6xl font-black tracking-tight uppercase leading-none" style={{ color: ACCENT }}>
                     {exp.role}
                   </h3>
                   <p className="text-2xl md:text-4xl font-bold mt-4 text-zinc-800 uppercase">
@@ -111,7 +125,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
         </section>
       )}
 
-      <section className="px-6 md:px-12 py-16 md:py-32 border-t-[6px] border-zinc-950 max-w-screen-2xl mx-auto">
+      <section id="skills" className="px-6 md:px-12 py-16 md:py-32 border-t-[6px] border-zinc-950 max-w-screen-2xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-32">
           {skills.length > 0 && (
             <div>
@@ -131,10 +145,10 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
         </div>
       </section>
 
-      <footer className="bg-zinc-950 text-zinc-50 px-6 md:px-12 py-24 md:py-40">
+      <footer id="contact" className="bg-zinc-950 text-zinc-50 px-6 md:px-12 py-24 md:py-40">
         <div className="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-end">
           <div>
-            <h2 className="text-6xl md:text-8xl lg:text-[8rem] font-black uppercase tracking-tighter mb-12 leading-[0.85]" style={{ color: theme.accentColor }}>
+            <h2 className="text-6xl md:text-8xl lg:text-[8rem] font-black uppercase tracking-tighter mb-12 leading-[0.85]" style={{ color: ACCENT }}>
               Let&apos;s Build <br/> Something.
             </h2>
             <div className="flex flex-col gap-4 text-2xl font-medium text-zinc-400">

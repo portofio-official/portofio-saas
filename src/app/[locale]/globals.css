@@ -8,9 +8,9 @@
   --color-ink:         #111827;
   --color-ink-soft:    #4B5563;
   --color-ink-faint:   #9CA3AF;
-  --color-accent:      #7c3aed;
-  --color-accent-deep: #6d28d9;
-  --color-accent-tint: #f5f3ff;
+  --color-accent:      #00cf7c;
+  --color-accent-deep: #00b368;
+  --color-accent-tint: #e6fbf2;
   --color-positive:    #00cf7c;
   --color-danger:      #EF4444;
 
@@ -31,6 +31,13 @@
   --spacing-preview: var(--theme-section-spacing, 4rem);
   --container-preview: var(--theme-content-width, 1280px);
   --shadow-preview: var(--theme-shadow, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+}
+
+:root {
+  --color-accent: #00cf7c;
+  --color-accent-deep: #00b368;
+  --color-accent-tint: #e6fbf2;
+  --accent: #00cf7c;
 }
 
 body {

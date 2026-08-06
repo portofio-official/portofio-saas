@@ -6,7 +6,7 @@ export const MINIMAL_VARIANTS: TemplateVariant[] = [
     id: "default",
     label: "Paper",
     colors: {
-      primary: "#7c3aed",
+      primary: "#00cf7c",
       background: "#FAF9F5",
       surface: "#F1EFE7",
       text: "#16150F",
@@ -19,7 +19,7 @@ export const MINIMAL_VARIANTS: TemplateVariant[] = [
     id: "charcoal",
     label: "Charcoal",
     colors: {
-      primary: "#a855f7",
+      primary: "#10b981",
       background: "#18181b",
       surface: "#27272a",
       text: "#fafafa",

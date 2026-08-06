@@ -103,7 +103,7 @@ export function AboutSection({
               {about.tags.map((tag, i) => (
                 <span
                   key={i}
-                  className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold ${isDark ? "border-indigo-500/20 bg-indigo-500/10 text-indigo-300" : "border-slate-200 bg-slate-200/50 text-slate-700"}`}
+                  className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold ${isDark ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300" : "border-slate-200 bg-slate-200/50 text-slate-700"}`}
                 >
                   {tag}
                 </span>

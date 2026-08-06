@@ -46,7 +46,7 @@ export const MONOGRAM_GRADIENTS = [
   "from-emerald-700 to-green-800",
   "from-blue-700 to-slate-800",
   "from-amber-600 to-orange-700",
-  "from-violet-600 to-purple-700",
+  "from-emerald-600 to-green-700",
   "from-sky-600 to-cyan-700",
 ];
 

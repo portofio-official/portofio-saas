@@ -169,15 +169,6 @@ export function DashboardClientView({
             </p>
           </div>
 
-          {publishedCount >= 1 && (
-            <div className="flex items-center gap-2 rounded-xl border border-[#00cf7c]/30 bg-[#e6faf2] px-3.5 py-2 text-[12px] font-medium text-[#00663b]">
-              <span className="material-symbols-outlined text-[16px] text-[#00b368]">info</span>
-              <span>
-                <strong>Kuota Website Live (1/1):</strong> 1 website aktif dipublikasikan. Berganti template diperbolehkan.
-              </span>
-            </div>
-          )}
-
           {/* Action Controls */}
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Search input with ⌘K */}

@@ -54,7 +54,7 @@ export function FreelancerPricingSection({
         <h3 className="font-display text-[13px] font-bold text-ink">
           Pricing Tiers
         </h3>
-        <span className="rounded bg-violet-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-violet-600">
+        <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600">
           Freelancer
         </span>
       </div>
@@ -215,7 +215,7 @@ export function FreelancerTestimonialsSection({
         <h3 className="font-display text-[13px] font-bold text-ink">
           Client Testimonials
         </h3>
-        <span className="rounded bg-violet-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-violet-600">
+        <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600">
           Freelancer
         </span>
       </div>

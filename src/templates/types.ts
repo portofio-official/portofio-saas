@@ -10,6 +10,6 @@ export const ACCENT_COLOR_PRESETS = [
   "#C2382E", // red
   "#1D7A4F", // green
   "#B45309", // amber
-  "#7C3AED", // violet
+  "#00CF7C", // brand green
   "#0F172A", // near-black
 ] as const;

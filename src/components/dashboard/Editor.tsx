@@ -506,17 +506,6 @@ export function Editor({
       {/* Full-Height Left Icon Dock */}
       <aside className="w-[64px] shrink-0 border-r border-black/5 bg-surface flex flex-col items-center py-4 justify-between z-30">
         <div className="flex flex-col items-center gap-4 w-full">
-          {/* Back Arrow - Now in Icon Dock top */}
-          <a
-            href={`/${locale}/dashboard`}
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-black/5 hover:text-ink mb-2"
-            aria-label="Back to Dashboard"
-          >
-            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-          </a>
-          
-          <div className="w-8 h-px bg-black/5 mb-2" />
-
           <button
             onClick={() => setActiveLeftPanel("layers")}
             className={`w-10 h-10 flex items-center justify-center rounded-[12px] transition-all ${activeLeftPanel === "layers" ? "bg-accent/10 text-accent" : "text-ink-soft hover:bg-black/5 hover:text-ink"}`} title="Content Layers">
@@ -552,10 +541,14 @@ export function Editor({
 
         {/* Top Header */}
         <header className="gsap-header relative z-10 flex h-14 shrink-0 items-center justify-between border-b border-black/5 bg-surface px-6 shadow-sm">
-          <div className="flex items-center gap-2 w-1/3">
-            <span className="material-symbols-outlined text-[16px] text-ink-soft">arrow_back</span>
-            <span className="text-[13px] font-medium text-ink-soft">Back to dashboard</span>
-          </div>
+          <a
+            href={`/${locale}/dashboard`}
+            className="flex items-center gap-2 w-1/3 text-ink-soft hover:text-ink transition-colors cursor-pointer"
+            aria-label="Back to Dashboard"
+          >
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+            <span className="text-[13px] font-medium">Back to dashboard</span>
+          </a>
           
           <div className="flex items-center justify-center gap-6 w-1/3">
             <div className="flex items-center gap-1 bg-black/5 rounded-full p-1">

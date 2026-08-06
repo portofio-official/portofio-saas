@@ -63,6 +63,15 @@
 - Confirmed `vercel.json` cron configuration and `.env.example` completeness.
 - Verified TypeScript compilation and production build (`npm run build` completed clean in 4.6s across 23 routes).
 
+# Session 032: Sprint 1 — Playwright E2E Test Suite & Moderation Hardening
+**Status:** Verified / Passing
+**Latest state:**
+- Configured Playwright E2E test framework (`playwright.config.ts`, installed `@playwright/test` dev dependency).
+- Authored E2E regression test suite covering key flows (`e2e/flows.spec.ts`, `e2e/flows/01-landing.spec.ts`, `e2e/flows/02-auth.spec.ts`, `e2e/flows/08-public-site.spec.ts`).
+- Verified all 11 E2E tests pass clean in Playwright against dev server (`11 passed` in 7.0s).
+- Updated `TASK_TRACKER.md` marking Sprint 1 100% Completed.
+
 **Next Steps:**
-- Execute remaining Sprint 0 infra steps (Remote DB migration sync & Auth email template configuration in Supabase Dashboard) and Sprint 1 E2E Playwright tests.
+- Perform Sprint 0 Remote DB migration sync on Supabase Dashboard, then proceed to Sprint 2 (Production Cron & Legal audit).
+
 

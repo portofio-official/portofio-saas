@@ -1,16 +1,16 @@
 import { getTranslations } from "next-intl/server";
 import { getUserProfile } from "@/lib/profile/queries";
-import { SettingsClientView } from "@/components/settings/SettingsClientView";
+import { ProfileClientView } from "@/components/profile/ProfileClientView";
 
-export default async function SettingsPage() {
+export default async function ProfilePage() {
   const [profile, t] = await Promise.all([
     getUserProfile(),
-    getTranslations("Settings")
+    getTranslations("Profile")
   ]);
 
   return (
-    <div className="p-8 md:p-12">
-      <SettingsClientView
+    <div className="flex-1 overflow-y-auto p-8 md:p-12">
+      <ProfileClientView
         profile={profile}
         dict={{
           title: t("title"),

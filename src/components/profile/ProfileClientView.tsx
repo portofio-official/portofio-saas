@@ -29,7 +29,7 @@ interface Dict {
   error: string;
 }
 
-export function SettingsClientView({ profile, dict }: { profile: UserProfile | null, dict: Dict }) {
+export function ProfileClientView({ profile, dict }: { profile: UserProfile | null, dict: Dict }) {
   const [formData, setFormData] = useState({
     full_name: profile?.full_name || "",
     contact_email: profile?.contact_email || "",

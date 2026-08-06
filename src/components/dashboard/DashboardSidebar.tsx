@@ -17,8 +17,8 @@ export function DashboardSidebar({ email }: { email: string }) {
 
   const isTemplates = pathname?.includes("/dashboard/templates");
   const isBilling = pathname?.includes("/dashboard/billing");
-  const isSettings = pathname?.includes("/dashboard/settings");
-  const isWebsites = !isTemplates && !isBilling && !isSettings;
+  const isProfile = pathname?.includes("/dashboard/profile");
+  const isWebsites = !isTemplates && !isBilling && !isProfile;
 
   const primaryGroup = [
     { href: "/dashboard", icon: "web", label: "Websites", active: isWebsites },
@@ -33,7 +33,7 @@ export function DashboardSidebar({ email }: { email: string }) {
   ];
 
   const settingsGroup = [
-    { href: "/dashboard/settings", icon: "settings", label: "Settings", active: isSettings, comingSoon: false },
+    { href: "/dashboard/profile", icon: "person", label: "Profile", active: isProfile, comingSoon: false },
   ];
 
   return (

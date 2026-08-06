@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import type { Workspace } from "@/lib/workspace/types";
 import { PreviewTemplateRenderer } from "@/templates/registry";
+import { useToast } from "@/components/ui/Toast";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
@@ -48,6 +49,7 @@ export function DashboardClientView({
 }) {
   const router = useRouter();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const { showToast } = useToast();
 
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("updated");
@@ -110,12 +112,13 @@ export function DashboardClientView({
       const { duplicateWorkspaceAction } = await import("@/lib/workspace/actions");
       const res = await duplicateWorkspaceAction(workspaceId);
       if (res.error) {
-        alert("Failed to duplicate website.");
+        showToast("Failed to duplicate website.", "error");
       } else {
+        showToast("Website duplicated successfully.", "success");
         router.refresh();
       }
     } catch {
-      alert("Error duplicating website.");
+      showToast("Error duplicating website.", "error");
     } finally {
       setIsDuplicating(null);
     }
@@ -126,9 +129,10 @@ export function DashboardClientView({
     try {
       const { unpublishWorkspaceProjectAction } = await import("@/lib/workspace/actions");
       await unpublishWorkspaceProjectAction(workspaceId);
+      showToast("Website unpublished.", "info");
       router.refresh();
     } catch {
-      alert("Error unpublishing website.");
+      showToast("Error unpublishing website.", "error");
     }
   };
 
@@ -138,9 +142,10 @@ export function DashboardClientView({
       try {
         const { deleteWorkspaceAction } = await import("@/lib/workspace/actions");
         await deleteWorkspaceAction(workspace.id);
+        showToast("Website deleted.", "info");
         router.refresh();
       } catch {
-        alert("Error deleting website.");
+        showToast("Error deleting website.", "error");
       }
     }
   };

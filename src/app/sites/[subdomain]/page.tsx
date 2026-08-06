@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getDefinition } from "@/templates/registry";
 import { parseDocumentData, type WebsiteDocument, type WorkspaceProfile } from "@/templates/definition";
@@ -35,6 +36,49 @@ async function getPublishedProject(subdomain: string) {
   };
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ subdomain: string }>;
+}): Promise<Metadata> {
+  const { subdomain } = await params;
+  const project = await getPublishedProject(subdomain);
+  if (!project) {
+    return {
+      title: "Site Tidak Ditemukan — Portofio",
+    };
+  }
+
+  const rawDoc = project.published_json as WebsiteDocument;
+  const doc = sanitizeObjectData(rawDoc);
+  const docData = (doc?.data ?? {}) as Record<string, unknown>;
+  const profile = (docData.profile ?? {}) as Record<string, unknown>;
+
+  const fullName = (profile.fullName as string) || (profile.name as string) || subdomain;
+  const headline = (profile.headline as string) || (profile.bio as string) || "Portfolio";
+  const photoUrl = (profile.photoUrl as string) || (profile.avatarUrl as string) || undefined;
+
+  const title = `${fullName} — Portfolio`;
+  const description = headline;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: photoUrl ? [{ url: photoUrl }] : undefined,
+    },
+    twitter: {
+      card: photoUrl ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: photoUrl ? [photoUrl] : undefined,
+    },
+  };
+}
+
 export default async function PublicSitePage({
   params,
 }: {
@@ -57,6 +101,21 @@ export default async function PublicSitePage({
   const doc = sanitizeObjectData(rawDoc);
   const data = parseDocumentData(doc, definition);
 
+  // Extract structured data info
+  const docData = (doc?.data ?? {}) as Record<string, unknown>;
+  const profile = (docData.profile ?? {}) as Record<string, unknown>;
+  const fullName = (profile.fullName as string) || (profile.name as string) || subdomain;
+  const headline = (profile.headline as string) || (profile.bio as string) || "";
+  const photoUrl = (profile.photoUrl as string) || (profile.avatarUrl as string) || undefined;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: fullName,
+    description: headline,
+    image: photoUrl,
+  };
+
   // Snapshot pattern: public site renders strictly from published content_json snapshot
   const workspaceProfile: WorkspaceProfile = {
     workspaceId: project.workspace_id,
@@ -70,5 +129,14 @@ export default async function PublicSitePage({
   };
 
   const Renderer = definition.renderer;
-  return <Renderer data={data} workspaceProfile={workspaceProfile} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <Renderer data={data} workspaceProfile={workspaceProfile} />
+    </>
+  );
 }
+

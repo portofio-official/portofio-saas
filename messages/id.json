@@ -234,8 +234,8 @@
       "chooseTemplate": "Pilih template"
     }
   },
-  "Settings": {
-    "eyebrow": "Pengaturan",
+  "Profile": {
+    "eyebrow": "Profil",
     "title": "Profil Akun",
     "subtitle": "Kelola informasi pribadi dan preferensi Anda.",
     "fullNameLabel": "Nama Lengkap",

@@ -48,7 +48,7 @@ export async function updateUserProfile(data: {
     return { error: "Failed to update profile" };
   }
 
-  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard/profile");
   revalidatePath("/onboarding");
   revalidatePath("/dashboard");
   return { success: true };

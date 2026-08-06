@@ -234,8 +234,8 @@
       "chooseTemplate": "Choose template"
     }
   },
-  "Settings": {
-    "eyebrow": "Settings",
+  "Profile": {
+    "eyebrow": "Profile",
     "title": "Account Profile",
     "subtitle": "Manage your personal information and preferences.",
     "fullNameLabel": "Full Name",

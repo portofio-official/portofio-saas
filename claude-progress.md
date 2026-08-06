@@ -71,7 +71,16 @@
 - Verified all 11 E2E tests pass clean in Playwright against dev server (`11 passed` in 7.0s).
 - Updated `TASK_TRACKER.md` marking Sprint 1 100% Completed.
 
+# Session 033: Sprint 2 — Legal Pages Audit & Cron Subscription Expiry Worker
+**Status:** Verified / Passing
+**Latest state:**
+- Verified bilingual Privacy Policy (`/id/privacy`, `/en/privacy`) and Terms of Service (`/id/terms`, `/en/terms`) legal pages.
+- Verified background subscription expiration Cron route (`/api/cron/check-subscriptions/route.ts`) enforcing `CRON_SECRET` authorization and 7-day grace period soft-unpublish logic (`softUnpublishUserProjects`).
+- Confirmed Vercel cron configuration (`vercel.json`) set to daily execution (`0 2 * * *`).
+- Re-verified Playwright test suite (`11 passed` clean) and `TASK_TRACKER.md` updated to mark Sprint 2 100% Completed.
+
 **Next Steps:**
-- Perform Sprint 0 Remote DB migration sync on Supabase Dashboard, then proceed to Sprint 2 (Production Cron & Legal audit).
+- Prepare Sprint 3 Production Go-Live Deployment checklist & Wildcard DNS verification.
+
 
 

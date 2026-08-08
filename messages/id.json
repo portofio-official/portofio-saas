@@ -200,12 +200,18 @@
       "weakPassword": "Kata sandi minimal 8 karakter.",
       "emailNotConfirmed": "Verifikasi emailmu terlebih dahulu.",
       "confirmFailed": "Tautan tidak valid atau sudah kedaluwarsa.",
+      "oauthFailed": "Masuk dengan Google gagal. Coba lagi.",
       "rateLimited": "Terlalu banyak percobaan. Coba lagi dalam beberapa menit.",
       "generic": "Terjadi kesalahan. Coba lagi."
     },
     "success": {
       "checkYourEmail": "Cek emailmu",
       "checkYourEmailSubtitle": "Kami sudah mengirim tautan konfirmasi ke emailmu."
+    },
+    "oauth": {
+      "or": "atau",
+      "google": "Lanjutkan dengan Google",
+      "googlePending": "Mengarahkan ke Google…"
     }
   },
   "Workspace": {

@@ -7,6 +7,7 @@ import { signInAction, type ActionState } from "@/lib/auth/actions";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import styles from "@/components/auth/AuthSplitLayout.module.css";
 
 const initialState: ActionState = { error: null };
@@ -72,12 +73,9 @@ export default function LoginPage() {
         {state.error && <p className="text-sm text-danger" style={{ color: "red", fontSize: "0.875rem" }}>{tErrors(state.error)}</p>}
 
         <AuthSubmitButton label={t("submit")} pendingLabel={t("submitPending")} />
-
-        {/* <button type="button" className={styles.btnGoogle}>
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" />
-          Sign in with Google
-        </button> */}
       </form>
+
+      <GoogleSignInButton />
     </AuthSplitLayout>
   );
 }

@@ -200,8 +200,14 @@
       "weakPassword": "Password must be at least 8 characters.",
       "emailNotConfirmed": "Please verify your email first.",
       "confirmFailed": "This link is invalid or has expired.",
+      "oauthFailed": "Google sign-in failed. Please try again.",
       "rateLimited": "Too many attempts. Please try again in a few minutes.",
       "generic": "Something went wrong. Please try again."
+    },
+    "oauth": {
+      "or": "or",
+      "google": "Continue with Google",
+      "googlePending": "Redirecting to Google…"
     },
     "success": {
       "checkYourEmail": "Check your email",

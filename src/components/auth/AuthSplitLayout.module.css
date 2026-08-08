@@ -468,6 +468,63 @@
   color: #00b368;
 }
 
+.btnGoogle {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.75rem;
+  background-color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #1f2937;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btnGoogle:hover {
+  background-color: #f9fafb;
+  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.btnGoogle:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.googleSection {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.dividerRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.dividerText {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .btnLogin {
   width: 100%;
   display: flex;

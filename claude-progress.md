@@ -1,3 +1,16 @@
+# Session 037: Fase 2 — Google OAuth Sign-In (Sprint 4.1)
+**Status:** Verified / Passing
+**Latest state:**
+- Started Fase 2 (out of MVP scope, PRD §5) with Sprint 4.1: Google OAuth 1-click login/registration via the Supabase Google provider.
+- `src/lib/auth/actions.ts`: added `googleSignInAction(templateId?)` — rate-limited (5/15min per IP), builds `redirectTo = /auth/callback?redirect=/dashboard[&templateId=…]`, calls `supabase.auth.signInWithOAuth({ provider: "google" })`, returns the consent URL (the Supabase server client stores the PKCE state cookie in the response).
+- `src/app/auth/callback/route.ts` (new): reads `code`, calls `exchangeCodeForSession`, sets `preferredTemplateId` cookie when `templateId` present, redirects to the `redirect` param; on failure redirects to `/login?error=…` (oauth_failed / confirm_failed surging).
+- `src/components/auth/GoogleSignInButton.tsx` (new): client component with divider ("or") + Google G SVG, `useTransition` pending state, calls `googleSignInAction`, navigates to the consent URL; error shown via `Auth.errors`.
+- Wired into `/login` and `/signup` pages (signup passes the gallery `templateId` so the chosen template survives a Google signup); deleted the old commented-out stub in login.
+- i18n: added `Auth.oauth` (`or`/`google`/`googlePending`) + `Auth.errors.oauthFailed` to messages/id.json + en.json.
+- `.env.example`: documented the 3 Supabase Dashboard / Google Cloud steps required to enable Google sign-in.
+- **Verification**: `npx tsc --noEmit` clean, `npm run lint` (0 errors, 3 pre-existing warnings), `npm run build` clean, `npm run test:e2e` **18 passed / 1 skipped** (2 new tests assert the Google button renders + is enabled on login and signup).
+- **Remaining for full E2E**: Google provider must be enabled in the Supabase Dashboard (Auth → Providers → Google, add `<SUPABASE_URL>/auth/v1/callback` to Google Cloud OAuth redirect URIs, set Auth Site URL). Recorded in `feature_list.json` oauth-001 and `.env.example`.
+
 # Session 036: Editor UX — Trim (A) + Drawers (B-1) + SEO (B-2) + Section Show/Hide (B-3) + Draft-vs-Published Revert (B-4)
 **Status:** Verified / Passing
 **Latest state:**

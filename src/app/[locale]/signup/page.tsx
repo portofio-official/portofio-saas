@@ -8,6 +8,7 @@ import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
 import { TemplateCookieSetter } from "@/components/auth/TemplateCookieSetter";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import styles from "@/components/auth/AuthSplitLayout.module.css";
 
 const initialState: ActionState = { error: null };
@@ -127,6 +128,8 @@ export default function SignupPage({ searchParams }: { searchParams: Promise<{ t
 
         <AuthSubmitButton label={t("submit")} pendingLabel={t("submitPending")} />
       </form>
+
+      <GoogleSignInButton templateId={templateId} />
       {templateId && <TemplateCookieSetter templateId={templateId} />}
     </AuthSplitLayout>
   );

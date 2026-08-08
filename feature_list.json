@@ -360,6 +360,27 @@
         "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 16 passed / 1 skipped."
       ],
       "notes": "Revert is a draft-side action: it writes a new autosave version from the published snapshot; it does not change the live site. Undo (Cmd/Ctrl+Z via useHistory) can restore the pre-revert draft until the next edit. Remaining B-phase candidates: none."
+    },
+    {
+      "id": "oauth-001",
+      "priority": 11,
+      "area": "auth",
+      "title": "Fase 2: Google OAuth sign-in (Sprint 4.1)",
+      "user_visible_behavior": "Users can sign in or register with one click via Google on the login and signup pages; a template chosen on the public gallery is carried through Google signup and pre-applied to their first workspace.",
+      "status": "passing",
+      "verification": [
+        "Login and signup pages show a 'Continue with Google' button (divider + Google logo).",
+        "Clicking the button initiates Supabase Google OAuth (server action returns the consent URL, browser navigates, /auth/callback exchanges the code for a session).",
+        "After a Google signup from the template gallery, the chosen template is pre-applied to the first workspace."
+      ],
+      "evidence": [
+        "2026-08-08 (Session 037): Added `googleSignInAction` (src/lib/auth/actions.ts) — rate-limited, builds redirectTo `/auth/callback?redirect=/dashboard[&templateId=...]`, calls `supabase.auth.signInWithOAuth({ provider: 'google' })`, returns the consent URL (server sets the PKCE state cookie).",
+        "2026-08-08: Added `src/app/auth/callback/route.ts` — exchanges `code` via `exchangeCodeForSession`, sets `preferredTemplateId` cookie when templateId is present, redirects to `redirect`; failures go to `/login?error=...`.",
+        "2026-08-08: Added `GoogleSignInButton` (src/components/auth/GoogleSignInButton.tsx) with inline Google G SVG + divider; wired into /login and /signup pages (signup passes templateId through).",
+        "2026-08-08: Added `Auth.oauth` and `Auth.errors.oauthFailed` i18n to messages/id.json + en.json; documented Google provider setup in .env.example.",
+        "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 18 passed / 1 skipped (added 2 Google-button presence tests)."
+      ],
+      "notes": "Out of MVP scope (PRD §5 Fase 2). End-to-end code exchange still needs the Supabase Dashboard Google provider configured: (1) enable Authentication → Providers → Google, (2) add `<SUPABASE_URL>/auth/v1/callback` as the Google Cloud OAuth redirect URI, (3) set Supabase Auth Site URL to the app origin. Until then, clicking the button surfaces the configured error via the existing error mapping. First-time Google signup follows the same dashboard first-workspace onboarding as email signup."
     }
   ]
 }

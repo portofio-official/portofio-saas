@@ -82,6 +82,36 @@ export async function signInAction(
   return redirect({ href: "/dashboard", locale: await getLocale() });
 }
 
+export type GoogleOAuthState = { error: string | null; url: string | null };
+
+/**
+ * Initiates Google OAuth. Returns the Supabase-generated Google consent URL
+ * (the server sets the PKCE state cookie, the browser then navigates to the
+ * URL and comes back through /auth/callback with a `code` to exchange).
+ */
+export async function googleSignInAction(templateId?: string): Promise<GoogleOAuthState> {
+  const ip = await getClientIp();
+  const rate = checkRateLimit(`oauth:${ip}`, 5, 15 * 60 * 1000);
+  if (!rate.allowed) {
+    return { error: "rateLimited", url: null };
+  }
+
+  const redirectTo = new URL(`/auth/callback`, await getAppUrl());
+  redirectTo.searchParams.set("redirect", "/dashboard");
+  if (templateId) redirectTo.searchParams.set("templateId", templateId);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: redirectTo.toString() },
+  });
+
+  if (error || !data.url) {
+    return { error: error ? mapAuthError(error.message) : "generic", url: null };
+  }
+  return { error: null, url: data.url };
+}
+
 export async function requestPasswordResetAction(
   _prevState: ActionState,
   formData: FormData,

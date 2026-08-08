@@ -426,6 +426,29 @@
         "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean (23 routes), npm run test:e2e 20 passed / 1 skipped, plus a direct in-browser Playwright check of /templates gallery preview (root bg #FAF9F5, font 'serif', h1 'Alex Rivera', 3 section keys, folio markers, zero console errors)."
       ],
       "notes": "PRD 7.3 scope. The minimal refocus keeps the same data contract (profile/skills/projects/contact/socials/theme/hiddenSections) so no editor/migration changes needed; hiddenSections + variant theming still honored. The shared gallery PREVIEW_DATA feeds ALL templates, so relaxing only the minimal schema confines the URL-relaxation to this template."
+    },
+    {
+      "id": "creative-redesign-001",
+      "priority": 14,
+      "area": "template",
+      "title": "Creative template redesign + guaranteed form-content connection",
+      "user_visible_behavior": "The Creative template looks like its name says (bold art-directed studio look): oversized rounded-display hero with sticker-style photo, mono kicker, alternating editorial project rows with accent underline + 'View case', colored skill sticker pills, Praise quotes with ratings, and a contact footer with email/phone/WhatsApp/socials. EVERY field a user fills in the editor form renders on the site, and one imperfect input (e.g. a '#' project link or a bare-domain social URL) no longer resets the whole page to empty defaults.",
+      "status": "passing",
+      "verification": [
+        "Gallery/public preview renders demo form content (name, headline, projects, skills, contact) instead of fallback defaults.",
+        "All connected sections expose editor navigation targets (data-section-key profile/work/skills/testimonials/contact).",
+        "Field coverage: profile (name/headline/bio/photo/location), projects (title/description/imageUrl/link), skills, testimonials (name/role/quote/rating), contact (email/phone/whatsapp), socials — all render.",
+        "Theme-aware: Midnight variant (was Slate) uses variant colors (no hardcoded beige/#111 text that was invisible on the dark variant).",
+        "Free-form inputs (# links, non-URL socials) parse without dropping the document to defaults."
+      ],
+      "evidence": [
+        "2026-08-09 (Session 040): Fully rewrote src/templates/definitions/creative/renderer.tsx — Poppins rounded display + JetBrains Mono applied via TEMPLATE_FONT_VARIABLES + CSS vars, all colors from theme variant tokens; hero sticker collage, alternating 7/5 project rows, colored skill pills, quote-sticky testimonials, WhatsApp (wa.me) added, back-to-top works in editor preview; editor wiring kept (data-section-key + data-section-type/data-item-index for Quick Actions).",
+        "2026-08-09: Relaxed creativeSchema project link/imageUrl and social url to free-form strings — fixed the same strict-zod-.url() document-reset regression that Minimal had (demo '#' project links passed in shared PREVIEW_DATA across the gallery, so old Creative preview rendered EMPTY defaults). Shared projectItemSchema/socialSchema untouched for other templates.",
+        "2026-08-09: Re-tuned CREATIVE_VARIANTS — Studio (warm paper + red-orange), Emerald (light green), Midnight (deep navy + orange); every variant gained a 'faint' color for the design system.",
+        "2026-08-09: Added e2e/flows/10-creative-template.spec.ts (2 tests) covering demo-data render, all section keys, mailto link, and the '#'-link no-fallback regression.",
+        "Verified 2026-08-09: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean (23 routes), npm run test:e2e 22 passed / 1 skipped. Screenshots captured but this review model can't read images; the e2e asserts the Creative modal opens with demo 'Alex Rivera' content (not the Empty default), 3 data-section-key targets exist, and zero page errors."
+      ],
+      "notes": "PRD 7.3 scope. Same data contract as before (profile/skills/testimonials/projects/contact/socials/theme/hiddenSections) so no editor/migrations changes needed. The shared gallery PREVIEW_DATA feeds all templates, so relaxing only the creative schema confines the URL-relaxation to this template (same approach as minimal-redesign-001)."
     }
   ]
 }

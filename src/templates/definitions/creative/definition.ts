@@ -4,38 +4,41 @@ import { creativeSchema, CREATIVE_SECTIONS } from "./schema";
 export const CREATIVE_VARIANTS: TemplateVariant[] = [
   {
     id: "default",
-    label: "Default",
+    label: "Studio",
     colors: {
-      primary: "#2563eb",
-      background: "#ffffff",
-      surface: "#f8fafc",
-      text: "#0f172a",
-      textMuted: "#64748b",
-      border: "#e2e8f0",
+      primary: "#ff4d3d",
+      background: "#faf8f4",
+      surface: "#ffffff",
+      text: "#141414",
+      textMuted: "#6b6b6b",
+      border: "#e5e1d9",
+      faint: "#a8a29a",
     }
   },
   {
     id: "emerald",
     label: "Emerald",
     colors: {
-      primary: "#10b981",
+      primary: "#0f9d78",
       background: "#ffffff",
-      surface: "#f0fdf4",
-      text: "#064e3b",
-      textMuted: "#059669",
-      border: "#d1fae5",
+      surface: "#f1faf6",
+      text: "#0c3328",
+      textMuted: "#3f6e5e",
+      border: "#cfe8dd",
+      faint: "#7aa494",
     }
   },
   {
     id: "slate",
-    label: "Slate",
+    label: "Midnight",
     colors: {
-      primary: "#cbd5e1",
-      background: "#0f172a",
-      surface: "#1e293b",
-      text: "#f8fafc",
-      textMuted: "#94a3b8",
-      border: "#334155",
+      primary: "#ff5c3c",
+      background: "#0f1220",
+      surface: "#191d31",
+      text: "#f5f6fa",
+      textMuted: "#9aa2bf",
+      border: "#2a2f4d",
+      faint: "#565d80",
     }
   }
 ];

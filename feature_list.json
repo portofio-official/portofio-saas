@@ -404,6 +404,28 @@
         "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 18 passed / 1 skipped, plus a temporary scroll-UX smoke spec (deleted after passing) asserting html.landing-scroll is applied, 5 dots render with the first active, clicking a dot smooth-scrolls the templates section to the top, and the last dot goes active at the page bottom with zero console errors."
       ],
       "notes": "Kept native (CSS scroll-snap) instead of the previous JS wheel-jump scroller for a full-page, section-per-viewport landing. The `landing-scroll` class toggle avoids the source's original `html { scroll-snap-type: y mandatory }` global-footprint problem flagged in progress-archive.md (must not force snap-scroll on dashboard/auth routes); the class is added only while the landing page is mounted."
+    },
+    {
+      "id": "minimal-redesign-001",
+      "priority": 13,
+      "area": "template",
+      "title": "Minimal template redesign + guaranteed form-content connection",
+      "user_visible_behavior": "The Minimal template looks like its name says (clean editorial one-column, warm paper, serif type): heightened hero, numbered editorial project list, numbered skills, contact footer with email/phone/WhatsApp/socials, mono folio markers + fine serif headlines. EVERY field a user fills in the editor form renders on the site, and one imperfect input (e.g. a '#' project link or a bare-domain social URL) no longer resets the whole page to empty defaults.",
+      "status": "passing",
+      "verification": [
+        "Gallery/public preview renders demo form content (name, headline, projects, skills, contact) instead of fallback defaults.",
+        "All 3 red-cond sections expose editor navigation targets (data-section-key work / capabilities / contact) and folio markers.",
+        "Field coverage: profile (name/headline/bio/photo/location), projects (title/description/imageUrl/link), skills, contact (email/phone/whatsapp), socials — all render.",
+        "Theme-aware: Charcoal/Navy variants use variant colors (no hardcoded #111/bg-white that was invisible on dark).",
+        "Free-form inputs (# links, non-URL socials) parse without dropping the document to defaults."
+      ],
+      "evidence": [
+        "2026-08-08 (Session 039): Fully rewrote src/templates/definitions/minimal/renderer.tsx — Playfair Display serif + JetBrains Mono applied via TEMPLATE_FONT_VARIABLES + CSS vars (templateFontClass('serif') returned an empty rule in-browser, so it was unusable); all colors sourced from theme variant tokens; project list, skills list, and contact footer redesigned editorial; WhatsApp (wa.me) added; 'Back to top' scrolls both window and editor preview container.",
+        "2026-08-08: Relaxed minimalSchema project link/imageUrl and social url to free-form strings — fixed a pre-existing schema bug where demo '#' links (or real non-strict-URL user input) failed zod .url() validation and reset the entire document to empty defaults in both gallery preview and published site. Documented as regression note (shared projectItemSchema untouched; other templates unchanged).",
+        "2026-08-08: Added e2e/flows/09-minimal-template.spec.ts (2 tests) covering demo-data render, all section keys, mailto link, and the '#'-link no-fallback regression.",
+        "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean (23 routes), npm run test:e2e 20 passed / 1 skipped, plus a direct in-browser Playwright check of /templates gallery preview (root bg #FAF9F5, font 'serif', h1 'Alex Rivera', 3 section keys, folio markers, zero console errors)."
+      ],
+      "notes": "PRD 7.3 scope. The minimal refocus keeps the same data contract (profile/skills/projects/contact/socials/theme/hiddenSections) so no editor/migration changes needed; hiddenSections + variant theming still honored. The shared gallery PREVIEW_DATA feeds ALL templates, so relaxing only the minimal schema confines the URL-relaxation to this template."
     }
   ]
 }

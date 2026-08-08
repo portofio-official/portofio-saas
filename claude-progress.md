@@ -1,3 +1,14 @@
+# Session 039: Minimal Template Redesign + Form-Content Connection
+**Status:** Verified / Passing
+**Latest state:**
+- Redesigned the **Minimal** template (`src/templates/definitions/minimal/renderer.tsx`) so it truly matches its title ("Clean editorial layout, warm paper tones, serif typography, one column") and renders **every** field the editor form produces.
+- **Typography**: applied the bundled Playfair Display serif + JetBrains Mono via `TEMPLATE_FONT_VARIABLES` + CSS vars (`--tpl-font-serif` / `--tpl-font-mono`) with Georgia/monospace fallbacks. `templateFontClass("serif")` was unusable — Next emits an EMPTY `.serif_...__className` rule for it (verified in-browser), so the previous renderer silently fell back to Inter/system serif.
+- **Editorial redesign** (dials: variance 5, motion 4, density 2): one-column layout, hero = photo/name row + large serif headline (`text-balance`, tracking-tight) + muted bio; "Selected Work" is now an editorial index list (mono `01/02` + small-numered serif titles + 1-line description + ↗ arrow + 16/10 image); "Capabilities" is a numbered index of skills; contact footer keeps "Let's talk" + underlinked email, phone, **WhatsApp (NEW — wa.me link, was collected in the form but never rendered)**, social circles, plus tiny mono `© year name` + "Back to top" (works in editor's `.overflow-y-auto` preview too).
+- **Theme-aware color fix**: removed hardcoded `text-[#111]`/`bg-white` so the Charcoal/Navy variants no longer render an invisible/dark-card-on-dark hero; everything now uses variant `INK`/`SURFACE`/`LINE` colors.
+- **Data-connection fix (regression worth noting globally)**: `minimalSchema` required strict `.url()` for project `link`/`imageUrl`/social url. Real user content like a bare `#` link failed schema.safeParse, silently reset the WHOLE document → empty defaults in BOTH the gallery preview and the published site. Relaxed the Minimal schema to free-form optional strings (only Minimal; shared `projectItemSchema` still strict — other templates keep their old behavior).
+- Editor click-to-edit wiring preserved: `data-section-key` (`work`/`capabilities`/`contact`), folio `N°01/03` markers, thin top progress bar, reveal-on-scroll, active-section counter all kept and polished.
+- **Verification**: `npx tsc --noEmit` clean, `npm run lint` (0 errors, 3 pre-existing warnings), `npm run build` clean (23 routes), `npm run test:e2e` **20 passed / 1 skipped** — added `e2e/flows/09-minimal-template.spec.ts` (2 tests) asserting demo data renders (not fallback defaults), all 3 `data-section-key` sections exist, mailto link, and `#` links no longer drop the document. Also verified in-browser via Playwright against the running dev server.
+
 # Session 038: Landing Page Scroll-Behavior UX Polish
 **Status:** Verified / Passing
 **Latest state:**

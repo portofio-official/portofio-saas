@@ -56,6 +56,10 @@ export const boldDefinition: TemplateDefinition<typeof boldSchema> = {
     tags: ["bold", "colorful", "creative", "marketing"],
     author: "portofio",
     price: 0,
+    gallery: {
+      accentBg: "bg-[#1a1a2e]",
+      categories: ["Creative"],
+    },
   },
   variants: BOLD_VARIANTS,
   sections: BOLD_SECTIONS,
@@ -65,3 +69,5 @@ export const boldDefinition: TemplateDefinition<typeof boldSchema> = {
   mapper: mapProfileToBold,
   renderer: BoldRenderer,
 };
+
+export default boldDefinition;

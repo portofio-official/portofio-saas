@@ -59,6 +59,10 @@ export const minimalDefinition: TemplateDefinition<typeof minimalSchema> = {
     tags: ["clean", "editorial", "serif", "light"],
     author: "portofio",
     price: 0,
+    gallery: {
+      accentBg: "bg-[#f9f6f1]",
+      categories: ["Personal"],
+    },
   },
   variants: MINIMAL_VARIANTS,
   sections: MINIMAL_SECTIONS,
@@ -68,3 +72,5 @@ export const minimalDefinition: TemplateDefinition<typeof minimalSchema> = {
   mapper: mapProfileToMinimal,
   renderer: MinimalRenderer,
 };
+
+export default minimalDefinition;

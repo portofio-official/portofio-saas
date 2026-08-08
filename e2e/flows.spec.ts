@@ -35,9 +35,11 @@ test.describe("Portofio E2E Flow Regression Suite", () => {
 
   test("Flow 3: Public Template Gallery Page", async ({ page }) => {
     await page.goto("/id/templates");
-    
-    // Check that gallery heading or cards render
-    const heading = page.locator("h1");
+
+    // Multiple template previews each contain their own h1, so scope to the
+    // first heading. (Sejak fix B-2 + fallback tabel kosong, galeri menampilkan
+    // 8 kartu — sebelumnya galeri bisa kosong sehingga h1 hanya satu.)
+    const heading = page.getByRole("heading").first();
     await expect(heading).toBeVisible();
   });
 

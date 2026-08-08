@@ -57,6 +57,10 @@ export const creativeDefinition: TemplateDefinition<typeof creativeSchema> = {
     tags: ["grid", "visual", "design", "photography"],
     author: "portofio",
     price: 0,
+    gallery: {
+      accentBg: "bg-[#0f172a]",
+      categories: ["Creative", "Portfolio"],
+    },
   },
   variants: CREATIVE_VARIANTS,
   sections: CREATIVE_SECTIONS,
@@ -66,3 +70,5 @@ export const creativeDefinition: TemplateDefinition<typeof creativeSchema> = {
   mapper: mapProfileToCreative,
   renderer: CreativeRenderer,
 };
+
+export default creativeDefinition;

@@ -66,6 +66,16 @@ export interface TemplateMeta {
   tags: string[];
   author: string;           // "portofio" for built-in templates
   price: number;            // 0 = free; >0 reserved for marketplace
+  /**
+   * Gallery card metadata (single source of truth — consumed by
+   * TemplateGallery + TemplateShowcase; no separate per-file lists allowed).
+   * "All" is prepended automatically, do NOT include it here.
+   */
+  gallery?: {
+    accentBg: string;       // Tailwind class for the card thumbnail background
+    categories: string[];   // e.g. ["Personal"] / ["Professional", "Portfolio"]
+    popular?: boolean;      // shows the "Populer" badge
+  };
 }
 
 // TemplateDefinition — Zod schema is the single source of truth

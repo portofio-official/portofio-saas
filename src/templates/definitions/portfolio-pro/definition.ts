@@ -57,6 +57,11 @@ export const portfolioProDefinition: TemplateDefinition<typeof portfolioProSchem
     tags: ["professional", "case-study", "analytics", "complete"],
     author: "portofio",
     price: 0,
+    gallery: {
+      accentBg: "bg-[#0a0a0f]",
+      categories: ["Professional", "Portfolio"],
+      popular: true,
+    },
   },
   variants: PORTFOLIO_PRO_VARIANTS,
   sections: PORTFOLIO_PRO_SECTIONS,
@@ -66,3 +71,5 @@ export const portfolioProDefinition: TemplateDefinition<typeof portfolioProSchem
   mapper: mapProfileToPortfolioPro,
   renderer: PortfolioProRenderer,
 };
+
+export default portfolioProDefinition;

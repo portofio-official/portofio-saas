@@ -57,6 +57,10 @@ export const corporateDefinition: TemplateDefinition<typeof corporateSchema> = {
     tags: ["formal", "timeline", "job-seeker", "professional"],
     author: "portofio",
     price: 0,
+    gallery: {
+      accentBg: "bg-[#f0f4ff]",
+      categories: ["Professional"],
+    },
   },
   variants: CORPORATE_VARIANTS,
   sections: CORPORATE_SECTIONS,
@@ -66,3 +70,5 @@ export const corporateDefinition: TemplateDefinition<typeof corporateSchema> = {
   mapper: mapProfileToCorporate,
   renderer: CorporateRenderer,
 };
+
+export default corporateDefinition;

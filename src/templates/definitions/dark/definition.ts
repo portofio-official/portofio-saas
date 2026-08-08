@@ -57,6 +57,10 @@ export const darkDefinition: TemplateDefinition<typeof darkSchema> = {
     tags: ["dark", "neon", "developer", "tech"],
     author: "portofio",
     price: 0,
+    gallery: {
+      accentBg: "bg-[#09090b]",
+      categories: ["Developer"],
+    },
   },
   variants: DARK_VARIANTS,
   sections: DARK_SECTIONS,
@@ -66,3 +70,5 @@ export const darkDefinition: TemplateDefinition<typeof darkSchema> = {
   mapper: mapProfileToDark,
   renderer: DarkRenderer,
 };
+
+export default darkDefinition;

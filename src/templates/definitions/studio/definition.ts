@@ -57,6 +57,11 @@ export const studioDefinition: TemplateDefinition<typeof studioSchema> = {
     tags: ["agency", "dark", "bento", "premium", "glass"],
     author: "portofio",
     price: 0,
+    gallery: {
+      accentBg: "bg-[#050505]",
+      categories: ["Creative", "Portfolio"],
+      popular: true,
+    },
   },
   variants: STUDIO_VARIANTS,
   sections: STUDIO_SECTIONS,
@@ -66,3 +71,5 @@ export const studioDefinition: TemplateDefinition<typeof studioSchema> = {
   mapper: mapProfileToStudio,
   renderer: StudioRenderer,
 };
+
+export default studioDefinition;

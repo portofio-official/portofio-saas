@@ -11,7 +11,13 @@ export default async function TemplatesPage() {
     .select("id")
     .eq("is_active", true);
 
-  const activeTemplateIds = activeTemplates?.map((t) => t.id) || [];
+  // Fallback (lihat FLOW_CLOSURE_PLAN.md B-2): jika tabel templates kosong
+  // (migration belum di-apply remote), jangan saring — tampilkan semua.
+  // Kalau tidak, activeTemplateIds=[] akan menghapus SEMUA template dari galeri.
+  const activeTemplateIds =
+    !activeTemplates || activeTemplates.length === 0
+      ? undefined
+      : activeTemplates.map((t) => t.id);
 
   return <TemplateGallery isLoggedIn={!!email} activeTemplateIds={activeTemplateIds} />;
 }

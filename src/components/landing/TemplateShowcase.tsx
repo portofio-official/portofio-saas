@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import shared from "./shared.module.css";
 import styles from "./TemplateShowcase.module.css";
-import { PreviewTemplateRenderer as TemplateRenderer } from "@/templates/registry";
+import { PreviewTemplateRenderer as TemplateRenderer, TEMPLATE_CATALOG, TEMPLATE_CATEGORIES } from "@/templates/registry";
 import { type TemplateId } from "@/templates/types";
 import { type BasePortfolioData, BASE_PROFILE_DEFAULTS } from "@/templates/shared/_base";
 import type { StudioData } from "@/templates/definitions/studio/schema";
@@ -13,74 +13,11 @@ import type { PortfolioProData } from "@/templates/definitions/portfolio-pro/sch
 
 type PreviewData = BasePortfolioData & Partial<StudioData> & Partial<PortfolioProData>;
 
-interface TemplateMeta {
-  id: TemplateId;
-  name: string;
-  description: string;
-  tags: string[];
-  accentBg: string;
-}
+// Single source of truth lives in src/templates/registry.tsx (derived from each
+// template's own meta.gallery). Do NOT redefine template lists here.
 
-const TEMPLATES: TemplateMeta[] = [
-  {
-    id: "minimal",
-    name: "Minimal",
-    description: "Clean, serif-forward, single column. Great for writers & consultants.",
-    tags: ["All", "Personal"],
-    accentBg: "bg-[#f9f6f1]",
-  },
-  {
-    id: "bold",
-    name: "Bold",
-    description: "Strong accent colors, large headings. Perfect for creatives & marketers.",
-    tags: ["All", "Creative"],
-    accentBg: "bg-[#1a1a2e]",
-  },
-  {
-    id: "creative",
-    name: "Creative",
-    description: "Project grid front-and-center. Ideal for designers & photographers.",
-    tags: ["All", "Creative", "Portfolio"],
-    accentBg: "bg-[#0f172a]",
-  },
-  {
-    id: "corporate",
-    name: "Corporate",
-    description: "Formal timeline layout. Built for job seekers & professionals.",
-    tags: ["All", "Professional"],
-    accentBg: "bg-[#f0f4ff]",
-  },
-  {
-    id: "dark",
-    name: "Dark",
-    description: "Dark theme, neon accent. Made for developers & tech profiles.",
-    tags: ["All", "Developer"],
-    accentBg: "bg-[#09090b]",
-  },
-  {
-    id: "studio",
-    name: "Vanguard Studio",
-    description: "Agency-tier design with asymmetrical bento grids & glass motion.",
-    tags: ["All", "Creative", "Portfolio"],
-    accentBg: "bg-[#050505]",
-  },
-  {
-    id: "portfolio-pro",
-    name: "Portfolio Pro",
-    description: "Complete professional portfolio with case studies, certificates & gallery.",
-    tags: ["All", "Professional", "Portfolio"],
-    accentBg: "bg-[#0a0a0f]",
-  },
-  {
-    id: "freelancer",
-    name: "Freelancer",
-    description: "Service-forward landing with pricing tables, testimonials & clear CTAs. For freelancers & indie consultants.",
-    tags: ["All", "Professional", "Personal"],
-    accentBg: "bg-[#0f2027]",
-  },
-];
-
-const CATEGORIES = ["All", "Personal", "Creative", "Portfolio", "Professional", "Developer"];
+const TEMPLATES = TEMPLATE_CATALOG;
+const CATEGORIES = TEMPLATE_CATEGORIES;
 
 const PREVIEW_DATA: PreviewData = {
   profile: {

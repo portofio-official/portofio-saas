@@ -58,6 +58,10 @@ export const freelancerDefinition: TemplateDefinition<typeof freelancerSchema> =
     tags: ["freelancer", "pricing", "testimonials", "clean", "modern"],
     author: "portofio",
     price: 0,
+    gallery: {
+      accentBg: "bg-[#0f2027]",
+      categories: ["Professional", "Personal"],
+    },
   },
   variants: FREELANCER_VARIANTS,
   sections: FREELANCER_SECTIONS,
@@ -67,3 +71,5 @@ export const freelancerDefinition: TemplateDefinition<typeof freelancerSchema> =
   mapper: mapProfileToFreelancer,
   renderer: FreelancerRenderer,
 };
+
+export default freelancerDefinition;

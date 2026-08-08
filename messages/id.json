@@ -361,5 +361,97 @@
       "mono": "Mono",
       "rounded": "Rounded"
     }
+  },
+  "Billing": {
+    "title": "Billing",
+    "subtitle": "Kelola langganan dan detail pembayaran kamu",
+    "currentPlan": "Paket Saat Ini",
+    "planName": "Portofio Pro",
+    "planDesc": "Publish portfolio ke subdomain kamu tanpa batas",
+    "statusLabel": "Status",
+    "renewsOn": "Diperpanjang",
+    "expiredOn": "Kadaluarsa",
+    "features": [
+      "Publish portfolio ke portofio.id/sites/namamu",
+      "Update & republish kapan saja",
+      "Unpublish dan republish bebas",
+      "Semua 8 template premium",
+      "Pratinjau live real-time",
+      "Auto-simpan draft"
+    ],
+    "badge": {
+      "active": "Aktif",
+      "gracePeriod": "Grace Period",
+      "canceled": "Dibatalkan",
+      "expired": "Kadaluarsa",
+      "noSub": "Belum Berlangganan"
+    },
+    "notice": {
+      "successTitle": "Pembayaran Berhasil!",
+      "successDesc": "Langganan Portofio Pro kamu telah aktif. Kamu sekarang bisa mempublikasikan situs web kamu.",
+      "failedTitle": "Pembayaran Gagal atau Dibatalkan",
+      "failedDesc": "Proses pembayaran belum selesai. Silakan coba kembali untuk mengaktifkan langganan kamu.",
+      "stubTitle": "Dev Mode: Checkout Disimulasikan",
+      "stubDesc": "`XENDIT_SECRET_KEY` belum dikonfigurasi di environment. Klik tombol di bawah untuk mengaktifkan langganan uji secara instan.",
+      "graceTitle": "Langganan kamu sudah berakhir",
+      "graceDesc": "Kamu punya {days} hari tersisa dalam grace period. Situs kamu masih live. Perbarui sekarang agar tidak di-unpublish otomatis.",
+      "expiredTitle": "Situs kamu sudah di-unpublish",
+      "expiredDesc": "Data portofolio kamu aman. Berlangganan lagi untuk langsung republish situs kamu."
+    },
+    "cta": {
+      "renewTitle": "Perbarui langganan kamu",
+      "renewDesc": "Perbarui sekarang agar situs kamu tetap live dan tidak terputus.",
+      "subscribeTitle": "Mulai dengan Portofio Pro",
+      "subscribeDesc": "Berlangganan untuk publish portofolio kamu ke dunia.",
+      "renewBtn": "Perbarui Sekarang",
+      "subscribeBtn": "Berlangganan — Rp 49.000 / bulan",
+      "redirecting": "Mengalihkan…"
+    },
+    "manage": {
+      "title": "Kelola Langganan",
+      "desc": "Untuk membatalkan langganan, hubungi support di {email}. Situs kamu akan tetap live sampai periode langganan berakhir."
+    },
+    "dev": {
+      "label": "Dev Tools:",
+      "hint": "Test aktivasi langganan tanpa payment gateway",
+      "btn": "⚡ Aktifkan Test Sub (30 hari)",
+      "activating": "Mengaktifkan..."
+    }
+  },
+  "Dashboard": {
+    "title": "Websites",
+    "totalLabel": "Total",
+    "publishedLabel": "Dipublikasikan",
+    "draftLabel": "Draft",
+    "updatedLabel": "Diperbarui",
+    "searchPlaceholder": "Cari website...",
+    "filterLabel": "Filter",
+    "filterAll": "Semua Status",
+    "filterPublished": "Dipublikasikan",
+    "filterDraft": "Draft",
+    "sortLabel": "Urutkan",
+    "sortUpdated": "Terakhir diedit",
+    "sortName": "Nama",
+    "sortCreated": "Tanggal dibuat",
+    "newWebsite": "Website Baru",
+    "preview": "Pratinjau Website",
+    "unpublish": "Unpublish Website",
+    "publish": "Publish Website",
+    "moreActions": "Lainnya",
+    "duplicate": "Duplikat",
+    "duplicating": "Menduplikat...",
+    "delete": "Hapus",
+    "open": "Buka",
+    "edit": "Edit",
+    "live": "Live",
+    "noResults": "Tidak ada website ditemukan.",
+    "empty": "Belum ada website. Buat yang pertama!",
+    "toastDupOk": "Website berhasil diduplikat.",
+    "toastDupFail": "Gagal menduplikat website.",
+    "toastDupErr": "Terjadi kesalahan saat menduplikat.",
+    "toastUnpubOk": "Website di-unpublish.",
+    "toastUnpubErr": "Terjadi kesalahan saat unpublish.",
+    "toastDelOk": "Website dihapus.",
+    "toastDelErr": "Terjadi kesalahan saat menghapus."
   }
 }

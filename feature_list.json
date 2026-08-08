@@ -1,6 +1,6 @@
 {
   "project": "portofyo",
-  "last_updated": "2026-07-16",
+  "last_updated": "2026-08-08",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,

@@ -1,3 +1,16 @@
+# Session 035: FLOW Closure — Gap Audit Implementation
+**Status:** Verified / Passing
+**Latest state:**
+- Audited codebase vs `docs/FLOW_CLOSURE_PLAN.md`. Found A-1/A-2/A-4 already implemented; executed remaining gaps.
+- **A-3**: Rendered Profile Sync Banner JSX in `Editor.tsx` — banner now visible when `profileDiverged=true`, with "Sync dari Profil" button + loading state.
+- **B-1**: Fixed Xendit webhook env var mismatch — `XENDIT_WEBHOOK_VERIFICATION_TOKEN` → `XENDIT_WEBHOOK_TOKEN` in `xendit.ts` and `webhooks/xendit/route.ts` (matches `.env.example`).
+- **B-2**: Created migration `20260808000001_add_freelancer_template.sql` to seed `freelancer` into `templates` table → gallery now shows 8 templates.
+- **B-4**: Installed `@vercel/analytics` and added `<Analytics />` to `[locale]/layout.tsx` for page view + performance tracking.
+- **B-5**: Replaced `window.confirm()` in `BlocklistClientView.tsx` with inline Yes/Cancel confirmation state + `useToast()` feedback. Also removed `window.confirm()` from `DashboardClientView.tsx` `handleDelete`.
+- **B-3 (Billing i18n)**: Added `Billing` namespace to `messages/id.json` + `messages/en.json`; rewrote `BillingClientView.tsx` with `useTranslations("Billing")`.
+- **B-3 (Dashboard i18n)**: Added `Dashboard` namespace to both message files; wired `useTranslations("Dashboard")` into `DashboardClientView.tsx` for header, search, toast messages.
+- **Build**: `npm run lint` (0 errors), `npx tsc --noEmit` (clean), `npm run build` (23 routes, clean).
+
 # Session 026: Editor UI Visual Redesign (Macro-Layout & Zoom)
 **Status:** Verified / Passing
 **Latest state:**

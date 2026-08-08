@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { addBlocklistWordAction, removeBlocklistWordAction } from "@/lib/admin/actions";
+import { useToast } from "@/components/ui/Toast";
 
 interface BlocklistClientViewProps {
   initialBlocklist: string[];
@@ -13,6 +14,9 @@ export function BlocklistClientView({ initialBlocklist }: BlocklistClientViewPro
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // B-5: inline confirmation instead of window.confirm()
+  const [confirmSlug, setConfirmSlug] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const filteredList = list.filter((item) =>
     item.toLowerCase().includes(search.toLowerCase().trim()),
@@ -31,22 +35,23 @@ export function BlocklistClientView({ initialBlocklist }: BlocklistClientViewPro
     if (res.ok) {
       setList((prev) => [...prev, newSlug.toLowerCase().trim()].sort());
       setNewSlug("");
+      showToast(`'${newSlug.toLowerCase().trim()}' added to blocklist.`, "success");
     } else {
       setError(res.error ?? "Failed to add word.");
     }
   }
 
   async function handleRemove(slug: string) {
-    if (!confirm(`Are you sure you want to remove '${slug}' from the blocklist?`)) return;
-
     setLoading(true);
     setError(null);
+    setConfirmSlug(null);
 
     const res = await removeBlocklistWordAction(slug);
     setLoading(false);
 
     if (res.ok) {
       setList((prev) => prev.filter((item) => item !== slug));
+      showToast(`'${slug}' removed from blocklist.`, "info");
     } else {
       setError(res.error ?? "Failed to remove word.");
     }
@@ -109,14 +114,35 @@ export function BlocklistClientView({ initialBlocklist }: BlocklistClientViewPro
                 className="group flex items-center gap-1.5 rounded-full bg-black/[0.04] px-3 py-1 text-xs font-medium text-ink transition hover:bg-black/[0.08]"
               >
                 <span>{slug}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemove(slug)}
-                  title={`Remove ${slug}`}
-                  className="text-black/40 hover:text-red-600"
-                >
-                  &times;
-                </button>
+                {confirmSlug === slug ? (
+                  /* Inline confirmation — replaces window.confirm() (B-5) */
+                  <span className="flex items-center gap-1 ml-1">
+                    <button
+                      type="button"
+                      onClick={() => handleRemove(slug)}
+                      disabled={loading}
+                      className="rounded px-1.5 py-0.5 text-[10px] font-bold bg-red-500 text-white hover:bg-red-600 disabled:opacity-50"
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmSlug(null)}
+                      className="rounded px-1.5 py-0.5 text-[10px] font-bold bg-black/10 text-ink hover:bg-black/20"
+                    >
+                      Cancel
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmSlug(slug)}
+                    title={`Remove ${slug}`}
+                    className="text-black/40 hover:text-red-600"
+                  >
+                    &times;
+                  </button>
+                )}
               </div>
             ))}
           </div>

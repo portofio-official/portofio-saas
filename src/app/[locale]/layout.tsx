@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Inter, Outfit, Geist_Mono } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { ToastProvider } from "@/components/ui/Toast";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -53,6 +54,8 @@ export default async function RootLayout({
       <body className="h-full bg-canvas font-sans">
         <NextIntlClientProvider>
           <ToastProvider>{children}</ToastProvider>
+          {/* B-4: Vercel Analytics — page views & performance tracking */}
+          <Analytics />
         </NextIntlClientProvider>
       </body>
     </html>

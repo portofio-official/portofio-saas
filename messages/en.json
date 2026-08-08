@@ -361,5 +361,97 @@
       "mono": "Mono",
       "rounded": "Rounded"
     }
+  },
+  "Billing": {
+    "title": "Billing",
+    "subtitle": "Manage your subscription and billing details",
+    "currentPlan": "Current Plan",
+    "planName": "Portofio Pro",
+    "planDesc": "Publish unlimited portfolio sites to your subdomain",
+    "statusLabel": "Status",
+    "renewsOn": "Renews on",
+    "expiredOn": "Expired on",
+    "features": [
+      "Publish portfolio sites to portofio.id/sites/yourname",
+      "Update & republish anytime",
+      "Unpublish and republish freely",
+      "All 8 premium templates",
+      "Real-time live preview",
+      "Auto-save drafts"
+    ],
+    "badge": {
+      "active": "Active",
+      "gracePeriod": "Grace Period",
+      "canceled": "Canceled",
+      "expired": "Expired",
+      "noSub": "No Subscription"
+    },
+    "notice": {
+      "successTitle": "Payment Successful!",
+      "successDesc": "Your Portofio Pro subscription is now active. You can now publish your portfolio sites.",
+      "failedTitle": "Payment Failed or Canceled",
+      "failedDesc": "The payment was not completed. Please try again to activate your subscription.",
+      "stubTitle": "Dev Mode: Checkout Simulated",
+      "stubDesc": "`XENDIT_SECRET_KEY` is not configured in the environment. Click the button below to instantly activate a test subscription.",
+      "graceTitle": "Your subscription has expired",
+      "graceDesc": "You have {days} day(s) remaining in your grace period. Your published sites are still live. Renew now to avoid auto-unpublish.",
+      "expiredTitle": "Your sites have been unpublished",
+      "expiredDesc": "Your portfolio data is safe. Subscribe again to republish your sites instantly."
+    },
+    "cta": {
+      "renewTitle": "Renew your subscription",
+      "renewDesc": "Renew now to keep your sites live and avoid interruption.",
+      "subscribeTitle": "Get started with Portofio Pro",
+      "subscribeDesc": "Subscribe to publish your portfolio to the world.",
+      "renewBtn": "Renew Now",
+      "subscribeBtn": "Subscribe — Rp 49.000 / month",
+      "redirecting": "Redirecting…"
+    },
+    "manage": {
+      "title": "Manage Subscription",
+      "desc": "To cancel your subscription, contact support at {email}. Your sites will remain live until your subscription period ends."
+    },
+    "dev": {
+      "label": "Dev Tools:",
+      "hint": "Test subscription activation without payment gateway",
+      "btn": "⚡ Activate Test Sub (30 days)",
+      "activating": "Activating..."
+    }
+  },
+  "Dashboard": {
+    "title": "Websites",
+    "totalLabel": "Total",
+    "publishedLabel": "Published",
+    "draftLabel": "Draft",
+    "updatedLabel": "Updated",
+    "searchPlaceholder": "Search websites...",
+    "filterLabel": "Filter",
+    "filterAll": "All Statuses",
+    "filterPublished": "Published",
+    "filterDraft": "Draft",
+    "sortLabel": "Sort",
+    "sortUpdated": "Last edited",
+    "sortName": "Name",
+    "sortCreated": "Date created",
+    "newWebsite": "New Website",
+    "preview": "Preview Website",
+    "unpublish": "Unpublish Website",
+    "publish": "Publish Website",
+    "moreActions": "More Actions",
+    "duplicate": "Duplicate",
+    "duplicating": "Duplicating...",
+    "delete": "Delete",
+    "open": "Open",
+    "edit": "Edit",
+    "live": "Live",
+    "noResults": "No websites found.",
+    "empty": "No websites yet. Create your first one!",
+    "toastDupOk": "Website duplicated successfully.",
+    "toastDupFail": "Failed to duplicate website.",
+    "toastDupErr": "Error duplicating website.",
+    "toastUnpubOk": "Website unpublished.",
+    "toastUnpubErr": "Error unpublishing website.",
+    "toastDelOk": "Website deleted.",
+    "toastDelErr": "Error deleting website."
   }
 }

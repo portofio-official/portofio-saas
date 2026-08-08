@@ -358,7 +358,7 @@ export function TemplateGallery({
                         </button>
                         <button type="button"
                           onClick={(e) => { e.stopPropagation(); handleUseTemplate(meta.id); }}
-                          className="flex items-center gap-2 rounded-full bg-accent py-2 pl-5 pr-2 text-xs font-semibold text-white shadow-lg transition-all duration-300 ease-[var(--ease-fluid)] hover:bg-accent-deep active:scale-[0.98]"
+                          className="flex items-center gap-2 rounded-full bg-[#00cf7c] py-2 pl-5 pr-2 text-xs font-semibold text-white shadow-lg transition-all duration-300 ease-[var(--ease-fluid)] hover:bg-[#00b368] active:scale-[0.98]"
                         >
                           Gunakan Template
                           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 transition-transform duration-300 ease-[var(--ease-fluid)] group-hover:translate-x-0.5">
@@ -476,7 +476,7 @@ export function TemplateGallery({
             {/* CTA Button */}
             <button type="button"
               onClick={() => { handleUseTemplate(previewId); setPreviewId(null); }}
-              className="flex items-center gap-2 rounded-full bg-accent px-6 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-accent-deep active:scale-95"
+              className="flex items-center gap-2 rounded-full bg-[#00cf7c] px-6 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-[#00b368] active:scale-95"
             >
               Gunakan Template Ini
               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>

@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import type { Workspace } from "@/lib/workspace/types";
 import { PreviewTemplateRenderer } from "@/templates/registry";
 import { useToast } from "@/components/ui/Toast";
@@ -47,6 +48,7 @@ export function DashboardClientView({
   dict: Dict;
   preferredTemplateId?: string;
 }) {
+  const t = useTranslations("Dashboard");
   const router = useRouter();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
@@ -112,13 +114,13 @@ export function DashboardClientView({
       const { duplicateWorkspaceAction } = await import("@/lib/workspace/actions");
       const res = await duplicateWorkspaceAction(workspaceId);
       if (res.error) {
-        showToast("Failed to duplicate website.", "error");
+        showToast(t("toastDupFail"), "error");
       } else {
-        showToast("Website duplicated successfully.", "success");
+        showToast(t("toastDupOk"), "success");
         router.refresh();
       }
     } catch {
-      showToast("Error duplicating website.", "error");
+      showToast(t("toastDupErr"), "error");
     } finally {
       setIsDuplicating(null);
     }
@@ -129,24 +131,23 @@ export function DashboardClientView({
     try {
       const { unpublishWorkspaceProjectAction } = await import("@/lib/workspace/actions");
       await unpublishWorkspaceProjectAction(workspaceId);
-      showToast("Website unpublished.", "info");
+      showToast(t("toastUnpubOk"), "info");
       router.refresh();
     } catch {
-      showToast("Error unpublishing website.", "error");
+      showToast(t("toastUnpubErr"), "error");
     }
   };
 
   const handleDelete = async (workspace: Workspace) => {
     setOpenMenuId(null);
-    if (confirm(`Are you sure you want to delete "${workspace.name}"? This action cannot be undone.`)) {
-      try {
-        const { deleteWorkspaceAction } = await import("@/lib/workspace/actions");
-        await deleteWorkspaceAction(workspace.id);
-        showToast("Website deleted.", "info");
-        router.refresh();
-      } catch {
-        showToast("Error deleting website.", "error");
-      }
+    // No window.confirm() — deletion is triggered from a UI confirmation state in JSX
+    try {
+      const { deleteWorkspaceAction } = await import("@/lib/workspace/actions");
+      await deleteWorkspaceAction(workspace.id);
+      showToast(t("toastDelOk"), "info");
+      router.refresh();
+    } catch {
+      showToast(t("toastDelErr"), "error");
     }
   };
 
@@ -157,15 +158,15 @@ export function DashboardClientView({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           {/* Title & Metadata */}
           <div>
-            <h1 className="text-[22px] font-bold tracking-tight text-[#111827]">Websites</h1>
+            <h1 className="text-[22px] font-bold tracking-tight text-[#111827]">{t("title")}</h1>
             <p className="mt-1 flex flex-wrap items-center gap-2 text-[12px] font-medium text-[#6B7280]">
-              <span>{totalCount} Total</span>
+              <span>{totalCount} {t("totalLabel")}</span>
               <span className="text-[#D1D5DB]">•</span>
-              <span className="text-[#059669] font-semibold">{publishedCount} Published</span>
+              <span className="text-[#059669] font-semibold">{publishedCount} {t("publishedLabel")}</span>
               <span className="text-[#D1D5DB]">•</span>
-              <span>{draftCount} Draft</span>
+              <span>{draftCount} {t("draftLabel")}</span>
               <span className="text-[#D1D5DB]">•</span>
-              <span>Updated {lastUpdatedText}</span>
+              <span>{t("updatedLabel")} {lastUpdatedText}</span>
             </p>
           </div>
 
@@ -179,7 +180,7 @@ export function DashboardClientView({
               <input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Search websites..."
+                placeholder={t("searchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-9 w-48 sm:w-56 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] pl-8 pr-12 text-[13px] font-medium text-[#111827] placeholder:text-[#9CA3AF] focus:border-[#00cf7c] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#00cf7c] transition-all"

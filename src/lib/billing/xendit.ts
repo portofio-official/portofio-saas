@@ -10,10 +10,10 @@ export const SUBSCRIPTION_PLAN = {
  * Verify Xendit Webhook signature header `x-callback-token`.
  */
 export function verifyXenditWebhookSignature(requestToken: string | null): boolean {
-  const expectedToken = process.env.XENDIT_WEBHOOK_VERIFICATION_TOKEN;
+  // B-1: env var unified to XENDIT_WEBHOOK_TOKEN (matches .env.example + PRD §9.7)
+  const expectedToken = process.env.XENDIT_WEBHOOK_TOKEN;
   if (!expectedToken) {
-    // In dev/local mode if token is not set, log warning
-    console.warn("[XenditWebhook] XENDIT_WEBHOOK_VERIFICATION_TOKEN is not set in environment.");
+    console.warn("[XenditWebhook] XENDIT_WEBHOOK_TOKEN is not set in environment. Webhook signature check skipped.");
     return false;
   }
   return requestToken === expectedToken;

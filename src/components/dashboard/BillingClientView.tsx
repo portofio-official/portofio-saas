@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { SubscriptionStatus } from "@/lib/billing/types";
 
 interface BillingClientViewProps {
@@ -21,12 +22,21 @@ function formatDate(isoString: string | null): string {
   }).format(new Date(isoString));
 }
 
-function StatusBadge({ status, isGracePeriod }: { status: SubscriptionStatus; isGracePeriod: boolean }) {
+function StatusBadge({
+  status,
+  isGracePeriod,
+  t,
+}: {
+  status: SubscriptionStatus;
+  isGracePeriod: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: (key: string) => any;
+}) {
   if (isGracePeriod) {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-[12px] font-bold text-amber-600 ring-1 ring-amber-200">
         <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-        Grace Period
+        {t("badge.gracePeriod")}
       </span>
     );
   }
@@ -34,7 +44,7 @@ function StatusBadge({ status, isGracePeriod }: { status: SubscriptionStatus; is
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1 text-[12px] font-bold text-accent ring-1 ring-accent/20">
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-        Active
+        {t("badge.active")}
       </span>
     );
   }
@@ -42,15 +52,14 @@ function StatusBadge({ status, isGracePeriod }: { status: SubscriptionStatus; is
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-danger/10 px-3 py-1 text-[12px] font-bold text-danger ring-1 ring-danger/20">
         <span className="h-1.5 w-1.5 rounded-full bg-danger" />
-        {status === "canceled" ? "Canceled" : "Expired"}
+        {status === "canceled" ? t("badge.canceled") : t("badge.expired")}
       </span>
     );
   }
-  // inactive / no subscription
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-black/[0.04] px-3 py-1 text-[12px] font-bold text-ink-faint ring-1 ring-black/5">
       <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" />
-      No Subscription
+      {t("badge.noSub")}
     </span>
   );
 }
@@ -63,6 +72,7 @@ export function BillingClientView({
   daysRemainingInGracePeriod,
   checkoutNotice,
 }: BillingClientViewProps) {
+  const t = useTranslations("Billing");
   const [loading, setLoading] = useState(false);
   const [devLoading, setDevLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -103,6 +113,7 @@ export function BillingClientView({
   }
 
   const showSubscribeButton = !isActive || isGracePeriod;
+  const features = t.raw("features") as string[];
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -110,10 +121,10 @@ export function BillingClientView({
       <header className="flex shrink-0 items-center justify-between border-b border-black/5 bg-surface/80 px-12 py-6 backdrop-blur-md sticky top-0 z-50">
         <div className="flex flex-col">
           <h1 className="font-display text-[22px] font-bold tracking-tight text-ink leading-none">
-            Billing
+            {t("title")}
           </h1>
           <p className="mt-1 text-[13px] font-medium text-ink-soft leading-none">
-            Manage your subscription and billing details
+            {t("subtitle")}
           </p>
         </div>
       </header>
@@ -127,12 +138,8 @@ export function BillingClientView({
               check_circle
             </span>
             <div>
-              <p className="text-[14px] font-bold text-accent">
-                Pembayaran Berhasil!
-              </p>
-              <p className="mt-0.5 text-[13px] text-ink-soft">
-                Langganan Portofio Pro Anda telah aktif. Anda sekarang dapat mempublikasikan situs web Anda.
-              </p>
+              <p className="text-[14px] font-bold text-accent">{t("notice.successTitle")}</p>
+              <p className="mt-0.5 text-[13px] text-ink-soft">{t("notice.successDesc")}</p>
             </div>
           </div>
         )}
@@ -143,12 +150,8 @@ export function BillingClientView({
               error
             </span>
             <div>
-              <p className="text-[14px] font-bold text-danger">
-                Pembayaran Gagal atau Dibatalkan
-              </p>
-              <p className="mt-0.5 text-[13px] text-ink-soft">
-                Proses pembayaran belum selesai. Silakan coba kembali untuk mengaktifkan langganan Anda.
-              </p>
+              <p className="text-[14px] font-bold text-danger">{t("notice.failedTitle")}</p>
+              <p className="mt-0.5 text-[13px] text-ink-soft">{t("notice.failedDesc")}</p>
             </div>
           </div>
         )}
@@ -159,15 +162,12 @@ export function BillingClientView({
               developer_mode
             </span>
             <div>
-              <p className="text-[14px] font-bold text-sky-900">
-                Dev Mode: Checkout Disimulasikan
-              </p>
-              <p className="mt-0.5 text-[13px] text-sky-800">
-                `XENDIT_SECRET_KEY` belum dikonfigurasi di environment. Klik tombol di bawah untuk mengaktifkan langganan uji secara instan.
-              </p>
+              <p className="text-[14px] font-bold text-sky-900">{t("notice.stubTitle")}</p>
+              <p className="mt-0.5 text-[13px] text-sky-800">{t("notice.stubDesc")}</p>
             </div>
           </div>
         )}
+
         {/* Grace Period Warning Banner */}
         {isGracePeriod && (
           <div className="flex items-start gap-4 rounded-[16px] bg-amber-50 px-5 py-4 ring-1 ring-amber-200">
@@ -175,16 +175,9 @@ export function BillingClientView({
               warning
             </span>
             <div>
-              <p className="text-[14px] font-bold text-amber-800">
-                Your subscription has expired
-              </p>
+              <p className="text-[14px] font-bold text-amber-800">{t("notice.graceTitle")}</p>
               <p className="mt-0.5 text-[13px] text-amber-700">
-                You have{" "}
-                <span className="font-bold">
-                  {daysRemainingInGracePeriod ?? 7} day
-                  {(daysRemainingInGracePeriod ?? 7) !== 1 ? "s" : ""}
-                </span>{" "}
-                remaining in your grace period. Your published sites are still live. Renew now to avoid auto-unpublish.
+                {t("notice.graceDesc", { days: daysRemainingInGracePeriod ?? 7 })}
               </p>
             </div>
           </div>
@@ -197,12 +190,8 @@ export function BillingClientView({
               cloud_off
             </span>
             <div>
-              <p className="text-[14px] font-bold text-danger">
-                Your sites have been unpublished
-              </p>
-              <p className="mt-0.5 text-[13px] text-ink-soft">
-                Your portfolio data is safe. Subscribe again to republish your sites instantly.
-              </p>
+              <p className="text-[14px] font-bold text-danger">{t("notice.expiredTitle")}</p>
+              <p className="mt-0.5 text-[13px] text-ink-soft">{t("notice.expiredDesc")}</p>
             </div>
           </div>
         )}
@@ -212,47 +201,36 @@ export function BillingClientView({
           <div className="flex items-start justify-between">
             <div>
               <p className="text-[13px] font-medium text-ink-faint uppercase tracking-wide">
-                Current Plan
+                {t("currentPlan")}
               </p>
               <p className="mt-1.5 font-display text-[22px] font-bold tracking-tight text-ink">
-                Portofio Pro
+                {t("planName")}
               </p>
-              <p className="mt-1 text-[13px] text-ink-soft">
-                Publish unlimited portfolio sites to your subdomain
-              </p>
+              <p className="mt-1 text-[13px] text-ink-soft">{t("planDesc")}</p>
             </div>
-            <StatusBadge status={status} isGracePeriod={isGracePeriod} />
+            <StatusBadge status={status} isGracePeriod={isGracePeriod} t={t} />
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="rounded-[14px] bg-canvas px-4 py-3">
               <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-ink-faint">
-                Status
+                {t("statusLabel")}
               </p>
               <p className="mt-1 text-[15px] font-bold text-ink capitalize">
-                {isGracePeriod ? "Grace Period" : status.replace("_", " ")}
+                {isGracePeriod ? t("badge.gracePeriod") : status.replace("_", " ")}
               </p>
             </div>
             <div className="rounded-[14px] bg-canvas px-4 py-3">
               <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-ink-faint">
-                {isActive && !isGracePeriod ? "Renews on" : "Expired on"}
+                {isActive && !isGracePeriod ? t("renewsOn") : t("expiredOn")}
               </p>
-              <p className="mt-1 text-[15px] font-bold text-ink">
-                {formatDate(expiresAt)}
-              </p>
+              <p className="mt-1 text-[15px] font-bold text-ink">{formatDate(expiresAt)}</p>
             </div>
           </div>
 
           {/* What's included */}
           <div className="mt-6 space-y-2">
-            {[
-              "Publish portfolio sites to portofio.id/sites/yourname",
-              "Update & republish anytime",
-              "Unpublish and republish freely",
-              "All 8 premium templates",
-              "Real-time live preview",
-              "Auto-save drafts",
-            ].map((feature) => (
+            {features.map((feature) => (
               <div key={feature} className="flex items-center gap-2.5">
                 <span className="material-symbols-outlined text-[16px] text-accent">
                   check_circle
@@ -269,12 +247,10 @@ export function BillingClientView({
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-display text-[17px] font-bold tracking-tight text-ink">
-                  {isGracePeriod ? "Renew your subscription" : "Get started with Portofio Pro"}
+                  {isGracePeriod ? t("cta.renewTitle") : t("cta.subscribeTitle")}
                 </p>
                 <p className="mt-1 text-[13px] text-ink-soft">
-                  {isGracePeriod
-                    ? "Renew now to keep your sites live and avoid interruption."
-                    : "Subscribe to publish your portfolio to the world."}
+                  {isGracePeriod ? t("cta.renewDesc") : t("cta.subscribeDesc")}
                 </p>
               </div>
               <button
@@ -288,12 +264,12 @@ export function BillingClientView({
                     <span className="material-symbols-outlined animate-spin text-[18px]">
                       progress_activity
                     </span>
-                    Redirecting…
+                    {t("cta.redirecting")}
                   </>
                 ) : (
                   <>
                     <span className="material-symbols-outlined text-[18px]">bolt</span>
-                    {isGracePeriod ? "Renew Now" : "Subscribe — Rp 49.000 / bulan"}
+                    {isGracePeriod ? t("cta.renewBtn") : t("cta.subscribeBtn")}
                   </>
                 )}
               </button>
@@ -303,7 +279,8 @@ export function BillingClientView({
             {(process.env.NODE_ENV !== "production" || checkoutNotice === "stub") && (
               <div className="mt-4 flex items-center justify-between border-t border-accent/10 pt-4">
                 <p className="text-[12px] font-medium text-ink-soft">
-                  <span className="font-bold text-accent">Dev Tools:</span> Test subscription activation without payment gateway
+                  <span className="font-bold text-accent">{t("dev.label")}</span>{" "}
+                  {t("dev.hint")}
                 </p>
                 <button
                   type="button"
@@ -311,15 +288,13 @@ export function BillingClientView({
                   disabled={devLoading}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-black/5 px-3 py-1.5 text-[12px] font-bold text-ink hover:bg-black/10 transition-colors disabled:opacity-50"
                 >
-                  {devLoading ? "Activating..." : "⚡ Activate Test Sub (30 days)"}
+                  {devLoading ? t("dev.activating") : t("dev.btn")}
                 </button>
               </div>
             )}
 
             {checkoutError && (
-              <p className="mt-3 text-[13px] font-medium text-danger">
-                {checkoutError}
-              </p>
+              <p className="mt-3 text-[13px] font-medium text-danger">{checkoutError}</p>
             )}
           </div>
         )}
@@ -327,16 +302,15 @@ export function BillingClientView({
         {/* Active subscription management */}
         {isActive && !isGracePeriod && (
           <div className="rounded-[20px] bg-surface ring-1 ring-black/5 p-6">
-            <p className="text-[14px] font-bold text-ink">Manage Subscription</p>
+            <p className="text-[14px] font-bold text-ink">{t("manage.title")}</p>
             <p className="mt-1 text-[13px] text-ink-soft">
-              To cancel your subscription, contact support at{" "}
+              {t("manage.desc", { email: "support@portofio.id" })}{" "}
               <a
                 href="mailto:support@portofio.id"
                 className="font-medium text-accent underline-offset-2 hover:underline"
               >
                 support@portofio.id
               </a>
-              . Your sites will remain live until your subscription period ends.
             </p>
           </div>
         )}

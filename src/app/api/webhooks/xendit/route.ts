@@ -10,7 +10,8 @@ export async function POST(req: NextRequest) {
     const callbackToken = req.headers.get("x-callback-token");
     
     // Enforce token check unless explicitly running dev without set env token
-    if (process.env.XENDIT_WEBHOOK_VERIFICATION_TOKEN && !verifyXenditWebhookSignature(callbackToken)) {
+    // B-1: env var unified to XENDIT_WEBHOOK_TOKEN (matches .env.example + PRD §9.7)
+    if (process.env.XENDIT_WEBHOOK_TOKEN && !verifyXenditWebhookSignature(callbackToken)) {
       console.warn("[XenditWebhook] Unauthorized webhook request: Invalid x-callback-token");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

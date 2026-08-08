@@ -463,11 +463,13 @@
         "Editor Projects section shows the 'Import dari Content Library' button only when Editor receives a workspaceId.",
         "Import picker loads items via listContentItemsAction, supports multi-select, and appends sanitized projects (title/description/imageUrl/link) into data.projects.",
         "New e2e spec e2e/flows/11-content-library.spec.ts passes (2 tests) alongside the full suite.",
-        "npx tsc --noEmit clean; npm run build clean."
+        "npx tsc --noEmit clean; npm run build clean.",
+        "Content Library UX hardening: async import loading is cancellation-safe, failed saves keep the modal open, project title is required, upload failures show a toast, and English translations are complete."
       ],
       "evidence": [
         "2026-08-09: Added supabase/migrations/20260809000001_add_content_library.sql (content_library table + owner RLS + public 'content' storage bucket with owner-folder write policies). Added src/lib/content/{types,store,actions}.ts (server actions + storage upload). Added ContentLibrary manager, ContentLibraryImportModal, LibraryImageUploadField components; /dashboard/content hub page; editor import button + handler. Wired sidebar 'Content Library' item (no longer a dead placeholder). i18n ContentLibrary namespace in messages/id.json + messages/en.json.",
-        "2026-08-09: e2e e2e/flows/11-content-library.spec.ts: 2 passed. Full suite: 24 passed / 1 skipped (skipped is the pre-existing credential-gated integration spec). tsc clean, build clean."
+        "2026-08-09: e2e e2e/flows/11-content-library.spec.ts: 2 passed. Full suite: 24 passed / 1 skipped (skipped is the pre-existing credential-gated integration spec). tsc clean, build clean.",
+        "2026-08-09 (Session 042): Baseline ./init.sh completed; lint fixed to 0 errors (3 unrelated pre-existing warnings), tsc/build clean, full E2E 24 passed / 1 skipped."
       ]
     }
   ]

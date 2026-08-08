@@ -24,20 +24,30 @@ export function ContentLibraryImportModal({
   const t = useTranslations("ContentLibrary");
   const [items, setItems] = useState<ContentItem[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(workspaceId));
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!workspaceId) {
-      setError("noWorkspace");
-      setLoading(false);
-      return;
-    }
+    if (!workspaceId) return;
+
+    let cancelled = false;
     listContentItemsAction(workspaceId)
-      .then((result) => setItems(result))
-      .catch(() => setError("loadError"))
-      .finally(() => setLoading(false));
+      .then((result) => {
+        if (!cancelled) setItems(result);
+      })
+      .catch(() => {
+        if (!cancelled) setError("loadError");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [workspaceId]);
+
+  const displayError = error ?? (!workspaceId ? "noWorkspace" : null);
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -85,8 +95,8 @@ export function ContentLibraryImportModal({
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />
               {t("loading")}
             </div>
-          ) : error ? (
-            <p className="py-10 text-center text-sm text-danger">{t(error)}</p>
+          ) : displayError ? (
+            <p className="py-10 text-center text-sm text-danger">{t(displayError)}</p>
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
               <span className="material-symbols-outlined text-[36px] text-ink-faint">folder_open</span>

@@ -60,6 +60,11 @@ export function ContentLibrary({
 
   async function handleSave() {
     if (saving) return;
+    if (!form.title.trim()) {
+      showToast(t("titleRequired"), "error");
+      return;
+    }
+
     setSaving(true);
     const payload = {
       title: form.title.trim(),
@@ -68,6 +73,7 @@ export function ContentLibrary({
       link: form.link.trim(),
     };
     try {
+      let saved = false;
       if (editing) {
         const res = await updateContentItemAction(editing.id, payload);
         if (res.ok) {
@@ -75,6 +81,7 @@ export function ContentLibrary({
             prev.map((it) => (it.id === editing.id ? { ...it, ...payload } : it)),
           );
           showToast(t("saved"), "success");
+          saved = true;
         } else {
           showToast(res.error ?? t("saveError"), "error");
         }
@@ -83,12 +90,15 @@ export function ContentLibrary({
         if (res.ok && res.item) {
           setItems((prev) => [res.item!, ...prev]);
           showToast(t("created"), "success");
+          saved = true;
         } else {
           showToast(res.error ?? t("saveError"), "error");
         }
       }
-      setShowModal(false);
-      router.refresh();
+      if (saved) {
+        setShowModal(false);
+        router.refresh();
+      }
     } catch {
       showToast(t("saveError"), "error");
     } finally {
@@ -250,6 +260,7 @@ export function ContentLibrary({
                 value={form.imageUrl}
                 workspaceId={workspaceId}
                 onChange={(url) => setForm((f) => ({ ...f, imageUrl: url ?? "" }))}
+                onError={() => showToast(t("imageUploadError"), "error")}
                 uploadLabel={t("imageUpload")}
                 replaceLabel={t("imageReplace")}
                 removeLabel={t("imageRemove")}

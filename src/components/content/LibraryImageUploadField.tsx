@@ -9,6 +9,7 @@ export function LibraryImageUploadField({
   value,
   workspaceId,
   onChange,
+  onError,
   uploadLabel,
   replaceLabel,
   removeLabel,
@@ -17,6 +18,7 @@ export function LibraryImageUploadField({
   value?: string;
   workspaceId: string;
   onChange: (url: string | undefined) => void;
+  onError?: () => void;
   uploadLabel: string;
   replaceLabel: string;
   removeLabel: string;
@@ -32,15 +34,15 @@ export function LibraryImageUploadField({
       if (result.ok && result.url) {
         onChange(result.url);
       } else {
-        // eslint-disable-next-line no-console
-        console.error("[LibraryImageUpload]", result.error ?? "upload failed");
+        onError?.();
       }
+    } catch {
+      onError?.();
     } finally {
       setBusy(false);
     }
   }
 
-  // eslint-disable-next-line @next/next/no-img-element
   const preview = value ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={value} alt="" className="h-full w-full object-cover" />

@@ -1,6 +1,13 @@
-# Session 041: Content Library — Reusable Project Cards + In-Editor Import
+# Session 042: Content Library — UX Hardening + Verification
 **Status:** Verified / Passing
 **Latest state:**
+- Hardened the Content Library flow after the baseline audit: fixed the React lint violation in `ContentLibraryImportModal` (safe async loading with cancellation), kept the no-workspace error declarative, and made failed saves keep the modal open for correction/retry.
+- Added required project-title validation and visible image-upload error feedback; completed the English translations for the Content Library namespace.
+- **Verification:** `./init.sh` completed; `npm run lint` (0 errors, 3 pre-existing warnings), `npx tsc --noEmit` clean, `npm run build` clean, and full `npm run test:e2e` **24 passed / 1 skipped**. The first E2E attempt hit sandbox `listen EPERM` on port 3000; rerun with approved local-server permission passed.
+- **Operational note:** apply `supabase/migrations/20260809000001_add_content_library.sql` to the real Supabase project before using authenticated CRUD/upload in production.
+
+# Session 041: Content Library — Reusable Project Cards + In-Editor Import
+**Status:** Verified / Passing
 - Added a workspace-scoped **Content Library**: reusable project cards (image + title + description + link) that a user manages once and then inserts straight into any template's Projects section from inside the editor.
 - **Storage/DB** (`supabase/migrations/20260809000001_add_content_library.sql`): new `public.content_library` table (id, workspace_id FK→workspaces cascade, title, description, image_url, link, created_at, updated_at) + owner-only RLS via `workspaces.user_id`. New public `content` storage bucket (8MB, image/png/jpeg/webp/gif) with: public read policy (so published sites render item images without auth), plus owner-folder insert/update/delete policies whose folder must match ONE of the auth user's own workspaces (`(storage.foldername(name))[1] in (select id from workspaces where user_id = auth.uid())`).
 - **Data layer** `src/lib/content/{types,store,actions}.ts`: CRUD server actions (`listContentItemsAction`, `getContentItemAction`, `createContentItemAction`, `updateContentItemAction`, `deleteContentItemAction`) + `uploadContentImageAction` (accepts a compressed client data-URL, validates mime/size, streams to `content/{workspaceId}/{uuid}.{ext}` and returns the public URL). All inputs go through the existing `sanitize.ts` helpers + length caps.
@@ -174,7 +181,6 @@
 
 **Next Steps:**
 - All MVP launch sprints (Sprint 0–3) codebase requirements are complete! Optional Sprint 4 (Google OAuth / Custom Domain) available for Fase 2 expansion.
-
 
 
 

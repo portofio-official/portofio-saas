@@ -8,8 +8,8 @@ import type { WorkspaceProfile } from "@/templates/definition";
 import { boldDefinition } from "./definition";
 
 export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
-  const { profile, experiences, skills, projects, contact, socials, theme } = data;
-  
+  const { profile, experiences, skills, projects, contact, socials, theme, hiddenSections } = data;
+  const hidden = (id: string) => hiddenSections?.includes(id) ?? false;
   const variant = boldDefinition.variants.find(v => v.id === theme.variantId) || boldDefinition.variants[0];
   const {
     primary: ACCENT,
@@ -24,6 +24,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
       className={`min-h-screen font-sans selection:bg-black/10`}
       style={{ backgroundColor: BG, color: TEXT }}
     >
+      {!hidden("profile") && (
       <header id="profile" className="px-6 py-24 md:px-12 md:py-40 max-w-screen-2xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
           <div className="lg:col-span-8">
@@ -45,8 +46,9 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
           </div>
         </div>
       </header>
+      )}
 
-      {profile.bio && (
+      {profile.bio && !hidden("profile") && (
         <section className="px-6 md:px-12 py-16 md:py-32 max-w-screen-2xl mx-auto border-t-[6px]" style={{ borderColor: TEXT }}>
           <p className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-bold leading-[1.05] tracking-tighter max-w-6xl">
             {profile.bio}
@@ -54,7 +56,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
         </section>
       )}
 
-      {projects.length > 0 && (
+      {projects.length > 0 && !hidden("projects") && (
         <section id="projects" className="px-6 md:px-12 py-16 md:py-32 max-w-screen-2xl mx-auto border-t-[6px]" style={{ borderColor: TEXT }}>
           <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-16">Selected Work</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
@@ -95,7 +97,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
         </section>
       )}
 
-      {experiences.length > 0 && (
+      {experiences.length > 0 && !hidden("experience") && (
         <section id="experience" className="px-6 md:px-12 py-16 md:py-32 border-t-[6px] border-zinc-950 max-w-screen-2xl mx-auto">
           <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-20">Experience</h2>
           <div className="grid grid-cols-1 gap-16">
@@ -125,6 +127,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
         </section>
       )}
 
+      {!hidden("skills") && (
       <section id="skills" className="px-6 md:px-12 py-16 md:py-32 border-t-[6px] border-zinc-950 max-w-screen-2xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-32">
           {skills.length > 0 && (
@@ -144,7 +147,9 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
           )}
         </div>
       </section>
+      )}
 
+      {!hidden("contact") && (
       <footer id="contact" className="bg-zinc-950 text-zinc-50 px-6 md:px-12 py-24 md:py-40">
         <div className="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-end">
           <div>
@@ -172,6 +177,7 @@ export function BoldRenderer({ data }: { data: PortfolioData; workspaceProfile?:
           </div>
         </div>
       </footer>
+      )}
     </div>
   );
 }

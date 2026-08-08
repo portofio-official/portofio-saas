@@ -58,8 +58,11 @@ export async function generateMetadata({
   const headline = (profile.headline as string) || (profile.bio as string) || "Portfolio";
   const photoUrl = (profile.photoUrl as string) || (profile.avatarUrl as string) || undefined;
 
-  const title = `${fullName} — Portfolio`;
-  const description = headline;
+  // Custom SEO overrides from WebsiteDocument.meta.seo (set in the editor)
+  const metaSeo = (doc?.meta?.seo ?? {}) as { title?: string; description?: string; ogImage?: string };
+  const title = metaSeo.title?.trim() || `${fullName} — Portfolio`;
+  const description = metaSeo.description?.trim() || headline;
+  const seoImage = metaSeo.ogImage?.trim() || photoUrl;
 
   return {
     title,
@@ -68,13 +71,13 @@ export async function generateMetadata({
       title,
       description,
       type: "website",
-      images: photoUrl ? [{ url: photoUrl }] : undefined,
+      images: seoImage ? [{ url: seoImage }] : undefined,
     },
     twitter: {
-      card: photoUrl ? "summary_large_image" : "summary",
+      card: seoImage ? "summary_large_image" : "summary",
       title,
       description,
-      images: photoUrl ? [photoUrl] : undefined,
+      images: seoImage ? [seoImage] : undefined,
     },
   };
 }

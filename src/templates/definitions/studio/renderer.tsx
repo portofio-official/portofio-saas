@@ -245,6 +245,7 @@ export function StudioRenderer({
   data: StudioData;
   workspaceProfile?: WorkspaceProfile;
 }) {
+  const hidden = (id: string) => data.hiddenSections?.includes(id) ?? false;
   return (
     <div 
       className="min-h-screen bg-[#050505] text-zinc-400 selection:bg-white/20 selection:text-white"
@@ -256,11 +257,11 @@ export function StudioRenderer({
       />
       
       <main className="relative z-10">
-        <HeroSection hero={data.hero} profile={data.profile} />
-        <ProjectsSection projects={data.projects} />
-        <ExpertiseSection expertise={data.expertise} />
-        <TestimonialsSection testimonials={data.testimonials} />
-        <ContactSection contact={data.contact} />
+        {!hidden("hero") && !hidden("profile") && <HeroSection hero={data.hero} profile={data.profile} />}
+        {!hidden("projects") && <ProjectsSection projects={data.projects} />}
+        {!hidden("expertise") && <ExpertiseSection expertise={data.expertise} />}
+        {!hidden("testimonials") && <TestimonialsSection testimonials={data.testimonials} />}
+        {!hidden("contact") && <ContactSection contact={data.contact} />}
       </main>
     </div>
   );

@@ -303,7 +303,45 @@
         "2026-08-08: B-1 responsive drawers — asides use `fixed inset-y-0 .. lg:static` + translate transition (`-translate-x-full`/`translate-x-full`), backdrop + X close buttons, mobile toggles (`edit_note`/`tune`) in canvas toolbar, device pills for desktop/laptop hidden `<sm`, header back-label + Preview/Save labels icon-only `<sm`.",
         "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 16 passed / 1 skipped."
       ],
-      "notes": "PRD-driven: form + template product for non-technical users; removed features contradicted MVP (no drag-drop/free-form/media lib). Remaining B-phase candidates recorded: B-2 real SEO settings, B-3 section show/hide toggles, B-4 draft-vs-published revert."
+      "notes": "PRD-driven: form + template product for non-technical users; removed features contradicted MVP (no drag-drop/free-form/media lib). B-2 (SEO settings) landed in editor-005 and B-3 (section show/hide) in editor-006. Remaining B-phase candidate: B-4 draft-vs-published revert."
+    },
+    {
+      "id": "editor-005",
+      "priority": 3,
+      "area": "editor",
+      "title": "Editor SEO Settings (B-2) — title/description/og with live preview",
+      "user_visible_behavior": "The right editor `Settings` tab is no longer a placeholder: a user can set site title, description, and social image URL, view a live search-result snippet, and the published site's `<meta>` / Open Graph / Twitter tags reflect those values (falling back to profile data when empty).",
+      "status": "passing",
+      "verification": [
+        "In the editor Settings tab, edit title/description and confirm the live search preview updates and the values persist after reload.",
+        "Publish and confirm the public site's metadata title/description/og-image honor meta.seo (profile data used when empty)."
+      ],
+      "evidence": [
+        "2026-08-08 (Session 036): Added optional `seo` ({title?, description?, ogImage?}) to WebsiteDocument.meta in src/templates/definition.ts; Editor documentForSave merges meta.seo & useAutosave now watches {data, seo}; right Settings tab replaced placeholder with SERP-style live preview + three fields.",
+        "2026-08-08: /sites/[subdomain]/page.tsx generateMetadata (title/description/openGraph/twitter + summary_large_image) honors meta.seo, falling back to profile-derived values.",
+        "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 16 passed / 1 skipped."
+      ],
+      "notes": "Autosave persists meta.seo into project_versions.content_json; publish_project RPC snapshots the same content into the live site. ogImage kept as a URL field (data: URLs are not crawled by OG scrapers); falls back to profile photo URL."
+    },
+    {
+      "id": "editor-006",
+      "priority": 4,
+      "area": "editor",
+      "title": "Editor Section Show/Hide Toggles (B-3)",
+      "user_visible_behavior": "The left editor `Sections` tab is no longer a placeholder: every section of the active template can be toggled on/off, and hidden sections disappear from the live preview and the published site (content is preserved, so toggling back restores it).",
+      "status": "passing",
+      "verification": [
+        "In the editor Sections tab, toggle a section off and confirm the preview immediately removes it; reload and confirm the toggle persists.",
+        "Publish and confirm hidden sections do not render on the public site."
+      ],
+      "evidence": [
+        "2026-08-08 (Session 036): Added `hiddenSections: z.array(z.string()).default([])` to baseProfileSchema + `hiddenSections: []` in BASE_PROFILE_DEFAULTS (src/templates/shared/_base.ts) — all 8 template schemas extend it, so safeParse keeps the field.",
+        "2026-08-08: Integrated guards into all 8 renderers (minimal, bold, corporate, creative, dark, freelancer, studio, portfolio-pro) using `hidden(id)` checks; portfolio-pro passes filtered arrays into ResumeSection (tabs self-hide) and its Navbar filters nav links for hidden sections.",
+        "2026-08-08: Editor `Sections` tab replaced placeholder with per-section visibility toggle rows (visibility icon + switch) writing `data.hiddenSections`; note explains content is preserved.",
+        "2026-08-08: Added `hiddenSections: []` to freelancerDefaults and PREVIEW_DATA in TemplateGallery + TemplateShowcase to satisfy the now-required field.",
+        "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 16 passed / 1 skipped."
+      ],
+      "notes": "portfolio-pro 'profile' section id maps to the base profile data block, not a discrete rendered section; hero/about render the profile fields so no separate hide target exists there. Remaining B-phase candidate: B-4 draft-vs-published revert."
     }
   ]
 }

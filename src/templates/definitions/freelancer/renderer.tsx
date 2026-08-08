@@ -46,8 +46,10 @@ export function FreelancerRenderer({
     socials,
     theme,
     availableForWork,
+    hiddenSections,
   } = data;
-  
+
+  const hidden = (id: string) => hiddenSections?.includes(id) ?? false;
   const variant = freelancerDefinition.variants.find((v) => v.id === theme.variantId) || freelancerDefinition.variants[0];
 
   // Reveal animation
@@ -119,6 +121,7 @@ export function FreelancerRenderer({
 
       <div className="mx-auto max-w-[960px] px-6 md:px-12">
         {/* ── HERO ── */}
+        {!hidden("profile") && (
         <header
           id="profile"
           ref={setReveal}
@@ -172,7 +175,7 @@ export function FreelancerRenderer({
           )}
 
           {/* Skills strip */}
-          {skills.length > 0 && (
+          {skills.length > 0 && !hidden("skills") && (
             <div className="flex flex-wrap gap-2 mt-8">
               {skills.map((s) => (
                 <span
@@ -186,9 +189,10 @@ export function FreelancerRenderer({
             </div>
           )}
         </header>
+        )}
 
         {/* ── PROJECTS ── */}
-        {projects.length > 0 && (
+        {projects.length > 0 && !hidden("projects") && (
           <section
             id="projects"
             ref={setReveal}
@@ -250,7 +254,7 @@ export function FreelancerRenderer({
         )}
 
         {/* ── TESTIMONIALS ── */}
-        {testimonials.length > 0 && (
+        {testimonials.length > 0 && !hidden("testimonials") && (
           <section
             id="testimonials"
             ref={setReveal}
@@ -302,7 +306,7 @@ export function FreelancerRenderer({
         )}
 
         {/* ── PRICING ── */}
-        {pricing.length > 0 && (
+        {pricing.length > 0 && !hidden("pricing") && (
           <section
             id="pricing"
             ref={setReveal}
@@ -378,6 +382,7 @@ export function FreelancerRenderer({
         )}
 
         {/* ── CONTACT ── */}
+        {!hidden("contact") && (
         <footer
           id="contact"
           ref={setReveal}
@@ -426,6 +431,7 @@ export function FreelancerRenderer({
             </div>
           )}
         </footer>
+        )}
       </div>
     </div>
   );

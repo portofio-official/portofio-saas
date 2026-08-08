@@ -7,7 +7,8 @@ import type { WorkspaceProfile } from "@/templates/definition";
 import { darkDefinition } from "./definition";
 
 export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
-  const { profile, experiences, skills, projects, contact, socials, theme } = data;
+  const { profile, experiences, skills, projects, contact, socials, theme, hiddenSections } = data;
+  const hidden = (id: string) => hiddenSections?.includes(id) ?? false;
   const variant = darkDefinition.variants.find(v => v.id === theme.variantId) || darkDefinition.variants[0];
 
   return (
@@ -18,6 +19,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
       />
 
       <div className="mx-auto max-w-5xl px-6 py-20 md:px-12 md:py-32 relative z-10">
+        {!hidden("profile") && (
         <header id="profile" className="flex flex-col md:flex-row md:items-center gap-10 md:gap-16 mb-20 md:mb-32">
           {profile.photoUrl ? (
             <div className="relative group shrink-0">
@@ -57,8 +59,9 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
             )}
           </div>
         </header>
+        )}
 
-        {profile.bio && (
+        {profile.bio && !hidden("profile") && (
           <section className="mb-24 md:mb-32 max-w-3xl">
             <p className="text-xl md:text-3xl leading-[1.6] text-zinc-300 font-medium">
               {profile.bio}
@@ -66,7 +69,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
           </section>
         )}
 
-        {projects.length > 0 && (
+        {projects.length > 0 && !hidden("projects") && (
           <section id="projects" className="mb-24 md:mb-32">
             <h2 className="text-2xl font-semibold text-white mb-10">Selected Works</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -110,7 +113,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24">
-          {experiences.length > 0 && (
+          {experiences.length > 0 && !hidden("experience") && (
             <section id="experience" className="lg:col-span-7">
               <h2 className="text-2xl font-semibold text-white mb-10">Experience</h2>
               <div className="flex flex-col gap-12">
@@ -139,7 +142,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
           )}
 
           <div className="lg:col-span-5 flex flex-col gap-16">
-            {skills.length > 0 && (
+            {skills.length > 0 && !hidden("skills") && (
               <section id="skills">
                 <h2 className="text-2xl font-semibold text-white mb-8">Technical Output</h2>
                 <div className="flex flex-wrap gap-2">
@@ -157,6 +160,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
           </div>
         </div>
 
+        {!hidden("contact") && (
         <footer id="contact" className="mt-32 pt-12 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             {contact.email && (
@@ -184,6 +188,7 @@ export function DarkRenderer({ data }: { data: PortfolioData; workspaceProfile?:
             ))}
           </div>
         </footer>
+        )}
       </div>
     </div>
   );

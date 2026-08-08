@@ -26,6 +26,11 @@ export interface WebsiteDocument {
     createdAt: string; // ISO 8601
     updatedAt: string;
     locale: string;    // "id" | "en"
+    seo?: {
+      title?: string;
+      description?: string;
+      ogImage?: string;
+    };
   };
   data: Record<string, unknown>;
 }

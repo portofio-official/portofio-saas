@@ -28,6 +28,11 @@ export function PortfolioProRenderer({
   const theme = { accent: variant.colors.primary, ...DARK_CHROME };
   const isManualScrolling = useRef(false);
 
+  const hidden = (id: string) => data.hiddenSections?.includes(id) ?? false;
+  const educations = hidden("educationDetails") ? [] : data.educationDetails;
+  const experiences = hidden("experienceDetails") ? [] : data.experienceDetails;
+  const skillsShowcase = hidden("skillsShowcase") ? [] : data.skillsShowcase;
+
   useEffect(() => {
     function handleResize() {
       setIsMobileView(window.innerWidth < 768);
@@ -83,35 +88,40 @@ export function PortfolioProRenderer({
         isMobileView={isMobileView}
         activeSection={activeSection}
         setActiveSection={handleNavSelect}
+        hiddenSections={data.hiddenSections}
       />
 
       <main className={`relative z-10 mx-auto max-w-7xl px-6 ${isMobileView ? "pt-20" : "pt-24"}`}>
-        <HeroSection profile={data.profile} hero={data.hero} contact={data.contact} socials={data.socials} isDark={isDark} theme={theme} isMobileView={isMobileView} />
-        <AboutSection
-          profile={data.profile}
-          about={data.about}
-          isDark={isDark}
-          theme={theme}
-          isMobileView={isMobileView}
-          projectCount={data.caseStudies.length}
-          certificateCount={data.certificates.length}
-        />
-        <ProjectsSection items={data.caseStudies} isDark={isDark} theme={theme} isMobileView={isMobileView} />
-        <ResumeSection
-          educations={data.educationDetails}
-          experiences={data.experienceDetails}
-          skills={data.skillsShowcase}
-          isDark={isDark}
-          theme={theme}
-          isMobileView={isMobileView}
-        />
-        <CoursesSection items={data.certificates} isDark={isDark} theme={theme} isMobileView={isMobileView} />
+        {!hidden("hero") && <HeroSection profile={data.profile} hero={data.hero} contact={data.contact} socials={data.socials} isDark={isDark} theme={theme} isMobileView={isMobileView} />}
+        {!hidden("about") && (
+          <AboutSection
+            profile={data.profile}
+            about={data.about}
+            isDark={isDark}
+            theme={theme}
+            isMobileView={isMobileView}
+            projectCount={data.caseStudies.length}
+            certificateCount={data.certificates.length}
+          />
+        )}
+        {!hidden("caseStudies") && <ProjectsSection items={data.caseStudies} isDark={isDark} theme={theme} isMobileView={isMobileView} />}
+        {!hidden("skillsShowcase") && !hidden("experienceDetails") && !hidden("educationDetails") && (
+          <ResumeSection
+            educations={educations}
+            experiences={experiences}
+            skills={skillsShowcase}
+            isDark={isDark}
+            theme={theme}
+            isMobileView={isMobileView}
+          />
+        )}
+        {!hidden("certificates") && <CoursesSection items={data.certificates} isDark={isDark} theme={theme} isMobileView={isMobileView} />}
       </main>
-      <GallerySection items={data.gallery} theme={theme} isMobileView={isMobileView} />
+      {!hidden("gallery") && <GallerySection items={data.gallery} theme={theme} isMobileView={isMobileView} />}
       <div className="relative z-10 mx-auto max-w-7xl px-6 pb-6">
-        <ContactSection contact={data.contact} socials={data.socials} isDark={isDark} isMobileView={isMobileView} />
+        {!hidden("contact") && <ContactSection contact={data.contact} socials={data.socials} isDark={isDark} isMobileView={isMobileView} />}
       </div>
-      <FooterSection profile={data.profile} contact={data.contact} isDark={isDark} theme={theme} isMobileView={isMobileView} />
+      {!hidden("contact") && <FooterSection profile={data.profile} contact={data.contact} isDark={isDark} theme={theme} isMobileView={isMobileView} />}
     </div>
   );
 }

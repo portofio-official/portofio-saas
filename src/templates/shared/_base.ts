@@ -86,12 +86,14 @@ export const caseStudySchema = z.object({
   link: z.string().optional(),
 });
 
-// Base profile schema — Shared fields across ALL templates (Profile, Contact, Socials, Theme)
+// Base profile profile — Shared fields across ALL templates (Profile, Contact, Socials, Theme)
 export const baseProfileSchema = z.object({
   profile: profileSchema,
   contact: contactSchema,
   socials: z.array(socialSchema).default([]),
   theme: themeSchema,
+  // Section visibility toggles set in the editor. Optional — defaults to all visible.
+  hiddenSections: z.array(z.string()).default([]),
 });
 
 export type BaseProfileData = z.infer<typeof baseProfileSchema>;
@@ -103,6 +105,7 @@ export const BASE_PROFILE_DEFAULTS: BaseProfileData = {
   theme: { 
     variantId: "default",
   },
+  hiddenSections: [],
 };
 
 // Legacy base portfolio schema — kept for backward compatibility alias during refactor

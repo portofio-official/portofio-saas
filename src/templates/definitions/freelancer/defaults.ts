@@ -58,6 +58,7 @@ export const freelancerDefaults: FreelancerData = {
     phone: "",
   },
   socials: [],
+  hiddenSections: [],
   theme: {
     ...BASE_PROFILE_DEFAULTS.theme,
     variantId: "default",

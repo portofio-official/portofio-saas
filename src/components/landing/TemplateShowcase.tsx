@@ -44,6 +44,7 @@ const PREVIEW_DATA: PreviewData = {
     { platform: "github", url: "https://github.com/alexrivera" },
   ],
   theme: { ...BASE_PROFILE_DEFAULTS.theme },
+  hiddenSections: [],
 };
 
 export function TemplateShowcase() {

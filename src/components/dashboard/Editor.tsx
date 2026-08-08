@@ -103,6 +103,11 @@ export function Editor({
   const [mobileLeftOpen, setMobileLeftOpen] = useState(false);
   const [mobileRightOpen, setMobileRightOpen] = useState(false);
 
+  // SEO settings (persisted in WebsiteDocument.meta.seo)
+  const [seo, setSeo] = useState<{ title?: string; description?: string; ogImage?: string }>(
+    initialDocument.meta?.seo ?? {},
+  );
+
   const DEVICE_CONFIG = {
     desktop: { width: 1440, height: 900, name: "Desktop" },
     laptop: { width: 1280, height: 800, name: "Laptop" },
@@ -308,13 +313,14 @@ export function Editor({
       ...initialDocument.meta,
       templateId: templateId,
       updatedAt: new Date().toISOString(),
+      ...(seo.title || seo.description || seo.ogImage ? { seo } : {}),
     },
     data: data as Record<string, unknown>,
   });
 
   const [customSaveStatus, setCustomSaveStatus] = useState<"Saving..." | "Saved just now" | "✓ All changes saved" | "Error saving" | "">("");
 
-  useAutosave(data, async (d) => {
+  useAutosave({ data, seo }, async (d) => {
     setCustomSaveStatus("Saving...");
     try {
       const result = await saveDraftAction(projectId, documentForSave());
@@ -804,10 +810,55 @@ export function Editor({
                   </div>
                 </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                    <span className="material-symbols-outlined text-[32px] text-ink-faint mb-3">layers</span>
-                    <span className="text-[13px] font-bold text-ink mb-1">Manage Sections</span>
-                    <span className="text-[12px] text-ink-soft">Reorder and toggle sections visibility here.</span>
+                  <div className="flex flex-col h-full p-1">
+                    <div className="sticky top-0 z-10 bg-surface/95 backdrop-blur-md pb-4 pt-1 mb-4 border-b border-black/5 -mt-2">
+                      <span className="text-[10px] font-bold text-ink-soft uppercase tracking-[0.05em]">Layout</span>
+                      <h2 className="text-sm font-bold text-ink mt-0.5">Section Visibility</h2>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {definition?.sections.map((section) => {
+                        const isHidden = (data.hiddenSections ?? []).includes(section.id);
+                        return (
+                          <button
+                            key={section.id}
+                            type="button"
+                            onClick={() => {
+                              const current = data.hiddenSections ?? [];
+                              setData({
+                                ...data,
+                                hiddenSections: isHidden
+                                  ? current.filter((id) => id !== section.id)
+                                  : [...current, section.id],
+                              });
+                            }}
+                            className={`flex items-center justify-between gap-3 rounded-[1rem] px-4 py-3 text-left ring-1 transition-all ${
+                              isHidden ? "bg-white/50 ring-black/5 opacity-70" : "bg-white ring-black/5 hover:ring-black/10"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className={`material-symbols-outlined text-[16px] shrink-0 ${isHidden ? "text-ink-faint" : "text-accent"}`}>visibility</span>
+                              <span className={`text-[13px] font-bold truncate ${isHidden ? "text-ink-soft line-through" : "text-ink"}`}>
+                                {section.label}
+                              </span>
+                            </div>
+                            <span
+                              className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+                                isHidden ? "bg-black/15" : "bg-accent"
+                              }`}
+                            >
+                              <span
+                                className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${
+                                  isHidden ? "left-0.5" : "left-4.5"
+                                }`}
+                              />
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-4 text-[11px] text-ink-soft leading-relaxed px-1">
+                      Hidden sections are removed from the published page. Your content is kept, so you can re-enable them anytime.
+                    </p>
                   </div>
                 )}
               </div>
@@ -1104,10 +1155,73 @@ export function Editor({
 
             </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                <span className="material-symbols-outlined text-[32px] text-ink-faint mb-3">settings</span>
-                <span className="text-[13px] font-bold text-ink mb-1">General Settings</span>
-                <span className="text-[12px] text-ink-soft">SEO and custom domain settings will be available here.</span>
+              <div className="flex flex-col gap-6 pb-6">
+                <div>
+                  <span className="text-[12px] font-bold text-ink">SEO Settings</span>
+                  <p className="mt-0.5 text-[11px] text-ink-soft">
+                    Sesuaikan bagaimana website kamu tampil di hasil pencarian. Kosongkan untuk memakai nilai otomatis dari profil.
+                  </p>
+                </div>
+
+                {/* Live search preview */}
+                <div className="flex flex-col gap-2 rounded-2xl bg-white p-4 ring-1 ring-black/5 shadow-sm">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.05em] text-ink-faint">
+                    Search Preview
+                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[12px] text-[#0b57d0]">{siteUrl}</span>
+                    <span className="line-clamp-2 text-[14px] font-bold leading-snug text-[#1a0dab]">
+                      {seo.title?.trim() || `${data.profile?.fullName || subdomain || "Nama"} · Portofolio`}
+                    </span>
+                    <span className="line-clamp-3 text-[12px] leading-snug text-ink-soft">
+                      {seo.description?.trim() || data.profile?.headline || "Portofolio profesional."}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Fields */}
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[12px] font-bold text-ink">Site Title</label>
+                    <input
+                      type="text"
+                      value={seo.title ?? ""}
+                      onChange={(e) => setSeo({ ...seo, title: e.target.value })}
+                      placeholder="Contoh: Nama kamu · UI/UX Designer"
+                      maxLength={100}
+                      className="w-full rounded-xl bg-canvas px-4 py-2.5 text-[13px] font-medium text-ink outline-none ring-1 ring-black/10 placeholder:text-ink-faint focus:ring-2 focus:ring-accent"
+                    />
+                    <span className="text-[10px] text-ink-faint">{seo.title?.length ?? 0}/100</span>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[12px] font-bold text-ink">Description</label>
+                    <textarea
+                      value={seo.description ?? ""}
+                      onChange={(e) => setSeo({ ...seo, description: e.target.value })}
+                      placeholder="Satu-dua kalimat yang menggambarkan kamu dan layananmu."
+                      rows={3}
+                      maxLength={300}
+                      className="w-full resize-none rounded-xl bg-canvas px-4 py-3 text-[13px] font-medium text-ink outline-none ring-1 ring-black/10 placeholder:text-ink-faint focus:ring-2 focus:ring-accent"
+                    />
+                    <span className="text-[10px] text-ink-faint">{seo.description?.length ?? 0}/300</span>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[12px] font-bold text-ink">Social Image URL</label>
+                    <input
+                      type="url"
+                      value={seo.ogImage ?? ""}
+                      onChange={(e) => setSeo({ ...seo, ogImage: e.target.value })}
+                      placeholder="https://… (opsional, fallback ke foto profil)"
+                      className="w-full rounded-xl bg-canvas px-4 py-2.5 text-[13px] font-medium text-ink outline-none ring-1 ring-black/10 placeholder:text-ink-faint focus:ring-2 focus:ring-accent"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-ink-soft">
+                  Perubahan ikut ter-simpan otomatis dan diterapkan ke halaman live setelah Republish.
+                </p>
               </div>
             )}
           </div>

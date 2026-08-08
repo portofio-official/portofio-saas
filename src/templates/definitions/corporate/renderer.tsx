@@ -6,13 +6,15 @@ import type { WorkspaceProfile } from "@/templates/definition";
 import { corporateDefinition } from "./definition";
 
 export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
-  const { profile, experiences, educations, skills, pricing, contact, socials, theme } = data;
+  const { profile, experiences, educations, skills, pricing, contact, socials, theme, hiddenSections } = data;
+  const hidden = (id: string) => hiddenSections?.includes(id) ?? false;
   const variant = corporateDefinition.variants.find(v => v.id === theme.variantId) || corporateDefinition.variants[0];
 
   return (
     <div className={`min-h-screen bg-[#FDFDFD] text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900`}>
       <div className="mx-auto max-w-6xl px-6 py-16 md:px-12 md:py-24">
-        
+
+        {!hidden("profile") && (
         <header id="profile" className="border-b border-zinc-200 pb-12 md:pb-16 mb-12 md:pb-20 md:mb-20">
           <div className="flex flex-col-reverse md:flex-row md:items-end justify-between gap-10">
             <div className="max-w-2xl">
@@ -45,12 +47,13 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
             )}
           </div>
         </header>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
           
           <main className="lg:col-span-8 lg:col-start-5 space-y-20">
             
-            {experiences.length > 0 && (
+            {experiences.length > 0 && !hidden("experience") && (
               <section id="experience">
                 <h2 className="text-sm font-medium text-zinc-900 border-b border-zinc-200 pb-3 mb-8">
                   Professional Experience
@@ -80,7 +83,7 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
               </section>
             )}
 
-            {pricing && pricing.length > 0 && (
+            {pricing && pricing.length > 0 && !hidden("pricing") && (
               <section id="pricing">
                 <h2 className="text-sm font-medium text-zinc-900 border-b border-zinc-200 pb-3 mb-8">
                   Pricing Plans
@@ -111,7 +114,7 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
 
           <aside className="lg:col-span-4 lg:col-start-1 lg:row-start-1 flex flex-col gap-16 lg:pr-8">
             
-            {(contact.email || contact.phone || contact.whatsapp || socials.length > 0) && (
+            {(contact.email || contact.phone || contact.whatsapp || socials.length > 0) && !hidden("contact") && (
               <section id="contact">
                 <h2 className="text-sm font-medium text-zinc-900 border-b border-zinc-200 pb-3 mb-6">
                   Contact
@@ -142,7 +145,7 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
               </section>
             )}
 
-            {educations.length > 0 && (
+            {educations.length > 0 && !hidden("education") && (
               <section id="education">
                 <h2 className="text-sm font-medium text-zinc-900 border-b border-zinc-200 pb-3 mb-6">
                   Education
@@ -164,7 +167,7 @@ export function CorporateRenderer({ data }: { data: PortfolioData; workspaceProf
               </section>
             )}
 
-            {skills.length > 0 && (
+            {skills.length > 0 && !hidden("skills") && (
               <section id="skills">
                 <h2 className="text-sm font-medium text-zinc-900 border-b border-zinc-200 pb-3 mb-6">
                   Core Competencies

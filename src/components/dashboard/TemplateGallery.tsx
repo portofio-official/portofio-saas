@@ -47,6 +47,7 @@ const PREVIEW_DATA: PreviewData = {
     { platform: "github", url: "https://github.com/alexrivera" },
   ],
   theme: { ...BASE_PROFILE_DEFAULTS.theme },
+  hiddenSections: [],
   hero: {
     headline: "We build digital experiences.",
     subheadline: "An independent studio crafting premium interfaces for the web and mobile.",

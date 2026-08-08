@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { initials, SocialIcon } from "@/templates/shared";
 import type { MinimalData as PortfolioData } from "./schema";
 import { minimalDefinition } from "./definition";
 import type { WorkspaceProfile } from "@/templates/definition";
 
 export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfile?: WorkspaceProfile }) {
-  const { profile, skills, projects, contact, socials, theme } = data;
+  const { profile, skills, projects, contact, socials, theme, hiddenSections } = data;
 
+  const hidden = useCallback((id: string) => hiddenSections?.includes(id) ?? false, [hiddenSections]);
   const variant = minimalDefinition.variants.find(v => v.id === theme.variantId) || minimalDefinition.variants[0];
   const {
     primary: ACCENT,
@@ -22,11 +23,11 @@ export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfil
 
   const sections = useMemo(() => {
     const list: { key: string; label: string }[] = [];
-    if (projects.length) list.push({ key: "work", label: "Selected Work" });
-    if (skills.length) list.push({ key: "capabilities", label: "Capabilities" });
-    if (contact.email || contact.phone || socials.length) list.push({ key: "contact", label: "Contact" });
+    if (projects.length && !hidden("projects")) list.push({ key: "work", label: "Selected Work" });
+    if (skills.length && !hidden("skills")) list.push({ key: "capabilities", label: "Capabilities" });
+    if ((contact.email || contact.phone || socials.length) && !hidden("contact")) list.push({ key: "contact", label: "Contact" });
     return list;
-  }, [projects.length, skills.length, contact.email, contact.phone, socials.length]);
+  }, [projects.length, skills.length, contact.email, contact.phone, socials.length, hidden]);
 
   const folio = (key: string) => {
     const i = sections.findIndex((s) => s.key === key);
@@ -133,6 +134,7 @@ export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfil
       )}
 
       <div className="mx-auto max-w-[1000px] px-6 py-24 md:px-12 md:py-32">
+        {!hidden("profile") && (
         <header className="mb-32 md:mb-48 max-w-3xl transform transition-all duration-1000 opacity-0 translate-y-6" ref={setRevealRef}>
           <div className="flex items-center gap-5 mb-12">
             {profile.photoUrl ? (
@@ -172,8 +174,9 @@ export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfil
             </p>
           )}
         </header>
+        )}
 
-        {projects.length > 0 && (
+        {projects.length > 0 && !hidden("projects") && (
           <section
             ref={(el) => {
               sectionRefs.current.work = el;
@@ -242,7 +245,7 @@ export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfil
         )}
 
         <div className="mb-32 md:mb-48">
-          {skills.length > 0 && (
+          {skills.length > 0 && !hidden("skills") && (
             <section
               ref={(el) => {
                 sectionRefs.current.capabilities = el;
@@ -274,6 +277,7 @@ export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfil
           )}
         </div>
 
+        {!hidden("contact") && (
         <footer
           ref={(el) => {
             sectionRefs.current.contact = el;
@@ -340,6 +344,7 @@ export function MinimalRenderer({ data }: { data: PortfolioData; workspaceProfil
             ))}
           </div>
         </footer>
+        )}
       </div>
     </div>
   );

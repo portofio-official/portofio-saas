@@ -22,6 +22,7 @@ export function Navbar({
   isMobileView,
   activeSection,
   setActiveSection,
+  hiddenSections,
 }: {
   fullName: string;
   isDark: boolean;
@@ -30,8 +31,21 @@ export function Navbar({
   isMobileView: boolean;
   activeSection: string;
   setActiveSection: (id: string) => void;
+  hiddenSections?: string[];
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const hidden = (id: string) => hiddenSections?.includes(id) ?? false;
+  const navLinks = NAV_LINKS.filter((item) => {
+    if (item.id === "resume") return !(hidden("skillsShowcase") && hidden("experienceDetails") && hidden("educationDetails"));
+    return !hidden(
+      item.id === "home" ? "hero" :
+      item.id === "projects" ? "caseStudies" :
+      item.id === "courses" ? "certificates" :
+      item.id === "activities" ? "gallery" :
+      item.id,
+    );
+  });
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -82,7 +96,7 @@ export function Navbar({
             </button>
           </div>
           <div className="flex flex-col gap-2 p-4">
-            {NAV_LINKS.map((item) => (
+            {navLinks.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -123,7 +137,7 @@ export function Navbar({
 
         {!isMobileView && (
           <div className={`ml-auto mr-4 flex items-center gap-1 text-sm font-medium lg:gap-2 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
-            {NAV_LINKS.map((item) => {
+            {navLinks.map((item) => {
               const isActive = activeSection === item.id;
               return (
                 <button

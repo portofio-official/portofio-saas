@@ -53,6 +53,7 @@ type EditorData = BasePortfolioData &
 export function Editor({
   projectId,
   initialDocument,
+  initialPublishedDocument,
   initialTemplateId,
   initialSubdomain,
   initialStatus,
@@ -61,6 +62,7 @@ export function Editor({
 }: {
   projectId: string;
   initialDocument: WebsiteDocument;
+  initialPublishedDocument?: WebsiteDocument | null;
   initialTemplateId: TemplateId;
   initialSubdomain?: string | null;
   initialStatus?: "draft" | "published";
@@ -176,6 +178,31 @@ export function Editor({
   );
   const [publishError, setPublishError] = useState<string | null>(null);
   const [publishLoading, setPublishLoading] = useState(false);
+
+  // Last published snapshot (B-4: draft vs published diff + revert)
+  const [publishedDocument, setPublishedDocument] = useState<WebsiteDocument | null>(
+    initialPublishedDocument ?? null,
+  );
+  const [showRevertDialog, setShowRevertDialog] = useState(false);
+  const [revertLoading, setRevertLoading] = useState(false);
+
+  const draftDiverged =
+    publishStatus === "published" &&
+    !!publishedDocument &&
+    (JSON.stringify(publishedDocument.data) !== JSON.stringify(data) ||
+      JSON.stringify(publishedDocument.meta?.seo ?? {}) !== JSON.stringify(seo));
+
+  function handleRevertToLive() {
+    if (!publishedDocument) return;
+    setRevertLoading(true);
+    // Restore draft + SEO to the last published snapshot; autosave persists it.
+    setData((publishedDocument.data ?? {}) as EditorData);
+    setSeo(publishedDocument.meta?.seo ?? {});
+    setRevertLoading(false);
+    setShowRevertDialog(false);
+    setPublishStatus("published");
+    showToast("Draft dikembalikan ke versi yang live.", "info");
+  }
 
   const domain = rootDomain ?? process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
@@ -397,6 +424,8 @@ export function Editor({
     setPublishLoading(false);
     if (result.ok) {
       setPublishStatus("published");
+      // Refresh the published snapshot so the divergence banner clears.
+      setPublishedDocument(documentForSave());
       setShowPublishDialog(false);
       showToast("Website berhasil dipublikasikan!", "success");
     } else if (result.requiresSubscription) {
@@ -535,6 +564,28 @@ export function Editor({
                     Sync dari Profil
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Draft vs Published divergence banner (B-4) */}
+        {draftDiverged && !showProfileBanner && (
+          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-sky-200 bg-sky-50 px-6 py-2.5">
+            <div className="flex items-center gap-2.5">
+              <span className="material-symbols-outlined text-[18px] text-sky-600">published_with_changes</span>
+              <span className="text-[13px] font-medium text-sky-900">
+                Kamu punya perubahan yang belum live. Perubahan diterapkan ke situs hanya setelah republish.
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowRevertDialog(true)}
+                className="flex items-center gap-1.5 rounded-full bg-white px-4 py-1 text-[12px] font-semibold text-sky-700 ring-1 ring-sky-200 transition-colors hover:bg-sky-100"
+              >
+                <span className="material-symbols-outlined text-[14px]">undo</span>
+                Kembalikan ke yang live
               </button>
             </div>
           </div>
@@ -1289,6 +1340,52 @@ export function Editor({
             >
               Continue Editing
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Revert to live confirm dialog (B-4) */}
+      {showRevertDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-floating ring-1 ring-black/5">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-ink">Kembalikan ke yang live?</h3>
+                <p className="mt-1 text-sm text-ink-soft">
+                  Semua perubahan draft yang belum dipublikasikan akan diganti dengan versi yang saat ini live. Aksi ini tidak bisa dibatalkan.
+                </p>
+              </div>
+              <button type="button" onClick={() => setShowRevertDialog(false)} className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink">
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowRevertDialog(false)}
+                className="rounded-full bg-white px-4 py-2 text-sm font-medium text-ink ring-1 ring-black/10 transition-colors hover:bg-black/5"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={revertLoading}
+                onClick={handleRevertToLive}
+                className="flex items-center gap-1.5 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-accent-deep disabled:opacity-60"
+              >
+                {revertLoading ? (
+                  <>
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                    Mengembalikan...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[16px]">undo</span>
+                    Kembalikan
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

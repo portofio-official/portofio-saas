@@ -303,7 +303,7 @@
         "2026-08-08: B-1 responsive drawers — asides use `fixed inset-y-0 .. lg:static` + translate transition (`-translate-x-full`/`translate-x-full`), backdrop + X close buttons, mobile toggles (`edit_note`/`tune`) in canvas toolbar, device pills for desktop/laptop hidden `<sm`, header back-label + Preview/Save labels icon-only `<sm`.",
         "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 16 passed / 1 skipped."
       ],
-      "notes": "PRD-driven: form + template product for non-technical users; removed features contradicted MVP (no drag-drop/free-form/media lib). B-2 (SEO settings) landed in editor-005 and B-3 (section show/hide) in editor-006. Remaining B-phase candidate: B-4 draft-vs-published revert."
+      "notes": "PRD-driven: form + template product for non-technical users; removed features contradicted MVP (no drag-drop/free-form/media lib). B-2 (SEO settings) landed in editor-005, B-3 (section show/hide) in editor-006, B-4 (draft-vs-published revert) in editor-007. B-phase complete."
     },
     {
       "id": "editor-005",
@@ -342,6 +342,24 @@
         "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 16 passed / 1 skipped."
       ],
       "notes": "portfolio-pro 'profile' section id maps to the base profile data block, not a discrete rendered section; hero/about render the profile fields so no separate hide target exists there. Remaining B-phase candidate: B-4 draft-vs-published revert."
+    },
+    {
+      "id": "editor-007",
+      "priority": 5,
+      "area": "editor",
+      "title": "Editor Draft vs Published diff + Revert (B-4)",
+      "user_visible_behavior": "When a published site has draft edits that are not live yet, the editor shows a visible banner and the user can click `Kembalikan ke yang live` to discard unpublished draft changes and restore the draft to the last published snapshot (autosave then persists the restored draft). The banner clears after republishing.",
+      "status": "passing",
+      "verification": [
+        "With a published project, edit the draft so it diverges: banner appears with a revert action.",
+        "Click revert: draft (content + SEO) resets to the last published snapshot; republish clears the banner."
+      ],
+      "evidence": [
+        "2026-08-08 (Session 036): editor page now loads `getProjectPublishedVersion` and passes `initialPublishedDocument` into `<Editor>`.",
+        "2026-08-08: Editor tracks `publishedDocument` (refreshed on successful publish), computes `draftDiverged` via JSON compare of data + SEO, shows sky-colbutton banner (suppressed while profile-sync banner is visible), and opens a confirm dialog; `handleRevertToLive` restores data + SEO to the published snapshot (autosave persists it).",
+        "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 16 passed / 1 skipped."
+      ],
+      "notes": "Revert is a draft-side action: it writes a new autosave version from the published snapshot; it does not change the live site. Undo (Cmd/Ctrl+Z via useHistory) can restore the pre-revert draft until the next edit. Remaining B-phase candidates: none."
     }
   ]
 }

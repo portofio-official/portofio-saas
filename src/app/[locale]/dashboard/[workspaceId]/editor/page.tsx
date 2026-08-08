@@ -1,7 +1,7 @@
 import { redirect } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { getWorkspace } from "@/lib/workspace/queries";
-import { listProjects, createProject, getProjectWithDraft, hasProfileDiverged } from "@/lib/projects/store";
+import { listProjects, createProject, getProjectWithDraft, getProjectPublishedVersion, hasProfileDiverged } from "@/lib/projects/store";
 import { buildInitialDocument } from "@/templates/definition";
 import { getUserProfile } from "@/lib/profile/queries";
 import { getDefinition } from "@/templates/registry";
@@ -94,6 +94,10 @@ export default async function EditorPage({
 
   const profileDiverged = await hasProfileDiverged(fullProject.id);
 
+  // Load the last published snapshot (if any) so the editor can show
+  // draft-vs-published divergence and allow reverting the draft to live.
+  const publishedVersion = await getProjectPublishedVersion(fullProject.id);
+
   // Validate templateId
   const templateId = TEMPLATE_IDS.includes(fullProject.templateId as TemplateId)
     ? (fullProject.templateId as TemplateId)
@@ -104,6 +108,7 @@ export default async function EditorPage({
       <Editor
         projectId={fullProject.id}
         initialDocument={fullProject.draftVersion.contentJson}
+        initialPublishedDocument={publishedVersion?.contentJson ?? null}
         initialTemplateId={templateId}
         initialSubdomain={fullProject.subdomain}
         initialStatus={fullProject.status}

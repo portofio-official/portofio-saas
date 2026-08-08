@@ -266,7 +266,7 @@
       ],
       "notes": "Backend protection and Admin UI are complete. Designer UI needs to be built."
     },
-    {
+{
       "id": "editor-003",
       "priority": 1,
       "area": "editor",
@@ -284,7 +284,26 @@
         "Added HTML5 drag-and-drop to RepeatableSection.",
         "Replaced checklist with Progress bar and added Publish Validation Modal.",
         "Verified TypeScript compilation."
-      ]
+      ],
+      "notes": "Session 036 UX audit REMOVED the inline editing overlay from Editor.tsx (brittle, at odds with form+template product; left form panel is the primary editing surface). Undo/redo still available via keyboard. Quick Action Toolbar (hover edit/delete/reorder on items) intentionally KEPT."
+    },
+    {
+      "id": "editor-004",
+      "priority": 2,
+      "area": "editor",
+      "title": "Editor UX Trim + Responsive Drawers (dead feature removal + mobile support)",
+      "user_visible_behavior": "Editor has no dead/placeholder surfaces; the left (content/sections) and right (appearance/settings) panels become clean slide-in drawers on mobile while staying docked sidebars on desktop.",
+      "status": "passing",
+      "verification": [
+        "Editor renders with only functional controls (no empty Database/Media/Global Settings placeholders, no dead buttons).",
+        "Below the lg breakpoint both sidebars slide in/out as drawers via toolbar toggles + backdrop; desktop layout unchanged."
+      ],
+      "evidence": [
+        "2026-08-08 (Session 036): Removed left icon dock + Database/Media/Global Settings placeholder panels, dead undo/redo & device-switcher header buttons, fake Live indicator, dead open_in_new, inline-editing overlay + state/handlers; zoom simplified to fit-screen/50/100%; removed unused scale vars.",
+        "2026-08-08: B-1 responsive drawers — asides use `fixed inset-y-0 .. lg:static` + translate transition (`-translate-x-full`/`translate-x-full`), backdrop + X close buttons, mobile toggles (`edit_note`/`tune`) in canvas toolbar, device pills for desktop/laptop hidden `<sm`, header back-label + Preview/Save labels icon-only `<sm`.",
+        "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 16 passed / 1 skipped."
+      ],
+      "notes": "PRD-driven: form + template product for non-technical users; removed features contradicted MVP (no drag-drop/free-form/media lib). Remaining B-phase candidates recorded: B-2 real SEO settings, B-3 section show/hide toggles, B-4 draft-vs-published revert."
     }
   ]
 }

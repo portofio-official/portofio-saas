@@ -75,7 +75,6 @@ export function Editor({
 
   // Tab States
   const [activeLeftTab, setActiveLeftTab] = useState<"content" | "sections">("content");
-  const [activeLeftPanel, setActiveLeftPanel] = useState<"layers" | "database" | "media" | "settings">("layers");
   const [activeRightTab, setActiveRightTab] = useState<"appearance" | "settings">("appearance");
   
   // Accordion State
@@ -89,11 +88,6 @@ export function Editor({
   // Publish dialog state
   const [showPublishDialog, setShowPublishDialog] = useState(false);
 
-  // Inline Editing State
-  const [inlineEditId, setInlineEditId] = useState<string | null>(null);
-  const [inlineEditValue, setInlineEditValue] = useState("");
-  const [inlineEditStyle, setInlineEditStyle] = useState<React.CSSProperties>({});
-
   // Quick Action Toolbar State
   const [hoveredActionCard, setHoveredActionCard] = useState<{
     sectionType: string;
@@ -103,7 +97,11 @@ export function Editor({
 
   // Viewport Simulation State
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "laptop" | "tablet" | "mobile">("desktop");
-  const [previewZoom, setPreviewZoom] = useState<"fit-width" | "fit-height" | "fit-screen" | "fit" | "25" | "50" | "75" | "100" | "125">("fit-screen");
+  const [previewZoom, setPreviewZoom] = useState<"fit-screen" | "25" | "50" | "100">("fit-screen");
+
+  // Mobile drawer state (sidebars become drawers below lg breakpoint)
+  const [mobileLeftOpen, setMobileLeftOpen] = useState(false);
+  const [mobileRightOpen, setMobileRightOpen] = useState(false);
 
   const DEVICE_CONFIG = {
     desktop: { width: 1440, height: 900, name: "Desktop" },
@@ -140,14 +138,11 @@ export function Editor({
   const isDesktopOrLaptop = ["desktop", "laptop"].includes(previewDevice);
   const padding = isDesktopOrLaptop ? 0 : 64;
   const availableW = Math.max(containerSize.width - padding * 2, 100);
-  const availableH = Math.max(containerSize.height - padding * 2, 100);
-  
+
   const scaleFitWidth = availableW / device.width;
-  const scaleFitHeight = availableH / device.height;
   
   let scale = 1;
-  if (previewZoom === "fit-width" || previewZoom === "fit" || previewZoom === "fit-screen") scale = scaleFitWidth;
-  else if (previewZoom === "fit-height") scale = isDesktopOrLaptop ? scaleFitWidth : scaleFitHeight;
+  if (previewZoom === "fit-screen") scale = scaleFitWidth;
   else scale = parseInt(previewZoom) / 100;
   
   // Dynamic height for Desktop/Laptop so it spans the full vertical workspace
@@ -244,55 +239,6 @@ export function Editor({
     setIsPanning(false);
   };
 
-  const handlePreviewDoubleClick = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const editableEl = target.closest("[data-field-id]") as HTMLElement;
-    
-    if (editableEl) {
-      e.stopPropagation();
-      e.preventDefault();
-      
-      const fieldId = editableEl.getAttribute("data-field-id")!;
-      const computed = window.getComputedStyle(editableEl);
-      const rect = editableEl.getBoundingClientRect();
-      const containerRect = previewScrollRef.current?.getBoundingClientRect(); // Use inner container
-      
-      if (!containerRect) return;
-      
-      setInlineEditStyle({
-        top: (rect.top - containerRect.top) / scale,
-        left: (rect.left - containerRect.left) / scale,
-        width: rect.width / scale,
-        height: rect.height / scale,
-        fontSize: computed.fontSize,
-        fontFamily: computed.fontFamily,
-        fontWeight: computed.fontWeight,
-        lineHeight: computed.lineHeight,
-        color: computed.color,
-        letterSpacing: computed.letterSpacing,
-        textAlign: computed.textAlign as any,
-        padding: computed.padding,
-        margin: 0,
-        boxSizing: "border-box",
-        background: "transparent",
-        border: "none",
-        outline: "none",
-        resize: "none",
-        overflow: "hidden",
-      });
-      
-      setInlineEditId(fieldId);
-      
-      // Extract value
-      const parts = fieldId.split(".");
-      let val: any = data;
-      for (const p of parts) {
-        val = val?.[p];
-      }
-      setInlineEditValue((val as string) || "");
-    }
-  };
-
   const handlePreviewMouseMove = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     const itemEl = target.closest("[data-section-type][data-item-index]") as HTMLElement;
@@ -317,44 +263,6 @@ export function Editor({
 
   const handlePreviewMouseLeave = () => {
     setHoveredActionCard(null);
-  };
-
-  const handleInlineSave = () => {
-    if (!inlineEditId) return;
-    
-    const parts = inlineEditId.split(".");
-    
-    if (parts.length === 3) {
-      // e.g. projects.0.title
-      const arrayName = parts[0];
-      const index = parseInt(parts[1], 10);
-      const field = parts[2];
-      
-      const arr = (data as any)[arrayName];
-      if (Array.isArray(arr) && arr[index]) {
-         const newArr = [...arr];
-         newArr[index] = { ...newArr[index], [field]: inlineEditValue };
-         setData({
-           ...data,
-           [arrayName]: newArr
-         });
-      }
-    } else if (parts.length === 2) {
-      setData({
-        ...data,
-        [parts[0]]: {
-          ...(data as any)[parts[0]],
-          [parts[1]]: inlineEditValue,
-        }
-      });
-    } else if (parts.length === 1) {
-       setData({
-         ...data,
-         [parts[0]]: inlineEditValue
-       });
-    }
-    
-    setInlineEditId(null);
   };
 
   const handlePreviewClick = (e: React.MouseEvent) => {
@@ -515,65 +423,21 @@ export function Editor({
   return (
     <div className="flex h-full w-full overflow-hidden bg-surface text-ink font-sans">
       
-      {/* Full-Height Left Icon Dock */}
-      <aside className="w-[64px] shrink-0 border-r border-black/5 bg-surface flex flex-col items-center py-4 justify-between z-30">
-        <div className="flex flex-col items-center gap-4 w-full">
-          <button
-            onClick={() => setActiveLeftPanel("layers")}
-            className={`w-10 h-10 flex items-center justify-center rounded-[12px] transition-all ${activeLeftPanel === "layers" ? "bg-accent/10 text-accent" : "text-ink-soft hover:bg-black/5 hover:text-ink"}`} title="Content Layers">
-             <span className="material-symbols-outlined text-[20px]">layers</span>
-          </button>
-          <button
-            onClick={() => setActiveLeftPanel("database")}
-            className={`w-10 h-10 flex items-center justify-center rounded-[12px] transition-all ${activeLeftPanel === "database" ? "bg-accent/10 text-accent" : "text-ink-soft hover:bg-black/5 hover:text-ink"}`} title="Database">
-             <span className="material-symbols-outlined text-[20px]">database</span>
-          </button>
-          <button
-            onClick={() => setActiveLeftPanel("media")}
-            className={`w-10 h-10 flex items-center justify-center rounded-[12px] transition-all ${activeLeftPanel === "media" ? "bg-accent/10 text-accent" : "text-ink-soft hover:bg-black/5 hover:text-ink"}`} title="Media">
-             <span className="material-symbols-outlined text-[20px]">image</span>
-          </button>
-          <button
-            onClick={() => setActiveLeftPanel("settings")}
-            className={`w-10 h-10 flex items-center justify-center rounded-[12px] transition-all ${activeLeftPanel === "settings" ? "bg-accent/10 text-accent" : "text-ink-soft hover:bg-black/5 hover:text-ink"}`} title="Global Settings">
-             <span className="material-symbols-outlined text-[20px]">settings</span>
-          </button>
-        </div>
-
-        {/* Bottom Profile Avatar */}
-        <div className="flex flex-col items-center gap-4">
-           <button className="w-8 h-8 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-[13px] font-bold shadow-sm">
-             N
-           </button>
-        </div>
-      </aside>
-
       {/* Main Right Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
 
         {/* Top Header */}
-        <header className="gsap-header relative z-10 flex h-14 shrink-0 items-center justify-between border-b border-black/5 bg-surface px-6 shadow-sm">
+        <header className="gsap-header relative z-10 flex h-14 shrink-0 items-center justify-between border-b border-black/5 bg-surface px-3 sm:px-6 shadow-sm">
           <a
             href={`/${locale}/dashboard`}
             className="flex items-center gap-2 w-1/3 text-ink-soft hover:text-ink transition-colors cursor-pointer"
             aria-label="Back to Dashboard"
           >
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-            <span className="text-[13px] font-medium">Back to dashboard</span>
+            <span className="text-[13px] font-medium hidden sm:inline">Back to dashboard</span>
           </a>
           
-          <div className="flex items-center justify-center gap-6 w-1/3">
-            <div className="flex items-center gap-1 bg-black/5 rounded-full p-1">
-              <button type="button" className="w-8 h-6 rounded-full bg-white shadow-sm text-accent flex items-center justify-center transition-all"><span className="material-symbols-outlined text-[16px]">desktop_windows</span></button>
-              <button type="button" className="w-8 h-6 rounded-full text-ink-soft hover:text-ink flex items-center justify-center transition-all"><span className="material-symbols-outlined text-[16px]">tablet_mac</span></button>
-              <button type="button" className="w-8 h-6 rounded-full text-ink-soft hover:text-ink flex items-center justify-center transition-all"><span className="material-symbols-outlined text-[16px]">smartphone</span></button>
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <button type="button" className="w-8 h-8 rounded-lg text-ink-faint hover:text-ink hover:bg-black/5 flex items-center justify-center transition-colors"><span className="material-symbols-outlined text-[18px]">undo</span></button>
-              <button type="button" className="w-8 h-8 rounded-lg text-ink-faint hover:text-ink hover:bg-black/5 flex items-center justify-center transition-colors"><span className="material-symbols-outlined text-[18px]">redo</span></button>
-            </div>
-            
+          <div className="flex items-center justify-center w-1/3">
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px] text-positive">check</span>
               <span className="text-[12px] font-medium text-positive">{customSaveStatus}</span>
@@ -598,14 +462,14 @@ export function Editor({
               className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
             >
               <span className="material-symbols-outlined text-[14px]">visibility</span>
-              Preview
+              <span className="hidden sm:inline">Preview</span>
             </button>
             <button
               onClick={() => saveDraftAction(projectId, documentForSave())}
               className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
             >
               <span className="material-symbols-outlined text-[14px]">save</span>
-              Save
+              <span className="hidden sm:inline">Save</span>
             </button>
             <button
               type="button"
@@ -674,10 +538,9 @@ export function Editor({
         <div className="flex flex-1 overflow-hidden">
 
           {/* Left Sidebar: Content & Sections */}
-        <aside className="gsap-panel flex w-[300px] shrink-0 flex-col border-r border-black/5 bg-surface z-20 shadow-md">
-          {activeLeftPanel === "layers" && (
-            <>
-              <div className="flex h-[52px] shrink-0 items-end px-5 border-b border-black/5 gap-6">
+        <aside className={`fixed inset-y-0 left-0 z-30 flex w-[300px] shrink-0 flex-col border-r border-black/5 bg-surface shadow-md transition-transform duration-300 ease-out lg:static lg:z-auto ${mobileLeftOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+          <>
+            <div className="flex h-[52px] shrink-0 items-end px-5 border-b border-black/5 gap-6">
                 <button
                   onClick={() => setActiveLeftTab("content")}
                   className={`pb-3 text-[12px] font-bold border-b-2 transition-colors ${
@@ -693,6 +556,14 @@ export function Editor({
                   }`}
                 >
                   Sections
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileLeftOpen(false)}
+                  className="lg:hidden ml-auto mb-2.5 -mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-soft hover:bg-black/5 hover:text-ink transition-colors"
+                  aria-label="Close panel"
+                >
+                  <span className="material-symbols-outlined text-[18px]">close</span>
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
@@ -941,76 +812,43 @@ export function Editor({
                 )}
               </div>
             </>
-          )}
 
-          {activeLeftPanel === "database" && (
-            <div className="flex-1 flex flex-col px-4 py-6">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="material-symbols-outlined text-[20px] text-ink">database</span>
-                <span className="text-[14px] font-bold text-ink">Database</span>
-              </div>
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <span className="material-symbols-outlined text-[32px] text-ink-faint mb-3">table</span>
-                <span className="text-[13px] font-bold text-ink mb-1">Content Database</span>
-                <span className="text-[12px] text-ink-soft">Connect collections and manage structured data here.</span>
-                <button className="mt-4 rounded-full bg-black/5 px-4 py-2 text-[12px] font-bold text-ink transition-all hover:bg-black/10">
-                  Create Collection
-                </button>
-              </div>
-            </div>
-          )}
-
-          {activeLeftPanel === "media" && (
-            <div className="flex-1 flex flex-col px-4 py-6">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="material-symbols-outlined text-[20px] text-ink">image</span>
-                <span className="text-[14px] font-bold text-ink">Media Library</span>
-              </div>
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <span className="material-symbols-outlined text-[32px] text-ink-faint mb-3">collections</span>
-                <span className="text-[13px] font-bold text-ink mb-1">Upload Media</span>
-                <span className="text-[12px] text-ink-soft">Manage all your images, videos, and assets.</span>
-                <button className="mt-4 rounded-full bg-black/5 px-4 py-2 text-[12px] font-bold text-ink transition-all hover:bg-black/10">
-                  Upload Files
-                </button>
-              </div>
-            </div>
-          )}
-
-          {activeLeftPanel === "settings" && (
-            <div className="flex-1 flex flex-col px-4 py-6">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="material-symbols-outlined text-[20px] text-ink">settings</span>
-                <span className="text-[14px] font-bold text-ink">Global Settings</span>
-              </div>
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <span className="material-symbols-outlined text-[32px] text-ink-faint mb-3">settings_suggest</span>
-                <span className="text-[13px] font-bold text-ink mb-1">Site Configuration</span>
-                <span className="text-[12px] text-ink-soft">Manage SEO, integrations, and custom domains.</span>
-                <button className="mt-4 rounded-full bg-black/5 px-4 py-2 text-[12px] font-bold text-ink transition-all hover:bg-black/10">
-                  Open Settings
-                </button>
-              </div>
-            </div>
-          )}
         </aside>
 
         {/* Center Canvas: Preview Area */}
         <main className="relative flex flex-1 flex-col overflow-hidden bg-[#EEF2FF] items-center" ref={containerRef}>
           {/* Device Toolbar */}
-          <div className="flex w-full justify-between items-center px-8 py-4 shrink-0 bg-white/50 backdrop-blur border-b border-black/5 z-10">
-             <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-positive animate-pulse" />
-                <span className="text-[12px] font-bold text-ink-soft">Live</span>
-             </div>
+          <div className="flex w-full justify-between items-center px-3 sm:px-8 py-4 shrink-0 bg-white/50 backdrop-blur border-b border-black/5 z-10">
              
+             {/* Mobile Drawer Toggles */}
+             <div className="flex items-center gap-2 lg:hidden">
+               <button
+                 type="button"
+                 onClick={() => setMobileLeftOpen(true)}
+                 className="w-8 h-8 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all"
+                 aria-label="Open content panel"
+               >
+                 <span className="material-symbols-outlined text-[17px]">edit_note</span>
+               </button>
+               <button
+                 type="button"
+                 onClick={() => setMobileRightOpen(true)}
+                 className="w-8 h-8 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all"
+                 aria-label="Open design panel"
+               >
+                 <span className="material-symbols-outlined text-[17px]">tune</span>
+               </button>
+             </div>
+
              {/* Device Switcher */}
              <div className="flex items-center bg-black/5 rounded-full p-1 shadow-inner">
                {(["desktop", "laptop", "tablet", "mobile"] as const).map(d => (
                  <button
                    key={d}
                    onClick={() => setPreviewDevice(d)}
-                   className={`px-3 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all ${
+                   className={`${
+                     d === "desktop" || d === "laptop" ? "hidden sm:flex" : ""
+                   } px-3 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all ${
                      previewDevice === d 
                        ? "bg-white text-ink shadow-sm ring-1 ring-black/5" 
                        : "text-ink-soft hover:text-ink hover:bg-black/5"
@@ -1028,15 +866,9 @@ export function Editor({
                    onChange={(e) => setPreviewZoom(e.target.value as any)}
                    className="text-[11px] font-bold text-ink bg-transparent px-3 py-1.5 outline-none cursor-pointer appearance-none"
                  >
-                   <option value="fit-width">Fit Width</option>
-                   <option value="fit-height">Fit Height</option>
                    <option value="fit-screen">Fit Screen</option>
-                   <option disabled>──────────</option>
-                   <option value="25">25%</option>
                    <option value="50">50%</option>
-                   <option value="75">75%</option>
                    <option value="100">100%</option>
-                   <option value="125">125%</option>
                  </select>
                  <div className="pr-3 pointer-events-none text-ink-soft flex items-center">
                    <span className="material-symbols-outlined text-[14px]">expand_more</span>
@@ -1044,9 +876,6 @@ export function Editor({
                </div>
                <button onClick={() => window.location.reload()} className="w-8 h-8 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all">
                  <span className="material-symbols-outlined text-[16px]">refresh</span>
-               </button>
-               <button className="w-8 h-8 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all">
-                 <span className="material-symbols-outlined text-[16px]">open_in_new</span>
                </button>
              </div>
           </div>
@@ -1113,7 +942,6 @@ export function Editor({
                 </style>
                 <div
                   className="w-full min-h-full transition-transform duration-300 relative"
-                  onDoubleClick={handlePreviewDoubleClick}
                   onMouseMove={handlePreviewMouseMove}
                   onMouseLeave={handlePreviewMouseLeave}
                 >
@@ -1192,30 +1020,7 @@ export function Editor({
                   </button>
                 </div>
               )}
-              
-              {/* Inline Editing Overlay */}
-              {inlineEditId && (
-                <>
-                  <textarea
-                    autoFocus
-                    value={inlineEditValue}
-                    onChange={(e) => setInlineEditValue(e.target.value)}
-                    onBlur={handleInlineSave}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleInlineSave();
-                      }
-                      if (e.key === 'Escape') {
-                        e.preventDefault();
-                        setInlineEditId(null);
-                      }
-                    }}
-                    className="absolute z-50 rounded-sm bg-white/10 backdrop-blur-md shadow-2xl ring-2 ring-accent"
-                    style={inlineEditStyle}
-                  />
-                </>
-              )}
+
                 </div>
               </div>
             </div>
@@ -1223,7 +1028,7 @@ export function Editor({
         </main>
 
         {/* Right Sidebar: Design Properties + Publish */}
-        <aside className="gsap-panel flex w-[280px] shrink-0 flex-col border-l border-black/5 bg-surface z-20 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
+        <aside className={`fixed inset-y-0 right-0 z-30 flex w-[280px] shrink-0 flex-col border-l border-black/5 bg-surface shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)] transition-transform duration-300 ease-out lg:static lg:z-auto ${mobileRightOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"}`}>
           <div className="flex h-[52px] shrink-0 items-end px-5 border-b border-black/5 gap-6">
             <button
               onClick={() => setActiveRightTab("appearance")}
@@ -1240,6 +1045,14 @@ export function Editor({
               }`}
             >
               Settings
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileRightOpen(false)}
+              className="lg:hidden ml-auto mb-2.5 -mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-soft hover:bg-black/5 hover:text-ink transition-colors"
+              aria-label="Close panel"
+            >
+              <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
@@ -1300,6 +1113,15 @@ export function Editor({
           </div>
         </aside>
       </div>
+      {/* Mobile drawer backdrops */}
+      {(mobileLeftOpen || mobileRightOpen) && (
+        <div
+          className="fixed inset-0 z-20 bg-black/30 backdrop-blur-[2px] lg:hidden"
+          onClick={() => { setMobileLeftOpen(false); setMobileRightOpen(false); }}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Fullscreen Desktop Preview Modal */}
       {showDesktopPreview && (
         <div className="fixed inset-0 z-50 flex flex-col bg-surface">

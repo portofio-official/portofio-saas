@@ -1,3 +1,11 @@
+# Session 036: Editor UX — Dead Feature Trim (A) + Responsive Drawers (B-1)
+**Status:** Verified / Passing
+**Latest state:**
+- UX audit of `Editor.tsx` vs PRD (form + template, not drag-and-drop). Trimmed dead/placeholder/discordant features, then made the editor responsive on mobile.
+- **A (trim)**: removed left icon dock (Database/Media/Global Settings placeholder panels), dead undo/redo header buttons (keyboard `Cmd/Ctrl+Z` via useHistory still works), duplicate dead device-switcher in header, fake pulsing "Live" indicator, dead `open_in_new` button, inline-editing overlay + its state/handlers (`handlePreviewDoubleClick`, `handleInlineSave`, `inlineEdit*` state), simplified zoom to `fit-screen | 50 | 100%`, removed unused `scaleFitHeight`/`availableH`.
+- **B-1 (responsive)**: both the 300px left and 280px right sidebars now behave as drawers below the `lg` breakpoint — `fixed inset-y-0 left/right-0`, slide via translate (`-translate-x-full`/`translate-x-full`), backdrop closes on tap, close (X) + open buttons added in device toolbar (`edit_note` / `tune`, `lg:hidden`), device switcher hides desktop/laptop pills below `sm`, header back-label + Preview/Save labels collapse to icon-only on small screens.
+- **Verification**: `npx tsc --noEmit` clean, `npm run lint` clean (3 pre-existing warnings), `npm run build` clean, `npm run test:e2e` 16 passed / 1 skipped.
+
 # Session 035: FLOW Closure — Gap Audit Implementation
 **Status:** Verified / Passing
 **Latest state:**

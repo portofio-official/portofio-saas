@@ -71,6 +71,7 @@ export default async function EditorPage({
       <div className="flex h-full w-full flex-col">
         <Editor
           projectId={created.id}
+          workspaceId={workspaceId}
           initialDocument={created.draftVersion.contentJson}
           initialTemplateId={created.templateId as TemplateId}
           initialSubdomain={created.subdomain}
@@ -107,6 +108,7 @@ export default async function EditorPage({
     <div className="flex h-full w-full flex-col">
       <Editor
         projectId={fullProject.id}
+        workspaceId={workspaceId}
         initialDocument={fullProject.draftVersion.contentJson}
         initialPublishedDocument={publishedVersion?.contentJson ?? null}
         initialTemplateId={templateId}

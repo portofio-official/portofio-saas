@@ -266,7 +266,7 @@
       ],
       "notes": "Backend protection and Admin UI are complete. Designer UI needs to be built."
     },
-{
+    {
       "id": "editor-003",
       "priority": 1,
       "area": "editor",
@@ -449,6 +449,26 @@
         "Verified 2026-08-09: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean (23 routes), npm run test:e2e 22 passed / 1 skipped. Screenshots captured but this review model can't read images; the e2e asserts the Creative modal opens with demo 'Alex Rivera' content (not the Empty default), 3 data-section-key targets exist, and zero page errors."
       ],
       "notes": "PRD 7.3 scope. Same data contract as before (profile/skills/testimonials/projects/contact/socials/theme/hiddenSections) so no editor/migrations changes needed. The shared gallery PREVIEW_DATA feeds all templates, so relaxing only the creative schema confines the URL-relaxation to this template (same approach as minimal-redesign-001)."
+    },
+    {
+      "id": "content-library-001",
+      "priority": 15,
+      "area": "content",
+      "title": "Content Library — reusable project cards with per-workspace management + in-editor import",
+      "user_visible_behavior": "A user can manage a reusable library of project cards (image + title + description + link) that is scoped to their workspace. They access it from a standalone dashboard page (/dashboard/content hub listing their workspaces, then /dashboard/<workspace>/content to manage) and, inside the editor's Projects section, an 'Import dari Content Library' action opens a multi-select picker that appends chosen items to the active template's projects.",
+      "status": "passing",
+      "verification": [
+        "Content Library hub (/dashboard/content) and per-workspace library (/dashboard/[ws]/content) redirect unauthenticated users to /login.",
+        "Library manager page renders workspace-scoped items after login (route is server-guarded; UI built inside the dashboard shell).",
+        "Editor Projects section shows the 'Import dari Content Library' button only when Editor receives a workspaceId.",
+        "Import picker loads items via listContentItemsAction, supports multi-select, and appends sanitized projects (title/description/imageUrl/link) into data.projects.",
+        "New e2e spec e2e/flows/11-content-library.spec.ts passes (2 tests) alongside the full suite.",
+        "npx tsc --noEmit clean; npm run build clean."
+      ],
+      "evidence": [
+        "2026-08-09: Added supabase/migrations/20260809000001_add_content_library.sql (content_library table + owner RLS + public 'content' storage bucket with owner-folder write policies). Added src/lib/content/{types,store,actions}.ts (server actions + storage upload). Added ContentLibrary manager, ContentLibraryImportModal, LibraryImageUploadField components; /dashboard/content hub page; editor import button + handler. Wired sidebar 'Content Library' item (no longer a dead placeholder). i18n ContentLibrary namespace in messages/id.json + messages/en.json.",
+        "2026-08-09: e2e e2e/flows/11-content-library.spec.ts: 2 passed. Full suite: 24 passed / 1 skipped (skipped is the pre-existing credential-gated integration spec). tsc clean, build clean."
+      ]
     }
   ]
 }

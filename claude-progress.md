@@ -1,3 +1,17 @@
+# Session 041: Content Library — Reusable Project Cards + In-Editor Import
+**Status:** Verified / Passing
+**Latest state:**
+- Added a workspace-scoped **Content Library**: reusable project cards (image + title + description + link) that a user manages once and then inserts straight into any template's Projects section from inside the editor.
+- **Storage/DB** (`supabase/migrations/20260809000001_add_content_library.sql`): new `public.content_library` table (id, workspace_id FK→workspaces cascade, title, description, image_url, link, created_at, updated_at) + owner-only RLS via `workspaces.user_id`. New public `content` storage bucket (8MB, image/png/jpeg/webp/gif) with: public read policy (so published sites render item images without auth), plus owner-folder insert/update/delete policies whose folder must match ONE of the auth user's own workspaces (`(storage.foldername(name))[1] in (select id from workspaces where user_id = auth.uid())`).
+- **Data layer** `src/lib/content/{types,store,actions}.ts`: CRUD server actions (`listContentItemsAction`, `getContentItemAction`, `createContentItemAction`, `updateContentItemAction`, `deleteContentItemAction`) + `uploadContentImageAction` (accepts a compressed client data-URL, validates mime/size, streams to `content/{workspaceId}/{uuid}.{ext}` and returns the public URL). All inputs go through the existing `sanitize.ts` helpers + length caps.
+- **UI**:
+  - Account hub `/dashboard/content` (`src/app/[locale]/dashboard/content/page.tsx`): lists the user's workspaces, each linking to its own library — this is what the sidebar "Content Library" item now points at (removed the dead "coming soon" placeholder; added `isContent` active detection).
+  - Per-workspace manager `/dashboard/{workspaceId}/content` → `src/components/content/ContentLibrary.tsx`: grid of saved cards with add/edit/delete modal form and a client `LibraryImageUploadField` (compress-to-1600px/0.82 data URL → server upload action).
+  - **Editor import**: `Editor.tsx` accepts optional `workspaceId`; the Projects section now renders a dashed "Import dari Content Library" button (only when `workspaceId` is set) that opens `ContentLibraryImportModal` (multi-select grid, loads via server action) → `handleLibraryImport` appends sanitized `{title, description, imageUrl, link}` entries to `data.projects` and jumps the user to the Projects section. The two editor pages (`[workspaceId]/editor/page.tsx`) pass `workspaceId` through.
+- **i18n**: new `ContentLibrary` namespace in `messages/id.json` + `messages/en.json` (both valid, tsc validates keys).
+- **Verification**: `npx tsc --noEmit` clean, `npm run build` clean, e2e `e2e/flows/11-content-library.spec.ts` (2 tests: hub + per-workspace route redirect unauthenticated to /login) pass, full suite **24 passed / 1 skipped** (skipped = pre-existing credential-gated integration spec). Recorded as feature `content-library-001` (priority 15) in `feature_list.json`.
+- **Note**: storage bucket + table + policies require a fresh `supabase db push / migration` against the real project to be live; the code path is verified by build + e2e but manual authed flow against a real Supabase instance is the remaining end-to-end check.
+
 # Session 040: Creative Template Redesign — Art-Directed Studio Look
 **Status:** Verified / Passing
 **Latest state:**

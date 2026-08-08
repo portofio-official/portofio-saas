@@ -3,11 +3,26 @@
     "eyebrow": "Templates",
     "title": "Choose a template",
     "items": [
-      { "name": "Minimal", "description": "Clean, serif-forward, single column. Great for writers & consultants." },
-      { "name": "Bold", "description": "Strong accent colors, large headings. Perfect for creatives & marketers." },
-      { "name": "Creative", "description": "Asymmetrical layouts, bold typography. Ideal for designers & artists." },
-      { "name": "Corporate", "description": "Professional, structured, grid-based. Built for agencies & businesses." },
-      { "name": "Dark", "description": "Sleek, dark mode by default, neon accents. Tailored for developers & tech." }
+      {
+        "name": "Minimal",
+        "description": "Clean, serif-forward, single column. Great for writers & consultants."
+      },
+      {
+        "name": "Bold",
+        "description": "Strong accent colors, large headings. Perfect for creatives & marketers."
+      },
+      {
+        "name": "Creative",
+        "description": "Asymmetrical layouts, bold typography. Ideal for designers & artists."
+      },
+      {
+        "name": "Corporate",
+        "description": "Professional, structured, grid-based. Built for agencies & businesses."
+      },
+      {
+        "name": "Dark",
+        "description": "Sleek, dark mode by default, neon accents. Tailored for developers & tech."
+      }
     ]
   },
   "Landing": {
@@ -41,16 +56,46 @@
       "premium": "Premium",
       "viewMore": "View More →",
       "items": [
-        { "category": "Designer", "name": "Minimalist" },
-        { "category": "Developer", "name": "Clean Code" },
-        { "category": "Writer", "name": "Typewriter" },
-        { "category": "Marketer", "name": "Brand Story" },
-        { "category": "Creator", "name": "Vlog Flow" },
-        { "category": "Agency", "name": "Studio Flow" },
-        { "category": "Tech Pro", "name": "Cyber Space" },
-        { "category": "Corporate", "name": "Business Elite" },
-        { "category": "E-Commerce", "name": "Shop Prime" },
-        { "category": "Photographer", "name": "Lens Master" }
+        {
+          "category": "Designer",
+          "name": "Minimalist"
+        },
+        {
+          "category": "Developer",
+          "name": "Clean Code"
+        },
+        {
+          "category": "Writer",
+          "name": "Typewriter"
+        },
+        {
+          "category": "Marketer",
+          "name": "Brand Story"
+        },
+        {
+          "category": "Creator",
+          "name": "Vlog Flow"
+        },
+        {
+          "category": "Agency",
+          "name": "Studio Flow"
+        },
+        {
+          "category": "Tech Pro",
+          "name": "Cyber Space"
+        },
+        {
+          "category": "Corporate",
+          "name": "Business Elite"
+        },
+        {
+          "category": "E-Commerce",
+          "name": "Shop Prime"
+        },
+        {
+          "category": "Photographer",
+          "name": "Lens Master"
+        }
       ]
     },
     "PricingPlans": {
@@ -69,21 +114,39 @@
           "description": "Perfect to get started",
           "cta": "Get Started",
           "featuresTitle": "What's included:",
-          "features": ["1 Portfolio Website", "Standard Templates", "Portofio Subdomain", "Custom Domain", "Advanced Analytics"]
+          "features": [
+            "1 Portfolio Website",
+            "Standard Templates",
+            "Portofio Subdomain",
+            "Custom Domain",
+            "Advanced Analytics"
+          ]
         },
         {
           "title": "Premium",
           "description": "For serious creators",
           "cta": "Get Started",
           "featuresTitle": "Everything in Free, plus:",
-          "features": ["5 Portfolio Websites", "Premium Templates", "Custom Domain Support", "Basic Analytics", "Remove Branding"]
+          "features": [
+            "5 Portfolio Websites",
+            "Premium Templates",
+            "Custom Domain Support",
+            "Basic Analytics",
+            "Remove Branding"
+          ]
         },
         {
           "title": "Custom",
           "description": "For agencies and studios",
           "cta": "Contact Sales",
           "featuresTitle": "Everything in Pro, plus:",
-          "features": ["Unlimited Websites", "Advanced Analytics", "Client Handoff Tools", "Custom CSS/JS", "Priority 24/7 Support"]
+          "features": [
+            "Unlimited Websites",
+            "Advanced Analytics",
+            "Client Handoff Tools",
+            "Custom CSS/JS",
+            "Priority 24/7 Support"
+          ]
         }
       ]
     },
@@ -493,5 +556,45 @@
     "templates": {
       "title": "Templates"
     }
+  },
+  "ContentLibrary": {
+    "title": "Content Library",
+    "subtitle": "Manage projects you can reuse inside your templates",
+    "hint": "Upload a project once, then import it into any template's Projects section from the editor.",
+    "addItem": "Tambah Project",
+    "editTitle": "Edit Project",
+    "addTitle": "Project Baru",
+    "modalHint": "Items you save here appear in the editor as an import source for the Projects section.",
+    "imageLabel": "Gambar project",
+    "imageUpload": "Unggah gambar",
+    "imageReplace": "Ganti gambar",
+    "imageRemove": "Hapus gambar",
+    "titleLabel": "Judul",
+    "titlePlaceholder": "mis. Aplikasi POS",
+    "descLabel": "Deskripsi",
+    "descPlaceholder": "Ceritakan singkat project ini…",
+    "linkLabel": "Tautan",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "saving": "Menyimpan…",
+    "created": "Project ditambahkan ke Content Library.",
+    "saved": "Project tersimpan.",
+    "deleted": "Project dihapus.",
+    "saveError": "Gagal menyimpan project.",
+    "deleteError": "Gagal menghapus project.",
+    "untitled": "Tanpa Judul",
+    "openLink": "Buka tautan",
+    "edit": "Edit",
+    "delete": "Hapus",
+    "emptyTitle": "Belum ada project",
+    "emptyDesc": "Tambahkan project pertamamu — nanti bisa kamu impor ke editor dari Content Library.",
+    "pickTitle": "Import dari Content Library",
+    "pickHint": "Pilih satu atau lebih project untuk menambahkan ke section Projects.",
+    "pickEmpty": "Content Library ini masih kosong. Tambahkan dulu dari halaman Content Library.",
+    "loading": "Memuat…",
+    "import": "Import ({count})",
+    "noWorkspace": "Workspace tidak ditemukan.",
+    "loadError": "Gagal memuat Content Library.",
+    "openLibrary": "Open Library"
   }
 }

@@ -3,11 +3,26 @@
     "eyebrow": "Template",
     "title": "Pilih template",
     "items": [
-      { "name": "Minimal", "description": "Bersih, menonjolkan serif, satu kolom. Bagus untuk penulis & konsultan." },
-      { "name": "Bold", "description": "Warna aksen yang kuat, judul besar. Sempurna untuk pekerja kreatif & pemasar." },
-      { "name": "Creative", "description": "Tata letak asimetris, tipografi tebal. Ideal untuk desainer & seniman." },
-      { "name": "Corporate", "description": "Profesional, terstruktur, berbasis grid. Dibuat untuk agensi & bisnis." },
-      { "name": "Dark", "description": "Elegan, mode gelap bawaan, aksen neon. Disesuaikan untuk developer & teknologi." }
+      {
+        "name": "Minimal",
+        "description": "Bersih, menonjolkan serif, satu kolom. Bagus untuk penulis & konsultan."
+      },
+      {
+        "name": "Bold",
+        "description": "Warna aksen yang kuat, judul besar. Sempurna untuk pekerja kreatif & pemasar."
+      },
+      {
+        "name": "Creative",
+        "description": "Tata letak asimetris, tipografi tebal. Ideal untuk desainer & seniman."
+      },
+      {
+        "name": "Corporate",
+        "description": "Profesional, terstruktur, berbasis grid. Dibuat untuk agensi & bisnis."
+      },
+      {
+        "name": "Dark",
+        "description": "Elegan, mode gelap bawaan, aksen neon. Disesuaikan untuk developer & teknologi."
+      }
     ]
   },
   "Landing": {
@@ -41,16 +56,46 @@
       "premium": "Premium",
       "viewMore": "Lihat Lainnya →",
       "items": [
-        { "category": "Desainer", "name": "Minimalist" },
-        { "category": "Developer", "name": "Clean Code" },
-        { "category": "Penulis", "name": "Typewriter" },
-        { "category": "Marketer", "name": "Brand Story" },
-        { "category": "Kreator", "name": "Vlog Flow" },
-        { "category": "Agensi", "name": "Studio Flow" },
-        { "category": "Tech Pro", "name": "Cyber Space" },
-        { "category": "Korporat", "name": "Business Elite" },
-        { "category": "E-Commerce", "name": "Shop Prime" },
-        { "category": "Fotografer", "name": "Lens Master" }
+        {
+          "category": "Desainer",
+          "name": "Minimalist"
+        },
+        {
+          "category": "Developer",
+          "name": "Clean Code"
+        },
+        {
+          "category": "Penulis",
+          "name": "Typewriter"
+        },
+        {
+          "category": "Marketer",
+          "name": "Brand Story"
+        },
+        {
+          "category": "Kreator",
+          "name": "Vlog Flow"
+        },
+        {
+          "category": "Agensi",
+          "name": "Studio Flow"
+        },
+        {
+          "category": "Tech Pro",
+          "name": "Cyber Space"
+        },
+        {
+          "category": "Korporat",
+          "name": "Business Elite"
+        },
+        {
+          "category": "E-Commerce",
+          "name": "Shop Prime"
+        },
+        {
+          "category": "Fotografer",
+          "name": "Lens Master"
+        }
       ]
     },
     "PricingPlans": {
@@ -69,21 +114,39 @@
           "description": "Cocok untuk memulai",
           "cta": "Mulai Sekarang",
           "featuresTitle": "Yang kamu dapatkan:",
-          "features": ["1 Website Portofolio", "Template Standar", "Subdomain Portofio", "Domain Kustom", "Analitik Lanjutan"]
+          "features": [
+            "1 Website Portofolio",
+            "Template Standar",
+            "Subdomain Portofio",
+            "Domain Kustom",
+            "Analitik Lanjutan"
+          ]
         },
         {
           "title": "Premium",
           "description": "Untuk kreator serius",
           "cta": "Mulai Sekarang",
           "featuresTitle": "Semua di Basic, plus:",
-          "features": ["5 Website Portofolio", "Template Premium", "Dukungan Domain Kustom", "Analitik Dasar", "Hapus Branding"]
+          "features": [
+            "5 Website Portofolio",
+            "Template Premium",
+            "Dukungan Domain Kustom",
+            "Analitik Dasar",
+            "Hapus Branding"
+          ]
         },
         {
           "title": "Custom",
           "description": "Untuk agensi dan studio",
           "cta": "Hubungi Sales",
           "featuresTitle": "Semua di Premium, plus:",
-          "features": ["Website Tanpa Batas", "Analitik Lanjutan", "Alat Serah Terima Klien", "Custom CSS/JS", "Dukungan Prioritas 24/7"]
+          "features": [
+            "Website Tanpa Batas",
+            "Analitik Lanjutan",
+            "Alat Serah Terima Klien",
+            "Custom CSS/JS",
+            "Dukungan Prioritas 24/7"
+          ]
         }
       ]
     },
@@ -493,5 +556,45 @@
     "templates": {
       "title": "Template"
     }
+  },
+  "ContentLibrary": {
+    "title": "Content Library",
+    "subtitle": "Kelola project yang dipakai ulang di template",
+    "hint": "Unggah project sekali, lalu impor ke section Projects di editor template mana pun.",
+    "addItem": "Tambah Project",
+    "editTitle": "Edit Project",
+    "addTitle": "Project Baru",
+    "modalHint": "Project yang kamu simpan di sini muncul sebagai sumber impor di section Projects editor.",
+    "imageLabel": "Gambar project",
+    "imageUpload": "Unggah gambar",
+    "imageReplace": "Ganti gambar",
+    "imageRemove": "Hapus gambar",
+    "titleLabel": "Judul",
+    "titlePlaceholder": "mis. Aplikasi POS",
+    "descLabel": "Deskripsi",
+    "descPlaceholder": "Ceritakan singkat project ini…",
+    "linkLabel": "Tautan",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "saving": "Menyimpan…",
+    "created": "Project ditambahkan ke Content Library.",
+    "saved": "Project tersimpan.",
+    "deleted": "Project dihapus.",
+    "saveError": "Gagal menyimpan project.",
+    "deleteError": "Gagal menghapus project.",
+    "untitled": "Tanpa Judul",
+    "openLink": "Buka tautan",
+    "edit": "Edit",
+    "delete": "Hapus",
+    "emptyTitle": "Belum ada project",
+    "emptyDesc": "Tambahkan project pertamamu — nanti bisa kamu impor ke editor dari Content Library.",
+    "pickTitle": "Import dari Content Library",
+    "pickHint": "Pilih satu atau lebih project untuk menambahkan ke section Projects.",
+    "pickEmpty": "Content Library ini masih kosong. Tambahkan dulu dari halaman Content Library.",
+    "loading": "Memuat…",
+    "import": "Import ({count})",
+    "noWorkspace": "Workspace tidak ditemukan.",
+    "loadError": "Gagal memuat Content Library.",
+    "openLibrary": "Buka Library"
   }
 }

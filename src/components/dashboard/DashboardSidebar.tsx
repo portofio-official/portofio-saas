@@ -17,18 +17,19 @@ export function DashboardSidebar({ email }: { email: string }) {
 
   const isTemplates = pathname?.includes("/dashboard/templates");
   const isBilling = pathname?.includes("/dashboard/billing");
+  const isContent = pathname?.includes("/dashboard/content");
   const isProfile = pathname?.includes("/dashboard/profile");
-  const isWebsites = !isTemplates && !isBilling && !isProfile;
+  const isWebsites = !isTemplates && !isBilling && !isContent && !isProfile;
 
   const primaryGroup = [
-    { href: "/dashboard", icon: "web", label: "Websites", active: isWebsites },
-    { href: "/dashboard/templates", icon: "dashboard_customize", label: "Templates", active: isTemplates },
-    { href: "#", icon: "folder_open", label: "Content Library", active: false, comingSoon: true },
+    { href: "/dashboard", icon: "web", label: "Websites", active: isWebsites, comingSoon: false },
+    { href: "/dashboard/templates", icon: "dashboard_customize", label: "Templates", active: isTemplates, comingSoon: false },
   ];
 
   const secondaryGroup = [
     { href: "#", icon: "analytics", label: "Analytics", active: false, badge: "Pro", comingSoon: true },
     { href: "#", icon: "language", label: "Domains", active: false, comingSoon: true },
+    { href: "/dashboard/content", icon: "folder_open", label: "Content Library", active: isContent },
     { href: "/dashboard/billing", icon: "credit_card", label: "Billing", active: isBilling },
   ];
 

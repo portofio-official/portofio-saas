@@ -15,6 +15,10 @@ import { WebsiteDocument } from "@/templates/definition";
 import { PreviewTemplateRenderer as TemplateRenderer, getDefinition } from "@/templates/registry";
 import { useHistory } from "@/hooks/useHistory";
 import { useToast } from "@/components/ui/Toast";
+import {
+  ContentLibraryImportModal,
+  type ImportedProject,
+} from "@/components/content/ContentLibraryImportModal";
 
 // Portfolio Form Sections
 import { ProfileSection } from "@/components/portfolio/sections/ProfileSection";
@@ -52,6 +56,7 @@ type EditorData = BasePortfolioData &
 
 export function Editor({
   projectId,
+  workspaceId,
   initialDocument,
   initialPublishedDocument,
   initialTemplateId,
@@ -61,6 +66,7 @@ export function Editor({
   rootDomain,
 }: {
   projectId: string;
+  workspaceId?: string;
   initialDocument: WebsiteDocument;
   initialPublishedDocument?: WebsiteDocument | null;
   initialTemplateId: TemplateId;
@@ -109,6 +115,22 @@ export function Editor({
   const [seo, setSeo] = useState<{ title?: string; description?: string; ogImage?: string }>(
     initialDocument.meta?.seo ?? {},
   );
+
+  // Content Library import (Projects section)
+  const [showLibraryImport, setShowLibraryImport] = useState(false);
+
+  function handleLibraryImport(items: ImportedProject[]) {
+    const imported = items.map((it) => ({
+      title: it.title,
+      description: it.description,
+      imageUrl: it.imageUrl,
+      link: it.link,
+    }));
+    setShowLibraryImport(false);
+    setExpandedSection("projects");
+    setData({ ...data, projects: [...(data.projects ?? []), ...imported] });
+    showToast("Proyek ditambahkan dari Library.", "success");
+  }
 
   const DEVICE_CONFIG = {
     desktop: { width: 1440, height: 900, name: "Desktop" },
@@ -730,7 +752,21 @@ export function Editor({
                           return <StudioExpertiseSection expertise={data.expertise || []} onChange={items => setData({ ...data, expertise: items })} />
                         }
                         if (sectionId === "projects" || sectionId === "work") {
-                          return <ProjectsSection t={tProjects} items={data.projects || []} onChange={(items) => setData({ ...data, projects: items })} />;
+                          return (
+                            <div className="flex flex-col gap-3">
+                              {workspaceId && (
+                                <button
+                                  type="button"
+                                  onClick={() => setShowLibraryImport(true)}
+                                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-[1rem] border-2 border-dashed border-accent/25 bg-accent/[0.02] px-4 py-2.5 text-[12px] font-bold text-accent transition-all hover:bg-accent/5 hover:border-accent/40"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">folder_open</span>
+                                  Import dari Content Library
+                                </button>
+                              )}
+                              <ProjectsSection t={tProjects} items={data.projects || []} onChange={(items) => setData({ ...data, projects: items })} />
+                            </div>
+                          );
                         }
                         if (sectionId === "caseStudies") {
                           return <PortfolioProCaseStudiesSection items={data.caseStudies || []} onChange={items => setData({ ...data, caseStudies: items })} />
@@ -1388,6 +1424,15 @@ export function Editor({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Content Library import modal */}
+      {showLibraryImport && (
+        <ContentLibraryImportModal
+          workspaceId={workspaceId ?? null}
+          onClose={() => setShowLibraryImport(false)}
+          onImport={handleLibraryImport}
+        />
       )}
 
       {/* Publish Dialog (subdomain + gate) */}

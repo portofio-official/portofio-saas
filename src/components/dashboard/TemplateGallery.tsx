@@ -72,6 +72,13 @@ const TEMPLATE_META: TemplateMeta[] = [
     tags: ["All", "Professional", "Portfolio"],
     accentBg: "bg-[#0a0a0f]",
   },
+  {
+    id: "freelancer",
+    name: "Freelancer",
+    description: "Service-forward landing page with pricing tables, testimonials, and clear CTAs. Built for freelancers & indie consultants.",
+    tags: ["All", "Professional", "Personal"],
+    accentBg: "bg-[#0f2027]",
+  },
 ];
 
 const CATEGORIES = ["All", "Personal", "Creative", "Portfolio", "Professional", "Developer"];

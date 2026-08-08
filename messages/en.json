@@ -453,5 +453,39 @@
     "toastUnpubErr": "Error unpublishing website.",
     "toastDelOk": "Website deleted.",
     "toastDelErr": "Error deleting website."
+  },
+  "Admin": {
+    "portalLabel": "Admin Portal",
+    "navLabel": "Navigation",
+    "navUsers": "Users",
+    "navTemplates": "Templates",
+    "navBlocklist": "Blocklist",
+    "logout": "Logout",
+    "users": {
+      "title": "Users",
+      "subtitle": "Manage platform users and moderation",
+      "colUser": "User",
+      "colRole": "Role",
+      "colJoined": "Joined",
+      "colStatus": "Status",
+      "colAction": "Action",
+      "unnamed": "Unnamed User",
+      "statusActive": "Active",
+      "statusSuspended": "Suspended",
+      "noUsers": "No users found.",
+      "suspendConfirm": "Suspend user?",
+      "reactivateConfirm": "Reactivate user?",
+      "suspend": "Suspend",
+      "reactivate": "Reactivate",
+      "loading": "Loading...",
+      "yes": "Yes",
+      "cancel": "Cancel"
+    },
+    "blocklist": {
+      "title": "Subdomain Blocklist"
+    },
+    "templates": {
+      "title": "Templates"
+    }
   }
 }

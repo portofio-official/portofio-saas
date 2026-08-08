@@ -453,5 +453,39 @@
     "toastUnpubErr": "Terjadi kesalahan saat unpublish.",
     "toastDelOk": "Website dihapus.",
     "toastDelErr": "Terjadi kesalahan saat menghapus."
+  },
+  "Admin": {
+    "portalLabel": "Admin Portal",
+    "navLabel": "Navigasi",
+    "navUsers": "Pengguna",
+    "navTemplates": "Template",
+    "navBlocklist": "Blocklist",
+    "logout": "Keluar",
+    "users": {
+      "title": "Pengguna",
+      "subtitle": "Kelola pengguna dan moderasi platform",
+      "colUser": "Pengguna",
+      "colRole": "Peran",
+      "colJoined": "Bergabung",
+      "colStatus": "Status",
+      "colAction": "Aksi",
+      "unnamed": "Pengguna Tanpa Nama",
+      "statusActive": "Aktif",
+      "statusSuspended": "Ditangguhkan",
+      "noUsers": "Tidak ada pengguna ditemukan.",
+      "suspendConfirm": "Tangguhkan pengguna?",
+      "reactivateConfirm": "Aktifkan kembali pengguna?",
+      "suspend": "Tangguhkan",
+      "reactivate": "Aktifkan Kembali",
+      "loading": "Memuat...",
+      "yes": "Ya",
+      "cancel": "Batal"
+    },
+    "blocklist": {
+      "title": "Subdomain Blocklist"
+    },
+    "templates": {
+      "title": "Template"
+    }
   }
 }

@@ -1,7 +1,9 @@
+import { getTranslations } from "next-intl/server";
 import { getUsersAction } from "@/lib/admin/actions";
 import { SuspendUserButton } from "@/components/admin/SuspendUserButton";
 
 export default async function AdminDashboardPage() {
+  const t = await getTranslations("Admin");
   const users = await getUsersAction();
 
   return (
@@ -10,10 +12,10 @@ export default async function AdminDashboardPage() {
       <header className="sticky top-0 z-50 flex h-20 shrink-0 items-center justify-between border-b border-black/5 bg-surface/80 px-8 backdrop-blur-md">
         <div>
           <h1 className="font-display text-[24px] font-bold tracking-tight text-ink">
-            Users
+            {t("users.title")}
           </h1>
           <p className="text-[14px] text-ink-soft">
-            Manage platform users and moderation
+            {t("users.subtitle")}
           </p>
         </div>
       </header>
@@ -24,11 +26,11 @@ export default async function AdminDashboardPage() {
           <table className="w-full text-left text-[14px]">
             <thead>
               <tr className="border-b border-black/5 text-ink-faint">
-                <th className="pb-3 font-semibold">User</th>
-                <th className="pb-3 font-semibold">Role</th>
-                <th className="pb-3 font-semibold">Joined</th>
-                <th className="pb-3 font-semibold">Status</th>
-                <th className="pb-3 text-right font-semibold">Action</th>
+                <th className="pb-3 font-semibold">{t("users.colUser")}</th>
+                <th className="pb-3 font-semibold">{t("users.colRole")}</th>
+                <th className="pb-3 font-semibold">{t("users.colJoined")}</th>
+                <th className="pb-3 font-semibold">{t("users.colStatus")}</th>
+                <th className="pb-3 text-right font-semibold">{t("users.colAction")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
@@ -37,7 +39,7 @@ export default async function AdminDashboardPage() {
                   <td className="py-4">
                     <div className="flex flex-col">
                       <span className="font-semibold text-ink">
-                        {user.fullName || "Unnamed User"}
+                        {user.fullName || t("users.unnamed")}
                       </span>
                       <span className="text-[13px] text-ink-soft">{user.email}</span>
                     </div>
@@ -55,17 +57,17 @@ export default async function AdminDashboardPage() {
                     })}
                   </td>
                   <td className="py-4">
-                    {user.isSuspended ? (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-danger/10 px-2.5 py-1 text-[12px] font-semibold text-danger">
-                        <span className="h-1.5 w-1.5 rounded-full bg-danger"></span>
-                        Suspended
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-positive/10 px-2.5 py-1 text-[12px] font-semibold text-positive">
-                        <span className="h-1.5 w-1.5 rounded-full bg-positive"></span>
-                        Active
-                      </span>
-                    )}
+                      {user.isSuspended ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-danger/10 px-2.5 py-1 text-[12px] font-semibold text-danger">
+                          <span className="h-1.5 w-1.5 rounded-full bg-danger"></span>
+                          {t("users.statusSuspended")}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-positive/10 px-2.5 py-1 text-[12px] font-semibold text-positive">
+                          <span className="h-1.5 w-1.5 rounded-full bg-positive"></span>
+                          {t("users.statusActive")}
+                        </span>
+                      )}
                   </td>
                   <td className="py-4 text-right">
                     <SuspendUserButton userId={user.id} isSuspended={user.isSuspended} />
@@ -75,7 +77,7 @@ export default async function AdminDashboardPage() {
               {users.length === 0 && (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-ink-soft">
-                    No users found.
+                    {t("users.noUsers")}
                   </td>
                 </tr>
               )}

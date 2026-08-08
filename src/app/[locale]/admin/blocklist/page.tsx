@@ -1,9 +1,11 @@
+import { getTranslations } from "next-intl/server";
 import { requireRole } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BlocklistClientView } from "@/components/admin/BlocklistClientView";
 
 export default async function BlocklistPage() {
   await requireRole(["admin"]);
+  const t = await getTranslations("Admin");
 
   const adminClient = createAdminClient();
   const { data: blocklist } = await adminClient
@@ -17,7 +19,7 @@ export default async function BlocklistPage() {
     <div className="flex flex-1 flex-col overflow-hidden">
       <header className="sticky top-0 z-50 flex h-20 shrink-0 items-center border-b border-black/5 bg-surface/80 px-8 backdrop-blur-md">
         <h1 className="font-display text-[24px] font-bold tracking-tight text-ink">
-          Subdomain Blocklist
+          {t("blocklist.title")}
         </h1>
       </header>
 

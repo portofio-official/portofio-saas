@@ -8,16 +8,16 @@ import { usePathname } from "next/navigation";
 
 export function AdminSidebar({ email }: { email: string }) {
   const pathname = usePathname();
-  const t = useTranslations("Workspace");
+  const t = useTranslations("Admin");
 
   const initials = email.charAt(0).toUpperCase();
 
   const isBlocklist = pathname?.includes("/admin/blocklist");
   const isTemplates = pathname?.includes("/admin/templates");
   const navItems = [
-    { href: "/admin", icon: "group", label: "Users", active: !isBlocklist && !isTemplates },
-    { href: "/admin/templates", icon: "dashboard_customize", label: "Templates", active: !!isTemplates },
-    { href: "/admin/blocklist", icon: "block", label: "Blocklist", active: !!isBlocklist },
+    { href: "/admin", icon: "group", label: t("navUsers"), active: !isBlocklist && !isTemplates },
+    { href: "/admin/templates", icon: "dashboard_customize", label: t("navTemplates"), active: !!isTemplates },
+    { href: "/admin/blocklist", icon: "block", label: t("navBlocklist"), active: !!isBlocklist },
   ];
 
   return (
@@ -33,14 +33,14 @@ export function AdminSidebar({ email }: { email: string }) {
           <span className="material-symbols-outlined text-[20px]">shield</span>
         </span>
         <span className="min-w-0 flex-1 truncate font-display text-[14px] font-bold tracking-tight text-ink">
-          Admin Portal
+          {t("portalLabel")}
         </span>
       </div>
 
       {/* Nav */}
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-6">
         <p className="mb-4 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-ink-faint">
-          Navigation
+          {t("navLabel")}
         </p>
         {navItems.map((item) => (
           <Link

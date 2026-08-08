@@ -1,3 +1,14 @@
+# Session 038: Landing Page Scroll-Behavior UX Polish
+**Status:** Verified / Passing
+**Latest state:**
+- Replaced the aggressive JS wheel-snap scroller on the landing page (preventDefault on every wheel event, snap-jump with 1s lockout, wrap-around last→first, and the Space-at-bottom → top override) with native, scoped scroll behavior:
+  - `LandingPage.tsx` now toggles an `html.landing-scroll` class on mount/unmount; `globals.css` gives it `scroll-behavior: smooth` + `scroll-snap-type: y proximity` with `main > section[id] { scroll-snap-align: start }` (respecting the existing 72/100px scroll-margin navbar offsets). Other routes inherit nothing.
+  - Fixes: small trackpad deltas no longer lock the wheel, template preview modal scrolls freely (no more page-level wheel interception), tall sections (pricing/FAQ) are no longer unreachable mid-content, no last→first wrap-around.
+- Extracted `src/hooks/useScrollSpy.ts` (`LANDING_SECTION_IDS` + `useScrollSpy`, preserving the navbar's bottom-of-page + 250px-offset semantics) and refactored `Navbar.tsx` to consume it.
+- Added `src/components/landing/ScrollDots.tsx` + `ScrollDots.module.css`: fixed right-edge 5-dot navigator (z-40, under navbar z-1000 and preview-modal z-50), active state synced via the hook, hover/focus tooltips, hidden below lg, click → smooth `scrollIntoView`. Dots are a real scroll affordance replacing the confusing wrap-around.
+- Added a `prefers-reduced-motion` guard in `shared.module.css` so reveal/fadeIn content stays visible without transforms for reduced-motion users.
+- **Verification**: `npx tsc --noEmit` clean, `npm run lint` (0 errors, 3 pre-existing warnings), `npm run build` clean, `npm run test:e2e` **18 passed / 1 skipped**, plus a temporary scroll-UX smoke spec (deleted after passing) asserting the class toggle, 5-dot rail, dot→smooth-scroll, active-at-bottom, and zero console errors.
+
 # Session 037: Fase 2 — Google OAuth Sign-In (Sprint 4.1)
 **Status:** Verified / Passing
 **Latest state:**

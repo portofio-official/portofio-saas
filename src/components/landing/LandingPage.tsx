@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import shared from "./shared.module.css";
 import { Navbar } from "./Navbar";
 import { Hero } from "./Hero";
+import { ScrollDots } from "./ScrollDots";
 import { TemplateShowcase } from "./TemplateShowcase";
 import { PricingPlans } from "./PricingPlans";
 import { Testimonials } from "./Testimonials";
@@ -27,6 +28,10 @@ export function LandingPage({
 
     window.scrollTo(0, 0);
 
+    // Scope native smooth + scroll-snap to the landing page only (the class is
+    // removed on unmount so other routes keep their default scroll behavior).
+    document.documentElement.classList.add("landing-scroll");
+
     const revealObserver = new IntersectionObserver(
       (entries, observer) => {
         entries.forEach((entry) => {
@@ -46,94 +51,16 @@ export function LandingPage({
     const revealElements = document.querySelectorAll(`.${shared.revealOnScroll}`);
     revealElements.forEach((el) => revealObserver.observe(el));
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
-        const scrollY = window.scrollY;
-        const windowH = window.innerHeight;
-        const docH = document.documentElement.scrollHeight;
-
-        if (scrollY + windowH >= docH - 150) {
-          e.preventDefault();
-          window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    let isScrolling = false;
-    let scrollTimeout: NodeJS.Timeout;
-
-    const handleWheel = (e: WheelEvent) => {
-      const currentDeltaX = Math.abs(e.deltaX);
-      const currentDeltaY = Math.abs(e.deltaY);
-
-      if (currentDeltaX > currentDeltaY) return;
-
-      e.preventDefault();
-
-      if (isScrolling) return;
-      if (currentDeltaY < 10) return;
-
-      const sections = Array.from(document.querySelectorAll("main > section"));
-      if (sections.length === 0) return;
-
-      let currentIndex = 0;
-      let minDistance = Infinity;
-      const viewportCenter = window.innerHeight / 2;
-
-      sections.forEach((section, index) => {
-        const rect = section.getBoundingClientRect();
-        const sectionCenter = rect.top + rect.height / 2;
-        const distance = Math.abs(sectionCenter - viewportCenter);
-        if (distance < minDistance) {
-          minDistance = distance;
-          currentIndex = index;
-        }
-      });
-
-      let nextIndex = currentIndex;
-      if (e.deltaY > 0) {
-        nextIndex = currentIndex + 1;
-        if (nextIndex >= sections.length) {
-          nextIndex = 0;
-        }
-      } else {
-        nextIndex = currentIndex - 1;
-        if (nextIndex < 0) {
-          nextIndex = 0;
-        }
-      }
-
-      isScrolling = true;
-      const targetSection = sections[nextIndex] as HTMLElement;
-      const targetY = targetSection.getBoundingClientRect().top + window.scrollY;
-      const offset = (window.innerHeight - targetSection.offsetHeight) / 2;
-      
-      window.scrollTo({
-        top: targetY - (offset > 0 ? offset : 0),
-        left: 0,
-        behavior: "smooth"
-      });
-
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        isScrolling = false;
-      }, 1000);
-    };
-
-    window.addEventListener("wheel", handleWheel, { passive: false });
-
     return () => {
       revealObserver.disconnect();
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("wheel", handleWheel);
+      document.documentElement.classList.remove("landing-scroll");
     };
   }, []);
 
   return (
     <div className={shared.landingRoot}>
       <Navbar userEmail={userEmail} userRole={userRole} />
+      <ScrollDots />
       <main>
         <Hero userEmail={userEmail} />
         <TemplateShowcase />

@@ -45,6 +45,21 @@ body {
   color: var(--color-ink);
 }
 
+/*
+ * Landing page scroll UX (scoped via a class on <html> added/removed by
+ * LandingPage's effect, so no other route inherits it):
+ * - native smooth scrolling for anchor navigation
+ * - gentle y-proximity snap so sections land cleanly without hijacking the wheel
+ */
+html.landing-scroll {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+}
+
+html.landing-scroll main > section[id] {
+  scroll-snap-align: start;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

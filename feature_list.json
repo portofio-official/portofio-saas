@@ -381,6 +381,29 @@
         "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 18 passed / 1 skipped (added 2 Google-button presence tests)."
       ],
       "notes": "Out of MVP scope (PRD §5 Fase 2). End-to-end code exchange still needs the Supabase Dashboard Google provider configured: (1) enable Authentication → Providers → Google, (2) add `<SUPABASE_URL>/auth/v1/callback` as the Google Cloud OAuth redirect URI, (3) set Supabase Auth Site URL to the app origin. Until then, clicking the button surfaces the configured error via the existing error mapping. First-time Google signup follows the same dashboard first-workspace onboarding as email signup."
+    },
+    {
+      "id": "landing-scroll-ux",
+      "priority": 12,
+      "area": "marketing",
+      "title": "Landing page scroll-behavior UX polish",
+      "user_visible_behavior": "Scrolling the landing page feels native and responsive: sections snap gently into place near each section boundary, anchor links smooth-scroll, the template preview modal scrolls freely inside, and a slim right-edge dot navigator shows the active section and jumps between sections. Motion is disabled for users with reduced-motion preferences.",
+      "status": "passing",
+      "verification": [
+        "Scroll the landing page with mouse/trackpad: movement is free-flowing (no wheel hijacking), and sections settle cleanly via native y-proximity scroll-snap only while the landing page is mounted.",
+        "Scrolling inside the TemplateShowcase preview modal works and is never intercepted by the page's scroll logic.",
+        "The dot navigator renders 5 sections, highlights the active section, and clicking a dot smooth-scrolls to that section.",
+        "prefers-reduced-motion users see reveal/animation content visible without transform transitions."
+      ],
+      "evidence": [
+        "2026-08-08: Removed the aggressive JS wheel-snap handler (preventDefault on every wheel event, snap-jump with 1s lockout, wrap-around last→first, Space-to-top override) that froze small trackpad deltas, blocked scrolling inside the template preview modal, and made tall sections unreachable at any sub-step.",
+        "2026-08-08: Native scroll improved via `html.landing-scroll` class (added/removed by LandingPage's effect so no other route inherits it) in globals.css — `scroll-behavior: smooth` + `scroll-snap-type: y proximity` with `main > section[id] { scroll-snap-align: start }` (built on the existing 72px/100px scroll-margin-top navbar offsets).",
+        "2026-08-08: Extracted `src/hooks/useScrollSpy.ts` (LANDING_SECTION_IDS + useScrollSpy with the same bottom-of-page/offset semantics the navbar used) and refactored `Navbar.tsx` to consume it.",
+        "2026-08-08: Added `src/components/landing/ScrollDots.tsx` + ScrollDots.module.css — fixed right-edge vertical 5-dot navigator (z-40; under the navbar z-1000 and the TemplateShowcase modal z-50), active dot syncs via useScrollSpy, hover tooltips and focus states, hidden below lg, clicks smooth-scroll via scrollIntoView.",
+        "2026-08-08: Added a `prefers-reduced-motion` guard in shared.module.css so reveal-on-scroll/fadeInUp content renders visible without transitions for reduced-motion users (complements the global reduced-motion rule in globals.css).",
+        "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 18 passed / 1 skipped, plus a temporary scroll-UX smoke spec (deleted after passing) asserting html.landing-scroll is applied, 5 dots render with the first active, clicking a dot smooth-scrolls the templates section to the top, and the last dot goes active at the page bottom with zero console errors."
+      ],
+      "notes": "Kept native (CSS scroll-snap) instead of the previous JS wheel-jump scroller for a full-page, section-per-viewport landing. The `landing-scroll` class toggle avoids the source's original `html { scroll-snap-type: y mandatory }` global-footprint problem flagged in progress-archive.md (must not force snap-scroll on dashboard/auth routes); the class is added only while the landing page is mounted."
     }
   ]
 }

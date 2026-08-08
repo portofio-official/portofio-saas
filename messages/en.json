@@ -206,7 +206,7 @@
     },
     "oauth": {
       "or": "or",
-      "google": "Continue with Google",
+      "google": "Sign in with Google",
       "googlePending": "Redirecting to Google…"
     },
     "success": {

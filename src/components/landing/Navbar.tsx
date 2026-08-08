@@ -7,9 +7,10 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import shared from "./shared.module.css";
 import styles from "./Navbar.module.css";
+import { LANDING_SECTION_IDS, useScrollSpy } from "@/hooks/useScrollSpy";
 
 export function Navbar({ userEmail, userRole = "user" }: { userEmail: string | null; userRole?: string }) {
-  const [activeSection, setActiveSection] = useState("home");
+  const activeSection = useScrollSpy(LANDING_SECTION_IDS);
   const locale = useLocale();
   const pathname = usePathname();
   const t = useTranslations("Landing.Navbar");
@@ -29,41 +30,6 @@ export function Navbar({ userEmail, userRole = "user" }: { userEmail: string | n
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownOpen]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = document.querySelectorAll("section[id]");
-      let current = "";
-
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-
-      if (scrollY + windowHeight >= documentHeight - 50) {
-        current = sections[sections.length - 1]?.getAttribute("id") ?? "";
-      } else {
-        sections.forEach((section) => {
-          const el = section as HTMLElement;
-          const sectionTop = el.offsetTop;
-          
-          if (scrollY >= sectionTop - 250) {
-            current = el.getAttribute("id") ?? "";
-          }
-        });
-      }
-
-      if (current) {
-        setActiveSection(current);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   return (
     <nav className={styles.navbar}>

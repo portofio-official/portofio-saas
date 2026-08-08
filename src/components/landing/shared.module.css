@@ -107,6 +107,19 @@
   transform: translateY(0);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .revealOnScroll {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+
+  .animateFadeInUp {
+    animation: none;
+  }
+}
+
 @media (max-width: 768px) {
   .landingRoot {
     --container-padding: 20px;

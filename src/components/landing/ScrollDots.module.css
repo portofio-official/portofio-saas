@@ -1,0 +1,62 @@
+.rail {
+  position: fixed;
+  right: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  z-index: 40;
+}
+
+.dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  background: rgba(17, 24, 39, 0.22);
+  transition: transform var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.dot:hover,
+.dot:focus-visible {
+  outline: none;
+  background: rgba(17, 24, 39, 0.45);
+  transform: scale(1.35);
+}
+
+.dot.active {
+  background: var(--accent-color);
+  box-shadow: 0 0 0 4px rgba(0, 207, 124, 0.18);
+}
+
+.tooltip {
+  position: absolute;
+  right: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--text-primary);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 7px 12px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+}
+
+.dot:hover .tooltip,
+.dot:focus-visible .tooltip {
+  opacity: 1;
+}
+
+@media (max-width: 1023px) {
+  .rail {
+    display: none;
+  }
+}

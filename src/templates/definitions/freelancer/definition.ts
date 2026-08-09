@@ -4,38 +4,38 @@ import { freelancerSchema, FREELANCER_SECTIONS } from "./schema";
 export const FREELANCER_VARIANTS: TemplateVariant[] = [
   {
     id: "default",
-    label: "Default",
+    label: "Cobalt",
     colors: {
-      primary: "#2563eb",
-      background: "#ffffff",
-      surface: "#f8fafc",
-      text: "#0f172a",
-      textMuted: "#64748b",
-      border: "#e2e8f0",
+      primary: "#315BE8",
+      background: "#FAF8F3",
+      surface: "#EEECE6",
+      text: "#1D2027",
+      textMuted: "#656972",
+      border: "#DAD7CF",
     }
   },
   {
     id: "emerald",
-    label: "Emerald",
+    label: "Terracotta",
     colors: {
-      primary: "#10b981",
-      background: "#ffffff",
-      surface: "#f0fdf4",
-      text: "#064e3b",
-      textMuted: "#059669",
-      border: "#d1fae5",
+      primary: "#B65436",
+      background: "#FBF5EE",
+      surface: "#F1E7DC",
+      text: "#33231D",
+      textMuted: "#79675E",
+      border: "#E1D4C8",
     }
   },
   {
     id: "slate",
-    label: "Slate",
+    label: "Olive",
     colors: {
-      primary: "#cbd5e1",
-      background: "#0f172a",
-      surface: "#1e293b",
-      text: "#f8fafc",
-      textMuted: "#94a3b8",
-      border: "#334155",
+      primary: "#61713C",
+      background: "#F5F3E9",
+      surface: "#E8E6D8",
+      text: "#25291E",
+      textMuted: "#6D7164",
+      border: "#D6D4C6",
     }
   }
 ];

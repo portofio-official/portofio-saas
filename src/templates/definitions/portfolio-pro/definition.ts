@@ -4,38 +4,38 @@ import { portfolioProSchema, PORTFOLIO_PRO_SECTIONS } from "./schema";
 export const PORTFOLIO_PRO_VARIANTS: TemplateVariant[] = [
   {
     id: "default",
-    label: "Default",
+    label: "Editorial Blue",
     colors: {
-      primary: "#2563eb",
-      background: "#ffffff",
-      surface: "#f8fafc",
-      text: "#0f172a",
-      textMuted: "#64748b",
-      border: "#e2e8f0",
+      primary: "#3157C8",
+      background: "#F5F4F0",
+      surface: "#E9E8E3",
+      text: "#181A20",
+      textMuted: "#676A72",
+      border: "#D2D1CB",
     }
   },
   {
     id: "emerald",
-    label: "Emerald",
+    label: "Executive Green",
     colors: {
-      primary: "#10b981",
-      background: "#ffffff",
-      surface: "#f0fdf4",
-      text: "#064e3b",
-      textMuted: "#059669",
-      border: "#d1fae5",
+      primary: "#376B55",
+      background: "#F3F5F0",
+      surface: "#E4E9E1",
+      text: "#17261F",
+      textMuted: "#647169",
+      border: "#CFD7D1",
     }
   },
   {
     id: "slate",
-    label: "Slate",
+    label: "Ink",
     colors: {
-      primary: "#cbd5e1",
-      background: "#0f172a",
-      surface: "#1e293b",
-      text: "#f8fafc",
-      textMuted: "#94a3b8",
-      border: "#334155",
+      primary: "#D87945",
+      background: "#171819",
+      surface: "#222426",
+      text: "#F0EEE9",
+      textMuted: "#A09E98",
+      border: "#393B3D",
     }
   }
 ];

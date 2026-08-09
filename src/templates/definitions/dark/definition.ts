@@ -4,38 +4,38 @@ import { darkSchema, DARK_SECTIONS } from "./schema";
 export const DARK_VARIANTS: TemplateVariant[] = [
   {
     id: "default",
-    label: "Default",
+    label: "Terminal",
     colors: {
-      primary: "#2563eb",
-      background: "#ffffff",
-      surface: "#f8fafc",
-      text: "#0f172a",
-      textMuted: "#64748b",
-      border: "#e2e8f0",
+      primary: "#66FF99",
+      background: "#080A09",
+      surface: "#101411",
+      text: "#E7EEE9",
+      textMuted: "#77847B",
+      border: "#273029",
     }
   },
   {
     id: "emerald",
-    label: "Emerald",
+    label: "Ultraviolet",
     colors: {
-      primary: "#10b981",
-      background: "#ffffff",
-      surface: "#f0fdf4",
-      text: "#064e3b",
-      textMuted: "#059669",
-      border: "#d1fae5",
+      primary: "#B89CFF",
+      background: "#09080D",
+      surface: "#121018",
+      text: "#EFEAF8",
+      textMuted: "#827C8D",
+      border: "#2C2735",
     }
   },
   {
     id: "slate",
-    label: "Slate",
+    label: "Ice",
     colors: {
-      primary: "#cbd5e1",
-      background: "#0f172a",
-      surface: "#1e293b",
-      text: "#f8fafc",
-      textMuted: "#94a3b8",
-      border: "#334155",
+      primary: "#58D7FF",
+      background: "#070B0D",
+      surface: "#0E1518",
+      text: "#E8F3F6",
+      textMuted: "#74858B",
+      border: "#243238",
     }
   }
 ];

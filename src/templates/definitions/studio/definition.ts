@@ -4,38 +4,38 @@ import { studioSchema, STUDIO_SECTIONS } from "./schema";
 export const STUDIO_VARIANTS: TemplateVariant[] = [
   {
     id: "default",
-    label: "Default",
+    label: "Signal",
     colors: {
-      primary: "#2563eb",
-      background: "#ffffff",
-      surface: "#f8fafc",
-      text: "#0f172a",
-      textMuted: "#64748b",
-      border: "#e2e8f0",
+      primary: "#FF4D24",
+      background: "#11110F",
+      surface: "#1A1A17",
+      text: "#F1EFE8",
+      textMuted: "#98978F",
+      border: "#35352F",
     }
   },
   {
     id: "emerald",
-    label: "Emerald",
+    label: "Volt",
     colors: {
-      primary: "#10b981",
-      background: "#ffffff",
-      surface: "#f0fdf4",
-      text: "#064e3b",
-      textMuted: "#059669",
-      border: "#d1fae5",
+      primary: "#C7FF32",
+      background: "#10120D",
+      surface: "#191D13",
+      text: "#F1F5E8",
+      textMuted: "#939B85",
+      border: "#343A2B",
     }
   },
   {
     id: "slate",
-    label: "Slate",
+    label: "Mineral",
     colors: {
-      primary: "#cbd5e1",
-      background: "#0f172a",
-      surface: "#1e293b",
-      text: "#f8fafc",
-      textMuted: "#94a3b8",
-      border: "#334155",
+      primary: "#345BFF",
+      background: "#F0EFEA",
+      surface: "#E3E2DC",
+      text: "#17181B",
+      textMuted: "#66686F",
+      border: "#C8C7C1",
     }
   }
 ];
@@ -50,11 +50,11 @@ export const studioDefinition: TemplateDefinition<typeof studioSchema> = {
   version: 1,
   meta: {
     name: "Vanguard Studio",
-    description: "Agency-tier design with asymmetrical bento grids, ethereal glass textures, and fluid motion.",
+    description: "An avant-garde studio portfolio with monumental typography, cinematic project direction, and editorial motion.",
     thumbnailUrl: "",
     category: "portfolio",
     capabilities: ["projects", "experience", "education", "skills", "contact", "hero", "expertise", "testimonials"],
-    tags: ["agency", "dark", "bento", "premium", "glass"],
+    tags: ["agency", "editorial", "avant-garde", "motion", "premium"],
     author: "portofio",
     price: 0,
     gallery: {

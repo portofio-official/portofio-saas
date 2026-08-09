@@ -1,267 +1,134 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, CaretRight, Star } from "@phosphor-icons/react";
+import { ArrowDown, ArrowUpRight } from "@phosphor-icons/react";
+import { SocialIcon } from "@/templates/shared";
+import { TEMPLATE_FONT_VARIABLES } from "@/templates/fonts";
 import type { StudioData } from "./schema";
 import type { WorkspaceProfile } from "@/templates/definition";
+import { studioDefinition } from "./definition";
 
-const BORDER_OUTER = "rgba(255, 255, 255, 0.1)";
-const BORDER_INNER = "rgba(255, 255, 255, 0.05)";
-
-function DoubleBezelCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div
-      className={`relative rounded-[2rem] p-1.5 ${className}`}
-      style={{
-        backgroundColor: "rgba(255,255,255,0.02)",
-        boxShadow: `inset 0 0 0 1px ${BORDER_OUTER}`,
-      }}
-    >
-      <div
-        className="relative h-full w-full overflow-hidden rounded-[calc(2rem-0.375rem)]"
-        style={{
-          backgroundColor: "rgba(255,255,255,0.03)",
-          boxShadow: `inset 0 1px 1px rgba(255,255,255,0.15), inset 0 0 0 1px ${BORDER_INNER}`,
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function MagneticButton({ children, onClick, href }: { children: React.ReactNode; onClick?: () => void; href?: string }) {
-  const content = (
-    <motion.button
-      onClick={onClick}
-      whileHover={{ scale: 0.98 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }}
-      className="group relative flex items-center gap-3 rounded-full bg-white px-6 py-3 font-semibold text-black"
-    >
-      <span>{children}</span>
-      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/10 transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:-translate-y-[1px] group-hover:translate-x-1 group-hover:scale-105">
-        <CaretRight weight="bold" />
-      </div>
-    </motion.button>
-  );
-
-  if (href) {
-    return <a href={href}>{content}</a>;
-  }
-  return content;
-}
-
-function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const reduce = useReducedMotion();
+function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const reduced = useReducedMotion();
   return (
     <motion.div
-      initial={reduce ? false : { opacity: 0, y: 24, filter: "blur(8px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once: true, margin: "-10%" }}
-      transition={{ duration: 0.8, delay, ease: [0.32, 0.72, 0, 1] }}
+      className={className}
+      initial={reduced ? false : { opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-8%" }}
+      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
   );
 }
 
-function HeroSection({ hero, profile }: { hero: StudioData["hero"]; profile: StudioData["profile"] }) {
-  return (
-    <section id="profile" className="relative flex min-h-[100dvh] flex-col items-center justify-center px-4 py-24 text-center">
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden opacity-30">
-        <div className="h-[600px] w-[600px] rounded-full bg-white/5 blur-[100px]" />
-      </div>
-      
-      <div className="relative z-10 flex max-w-4xl flex-col items-center">
-        <Reveal>
-          <div data-field-id="profile.fullName" className="mb-8 rounded-full px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white/60" style={{ boxShadow: `inset 0 0 0 1px ${BORDER_OUTER}` }}>
-            {profile.fullName || "Studio"}
-          </div>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <h1 data-field-id="hero.headline" className="mb-6 max-w-3xl text-balance text-5xl font-medium tracking-tight text-white md:text-7xl lg:text-8xl">
-            {hero.headline}
-          </h1>
-        </Reveal>
-        <Reveal delay={0.2}>
-          <p data-field-id="hero.subheadline" className="mb-12 max-w-[40ch] text-balance text-lg leading-relaxed text-zinc-400 md:text-xl">
-            {hero.subheadline || profile.headline}
-          </p>
-        </Reveal>
-        <Reveal delay={0.3}>
-          <MagneticButton href="#work">
-            <span data-field-id="hero.ctaLabel">{hero.ctaLabel}</span>
-          </MagneticButton>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-function ExpertiseSection({ expertise }: { expertise: StudioData["expertise"] }) {
-  if (!expertise.length) return null;
-  return (
-    <section id="expertise" className="px-4 py-24 md:py-40">
-      <div className="mx-auto max-w-7xl">
-        <Reveal>
-          <h2 className="mb-16 text-3xl font-medium tracking-tight text-white md:text-5xl">Capabilities</h2>
-        </Reveal>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {expertise.map((item, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <div data-item-index={i} data-section-type="expertise" className="h-full">
-                <DoubleBezelCard className="h-full">
-                  <div className="flex h-full flex-col p-8 md:p-10">
-                    <h3 data-field-id={`expertise.${i}.title`} className="mb-4 text-xl font-medium text-white">{item.title}</h3>
-                    <p data-field-id={`expertise.${i}.description`} className="text-zinc-400 leading-relaxed">{item.description}</p>
-                  </div>
-                </DoubleBezelCard>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ProjectsSection({ projects }: { projects: StudioData["projects"] }) {
-  if (!projects.length) return null;
-  return (
-    <section id="work" className="px-4 py-24 md:py-40">
-      <div className="mx-auto max-w-7xl">
-        <Reveal>
-          <h2 className="mb-16 text-3xl font-medium tracking-tight text-white md:text-5xl">Selected Work</h2>
-        </Reveal>
-        
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
-          {projects.map((p, i) => {
-            const isFullWidth = i % 3 === 0;
-            const spanClass = isFullWidth ? "md:col-span-12" : "md:col-span-6";
-            
-            return (
-              <div key={i} className={`group ${spanClass}`} data-item-index={i} data-section-type="projects">
-                <Reveal delay={i % 3 === 0 ? 0 : 0.1}>
-                  <DoubleBezelCard className="h-[400px] md:h-[500px]">
-                    <a
-                      href={p.link || "#"}
-                      target={p.link ? "_blank" : undefined}
-                      rel="noopener noreferrer"
-                      className="block h-full w-full"
-                    >
-                      {p.imageUrl ? (
-                        <div
-                          className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105"
-                          style={{ backgroundImage: `url(${p.imageUrl})` }}
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-zinc-900/50" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
-                      
-                      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-8 md:p-10">
-                        <div>
-                          <h3 data-field-id={`projects.${i}.title`} className="mb-2 text-2xl font-medium text-white md:text-3xl">{p.title}</h3>
-                          <p data-field-id={`projects.${i}.description`} className="max-w-md text-zinc-300 line-clamp-2">{p.description}</p>
-                        </div>
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-all duration-500 group-hover:bg-white group-hover:text-black">
-                          <ArrowUpRight weight="bold" />
-                        </div>
-                      </div>
-                    </a>
-                  </DoubleBezelCard>
-                </Reveal>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TestimonialsSection({ testimonials }: { testimonials: StudioData["testimonials"] }) {
-  if (!testimonials.length) return null;
-  return (
-    <section id="testimonials" className="px-4 py-24 md:py-40">
-      <div className="mx-auto max-w-7xl">
-        <Reveal>
-          <div className="mb-16 flex items-center gap-4">
-            <Star weight="fill" className="text-white/40" />
-            <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-400">Client Perspectives</h2>
-          </div>
-        </Reveal>
-        <div className="grid gap-6 md:grid-cols-2">
-          {testimonials.map((t, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <DoubleBezelCard>
-                <div className="flex flex-col justify-between p-8 md:p-12 h-full">
-                  <p className="mb-12 text-xl leading-relaxed text-zinc-300 md:text-2xl">&quot;{t.quote}&quot;</p>
-                  <div>
-                    <div className="text-base font-medium text-white">{t.name}</div>
-                    <div className="text-sm text-zinc-500">{t.role}</div>
-                  </div>
-                </div>
-              </DoubleBezelCard>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ContactSection({ contact }: { contact: StudioData["contact"] }) {
-  return (
-    <section id="contact" className="px-4 py-24 pb-40 md:py-40">
-      <div className="mx-auto max-w-7xl text-center">
-        <Reveal>
-          <h2 className="mb-8 text-4xl font-medium tracking-tight text-white md:text-6xl lg:text-7xl">
-            Let&apos;s build something <br className="hidden md:block" /> remarkable.
-          </h2>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <div className="flex justify-center">
-            {contact.email ? (
-              <MagneticButton href={`mailto:${contact.email}`}>
-                Get in touch
-              </MagneticButton>
-            ) : (
-              <MagneticButton>
-                Get in touch
-              </MagneticButton>
-            )}
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-export function StudioRenderer({
-  data,
-}: {
-  data: StudioData;
-  workspaceProfile?: WorkspaceProfile;
-}) {
+export function StudioRenderer({ data }: { data: StudioData; workspaceProfile?: WorkspaceProfile }) {
   const hidden = (id: string) => data.hiddenSections?.includes(id) ?? false;
+  const variant = studioDefinition.variants.find((item) => item.id === data.theme.variantId) || studioDefinition.variants[0];
+  const { primary: accent, background, surface, text, textMuted, border } = variant.colors;
+  const whatsappDigits = data.contact.whatsapp?.replace(/\D/g, "");
+  const year = new Date().getFullYear();
+  const projectCount = String(data.projects.length).padStart(2, "0");
+  const sectionLabel = (index: string, label: string) => (
+    <div className="mb-12 flex items-center gap-4 text-[10px] font-semibold uppercase tracking-[0.24em]" style={{ color: textMuted }}>
+      <span style={{ color: accent }}>{index}</span><span className="h-px w-10" style={{ backgroundColor: border }} /><span>{label}</span>
+    </div>
+  );
+
   return (
-    <div 
-      className="min-h-screen bg-[#050505] text-zinc-400 selection:bg-white/20 selection:text-white"
-      style={{ fontFamily: "var(--font-sans), sans-serif" }}
-    >
-      <div 
-        className="pointer-events-none fixed inset-0 z-50 opacity-[0.03]"
-        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
-      />
-      
-      <main className="relative z-10">
-        {!hidden("hero") && !hidden("profile") && <HeroSection hero={data.hero} profile={data.profile} />}
-        {!hidden("projects") && <ProjectsSection projects={data.projects} />}
-        {!hidden("expertise") && <ExpertiseSection expertise={data.expertise} />}
-        {!hidden("testimonials") && <TestimonialsSection testimonials={data.testimonials} />}
-        {!hidden("contact") && <ContactSection contact={data.contact} />}
+    <div className={`${TEMPLATE_FONT_VARIABLES} min-h-screen overflow-x-clip antialiased`} style={{ backgroundColor: background, color: text, fontFamily: "var(--tpl-font-sans, sans-serif)" }}>
+      <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.035]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E\")" }} />
+
+      <nav className="relative z-20 mx-auto flex max-w-[1500px] items-center justify-between border-b px-6 py-6 sm:px-10 lg:px-14" style={{ borderColor: border }}>
+        <a href="#profile" className="text-sm font-bold uppercase tracking-[-0.02em]">{data.profile.fullName || "Vanguard Studio"}<span style={{ color: accent }}>®</span></a>
+        <div className="hidden gap-8 text-[10px] font-semibold uppercase tracking-[0.18em] md:flex" style={{ color: textMuted }}>
+          {data.projects.length > 0 && <a href="#work" className="hover:opacity-60">Work</a>}
+          {data.expertise.length > 0 && <a href="#expertise" className="hover:opacity-60">Practice</a>}
+          <a href="#contact" className="hover:opacity-60">Contact</a>
+        </div>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: textMuted }}>{year} / Independent</span>
+      </nav>
+
+      <main>
+        {!hidden("hero") && !hidden("profile") && (
+          <section id="profile" className="relative mx-auto grid min-h-[calc(100dvh-73px)] max-w-[1500px] content-between px-6 py-12 sm:px-10 md:py-16 lg:px-14">
+            <div className="grid items-end gap-12 lg:grid-cols-[1fr_260px]">
+              <Reveal>
+                <p className="mb-8 text-[10px] font-semibold uppercase tracking-[0.25em]" style={{ color: accent }}>Strategy · Identity · Digital</p>
+                <h1 data-field-id="hero.headline" className="max-w-[13ch] text-balance text-[clamp(3.5rem,10vw,9rem)] font-semibold leading-[0.82] tracking-[-0.07em]">{data.hero.headline}</h1>
+              </Reveal>
+              <Reveal delay={0.15} className="lg:pb-2">
+                <p data-field-id="hero.subheadline" className="text-base leading-7" style={{ color: textMuted }}>{data.hero.subheadline || data.profile.headline}</p>
+                {data.profile.location && <p className="mt-6 text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: accent }}>Operating from {data.profile.location}</p>}
+              </Reveal>
+            </div>
+            <Reveal delay={0.25} className="mt-20 flex items-end justify-between border-t pt-5" >
+              <a href="#work" className="group flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em]"><span data-field-id="hero.ctaLabel">{data.hero.ctaLabel}</span><ArrowDown className="transition-transform duration-300 group-hover:translate-y-1" /></a>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: textMuted }}>Selected archive / {projectCount}</span>
+            </Reveal>
+          </section>
+        )}
+
+        {!hidden("projects") && data.projects.length > 0 && (
+          <section id="work" className="border-t py-24 md:py-36" style={{ borderColor: border }}>
+            <div className="mx-auto max-w-[1500px] px-6 sm:px-10 lg:px-14">
+              {sectionLabel("01", "Selected work")}
+              <div className="space-y-28 md:space-y-40">
+                {data.projects.map((project, index) => {
+                  const reverse = index % 2 === 1;
+                  return (
+                    <article key={`${project.title}-${index}`} data-item-index={index} data-section-type="projects" className="group">
+                      <Reveal>
+                        <a href={project.link || undefined} target={project.link ? "_blank" : undefined} rel={project.link ? "noreferrer" : undefined} className="grid gap-7 md:grid-cols-12 md:items-end">
+                          <div className={`relative overflow-hidden md:col-span-8 ${reverse ? "md:col-start-5 md:row-start-1" : ""}`} style={{ backgroundColor: surface }}>
+                            {project.imageUrl ? <motion.img src={project.imageUrl} alt={project.title} className="aspect-[16/10] h-full w-full object-cover" whileHover={{ scale: 1.025 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} /> : <div className="flex aspect-[16/10] items-center justify-center text-[12vw] font-semibold tracking-[-0.08em] opacity-10">{String(index + 1).padStart(2, "0")}</div>}
+                            <span className="absolute left-4 top-4 px-3 py-2 text-[9px] font-semibold uppercase tracking-[0.18em]" style={{ backgroundColor: background, color: text }}>{String(index + 1).padStart(2, "0")} / {projectCount}</span>
+                          </div>
+                          <div className={`md:col-span-4 ${reverse ? "md:col-start-1 md:row-start-1" : ""}`}>
+                            <div className="flex items-start justify-between gap-5 border-t pt-5" style={{ borderColor: border }}>
+                              <div><h2 data-field-id={`projects.${index}.title`} className="text-3xl font-semibold tracking-[-0.04em] md:text-5xl">{project.title}</h2><p data-field-id={`projects.${index}.description`} className="mt-5 max-w-[38ch] text-sm leading-7" style={{ color: textMuted }}>{project.description}</p></div>
+                              <ArrowUpRight size={24} className="shrink-0 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" style={{ color: accent }} />
+                            </div>
+                          </div>
+                        </a>
+                      </Reveal>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {!hidden("expertise") && data.expertise.length > 0 && (
+          <section id="expertise" className="border-t py-24 md:py-36" style={{ borderColor: border, backgroundColor: surface }}>
+            <div className="mx-auto max-w-[1500px] px-6 sm:px-10 lg:px-14">
+              {sectionLabel("02", "Studio practice")}
+              <div className="grid gap-12 lg:grid-cols-[1fr_2fr]">
+                <Reveal><h2 className="max-w-[10ch] text-4xl font-semibold leading-none tracking-[-0.05em] md:text-6xl">Built for ambitious change.</h2></Reveal>
+                <div className="border-t" style={{ borderColor: border }}>{data.expertise.map((item, index) => <Reveal key={`${item.title}-${index}`} delay={index * 0.05}><article data-item-index={index} data-section-type="expertise" className="grid gap-4 border-b py-7 md:grid-cols-[70px_1fr_1fr]" style={{ borderColor: border }}><span className="text-xs tabular-nums" style={{ color: accent }}>{String(index + 1).padStart(2, "0")}</span><h3 data-field-id={`expertise.${index}.title`} className="text-xl font-semibold tracking-tight">{item.title}</h3><p data-field-id={`expertise.${index}.description`} className="text-sm leading-7" style={{ color: textMuted }}>{item.description}</p></article></Reveal>)}</div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {!hidden("testimonials") && data.testimonials.length > 0 && (
+          <section id="testimonials" className="border-t py-24 md:py-36" style={{ borderColor: border }}><div className="mx-auto max-w-[1500px] px-6 sm:px-10 lg:px-14">{sectionLabel("03", "Perspectives")}<div className="grid gap-px md:grid-cols-2" style={{ backgroundColor: border }}>{data.testimonials.map((testimonial, index) => <Reveal key={`${testimonial.name}-${index}`}><blockquote className="flex h-full min-h-80 flex-col justify-between p-8 md:p-12" style={{ backgroundColor: background }}><p className="text-balance text-2xl font-medium leading-snug tracking-[-0.025em] md:text-3xl">“{testimonial.quote}”</p><footer className="mt-12 text-xs"><strong className="block font-semibold">{testimonial.name}</strong><span style={{ color: textMuted }}>{testimonial.role}</span></footer></blockquote></Reveal>)}</div></div></section>
+        )}
+
+        {!hidden("contact") && (
+          <section id="contact" className="border-t" style={{ borderColor: border, backgroundColor: accent, color: background }}>
+            <div className="mx-auto max-w-[1500px] px-6 py-20 sm:px-10 md:py-28 lg:px-14">
+              <p className="mb-12 text-[10px] font-semibold uppercase tracking-[0.24em] opacity-70">04 / New business</p>
+              <a href={data.contact.email ? `mailto:${data.contact.email}` : undefined} className="group flex items-end justify-between gap-8 border-b pb-8" style={{ borderColor: `${background}55` }}><h2 className="max-w-[12ch] text-5xl font-semibold leading-[0.9] tracking-[-0.065em] sm:text-7xl lg:text-9xl">Make something matter.</h2><ArrowUpRight className="mb-2 shrink-0 transition-transform duration-300 group-hover:-translate-y-2 group-hover:translate-x-2" size={40} /></a>
+              <div className="mt-8 flex flex-col gap-6 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap gap-x-6 gap-y-2">{data.contact.email && <a href={`mailto:${data.contact.email}`}>{data.contact.email}</a>}{data.contact.phone && <a href={`tel:${data.contact.phone}`}>{data.contact.phone}</a>}{whatsappDigits && <a href={`https://wa.me/${whatsappDigits}`}>WhatsApp</a>}</div>
+                <div className="flex items-center gap-4">{data.socials.map((social, index) => <a key={`${social.platform}-${index}`} href={social.url} aria-label={social.platform} className="transition-opacity hover:opacity-60"><SocialIcon platform={social.platform} size={18} /></a>)}<span className="ml-3 text-[10px] font-semibold uppercase tracking-[0.18em] opacity-70">© {year}</span></div>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );

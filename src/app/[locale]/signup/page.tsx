@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, use } from "react";
+import { useActionState, use, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { signUpAction, type ActionState } from "@/lib/auth/actions";
+import { checkPasswordStrength } from "@/lib/auth/password";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
@@ -17,8 +18,31 @@ export default function SignupPage({ searchParams }: { searchParams: Promise<{ t
   const { templateId } = use(searchParams);
   const t = useTranslations("Auth.signup");
   const tErrors = useTranslations("Auth.errors");
+  const tRules = useTranslations("Auth.rules");
   const tSuccess = useTranslations("Auth.success");
   const [state, formAction] = useActionState(signUpAction, initialState);
+
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [clientError, setClientError] = useState<null | "strength" | "mismatch">(null);
+
+  const strength = useMemo(() => checkPasswordStrength(password), [password]);
+  const ruleKeys = [
+    { key: "minLength", passed: strength.passed.includes("minLength") },
+    { key: "lowercase", passed: strength.passed.includes("lowercase") },
+    { key: "uppercase", passed: strength.passed.includes("uppercase") },
+    { key: "number", passed: strength.passed.includes("number") },
+    { key: "special", passed: strength.passed.includes("special") },
+  ] as const;
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (!strength.valid || confirmPassword !== password) {
+      e.preventDefault();
+      setClientError(!strength.valid ? "strength" : "mismatch");
+      return;
+    }
+    setClientError(null);
+  };
 
   if (state.success) {
     return (
@@ -65,7 +89,7 @@ export default function SignupPage({ searchParams }: { searchParams: Promise<{ t
         </p>
       }
     >
-      <form action={formAction} className={styles.loginForm}>
+      <form action={formAction} onSubmit={handleSubmit} className={styles.loginForm}>
         <div className={styles.nameRow}>
           <AuthInput
             label="First Name"
@@ -100,17 +124,31 @@ export default function SignupPage({ searchParams }: { searchParams: Promise<{ t
           placeholder="Enter your email"
         />
 
-        <AuthInput
-          label={t("passwordLabel")}
-          type="password"
-          name="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          icon="lock"
-          placeholder="Enter your password"
-          isPassword
-        />
+        <div>
+          <AuthInput
+            label={t("passwordLabel")}
+            type="password"
+            name="password"
+            required
+            minLength={8}
+            autoComplete="new-password"
+            icon="lock"
+            placeholder="Enter your password"
+            isPassword
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <div className={styles.passwordRules} role="group" aria-label="Password requirements">
+            {ruleKeys.map(({ key, passed }) => (
+              <div key={key} className={`${styles.passwordRule} ${passed ? styles.passed : ""}`}>
+                <span className={`${styles.ruleIcon} material-symbols-outlined`} aria-hidden>
+                  {passed ? "check_circle" : "radio_button_unchecked"}
+                </span>
+                {tRules(key)}
+              </div>
+            ))}
+          </div>
+        </div>
 
         <AuthInput
           label="Confirm Password"
@@ -122,9 +160,15 @@ export default function SignupPage({ searchParams }: { searchParams: Promise<{ t
           icon="lock"
           placeholder="Confirm your password"
           isPassword
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
         />
 
-        {state.error && <p className="text-sm text-danger" style={{ color: "red", fontSize: "0.875rem" }}>{tErrors(state.error)}</p>}
+        {(state.error || clientError) && (
+          <p className="text-sm text-danger" style={{ color: "red", fontSize: "0.875rem" }}>
+            {clientError ? tErrors(clientError) : tErrors(state.error!)}
+          </p>
+        )}
 
         <AuthSubmitButton label={t("submit")} pendingLabel={t("submitPending")} />
       </form>

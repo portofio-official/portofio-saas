@@ -234,7 +234,7 @@
       "title": "Buat akun baru",
       "emailLabel": "Email",
       "passwordLabel": "Kata sandi",
-      "passwordHint": "Minimal 8 karakter.",
+      "passwordHint": "Gunakan 8+ karakter dengan huruf besar, huruf kecil, angka, dan simbol.",
       "submit": "Daftar",
       "submitPending": "Memproses…",
       "haveAccount": "Sudah punya akun?",
@@ -261,11 +261,20 @@
       "userExists": "Email ini sudah terdaftar.",
       "invalidCredentials": "Email atau kata sandi salah.",
       "weakPassword": "Kata sandi minimal 8 karakter.",
+      "passwordStrength": "Kata sandi belum memenuhi syarat — periksa daftar di bawah.",
+      "passwordMismatch": "Kata sandi tidak sama.",
       "emailNotConfirmed": "Verifikasi emailmu terlebih dahulu.",
       "confirmFailed": "Tautan tidak valid atau sudah kedaluwarsa.",
       "oauthFailed": "Masuk dengan Google gagal. Coba lagi.",
       "rateLimited": "Terlalu banyak percobaan. Coba lagi dalam beberapa menit.",
       "generic": "Terjadi kesalahan. Coba lagi."
+    },
+    "rules": {
+      "minLength": "Minimal 8 karakter",
+      "lowercase": "Huruf kecil",
+      "uppercase": "Huruf besar",
+      "number": "Angka",
+      "special": "Simbol (mis. ! @ #)"
     },
     "success": {
       "checkYourEmail": "Cek emailmu",

@@ -28,6 +28,11 @@ test.describe("Portofio E2E Flow Regression Suite", () => {
     await page.goto("/id/signup");
     await expect(page.locator('input[type="email"]')).toBeVisible();
 
+    // Strong-password checklist renders with all 5 rules
+    const rules = page.locator('[aria-label="Password requirements"]');
+    await expect(rules).toBeVisible();
+    await expect(rules.locator("div")).toHaveCount(5);
+
     // Forgot password page
     await page.goto("/id/forgot-password");
     await expect(page.locator('input[type="email"]')).toBeVisible();

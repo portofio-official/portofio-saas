@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { checkPasswordStrength } from "@/lib/auth/password";
 export type ActionState = { error: string | null; success?: string | null };
 
 async function getClientIp(): Promise<string> {
@@ -43,16 +44,21 @@ export async function signUpAction(
 
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
   if (!email) {
     return { error: "invalidCredentials" };
   }
-  if (password.length < 8) {
-    return { error: "weakPassword" };
+  const passwordStrength = checkPasswordStrength(password);
+  if (!passwordStrength.valid) {
+    return { error: "passwordStrength" };
+  }
+  if (confirmPassword && password !== confirmPassword) {
+    return { error: "passwordMismatch" };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -61,6 +67,16 @@ export async function signUpAction(
   });
 
   if (error) return { error: mapAuthError(error.message) };
+
+  // When the email already belongs to a (confirmed) account, Supabase returns
+  // `user: null` with no error and deliberately does not send an email — the
+  // app previously showed "Check your email" forever. Detect it: a brand-new
+  // signup always has at least one identity; an existing user has none.
+  const hasIdentity = (data.user?.identities?.length ?? 0) > 0;
+  if (!data.user || !hasIdentity) {
+    return { error: "userExists" };
+  }
+
   return { error: null, success: "checkYourEmail" };
 }
 
@@ -142,8 +158,8 @@ export async function updatePasswordAction(
 ): Promise<ActionState> {
   const password = String(formData.get("password") ?? "");
 
-  if (password.length < 8) {
-    return { error: "weakPassword" };
+  if (!checkPasswordStrength(password).valid) {
+    return { error: "passwordStrength" };
   }
 
   const supabase = await createClient();

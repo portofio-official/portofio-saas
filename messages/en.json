@@ -233,9 +233,9 @@
       "eyebrow": "Start for free",
       "title": "Create your account",
       "emailLabel": "Email",
-      "passwordLabel": "Password",
-      "passwordHint": "At least 8 characters.",
-      "submit": "Sign up",
+"passwordLabel": "Password",
+  "passwordHint": "Use 8+ characters with uppercase, lowercase, a number, and a symbol.",
+  "submit": "Sign up",
       "submitPending": "Creating account…",
       "haveAccount": "Already have an account?",
       "loginLink": "Log in"
@@ -257,16 +257,25 @@
       "submit": "Save password",
       "submitPending": "Saving…"
     },
-    "errors": {
-      "userExists": "This email is already registered.",
-      "invalidCredentials": "Incorrect email or password.",
-      "weakPassword": "Password must be at least 8 characters.",
-      "emailNotConfirmed": "Please verify your email first.",
-      "confirmFailed": "This link is invalid or has expired.",
-      "oauthFailed": "Google sign-in failed. Please try again.",
-      "rateLimited": "Too many attempts. Please try again in a few minutes.",
-      "generic": "Something went wrong. Please try again."
-    },
+"errors": {
+  "userExists": "This email is already registered.",
+  "invalidCredentials": "Incorrect email or password.",
+  "weakPassword": "Password must be at least 8 characters.",
+  "passwordStrength": "Password doesn't meet the requirements — check the list below.",
+  "passwordMismatch": "Passwords do not match.",
+  "emailNotConfirmed": "Please verify your email first.",
+  "confirmFailed": "This link is invalid or has expired.",
+  "oauthFailed": "Google sign-in failed. Please try again.",
+  "rateLimited": "Too many attempts. Please try again in a few minutes.",
+  "generic": "Something went wrong. Please try again."
+ },
+ "rules": {
+  "minLength": "At least 8 characters",
+  "lowercase": "A lowercase letter",
+  "uppercase": "An uppercase letter",
+  "number": "A number",
+  "special": "A special character (e.g. ! @ #)"
+ },
     "oauth": {
       "or": "or",
       "google": "Sign in with Google",

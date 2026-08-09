@@ -550,6 +550,30 @@
       "notes": "Dashboard is gated behind the existing auth layout; the analytics page shows an empty state for accounts with no published sites. Bot hits are stored but filtered out of every aggregate. Midtrans/gated Pro-gate for analytics was deliberately NOT applied (analytics is currently available to all authenticated users with a published site)."
     },
     {
+      "id": "auth-002",
+      "priority": 19,
+      "area": "auth",
+      "title": "Strong password enforcement on signup + confirmation-email 'not sent' fix",
+      "user_visible_behavior": "Registration requires a strong password (8+ chars, uppercase, lowercase, number, special) shown as a live, color-changing checklist with a matching confirm-password field; weak/mismatched passwords are blocked client-side before submit and re-checked server-side. Registering with an email that already has a confirmed account no longer shows a dead-end 'Check your inbox' — it reports 'This email is already registered' instead of waiting for an email that will never arrive.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npm run lint: 0 errors (1 pre-existing warning in BillingClientView, unrelated).",
+        "npm run build: clean.",
+        "npx playwright test: 26 passed / 1 skipped (e2e/flows.spec.ts Flow 2 now asserts the 5-rule 'Password requirements' checklist renders on /id/signup).",
+        "Server actions reject short/weak passwords (passwordStrength) and password-confirm mismatch (passwordMismatch); updatePasswordAction (reset) enforces the same strength rules."
+      ],
+      "evidence": [
+        "2026-08-11 (Session 054): src/lib/auth/password.ts — shared strength checker (min length 8, lowercase, uppercase, digit, special) shared by client UI + server actions.",
+        "2026-08-11: signUpAction/updatePasswordAction enforce strength server-side (src/lib/auth/actions.ts); signUpAction now detects Supabase's already-registered-confirmed silent success (data.user null or identities.length 0 → no email is ever sent) and returns userExists instead of checkYourEmail.",
+        "2026-08-11: /id/signup live strength checklist + client-side submit blocking + translated errors; Auth module CSS additions; i18n Auth.rules.* + Auth.errors.passwordStrength/passwordMismatch in id+en.",
+        "2026-08-11: email-not-received investigation — repo has no SMTP config (Supabase free-tier hosted email is rate-limited, over_email_send_rate_limit); default Supabase email templates can't be customized from the repo (token-hash URL fragment issue); fixes are dashboard config (SMTP provider, Site URL, template link).",
+        "Verified 2026-08-11: tsc --noEmit clean, npm run lint 0 errors (1 pre-existing warning), npm run build clean, npm run test:e2e 26 passed / 1 skipped.",
+        "2026-08-11: committed and pushed to origin/main (Session 054)."
+      ],
+      "notes": "Addresses the code-side part of 'email tidak terkirim saat regis': the silent already-registered path. Remaining delivery causes are Supabase dashboard configuration (custom SMTP + Site URL) and email-template link customization (auth-001), not repo code. Editor contact fields out of scope."
+    },
+    {
       "id": "profile-ux-001",
       "priority": 18,
       "area": "profile",

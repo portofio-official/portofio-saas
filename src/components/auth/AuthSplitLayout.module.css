@@ -571,6 +571,39 @@
   text-decoration: underline;
 }
 
+/* Password strength checklist */
+.passwordRules {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+}
+
+.passwordRule {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  transition: color 200ms ease;
+}
+
+.passwordRule .ruleIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: 0.75rem;
+}
+
+.passwordRule.passed {
+  color: var(--accent);
+}
+
+.fieldError {
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
 /* Specific styles for Forgot Password */
 .stepContainer {
   transition: opacity 0.3s ease, transform 0.3s ease;

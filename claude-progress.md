@@ -1,3 +1,14 @@
+# Session 049: Review Pass — Commit Backlog + Midtrans Webhook Idempotency Fix
+**Status:** Verified / Passing locally
+- Reviewed the full codebase on a clean baseline (lint 0 errors / 1 pre-existing warning, `npx tsc --noEmit` clean, `npm run build` clean 23 routes, E2E 24 passed / 1 skipped).
+- **Found two commits' worth of uncommitted session 044/045 work sitting in the working tree** (content library account-global + UI polish + `20260810000002_content_library_global.sql` untracked) and Xendit→Midtrans rename leftovers in docs+migrations. Committed in logical groups:
+  - `f542958 fix(billing): dedupe Midtrans webhook events on order_id+status`
+  - `30738f6 feat(content): account-global Content Library with search + DESIGN polish`
+  - `76ecfb5 chore(docs): sync remaining Xendit references to Midtrans billing`
+- **Bug fixed (go-live blocker):** webhook idempotency key used `payload.transaction_id`. Midtrans may notify multiple times for one order with the same `transaction_id` across status transitions (`pending` → `capture`/`settlement`), so the activation event could be skipped as "Duplicate event" and a paid subscription left inactive. Dedup now keys on `order_id:transaction_status` in `src/app/api/webhooks/midtrans/route.ts`.
+- Cleanup notes: `e2e/dbg.spec.ts` is a leftover console-log debug spec that ships inside the suite (doesn't fail, but adds noise); left in place, delete when convenient.
+- Repo is 9 commits ahead of `origin/main`; not pushed (no push request).
+
 # Session 048: Payment Gateway Migration — Midtrans
 **Status:** Verified / Passing locally
 - Replaced Xendit invoice checkout with Midtrans Snap transaction creation (sandbox by default, production opt-in).

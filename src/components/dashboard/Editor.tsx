@@ -15,10 +15,6 @@ import { WebsiteDocument } from "@/templates/definition";
 import { PreviewTemplateRenderer as TemplateRenderer, getDefinition } from "@/templates/registry";
 import { useHistory } from "@/hooks/useHistory";
 import { useToast } from "@/components/ui/Toast";
-import {
-  ContentLibraryImportModal,
-  type ImportedProject,
-} from "@/components/content/ContentLibraryImportModal";
 
 // Portfolio Form Sections
 import { ProfileSection } from "@/components/portfolio/sections/ProfileSection";
@@ -116,21 +112,6 @@ export function Editor({
     initialDocument.meta?.seo ?? {},
   );
 
-  // Content Library import (Projects section)
-  const [showLibraryImport, setShowLibraryImport] = useState(false);
-
-  function handleLibraryImport(items: ImportedProject[]) {
-    const imported = items.map((it) => ({
-      title: it.title,
-      description: it.description,
-      imageUrl: it.imageUrl,
-      link: it.link,
-    }));
-    setShowLibraryImport(false);
-    setExpandedSection("projects");
-    setData({ ...data, projects: [...(data.projects ?? []), ...imported] });
-    showToast("Proyek ditambahkan dari Library.", "success");
-  }
 
   const DEVICE_CONFIG = {
     desktop: { width: 1440, height: 900, name: "Desktop" },
@@ -755,16 +736,12 @@ export function Editor({
                           return (
                             <div className="flex flex-col gap-3">
                               {workspaceId && (
-                                <button
-                                  type="button"
-                                  onClick={() => setShowLibraryImport(true)}
-                                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-[1rem] border-2 border-dashed border-accent/25 bg-accent/[0.02] px-4 py-2.5 text-[12px] font-bold text-accent transition-all hover:bg-accent/5 hover:border-accent/40"
-                                >
-                                  <span className="material-symbols-outlined text-[14px]">folder_open</span>
-                                  Import dari Content Library
-                                </button>
+                                <a href={`/${locale}/dashboard/${workspaceId}/content`} className="inline-flex w-full items-center justify-center gap-1.5 rounded-[1rem] border border-accent/25 bg-accent/[0.04] px-4 py-2.5 text-[12px] font-bold text-accent transition-all hover:bg-accent/[0.08]">
+                                  <span className="material-symbols-outlined text-[14px]">database</span>
+                                  Kelola project di Content Library
+                                </a>
                               )}
-                              <ProjectsSection t={tProjects} items={data.projects || []} onChange={(items) => setData({ ...data, projects: items })} />
+                              <div className="pointer-events-none opacity-75"><ProjectsSection t={tProjects} items={data.projects || []} onChange={() => undefined} /></div>
                             </div>
                           );
                         }
@@ -1424,15 +1401,6 @@ export function Editor({
             </div>
           </div>
         </div>
-      )}
-
-      {/* Content Library import modal */}
-      {showLibraryImport && (
-        <ContentLibraryImportModal
-          workspaceId={workspaceId ?? null}
-          onClose={() => setShowLibraryImport(false)}
-          onImport={handleLibraryImport}
-        />
       )}
 
       {/* Publish Dialog (subdomain + gate) */}

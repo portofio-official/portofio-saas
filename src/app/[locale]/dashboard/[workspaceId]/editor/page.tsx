@@ -7,6 +7,8 @@ import { getUserProfile } from "@/lib/profile/queries";
 import { getDefinition } from "@/templates/registry";
 import { Editor } from "@/components/dashboard/Editor";
 import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
+import { listContentItems } from "@/lib/content/store";
+import { resolveLibraryData } from "@/lib/content/resolve";
 
 const DEFAULT_TEMPLATE: TemplateId = "minimal";
 
@@ -43,7 +45,7 @@ export default async function EditorPage({
     const profile = await getUserProfile();
     if (!profile) return redirect({ href: "/login", locale });
     const definition = getDefinition(selectedTemplateId as TemplateId);
-    const initialDoc = definition
+    let initialDoc = definition
       ? buildInitialDocument(profile, definition, locale)
       : {
           meta: {
@@ -55,6 +57,8 @@ export default async function EditorPage({
           },
           data: {},
         };
+    const libraryItems = await listContentItems(workspaceId);
+    initialDoc = { ...initialDoc, data: resolveLibraryData(initialDoc.data, libraryItems) };
 
     const created = await createProject(
       workspaceId,
@@ -103,13 +107,18 @@ export default async function EditorPage({
   const templateId = TEMPLATE_IDS.includes(fullProject.templateId as TemplateId)
     ? (fullProject.templateId as TemplateId)
     : DEFAULT_TEMPLATE;
+  const libraryItems = await listContentItems(workspaceId);
+  const resolvedDocument = {
+    ...fullProject.draftVersion.contentJson,
+    data: resolveLibraryData(fullProject.draftVersion.contentJson.data, libraryItems),
+  };
 
   return (
     <div className="flex h-full w-full flex-col">
       <Editor
         projectId={fullProject.id}
         workspaceId={workspaceId}
-        initialDocument={fullProject.draftVersion.contentJson}
+        initialDocument={resolvedDocument}
         initialPublishedDocument={publishedVersion?.contentJson ?? null}
         initialTemplateId={templateId}
         initialSubdomain={fullProject.subdomain}

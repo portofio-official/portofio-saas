@@ -8,6 +8,7 @@ import {
   createContentItem,
   updateContentItem,
   deleteContentItem,
+  updateContentItemState,
 } from "./store";
 import { sanitizeString } from "@/lib/utils/sanitize";
 import type { ContentItem, ContentItemInput } from "./types";
@@ -20,6 +21,9 @@ function sanitizeInput(input: ContentItemInput): ContentItemInput {
     description: sanitizeString(input.description ?? "").slice(0, 2000),
     imageUrl: sanitizeString(input.imageUrl ?? "").slice(0, 1000),
     link: sanitizeString(input.link ?? "").slice(0, 1000),
+    contentType: input.contentType ?? "project",
+    isActive: input.isActive ?? true,
+    content: input.content ?? {},
   };
 }
 
@@ -81,4 +85,12 @@ export async function deleteContentItemAction(
 ): Promise<{ ok: boolean; error?: string }> {
   const ok = await deleteContentItem(id);
   return ok ? { ok: true } : { ok: false, error: "Failed to delete item" };
+}
+
+export async function updateContentItemStateAction(
+  id: string,
+  isActive: boolean,
+  sortOrder: number,
+): Promise<{ ok: boolean }> {
+  return { ok: await updateContentItemState(id, isActive, Math.max(0, Math.round(sortOrder))) };
 }

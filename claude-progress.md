@@ -1,6 +1,15 @@
-# Session 042: Content Library — UX Hardening + Verification
+# Session 043: Content Library — Canonical Content Source + Visibility Controls
 **Status:** Verified / Passing
 **Latest state:**
+- Reworked Content Library into the canonical reusable content source. Existing project rows remain compatible; migration `supabase/migrations/20260810000001_content_library_sources.sql` adds `content_type`, `content_json`, global `is_active`, and `sort_order` per workspace item.
+- Library manager now supports Projects, Testimonials, Certificates, Case Studies, and Gallery tabs, with per-item visible/hidden toggle and global ordering controls.
+- Removed editor's copy/import workflow. Editor reads active library content by workspace and exposes a direct “Kelola project di Content Library” link; save and publish resolve active library items so changing templates does not require re-entry.
+- Supported templates receive matching fields (`projects`, `testimonials`, `certificates`, `caseStudies`, `gallery`) while unsupported template sections ignore those library types. Public sites remain snapshot-based and update on publish.
+- **Verification:** `npx tsc --noEmit` clean, `npm run lint` 0 errors (3 pre-existing warnings), `npm run build` clean, full E2E **24 passed / 1 skipped**.
+- **Operational note:** apply both content migrations (`20260809000001_add_content_library.sql`, then `20260810000001_content_library_sources.sql`) to Supabase before authenticated use.
+
+# Session 042: Content Library — UX Hardening + Verification
+**Status:** Verified / Passing
 - Hardened the Content Library flow after the baseline audit: fixed the React lint violation in `ContentLibraryImportModal` (safe async loading with cancellation), kept the no-workspace error declarative, and made failed saves keep the modal open for correction/retry.
 - Added required project-title validation and visible image-upload error feedback; completed the English translations for the Content Library namespace.
 - **Verification:** `./init.sh` completed; `npm run lint` (0 errors, 3 pre-existing warnings), `npx tsc --noEmit` clean, `npm run build` clean, and full `npm run test:e2e` **24 passed / 1 skipped**. The first E2E attempt hit sandbox `listen EPERM` on port 3000; rerun with approved local-server permission passed.
@@ -181,6 +190,5 @@
 
 **Next Steps:**
 - All MVP launch sprints (Sprint 0–3) codebase requirements are complete! Optional Sprint 4 (Google OAuth / Custom Domain) available for Fase 2 expansion.
-
 
 

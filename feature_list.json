@@ -454,22 +454,24 @@
       "id": "content-library-001",
       "priority": 15,
       "area": "content",
-      "title": "Content Library — reusable project cards with per-workspace management + in-editor import",
-      "user_visible_behavior": "A user can manage a reusable library of project cards (image + title + description + link) that is scoped to their workspace. They access it from a standalone dashboard page (/dashboard/content hub listing their workspaces, then /dashboard/<workspace>/content to manage) and, inside the editor's Projects section, an 'Import dari Content Library' action opens a multi-select picker that appends chosen items to the active template's projects.",
+      "title": "Content Library — canonical reusable content with per-item visibility and ordering",
+      "user_visible_behavior": "A user enters reusable Projects, Testimonials, Certificates, Case Studies, and Gallery items once per workspace. They can toggle each item visible/hidden and reorder items globally; active items automatically feed every compatible template without manual import.",
       "status": "passing",
       "verification": [
         "Content Library hub (/dashboard/content) and per-workspace library (/dashboard/[ws]/content) redirect unauthenticated users to /login.",
         "Library manager page renders workspace-scoped items after login (route is server-guarded; UI built inside the dashboard shell).",
-        "Editor Projects section shows the 'Import dari Content Library' button only when Editor receives a workspaceId.",
-        "Import picker loads items via listContentItemsAction, supports multi-select, and appends sanitized projects (title/description/imageUrl/link) into data.projects.",
+        "Editor resolves active workspace library items into compatible template fields and links users back to the library for changes.",
+        "Per-item visibility toggle and ordering controls persist through server actions.",
         "New e2e spec e2e/flows/11-content-library.spec.ts passes (2 tests) alongside the full suite.",
         "npx tsc --noEmit clean; npm run build clean.",
-        "Content Library UX hardening: async import loading is cancellation-safe, failed saves keep the modal open, project title is required, upload failures show a toast, and English translations are complete."
+        "Content Library UX hardening: failed saves keep the modal open, project title is required, upload failures show a toast, and English translations are complete.",
+        "Canonical source migration adds typed content JSON, active state, and sort order while preserving existing project rows."
       ],
       "evidence": [
         "2026-08-09: Added supabase/migrations/20260809000001_add_content_library.sql (content_library table + owner RLS + public 'content' storage bucket with owner-folder write policies). Added src/lib/content/{types,store,actions}.ts (server actions + storage upload). Added ContentLibrary manager, ContentLibraryImportModal, LibraryImageUploadField components; /dashboard/content hub page; editor import button + handler. Wired sidebar 'Content Library' item (no longer a dead placeholder). i18n ContentLibrary namespace in messages/id.json + messages/en.json.",
         "2026-08-09: e2e e2e/flows/11-content-library.spec.ts: 2 passed. Full suite: 24 passed / 1 skipped (skipped is the pre-existing credential-gated integration spec). tsc clean, build clean.",
-        "2026-08-09 (Session 042): Baseline ./init.sh completed; lint fixed to 0 errors (3 unrelated pre-existing warnings), tsc/build clean, full E2E 24 passed / 1 skipped."
+        "2026-08-09 (Session 042): Baseline ./init.sh completed; lint fixed to 0 errors (3 unrelated pre-existing warnings), tsc/build clean, full E2E 24 passed / 1 skipped.",
+        "2026-08-09 (Session 043): Replaced import-copy behavior with canonical library resolution, added five content types, visibility toggles, ordering, migration 20260810000001, and reverified build/E2E."
       ]
     }
   ]

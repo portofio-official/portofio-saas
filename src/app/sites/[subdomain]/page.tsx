@@ -35,7 +35,6 @@ async function getPublishedProject(subdomain: string) {
     published_json: versionData.content_json,
   };
 }
-
 export async function generateMetadata({
   params,
 }: {
@@ -142,4 +141,3 @@ export default async function PublicSitePage({
     </>
   );
 }
-

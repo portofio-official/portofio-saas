@@ -8,8 +8,9 @@ import {
   createContentItemAction,
   updateContentItemAction,
   deleteContentItemAction,
+  updateContentItemStateAction,
 } from "@/lib/content/actions";
-import type { ContentItem } from "@/lib/content/types";
+import type { ContentItem, ContentType } from "@/lib/content/types";
 import { LibraryImageUploadField } from "@/components/content/LibraryImageUploadField";
 
 interface ItemForm {
@@ -17,9 +18,13 @@ interface ItemForm {
   description: string;
   imageUrl: string;
   link: string;
+  contentType: ContentType;
+  metaA: string;
+  metaB: string;
 }
 
-const EMPTY_FORM: ItemForm = { title: "", description: "", imageUrl: "", link: "" };
+const EMPTY_FORM: ItemForm = { title: "", description: "", imageUrl: "", link: "", contentType: "project", metaA: "", metaB: "" };
+const CONTENT_TYPES: ContentType[] = ["project", "testimonial", "certificate", "caseStudy", "gallery"];
 
 export function ContentLibrary({
   workspaceId,
@@ -40,10 +45,11 @@ export function ContentLibrary({
   const [form, setForm] = useState<ItemForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [activeType, setActiveType] = useState<ContentType>("project");
 
   function openNew() {
     setEditing(null);
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM, contentType: activeType });
     setShowModal(true);
   }
 
@@ -54,6 +60,9 @@ export function ContentLibrary({
       description: item.description,
       imageUrl: item.imageUrl,
       link: item.link,
+      contentType: item.contentType,
+      metaA: String(item.content.role ?? item.content.issuer ?? item.content.category ?? item.content.location ?? ""),
+      metaB: String(item.content.date ?? ""),
     });
     setShowModal(true);
   }
@@ -71,6 +80,17 @@ export function ContentLibrary({
       description: form.description.trim(),
       imageUrl: form.imageUrl,
       link: form.link.trim(),
+      contentType: form.contentType,
+      isActive: editing?.isActive ?? true,
+      content: form.contentType === "testimonial"
+        ? { role: form.metaA }
+        : form.contentType === "certificate"
+          ? { issuer: form.metaA, date: form.metaB }
+          : form.contentType === "caseStudy"
+            ? { category: form.metaA, date: form.metaB }
+            : form.contentType === "gallery"
+              ? { location: form.metaA, date: form.metaB }
+              : {},
     };
     try {
       let saved = false;
@@ -104,6 +124,20 @@ export function ContentLibrary({
     } finally {
       setSaving(false);
     }
+  }
+
+  async function updateState(item: ContentItem, isActive: boolean, sortOrder: number) {
+    const res = await updateContentItemStateAction(item.id, isActive, sortOrder);
+    if (!res.ok) return showToast(t("saveError"), "error");
+    setItems((prev) => prev.map((entry) => entry.id === item.id ? { ...entry, isActive, sortOrder } : entry));
+  }
+
+  async function move(item: ContentItem, direction: -1 | 1) {
+    const typed = items.filter((entry) => entry.contentType === item.contentType).sort((a, b) => a.sortOrder - b.sortOrder);
+    const index = typed.findIndex((entry) => entry.id === item.id);
+    const target = typed[index + direction];
+    if (!target) return;
+    await Promise.all([updateState(item, item.isActive, target.sortOrder), updateState(target, target.isActive, item.sortOrder)]);
   }
 
   async function handleDelete(item: ContentItem) {
@@ -148,11 +182,18 @@ export function ContentLibrary({
           </button>
         </div>
         <p className="text-[12px] text-[#6B7280]">{t("hint")}</p>
+        <nav className="flex flex-wrap gap-2" aria-label={t("typesLabel")}>
+          {CONTENT_TYPES.map((type) => (
+            <button key={type} type="button" onClick={() => setActiveType(type)} className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${activeType === type ? "bg-[#E8FFF5] text-[#007A4A]" : "bg-[#F3F4F6] text-[#6B7280] hover:text-[#111827]"}`}>
+              {t(`types.${type}`)} ({items.filter((item) => item.contentType === type).length})
+            </button>
+          ))}
+        </nav>
       </header>
 
       {/* Grid */}
       <div className="flex-1 overflow-y-auto p-8">
-        {items.length === 0 ? (
+        {items.filter((item) => item.contentType === activeType).length === 0 ? (
           <div className="flex h-64 flex-col items-center justify-center gap-3 text-center">
             <span className="material-symbols-outlined text-[36px] text-[#9CA3AF]">
               folder_open
@@ -169,7 +210,7 @@ export function ContentLibrary({
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {items.map((item) => (
+            {items.filter((item) => item.contentType === activeType).sort((a, b) => a.sortOrder - b.sortOrder).map((item) => (
               <div
                 key={item.id}
                 className="group flex flex-col overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white transition-all duration-200 hover:border-[#D1D5DB] hover:shadow-md"
@@ -209,6 +250,11 @@ export function ContentLibrary({
                     </a>
                   )}
                   <div className="mt-auto flex items-center gap-1 pt-3">
+                    <button type="button" onClick={() => updateState(item, !item.isActive, item.sortOrder)} className={`mr-auto rounded-lg px-2 py-1 text-[11px] font-bold ${item.isActive ? "bg-[#E8FFF5] text-[#007A4A]" : "bg-[#F3F4F6] text-[#6B7280]"}`}>
+                      {item.isActive ? t("active") : t("inactive")}
+                    </button>
+                    <button type="button" aria-label={t("moveUp")} onClick={() => move(item, -1)} className="rounded-lg p-1 text-[#6B7280] hover:bg-[#F3F4F6]"><span className="material-symbols-outlined text-[16px]">arrow_upward</span></button>
+                    <button type="button" aria-label={t("moveDown")} onClick={() => move(item, 1)} className="rounded-lg p-1 text-[#6B7280] hover:bg-[#F3F4F6]"><span className="material-symbols-outlined text-[16px]">arrow_downward</span></button>
                     <button
                       type="button"
                       onClick={() => openEdit(item)}
@@ -255,6 +301,7 @@ export function ContentLibrary({
             </div>
 
             <div className="flex flex-1 flex-col gap-4 overflow-y-auto pr-1">
+              <label className="flex flex-col gap-1.5"><span className="text-[13px] font-medium text-ink-soft">{t("typeLabel")}</span><select value={form.contentType} onChange={(e) => setForm((f) => ({ ...f, contentType: e.target.value as ContentType }))} className="rounded-lg bg-surface ring-1 ring-black/10 px-4 py-2.5 text-[13px] font-medium text-ink focus:outline-none focus:ring-2 focus:ring-accent">{CONTENT_TYPES.map((type) => <option key={type} value={type}>{t(`types.${type}`)}</option>)}</select></label>
               <LibraryImageUploadField
                 label={t("imageLabel")}
                 value={form.imageUrl}
@@ -275,6 +322,8 @@ export function ContentLibrary({
                   className="rounded-lg bg-surface ring-1 ring-black/10 px-4 py-2.5 text-[13px] font-medium text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent"
                 />
               </label>
+              {form.contentType !== "project" && <label className="flex flex-col gap-1.5"><span className="text-[13px] font-medium text-ink-soft">{t(`metaA.${form.contentType}`)}</span><input value={form.metaA} onChange={(e) => setForm((f) => ({ ...f, metaA: e.target.value }))} className="rounded-lg bg-surface ring-1 ring-black/10 px-4 py-2.5 text-[13px] font-medium text-ink focus:outline-none focus:ring-2 focus:ring-accent" /></label>}
+              {(["certificate", "caseStudy", "gallery"] as ContentType[]).includes(form.contentType) && <label className="flex flex-col gap-1.5"><span className="text-[13px] font-medium text-ink-soft">{t("dateLabel")}</span><input value={form.metaB} onChange={(e) => setForm((f) => ({ ...f, metaB: e.target.value }))} placeholder="2026" className="rounded-lg bg-surface ring-1 ring-black/10 px-4 py-2.5 text-[13px] font-medium text-ink focus:outline-none focus:ring-2 focus:ring-accent" /></label>}
               <label className="flex flex-col gap-1.5">
                 <span className="text-[13px] font-medium text-ink-soft">{t("descLabel")}</span>
                 <textarea

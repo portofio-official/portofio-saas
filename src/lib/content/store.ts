@@ -15,6 +15,10 @@ function mapRow(row: Record<string, any>): ContentItem {
     link: row.link as string,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+    contentType: (row.content_type ?? "project") as ContentItem["contentType"],
+    isActive: row.is_active ?? true,
+    sortOrder: row.sort_order ?? 0,
+    content: (row.content_json ?? {}) as Record<string, unknown>,
   };
 }
 
@@ -24,6 +28,7 @@ export async function listContentItems(workspaceId: string): Promise<ContentItem
     .from("content_library")
     .select("*")
     .eq("workspace_id", workspaceId)
+    .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
   if (error || !data) return [];
   return data.map((r) => mapRow(r as Record<string, unknown>));
@@ -53,6 +58,9 @@ export async function createContentItem(
       description: input.description,
       image_url: input.imageUrl,
       link: input.link,
+      content_type: input.contentType ?? "project",
+      is_active: input.isActive ?? true,
+      content_json: input.content ?? {},
     })
     .select("*")
     .single();
@@ -72,6 +80,9 @@ export async function updateContentItem(
       description: input.description,
       image_url: input.imageUrl,
       link: input.link,
+      content_type: input.contentType ?? "project",
+      is_active: input.isActive ?? true,
+      content_json: input.content ?? {},
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);
@@ -81,5 +92,18 @@ export async function updateContentItem(
 export async function deleteContentItem(id: string): Promise<boolean> {
   const supabase = await createClient();
   const { error } = await supabase.from("content_library").delete().eq("id", id);
+  return !error;
+}
+
+export async function updateContentItemState(
+  id: string,
+  isActive: boolean,
+  sortOrder: number,
+): Promise<boolean> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("content_library")
+    .update({ is_active: isActive, sort_order: sortOrder, updated_at: new Date().toISOString() })
+    .eq("id", id);
   return !error;
 }

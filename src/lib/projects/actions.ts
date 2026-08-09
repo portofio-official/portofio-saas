@@ -9,6 +9,8 @@ import { getCurrentUserEmail } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeObjectData } from "@/lib/utils/sanitize";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { listContentItems } from "@/lib/content/store";
+import { resolveLibraryData } from "@/lib/content/resolve";
 
 export async function createProjectAction(
   workspaceId: string,
@@ -32,7 +34,13 @@ export async function saveDraftAction(
   projectId: string,
   draftJson: WebsiteDocument,
 ): Promise<{ ok: boolean }> {
-  const sanitizedDraft = sanitizeObjectData(draftJson);
+  const project = await getProjectWithDraft(projectId);
+  if (!project) return { ok: false };
+  const libraryItems = await listContentItems(project.workspaceId);
+  const sanitizedDraft = sanitizeObjectData({
+    ...draftJson,
+    data: resolveLibraryData(draftJson.data, libraryItems),
+  });
   const ok = await saveDraftJson(projectId, sanitizedDraft);
   return { ok };
 }
@@ -143,6 +151,17 @@ export async function publishProjectAction(
   if (!hasSubscription) return { ok: false, error: "subscription_required", requiresSubscription: true };
 
   const supabase = await createClient();
+
+  const projectWithDraft = await getProjectWithDraft(projectId);
+  if (!projectWithDraft) return { ok: false, error: "Project not found." };
+  const libraryItems = await listContentItems(projectWithDraft.workspaceId);
+  const resolvedDraft: WebsiteDocument = {
+    ...projectWithDraft.draftVersion.contentJson,
+    data: resolveLibraryData(projectWithDraft.draftVersion.contentJson.data, libraryItems),
+  };
+  if (!(await saveDraftJson(projectId, sanitizeObjectData(resolvedDraft)))) {
+    return { ok: false, error: "Failed to sync Content Library." };
+  }
 
   // Check DB blocklist
   const { data: blocked } = await supabase

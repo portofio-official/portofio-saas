@@ -2,6 +2,8 @@
 // + link) per workspace, ready to be inserted into a template's Projects
 // section from the editor.
 
+export type ContentType = "project" | "testimonial" | "certificate" | "caseStudy" | "gallery";
+
 export interface ContentItem {
   id: string;
   workspaceId: string;
@@ -11,6 +13,10 @@ export interface ContentItem {
   link: string;
   createdAt: string;
   updatedAt: string;
+  contentType: ContentType;
+  isActive: boolean;
+  sortOrder: number;
+  content: Record<string, unknown>;
 }
 
 export interface ContentItemInput {
@@ -18,4 +24,7 @@ export interface ContentItemInput {
   description: string;
   imageUrl: string;
   link: string;
+  contentType?: ContentType;
+  isActive?: boolean;
+  content?: Record<string, unknown>;
 }

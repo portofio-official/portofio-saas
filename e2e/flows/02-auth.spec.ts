@@ -40,4 +40,10 @@ test.describe("Flow 2 — Authentication & Onboarding Protection", () => {
     await page.waitForURL("**/login**");
     expect(page.url()).toContain("/login");
   });
+
+  test("Unauthenticated access to /dashboard/profile redirects to /login", async ({ page }) => {
+    await page.goto("/id/dashboard/profile");
+    await page.waitForURL("**/login**");
+    expect(page.url()).toContain("/login");
+  });
 });

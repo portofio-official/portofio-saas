@@ -548,6 +548,30 @@
         "DashboardSidebar — Analytics is now a working Pro-badged nav item with active state."
       ],
       "notes": "Dashboard is gated behind the existing auth layout; the analytics page shows an empty state for accounts with no published sites. Bot hits are stored but filtered out of every aggregate. Midtrans/gated Pro-gate for analytics was deliberately NOT applied (analytics is currently available to all authenticated users with a published site)."
+    },
+    {
+      "id": "profile-ux-001",
+      "priority": 18,
+      "area": "profile",
+      "title": "Profile form UX speed-up + phone country auto-detection",
+      "user_visible_behavior": "The user profile form (/dashboard/profile) fills faster and cleaner: inputs and controls follow DESIGN.md tokens (bg-canvas/bg-surface/ink/ring accents, accent round CTA), form fields carry autocomplete hints so browsers/autofill populate them, and the phone field now auto-detects the number's country as the user types (country flag + calling code pill, safe formatting, and stored international canonical form) with a searchable country dropdown to pick manually when detection isn't possible.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npm run lint: 0 errors (1 pre-existing warning in BillingClientView, unrelated).",
+        "npm run build: clean; /[locale]/dashboard/profile present.",
+        "npx playwright test: 26 passed / 1 skipped (added /dashboard/profile auth-gate smoke to 02-auth.spec.ts).",
+        "Manual logic check (node): pasting +1415…→+1 USA, +6281…→+62 ID, +44…→+44 GB, +659…→+65 SG, national 0-prefix→canonical +62, country-dropdown switch rebases national digits under the new calling code."
+      ],
+      "evidence": [
+        "2026-08-11 (Session 053): Added libphonenumber-js dependency.",
+        "2026-08-11: src/lib/phone/countries.ts — full country list built from libphonenumber-js (getCountries + getCountryCallingCode) with localized names via Intl.DisplayNames (en/id), flag emoji from ISO, and a longest-prefix calling-code matcher for partial detection.",
+        "2026-08-11: src/components/ui/PhoneNumberInput.tsx — client country selector pill (flag + +CC + expand chevron) with a searchable country dropdown, an input that formats/holds the national number, parse-based detection when the value starts with '+', a bare-prefix matcher fallback, and a canonical on-change emitter that stores the international form (+<CC> <digits>, leading trunk zero stripped). Selecting a country rebases the current number under the new calling code.",
+        "2026-08-11: Rebuilt src/components/profile/ProfileClientView.tsx on DESIGN.md tokens — rounded-2xl bg-surface panel with ring-black/5, rounded-lg inputs with ring-black/10 + focus ring-accent, ink/ink-soft labels, accent rounded-full save CTA, Material Symbols add/remove icon buttons for social/skills rows, and autocomplete hints per field (name/email/tel/street-address/nickname/organization-title) for faster browser autofill.",
+        "2026-08-11: i18n — new Profile keys in messages/en.json + id.json (phonePlaceholder adjusted to a national-style example, phoneHint, countrySearch, noCountryHint); page.tsx now reads route locale and passes it to the phone input for localized country names.",
+        "Verified 2026-08-11: npx tsc --noEmit clean, npm run lint 0 errors (1 pre-existing warning), npm run build clean, npm run test:e2e 26 passed / 1 skipped, plus a throwaway node flow test confirming detection + canonical outcomes for US/ID/GB/SG/local-zero inputs."
+      ],
+      "notes": "Scope: profile settings form only. The editor's per-template contact phone fields and the signup phone field were intentionally left unchanged. Detection deliberately triggers only on an explicit '+' (or a pasted international number) — no heuristic country-guessing on bare national digits (an Indonesian 08…/8… national number would otherwise be miscast, e.g. 81x → Japan). Stored format remains international (+<CC> <national digits>) so templates and the rest of the app keep rendering it unchanged."
     }
   ]
 }

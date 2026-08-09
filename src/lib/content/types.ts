@@ -1,12 +1,13 @@
-// Content Library — reusable project cards (image + title + description
-// + link) per workspace, ready to be inserted into a template's Projects
-// section from the editor.
+// Content Library — reusable content cards (image + title + description
+// + link) per account (user-scoped), ready to be resolved into any template's
+// Projects/Testimonials/etc. sections. One global library per user, shared
+// across all their workspaces.
 
 export type ContentType = "project" | "testimonial" | "certificate" | "caseStudy" | "gallery";
 
 export interface ContentItem {
   id: string;
-  workspaceId: string;
+  userId: string;
   title: string;
   description: string;
   imageUrl: string;

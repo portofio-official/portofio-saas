@@ -27,20 +27,17 @@ function sanitizeInput(input: ContentItemInput): ContentItemInput {
   };
 }
 
-export async function listContentItemsAction(
-  workspaceId: string,
-): Promise<ContentItem[]> {
-  return listContentItems(workspaceId);
+export async function listContentItemsAction(): Promise<ContentItem[]> {
+  return listContentItems();
 }
 
 export async function getContentItemAction(id: string): Promise<ContentItem | null> {
   return getContentItem(id);
 }
 
-/** Uploads a compressed image (data:image/... URL) to the workspace's content
+/** Uploads a compressed image (data:image/... URL) to the user's content
  *  folder in Supabase Storage and returns the public URL. */
 export async function uploadContentImageAction(
-  workspaceId: string,
   dataUrl: string,
 ): Promise<{ ok: boolean; url?: string; error?: string }> {
   const match = /^data:(image\/(?:png|jpeg|webp|gif));base64,(.+)$/.exec(dataUrl ?? "");
@@ -52,8 +49,13 @@ export async function uploadContentImageAction(
   if (bytes.byteLength === 0) return { ok: false, error: "Empty file" };
   if (bytes.byteLength > 8 * 1024 * 1024) return { ok: false, error: "tooLarge" };
 
-  const path = `${workspaceId}/${randomUUID()}.${ext}`;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not authenticated." };
+
+  const path = `${user.id}/${randomUUID()}.${ext}`;
   const { error } = await supabase.storage
     .from(CONTENT_BUCKET)
     .upload(path, bytes, { contentType: mime, upsert: false });
@@ -64,10 +66,9 @@ export async function uploadContentImageAction(
 }
 
 export async function createContentItemAction(
-  workspaceId: string,
   input: ContentItemInput,
 ): Promise<{ ok: boolean; item?: ContentItem; error?: string }> {
-  const item = await createContentItem(workspaceId, sanitizeInput(input));
+  const item = await createContentItem(sanitizeInput(input));
   if (!item) return { ok: false, error: "Failed to save item" };
   return { ok: true, item };
 }

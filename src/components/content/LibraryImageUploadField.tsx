@@ -7,7 +7,6 @@ import { uploadContentImageAction } from "@/lib/content/actions";
 export function LibraryImageUploadField({
   label,
   value,
-  workspaceId,
   onChange,
   onError,
   uploadLabel,
@@ -16,7 +15,6 @@ export function LibraryImageUploadField({
 }: {
   label: string;
   value?: string;
-  workspaceId: string;
   onChange: (url: string | undefined) => void;
   onError?: () => void;
   uploadLabel: string;
@@ -30,7 +28,7 @@ export function LibraryImageUploadField({
     setBusy(true);
     try {
       const dataUrl = await compressImageToDataUrl(file, 1600, 0.82);
-      const result = await uploadContentImageAction(workspaceId, dataUrl);
+      const result = await uploadContentImageAction(dataUrl);
       if (result.ok && result.url) {
         onChange(result.url);
       } else {

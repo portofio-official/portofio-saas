@@ -476,7 +476,7 @@ export function DashboardClientView({
                               </Link>
 
                               <Link
-                                href={`/dashboard/${workspace.id}/content`}
+                                href={`/dashboard/content`}
                                 className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-[#374151] hover:bg-[#F9FAFB] transition-colors"
                               >
                                 <span className="material-symbols-outlined text-[16px] text-[#6B7280]">folder_open</span>

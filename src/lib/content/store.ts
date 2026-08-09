@@ -2,13 +2,13 @@ import { createClient } from "@/lib/supabase/server";
 import type { ContentItem, ContentItemInput } from "./types";
 
 // RLS (content_library_owner_all, to authenticated) scopes rows to the
-// caller's own workspaces — no manual user_id filter needed.
+// caller's account via user_id = auth.uid() — no manual filter needed.
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapRow(row: Record<string, any>): ContentItem {
   return {
     id: row.id as string,
-    workspaceId: row.workspace_id as string,
+    userId: row.user_id as string,
     title: row.title as string,
     description: row.description as string,
     imageUrl: row.image_url as string,
@@ -22,12 +22,11 @@ function mapRow(row: Record<string, any>): ContentItem {
   };
 }
 
-export async function listContentItems(workspaceId: string): Promise<ContentItem[]> {
+export async function listContentItems(): Promise<ContentItem[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("content_library")
     .select("*")
-    .eq("workspace_id", workspaceId)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
   if (error || !data) return [];
@@ -45,15 +44,17 @@ export async function getContentItem(id: string): Promise<ContentItem | null> {
   return mapRow(data as Record<string, unknown>);
 }
 
-export async function createContentItem(
-  workspaceId: string,
-  input: ContentItemInput,
-): Promise<ContentItem | null> {
+export async function createContentItem(input: ContentItemInput): Promise<ContentItem | null> {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
   const { data, error } = await supabase
     .from("content_library")
     .insert({
-      workspace_id: workspaceId,
+      user_id: user.id,
       title: input.title,
       description: input.description,
       image_url: input.imageUrl,

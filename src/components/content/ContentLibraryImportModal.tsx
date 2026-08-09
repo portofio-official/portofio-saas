@@ -13,25 +13,21 @@ export interface ImportedProject {
 }
 
 export function ContentLibraryImportModal({
-  workspaceId,
   onClose,
   onImport,
 }: {
-  workspaceId: string | null;
   onClose: () => void;
   onImport: (items: ImportedProject[]) => void;
 }) {
   const t = useTranslations("ContentLibrary");
   const [items, setItems] = useState<ContentItem[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(Boolean(workspaceId));
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!workspaceId) return;
-
     let cancelled = false;
-    listContentItemsAction(workspaceId)
+    listContentItemsAction()
       .then((result) => {
         if (!cancelled) setItems(result);
       })
@@ -45,9 +41,9 @@ export function ContentLibraryImportModal({
     return () => {
       cancelled = true;
     };
-  }, [workspaceId]);
+  }, []);
 
-  const displayError = error ?? (!workspaceId ? "noWorkspace" : null);
+  const displayError = error;
 
   function toggle(id: string) {
     setSelected((prev) => {

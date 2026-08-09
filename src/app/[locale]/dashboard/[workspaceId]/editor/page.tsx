@@ -57,7 +57,7 @@ export default async function EditorPage({
           },
           data: {},
         };
-    const libraryItems = await listContentItems(workspaceId);
+    const libraryItems = await listContentItems();
     initialDoc = { ...initialDoc, data: resolveLibraryData(initialDoc.data, libraryItems) };
 
     const created = await createProject(
@@ -107,7 +107,7 @@ export default async function EditorPage({
   const templateId = TEMPLATE_IDS.includes(fullProject.templateId as TemplateId)
     ? (fullProject.templateId as TemplateId)
     : DEFAULT_TEMPLATE;
-  const libraryItems = await listContentItems(workspaceId);
+  const libraryItems = await listContentItems();
   const resolvedDocument = {
     ...fullProject.draftVersion.contentJson,
     data: resolveLibraryData(fullProject.draftVersion.contentJson.data, libraryItems),

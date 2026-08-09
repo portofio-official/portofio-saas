@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
@@ -26,13 +26,12 @@ interface ItemForm {
 const EMPTY_FORM: ItemForm = { title: "", description: "", imageUrl: "", link: "", contentType: "project", metaA: "", metaB: "" };
 const CONTENT_TYPES: ContentType[] = ["project", "testimonial", "certificate", "caseStudy", "gallery"];
 
+const inputCls =
+  "w-full rounded-lg bg-surface ring-1 ring-black/10 px-3.5 py-2.5 text-sm font-medium text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent transition-shadow";
+
 export function ContentLibrary({
-  workspaceId,
-  workspaceName,
   initialItems,
 }: {
-  workspaceId: string;
-  workspaceName: string;
   initialItems: ContentItem[];
 }) {
   const t = useTranslations("ContentLibrary");
@@ -46,6 +45,23 @@ export function ContentLibrary({
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<ContentType>("project");
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return items
+      .filter((item) => item.contentType === activeType)
+      .filter((item) =>
+        q ? `${item.title} ${item.description}`.toLowerCase().includes(q) : true,
+      )
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+  }, [items, activeType, query]);
+
+  const counts = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const type of CONTENT_TYPES) map[type] = items.filter((i) => i.contentType === type).length;
+    return map;
+  }, [items]);
 
   function openNew() {
     setEditing(null);
@@ -106,9 +122,10 @@ export function ContentLibrary({
           showToast(res.error ?? t("saveError"), "error");
         }
       } else {
-        const res = await createContentItemAction(workspaceId, payload);
+        const res = await createContentItemAction(payload);
         if (res.ok && res.item) {
           setItems((prev) => [res.item!, ...prev]);
+          setActiveType(res.item.contentType);
           showToast(t("created"), "success");
           saved = true;
         } else {
@@ -162,60 +179,93 @@ export function ContentLibrary({
   return (
     <div className="flex h-full flex-col overflow-hidden bg-white">
       {/* Header */}
-      <header className="flex shrink-0 flex-col gap-4 border-b border-[#E5E7EB] bg-white px-8 py-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <header className="shrink-0 border-b border-black/5 bg-white px-6 py-5 sm:px-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-[22px] font-bold tracking-tight text-[#111827]">
-              {t("title")}
-            </h1>
-            <p className="mt-1 text-[12px] font-medium text-[#6B7280]">
-              {t("subtitle")} · <span className="text-[#059669]">{workspaceName}</span>
-            </p>
+            <h1 className="text-[20px] font-bold tracking-tight text-ink">{t("title")}</h1>
+            <p className="mt-1 text-[12.5px] font-medium text-ink-soft">{t("subtitle")}</p>
           </div>
           <button
             type="button"
             onClick={openNew}
-            className="flex h-9 items-center gap-2 rounded-xl bg-[#00cf7c] hover:bg-[#00b368] px-4 text-[13px] font-bold text-white shadow-[0_4px_14px_0_rgba(0,207,124,0.35)] transition-all active:scale-[0.98]"
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 self-start rounded-full bg-accent px-4 text-[13px] font-semibold text-white shadow-sm transition-all hover:bg-accent-deep active:scale-[0.98]"
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
+            <span className="material-symbols-outlined text-[17px]">add</span>
             {t("addItem")}
           </button>
         </div>
-        <p className="text-[12px] text-[#6B7280]">{t("hint")}</p>
-        <nav className="flex flex-wrap gap-2" aria-label={t("typesLabel")}>
-          {CONTENT_TYPES.map((type) => (
-            <button key={type} type="button" onClick={() => setActiveType(type)} className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${activeType === type ? "bg-[#E8FFF5] text-[#007A4A]" : "bg-[#F3F4F6] text-[#6B7280] hover:text-[#111827]"}`}>
-              {t(`types.${type}`)} ({items.filter((item) => item.contentType === type).length})
-            </button>
-          ))}
-        </nav>
+
+        <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <nav
+            className="inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-full bg-black/[0.045] p-1"
+            aria-label={t("typesLabel")}
+          >
+            {CONTENT_TYPES.map((type) => {
+              const active = activeType === type;
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setActiveType(type)}
+                  className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                    active ? "bg-surface text-ink shadow-sm ring-1 ring-black/5" : "text-ink-soft hover:text-ink"
+                  }`}
+                >
+                  {t(`types.${type}`)}
+                  <span className={`ml-1.5 text-[11px] font-bold ${active ? "text-accent" : "text-ink-faint"}`}>
+                    {counts[type]}
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="relative w-full max-w-[260px]">
+            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[15px] text-ink-faint">
+              search
+            </span>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              className="w-full rounded-full bg-shell py-1.5 pl-8 pr-3 text-xs font-medium text-ink placeholder:text-ink-faint ring-1 ring-transparent focus:outline-none focus:bg-surface focus:ring-black/10 transition-shadow"
+            />
+          </div>
+        </div>
       </header>
 
       {/* Grid */}
-      <div className="flex-1 overflow-y-auto p-8">
-        {items.filter((item) => item.contentType === activeType).length === 0 ? (
-          <div className="flex h-64 flex-col items-center justify-center gap-3 text-center">
-            <span className="material-symbols-outlined text-[36px] text-[#9CA3AF]">
-              folder_open
-            </span>
-            <p className="text-[16px] font-semibold text-[#111827]">{t("emptyTitle")}</p>
-            <p className="max-w-sm text-[13px] text-[#6B7280]">{t("emptyDesc")}</p>
-            <button
-              type="button"
-              onClick={openNew}
-              className="mt-2 rounded-xl bg-[#00cf7c] hover:bg-[#00b368] px-4 py-2 text-[13px] font-bold text-white transition-colors"
-            >
-              {t("addItem")}
-            </button>
+      <div className="flex-1 overflow-y-auto bg-shell/40 px-6 py-6 sm:px-8">
+        {filtered.length === 0 ? (
+          <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-3.5 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-tint ring-1 ring-accent/20">
+              <span className="material-symbols-outlined text-[26px] text-accent-deep">
+                {query ? "search_off" : "folder_open"}
+              </span>
+            </div>
+            <p className="text-[15px] font-bold text-ink">{query ? t("searchEmptyTitle") : t("emptyTitle")}</p>
+            <p className="max-w-sm text-[12.5px] leading-relaxed text-ink-soft">
+              {query ? t("searchEmptyDesc") : t("emptyDesc")}
+            </p>
+            {!query && (
+              <button
+                type="button"
+                onClick={openNew}
+                className="mt-1.5 rounded-full bg-accent px-5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-accent-deep active:scale-[0.98]"
+              >
+                {t("addItem")}
+              </button>
+            )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {items.filter((item) => item.contentType === activeType).sort((a, b) => a.sortOrder - b.sortOrder).map((item) => (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filtered.map((item) => (
               <div
                 key={item.id}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white transition-all duration-200 hover:border-[#D1D5DB] hover:shadow-md"
+                className="group flex flex-col overflow-hidden rounded-2xl bg-surface shadow-sm ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-black/10"
               >
-                <div className="flex h-36 items-center justify-center overflow-hidden bg-[#F9FAFB]">
+                <div className="relative aspect-[4/3] overflow-hidden bg-shell">
                   {item.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -224,54 +274,76 @@ export function ContentLibrary({
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                     />
                   ) : (
-                    <span className="material-symbols-outlined text-[28px] text-[#C0C8D4]">
-                      image
-                    </span>
+                    <div className="flex h-full items-center justify-center">
+                      <span className="material-symbols-outlined text-[30px] text-ink-faint/70">image</span>
+                    </div>
                   )}
                 </div>
+
                 <div className="flex flex-1 flex-col p-4">
-                  <p className="truncate text-[14px] font-semibold text-[#111827]">
-                    {item.title || t("untitled")}
-                  </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="min-w-0 truncate text-[14px] font-semibold text-ink">
+                      {item.title || t("untitled")}
+                    </h3>
+                    <button
+                      type="button"
+                      aria-label={item.isActive ? t("madeActive") : t("madeInactive")}
+                      onClick={() => updateState(item, !item.isActive, item.sortOrder)}
+                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors ${
+                        item.isActive ? "bg-accent-tint text-accent-deep" : "bg-shell text-ink-faint hover:text-ink-soft"
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[14px]">
+                        {item.isActive ? "check_circle" : "visibility_off"}
+                      </span>
+                    </button>
+                  </div>
+
                   {item.description && (
-                    <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-[#6B7280]">
+                    <p className="mt-1.5 line-clamp-2 text-[12px] leading-snug text-ink-soft">
                       {item.description}
                     </p>
                   )}
+
                   {item.link && (
                     <a
                       href={item.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-1 inline-flex w-max items-center gap-1 text-[11px] font-semibold text-[#00b368] hover:underline"
+                      className="mt-2 inline-flex w-max items-center gap-1 text-[11px] font-semibold text-accent-deep hover:underline"
                     >
                       {t("openLink")}
                       <span className="material-symbols-outlined text-[12px]">open_in_new</span>
                     </a>
                   )}
-                  <div className="mt-auto flex items-center gap-1 pt-3">
-                    <button type="button" onClick={() => updateState(item, !item.isActive, item.sortOrder)} className={`mr-auto rounded-lg px-2 py-1 text-[11px] font-bold ${item.isActive ? "bg-[#E8FFF5] text-[#007A4A]" : "bg-[#F3F4F6] text-[#6B7280]"}`}>
+
+                  <div className="mt-4 flex items-center justify-between border-t border-black/5 pt-3">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-bold ${
+                      item.isActive ? "bg-accent-tint text-accent-deep" : "bg-shell text-ink-faint"
+                    }`}>
                       {item.isActive ? t("active") : t("inactive")}
-                    </button>
-                    <button type="button" aria-label={t("moveUp")} onClick={() => move(item, -1)} className="rounded-lg p-1 text-[#6B7280] hover:bg-[#F3F4F6]"><span className="material-symbols-outlined text-[16px]">arrow_upward</span></button>
-                    <button type="button" aria-label={t("moveDown")} onClick={() => move(item, 1)} className="rounded-lg p-1 text-[#6B7280] hover:bg-[#F3F4F6]"><span className="material-symbols-outlined text-[16px]">arrow_downward</span></button>
-                    <button
-                      type="button"
-                      onClick={() => openEdit(item)}
-                      className="flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-medium text-[#374151] hover:bg-[#F9FAFB] transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-[15px]">edit</span>
-                      {t("edit")}
-                    </button>
-                    <button
-                      type="button"
-                      disabled={deletingId === item.id}
-                      onClick={() => handleDelete(item)}
-                      className="flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-medium text-[#DC2626] hover:bg-[#FFEFEE] transition-colors disabled:opacity-50"
-                    >
-                      <span className="material-symbols-outlined text-[15px]">delete</span>
-                      {t("delete")}
-                    </button>
+                    </span>
+
+                    <div className="flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+                      <button type="button" aria-label={t("moveUp")} onClick={() => move(item, -1)} className="flex h-7 w-7 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-shell hover:text-ink">
+                        <span className="material-symbols-outlined text-[15px]">arrow_upward</span>
+                      </button>
+                      <button type="button" aria-label={t("moveDown")} onClick={() => move(item, 1)} className="flex h-7 w-7 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-shell hover:text-ink">
+                        <span className="material-symbols-outlined text-[15px]">arrow_downward</span>
+                      </button>
+                      <button type="button" aria-label={t("edit")} onClick={() => openEdit(item)} className="flex h-7 w-7 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-shell hover:text-ink">
+                        <span className="material-symbols-outlined text-[15px]">edit</span>
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={t("delete")}
+                        disabled={deletingId === item.id}
+                        onClick={() => handleDelete(item)}
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-danger/10 hover:text-danger disabled:opacity-40"
+                      >
+                        <span className="material-symbols-outlined text-[15px]">delete</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -283,74 +355,110 @@ export function ContentLibrary({
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-          <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white p-6 shadow-floating ring-1 ring-black/5">
-            <div className="mb-4 flex items-start justify-between">
+          <div className="flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-surface p-6 shadow-floating ring-1 ring-black/5">
+            <div className="mb-5 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold text-ink">
+                <h3 className="text-[17px] font-bold text-ink">
                   {editing ? t("editTitle") : t("addTitle")}
                 </h3>
-                <p className="mt-1 text-sm text-ink-soft">{t("modalHint")}</p>
+                <p className="mt-1 text-[12.5px] text-ink-soft">{t("modalHint")}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink"
+                aria-label={t("cancel")}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-shell hover:text-ink"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
             </div>
 
             <div className="flex flex-1 flex-col gap-4 overflow-y-auto pr-1">
-              <label className="flex flex-col gap-1.5"><span className="text-[13px] font-medium text-ink-soft">{t("typeLabel")}</span><select value={form.contentType} onChange={(e) => setForm((f) => ({ ...f, contentType: e.target.value as ContentType }))} className="rounded-lg bg-surface ring-1 ring-black/10 px-4 py-2.5 text-[13px] font-medium text-ink focus:outline-none focus:ring-2 focus:ring-accent">{CONTENT_TYPES.map((type) => <option key={type} value={type}>{t(`types.${type}`)}</option>)}</select></label>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[12.5px] font-semibold text-ink-soft">{t("typeLabel")}</span>
+                  <select
+                    value={form.contentType}
+                    onChange={(e) => setForm((f) => ({ ...f, contentType: e.target.value as ContentType }))}
+                    className={inputCls}
+                  >
+                    {CONTENT_TYPES.map((type) => <option key={type} value={type}>{t(`types.${type}`)}</option>)}
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[12px] font-semibold text-ink-soft">{t("titleLabel")}</span>
+                  <input
+                    type="text"
+                    value={form.title}
+                    onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                    placeholder={t("titlePlaceholder")}
+                    className={inputCls}
+                  />
+                </label>
+              </div>
+
+              {form.contentType !== "project" && (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[12px] font-semibold text-ink-soft">{t(`metaA.${form.contentType}`)}</span>
+                    <input
+                      value={form.metaA}
+                      onChange={(e) => setForm((f) => ({ ...f, metaA: e.target.value }))}
+                      className={inputCls}
+                    />
+                  </label>
+                  {(["certificate", "caseStudy", "gallery"] as ContentType[]).includes(form.contentType) && (
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[12px] font-semibold text-ink-soft">{t("dateLabel")}</span>
+                      <input
+                        value={form.metaB}
+                        onChange={(e) => setForm((f) => ({ ...f, metaB: e.target.value }))}
+                        placeholder="2026"
+                        className={inputCls}
+                      />
+                    </label>
+                  )}
+                </div>
+              )}
+
               <LibraryImageUploadField
                 label={t("imageLabel")}
                 value={form.imageUrl}
-                workspaceId={workspaceId}
                 onChange={(url) => setForm((f) => ({ ...f, imageUrl: url ?? "" }))}
                 onError={() => showToast(t("imageUploadError"), "error")}
                 uploadLabel={t("imageUpload")}
                 replaceLabel={t("imageReplace")}
                 removeLabel={t("imageRemove")}
               />
+
               <label className="flex flex-col gap-1.5">
-                <span className="text-[13px] font-medium text-ink-soft">{t("titleLabel")}</span>
-                <input
-                  type="text"
-                  value={form.title}
-                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                  placeholder={t("titlePlaceholder")}
-                  className="rounded-lg bg-surface ring-1 ring-black/10 px-4 py-2.5 text-[13px] font-medium text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent"
-                />
-              </label>
-              {form.contentType !== "project" && <label className="flex flex-col gap-1.5"><span className="text-[13px] font-medium text-ink-soft">{t(`metaA.${form.contentType}`)}</span><input value={form.metaA} onChange={(e) => setForm((f) => ({ ...f, metaA: e.target.value }))} className="rounded-lg bg-surface ring-1 ring-black/10 px-4 py-2.5 text-[13px] font-medium text-ink focus:outline-none focus:ring-2 focus:ring-accent" /></label>}
-              {(["certificate", "caseStudy", "gallery"] as ContentType[]).includes(form.contentType) && <label className="flex flex-col gap-1.5"><span className="text-[13px] font-medium text-ink-soft">{t("dateLabel")}</span><input value={form.metaB} onChange={(e) => setForm((f) => ({ ...f, metaB: e.target.value }))} placeholder="2026" className="rounded-lg bg-surface ring-1 ring-black/10 px-4 py-2.5 text-[13px] font-medium text-ink focus:outline-none focus:ring-2 focus:ring-accent" /></label>}
-              <label className="flex flex-col gap-1.5">
-                <span className="text-[13px] font-medium text-ink-soft">{t("descLabel")}</span>
+                <span className="text-[12px] font-semibold text-ink-soft">{t("descLabel")}</span>
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   rows={4}
                   placeholder={t("descPlaceholder")}
-                  className="resize-none rounded-lg bg-surface ring-1 ring-black/10 px-4 py-2.5 text-[13px] font-medium text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent"
+                  className={`${inputCls} resize-none`}
                 />
               </label>
+
               <label className="flex flex-col gap-1.5">
-                <span className="text-[13px] font-medium text-ink-soft">{t("linkLabel")}</span>
+                <span className="text-[12px] font-semibold text-ink-soft">{t("linkLabel")}</span>
                 <input
                   type="url"
                   value={form.link}
                   onChange={(e) => setForm((f) => ({ ...f, link: e.target.value }))}
                   placeholder="https://…"
-                  className="rounded-lg bg-surface ring-1 ring-black/10 px-4 py-2.5 text-[13px] font-medium text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent"
+                  className={inputCls}
                 />
               </label>
             </div>
 
-            <div className="mt-5 flex items-center justify-end gap-3">
+            <div className="mt-5 flex items-center justify-end gap-3 border-t border-black/5 pt-4">
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="rounded-full bg-white px-4 py-2 text-sm font-medium text-ink ring-1 ring-black/10 transition-colors hover:bg-black/5"
+                className="rounded-full px-4 py-2 text-sm font-semibold text-ink-soft ring-1 ring-black/10 transition-colors hover:bg-shell hover:text-ink"
               >
                 {t("cancel")}
               </button>

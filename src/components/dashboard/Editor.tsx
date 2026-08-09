@@ -736,7 +736,7 @@ export function Editor({
                           return (
                             <div className="flex flex-col gap-3">
                               {workspaceId && (
-                                <a href={`/${locale}/dashboard/${workspaceId}/content`} className="inline-flex w-full items-center justify-center gap-1.5 rounded-[1rem] border border-accent/25 bg-accent/[0.04] px-4 py-2.5 text-[12px] font-bold text-accent transition-all hover:bg-accent/[0.08]">
+                                <a href={`/${locale}/dashboard/content`} className="inline-flex w-full items-center justify-center gap-1.5 rounded-[1rem] border border-accent/25 bg-accent/[0.04] px-4 py-2.5 text-[12px] font-bold text-accent transition-all hover:bg-accent/[0.08]">
                                   <span className="material-symbols-outlined text-[14px]">database</span>
                                   Kelola project di Content Library
                                 </a>

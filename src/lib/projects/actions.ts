@@ -36,7 +36,7 @@ export async function saveDraftAction(
 ): Promise<{ ok: boolean }> {
   const project = await getProjectWithDraft(projectId);
   if (!project) return { ok: false };
-  const libraryItems = await listContentItems(project.workspaceId);
+  const libraryItems = await listContentItems();
   const sanitizedDraft = sanitizeObjectData({
     ...draftJson,
     data: resolveLibraryData(draftJson.data, libraryItems),
@@ -154,7 +154,7 @@ export async function publishProjectAction(
 
   const projectWithDraft = await getProjectWithDraft(projectId);
   if (!projectWithDraft) return { ok: false, error: "Project not found." };
-  const libraryItems = await listContentItems(projectWithDraft.workspaceId);
+  const libraryItems = await listContentItems();
   const resolvedDraft: WebsiteDocument = {
     ...projectWithDraft.draftVersion.contentJson,
     data: resolveLibraryData(projectWithDraft.draftVersion.contentJson.data, libraryItems),

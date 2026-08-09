@@ -131,12 +131,18 @@ export default async function PublicSitePage({
   };
 
   const Renderer = definition.renderer;
+  const trackScript = `(function(){try{var K="__pvf_vid",v="";try{v=sessionStorage.getItem(K)||""}catch(e){}
+if(!v){try{v=(crypto.randomUUID?crypto.randomUUID():"v"+Math.random().toString(36).slice(2)+Date.now().toString(36));sessionStorage.setItem(K,v)}catch(e){v=""}}
+var b=JSON.stringify({subdomain:${JSON.stringify(subdomain)},path:location.pathname+location.search,visitorHash:v});
+if(navigator.sendBeacon){navigator.sendBeacon("/api/track",new Blob([b],{type:"application/json"}))}
+else{fetch("/api/track",{method:"POST",headers:{"Content-Type":"application/json"},body:b,keepalive:true})}}catch(e){}})();`;
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script dangerouslySetInnerHTML={{ __html: trackScript }} />
       <Renderer data={data} workspaceProfile={workspaceProfile} />
     </>
   );

@@ -1,6 +1,6 @@
 {
   "project": "portofyo",
-  "last_updated": "2026-08-09",
+  "last_updated": "2026-08-11",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -478,6 +478,53 @@
         "2026-08-09 (Session 044): Made Content Library account-global — items now belong to the user (content_library.user_id) instead of a single workspace. Migration 20260810000002_content_library_global.sql adds user_id (backfilled from the owning workspace), drops workspace_id/FK/index, scopes RLS to user_id = auth.uid(), and moves storage write policies to a per-user folder (<user_id>/...). All server actions/components dropped the workspaceId param (upload derives the user server-side); /dashboard/content now renders the global library directly and the legacy /dashboard/[ws]/content route redirects to it; editor + dashboard links point at the global library. tsc clean, lint 0 errors (3 pre-existing warnings), build clean, full E2E 24 passed / 1 skipped (content-library spec updated to the global library + legacy-URL redirect).",
         "2026-08-09 (Session 045): Content Library UI/UX polish — DESIGN.md-token redesign (bg-surface cards on bg-shell canvas, accent Add button, segmented type pill rail with per-type counts, working title/description search with dedicated empty state, hover-reveal icon actions, two-column modal with consistent input styling). tsc clean, lint 0 errors (1 pre-existing warning), build clean, full E2E 24 passed / 1 skipped."
       ]
+    },
+    {
+      "id": "dashboard-ux-001",
+      "priority": 16,
+      "area": "dashboard",
+      "title": "Dashboard premium UI/UX redesign (workspace grid, sidebar, app shell)",
+      "user_visible_behavior": "The dashboard is calmer and easier to scan: an ambient canvas shell with a refined white sidebar and content panel, an Outfit display heading with a localized subtitle, live/draft/total stat chips, a segmented status filter and a cleaner sort dropdown, double-bezel website cards with richer mini-browser previews and clearer hover actions, and a composed empty state. Green (#00cf7c) remains the sole accent; all copy is bilingual (id/en); relative edit times are localized via Intl.RelativeTimeFormat.",
+      "status": "passing",
+      "verification": [
+        "Dashboard shell (sidebar + content panel) renders on the canvas with DESIGN.md tokens (bg-canvas/bg-surface/ink/accent, Outfit display, rounded-2xl panels, primary CTA in accent).",
+        "Sidebar shows a brand block + grouped nav with an active indicator + profile/logout footer; the editor route still hides it.",
+        "Header: eyebrow pill + display title + localized subtitle, New Website CTA on the title row, stat chips (Total / Live / Draft with mono numerals), search (⌘K), segmented All/Live/Draft filter, sort dropdown, all wired through i18n (en + id).",
+        "Website cards use the DESIGN.md double-bezel treatment with mini-browser preview, hover overlay (Edit / Preview / Publish-Unpublish), Live/Draft status pill, localized edited time, and more-menu; dashed Create Website card matches.",
+        "Empty state is composed (icon tile + title + copy + Clear filters CTA).",
+        "npx tsc --noEmit clean; npm run lint 0 errors (1 pre-existing warning); npm run build clean; npm run test:e2e 24 passed / 1 skipped."
+      ],
+      "evidence": [
+        "2026-08-10 (Session 050): Redesigned the dashboard shell (layout.tsx ambient canvas with subtle radial glows, h-dvh, rounded-2xl white content panel), sidebar (DashboardSidebar: brand block, grouped nav with left-active accent indicator, hover/focus/aria-current states, profile+logout footer), and DashboardClientView: eyebrow pill + display title + subtitle, stat chips (Total/Live/Draft, mono numerals), segmented All/Live/Draft filter pill rail, refined sort dropdown, double-bezel website cards, dashed Create Website card, composed empty state, polished preview modal.",
+        "2026-08-10: Localized relative timestamps via Intl.RelativeTimeFormat(locale). Added i18n keys in messages/en.json + id.json for the new Dashboard copy and the sidebar brand tagline.",
+        "Verification: npx tsc --noEmit clean, npm run lint 0 errors (1 pre-existing warning in BillingClientView), npm run build clean (23 routes), npm run test:e2e 24 passed / 1 skipped."
+      ],
+      "notes": "Scope: dashboard entry surfaces (shell + sidebar + /dashboard grid + preview modal) only. Existing DESIGN.md-token dashboard pages (billing/templates/content/profile) keep their own UIs; the layout shell changes apply globally to them. Green accent kept; accumulated verified evidence recorded in the verify steps."
+    },
+    {
+      "id": "analytics-001",
+      "priority": 15,
+      "area": "analytics",
+      "title": "Visitor analytics dashboard (D-5, Sprint 4.3 — Fase 2)",
+      "user_visible_behavior": "Owners of published sites see /dashboard/analytics: a per-site switcher, 7d/30d/all-time range, KPI cards (total views, unique visitors, today, last-7-day), a daily area chart, and top-pages / referrers / devices / browsers / countries breakdowns. Published public sites emit a lightweight self-contained beacon so visitor data appears automatically; bots are classified and excluded from aggregates.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npm run lint: 0 errors (1 pre-existing warning in BillingClientView, unrelated).",
+        "npm run build: compiles; new routes [locale]/dashboard/analytics (ƒ) and /api/track (ƒ) present.",
+        "Route smoke: /id/dashboard/analytics → 307 (auth redirect), GET /api/track → 405 (POST-only), /sites/<unknown> → 404.",
+        "npx playwright test: 24 passed, 1 skipped."
+      ],
+      "evidence": [
+        "2026-08-09 (Session 051): implemented D-5 visitor analytics.",
+        "supabase/migrations/20260810000004_visitor_analytics.sql — page_visits table + RLS (anon/authenticated insert only for published projects; owner full access via workspace chain) + indexes.",
+        "src/app/api/track/route.ts — public beacon endpoint (POST), resolves published project by subdomain, derives referrer host / device / browser / country-code from headers, stores no raw PII, returns 204.",
+        "src/app/sites/[subdomain]/page.tsx — inlined trackScript beacon: sends { subdomain, path, visitorHash } via sendBeacon (fallback fetch+keepalive).",
+        "src/lib/analytics/{types,device,store}.ts — data types, UA/bot classifier, RLS-scoped aggregation (per-day buckets incl. zero-visit days, down-sampled for all-time, top lists, no raw logs pulled).",
+        "src/app/[locale]/dashboard/analytics/page.tsx + src/components/dashboard/AnalyticsClientView.tsx — server-side site+range selection feeding a dependency-free inline SVG chart, KPI cards, breakdowns, empty/no-data states, all from the Analytics i18n namespace.",
+        "DashboardSidebar — Analytics is now a working Pro-badged nav item with active state."
+      ],
+      "notes": "Dashboard is gated behind the existing auth layout; the analytics page shows an empty state for accounts with no published sites. Bot hits are stored but filtered out of every aggregate. Midtrans/gated Pro-gate for analytics was deliberately NOT applied (analytics is currently available to all authenticated users with a published site)."
     }
   ]
 }

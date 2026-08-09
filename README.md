@@ -15,7 +15,7 @@ Building and previewing a portfolio is **free**. Publishing it to a live subdoma
 | Framework | [Next.js](https://nextjs.org) 16 (App Router, TypeScript) |
 | Styling | Tailwind CSS v4 |
 | Backend | [Supabase](https://supabase.com) (Postgres, Auth, Storage, RLS) |
-| Billing | [Xendit](https://xendit.co) |
+| Billing | [Midtrans](https://midtrans.com) |
 | Animation | GSAP, Framer Motion |
 | i18n | next-intl (English + Bahasa Indonesia) |
 | Hosting | Vercel (wildcard subdomains) |
@@ -39,8 +39,8 @@ Open [http://localhost:3000](http://localhost:3000).
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key (browser-safe) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service-role key — server-side only, bypasses RLS |
-| `XENDIT_SECRET_KEY` | Xendit API key (use sandbox keys in development) |
-| `XENDIT_WEBHOOK_TOKEN` | Verifies incoming Xendit webhook callbacks |
+| `MIDTRANS_SERVER_KEY` | Midtrans Server Key (use sandbox keys in development) |
+| `MIDTRANS_IS_PRODUCTION` | Set `true` only for the Midtrans production environment |
 | `NEXT_PUBLIC_ROOT_DOMAIN` | Root domain the app is served on (`localhost:3000` locally). Lets middleware tell the app apart from a published site's subdomain. |
 
 ### Scripts

@@ -1,3 +1,60 @@
+# Session 048: Payment Gateway Migration — Midtrans
+**Status:** Verified / Passing locally
+- Replaced Xendit invoice checkout with Midtrans Snap transaction creation (sandbox by default, production opt-in).
+- Replaced `/api/webhooks/xendit` with `/api/webhooks/midtrans`; notifications require Midtrans SHA-512 signature verification and retain idempotent subscription updates.
+- Added migration `20260810000003_midtrans_billing.sql` to rename the provider-specific billing event key to `provider_event_id` without losing audit history.
+- Updated environment variables, public policy copy, repository stack docs, and billing feature references for Midtrans.
+- Verification: `npx tsc --noEmit` clean; `npm run lint` 0 errors (1 pre-existing warning); `npm run build` clean.
+- Operational note: apply the new migration, configure `MIDTRANS_SERVER_KEY`, set Midtrans Payment Notification URL to `/api/webhooks/midtrans`, and keep `MIDTRANS_IS_PRODUCTION=false` until production activation.
+
+# Session 047: Bold, Dark, Portfolio Pro & Freelancer Redesigns
+**Status:** Verified / Passing
+- Redesigned Bold into a high-impact poster system with oversized type, heavy rules, graphic project tiles, proof timeline, and a high-contrast “Make noise” CTA.
+- Redesigned Dark into a developer terminal interface with command-style navigation, deploy logs, stack grid, and `open_connection` contact footer.
+- Redesigned Portfolio Pro into an editorial professional dossier focused on about narrative, case studies, resume/toolkit, certificates/gallery, and contact.
+- Redesigned Freelancer into a warm independent-practice landing page with personal hero, recent work, services, testimonials, transparent pricing, and conversion-focused contact.
+- Activated distinct per-template variant palettes and preserved each existing schema, hidden section controls, project links, social links, and editor data compatibility.
+- Verification: `npx tsc --noEmit` clean; `npm run lint` 0 errors (1 pre-existing warning); `npm run build` clean.
+
+# Session 046: Vanguard Studio Template Redesign
+**Status:** Verified / Passing
+- Redesigned `src/templates/definitions/studio/renderer.tsx` from generic dark-glass bento into an avant-garde studio portfolio: monumental hero typography, editorial project archive with alternating layout, structured studio practice list, pull-quote testimonials, and an accent-led new-business contact section.
+- Corporate-style variant wiring is now active for Vanguard Studio: Signal, Volt, and Mineral palettes control background, surface, text, borders, and accent consistently.
+- Added rendering for phone, WhatsApp, and social links while preserving schema fields, section visibility toggles, editor data attributes, and project links.
+- Verification: `npx tsc --noEmit` clean; `npm run lint` 0 errors (3 pre-existing warnings); `npm run build` clean.
+
+# Session 045: Corporate Template Redesign
+**Status:** Verified / Passing
+- Redesigned `src/templates/definitions/corporate/renderer.tsx` as a formal corporate executive/advisory profile rather than a generic CV: editorial masthead, restrained typography, section navigation, experience timeline, credentials sidebar, capability tags, engagement pricing, contact panel, and responsive footer.
+- Reworked Corporate variants in `src/templates/definitions/corporate/definition.ts` to Navy, Forest, and Graphite palettes with warm neutral surfaces and desaturated accents.
+- Preserved the existing Corporate schema/data contract, section visibility toggles, links, social icons, and editor compatibility.
+- Verification: `npx tsc --noEmit` clean; `npm run lint` 0 errors (3 pre-existing warnings); `npm run build` clean.
+
+# Session 045: Content Library — UI/UX Polish (simpler, DESIGN.md-compliant)
+**Status:** Verified / Passing
+**Latest state:**
+- Redesigned the Content Library manager to match DESIGN.md tokens and simplify the interface:
+  - **Header:** single title + subtitle row with a solid green `rounded-full` Add button (DESIGN.md §5.2). Type filter is a compact segmented pill rail with per-type item counts and `active` white pill + accent number; removed the stacked second hint paragraph.
+  - **Toolbar**: added a working **search** input (matches title + description) with a dedicated empty state (`searchPlaceholder`/`searchEmptyTitle`/`searchEmptyDesc` i18n keys added to id+en).
+  - **Cards**: `rounded-2xl bg-surface ring-black/5` on `bg-shell` canvas grid; `aspect-[4/3]` image (content fills, scale on hover); title + 2-line description + accent `open_in_new` link; inline visibility toggle `check_circle`/`visibility_off` in the title row; footer = status pill + hover-reveal icon actions (move up/down/edit/delete) that stay visible on mobile.
+  - **Empty state**: tinted icon tile + CTA button (distinct search-empty state).
+  - **Modal**: two-column field grid on ≥sm, consistent `bg-surface ring-black/10` inputs (shared `inputCls`), separated sticky footer with Cancel / accent Save. `LibraryImageUploadField` unchanged.
+- Behavior preserved: CRUD via server actions, per-item visibility + ordering, active items feed template resolution; only presentation changed.
+- **Verification:** `npx tsc --noEmit` clean, `npm run lint` 0 errors (1 pre-existing warning in BillingClientView), `npm run build` clean, full E2E **24 passed / 1 skipped**.
+- **Bugfix (runtime MISSING_MESSAGE):** after adding the search i18n keys, the running dev server threw `Could not resolve ContentLibrary.searchPlaceholder in messages for locale en` even though the keys existed — Turbopack cached the *old* `messages/{locale}.json` because `src/i18n/request.ts` loaded messages via a dynamic `import(`../../messages/${locale}.json`)`. Fixed by switching to **static imports** (`messages = { en, id }`) so future message edits are picked up immediately without clearing the dev cache. Also cleared `.next/cache` to unstick the already-running server.
+
+# Session 044: Content Library — Account-Global (per-user, not per-workspace)
+**Status:** Verified / Passing
+**Latest state:**
+- Made the Content Library **account-global**: library items now belong to the authenticated user (`content_library.user_id`) instead of a single workspace, so one reusable library feeds every workspace/project on the account.
+- Migration `supabase/migrations/20260810000002_content_library_global.sql`: adds `user_id` (backfilled from the owning workspace via the old FK), drops orphaned rows, removes the `workspace_id` FK/column/index, scopes RLS to `user_id = auth.uid()`, and moves the storage write policies to a per-user folder (`content/<user_id>/<uuid>.<ext>` instead of `content/<workspace_id>/…`).
+- **Migration dependency fix:** the first run failed with `2BP01 cannot drop column workspace_id because policy content_library_owner_all depends on it` — the old RLS policy still referenced `workspace_id`. Reordered step 3 to `drop policy content_library_owner_all` BEFORE `drop column workspace_id`, then re-created the owner policy in step 5 (also removed a stray duplicated `create policy` header line left over from the edit). Apply the corrected file.
+- Data layer `src/lib/content/{types,store,actions}.ts`: `ContentItem` now carries `userId`; `listContentItems()`/`listContentItemsAction()`/`createContentItemAction()`/`uploadContentImageAction()` no longer take a `workspaceId` (upload derives the user server-side from the session). `createContentItem` sets `user_id` from the authenticated session.
+- UI: `/dashboard/content` now renders the global `ContentLibrary` directly (no more workspace hub); the legacy `/dashboard/[workspaceId]/content` route redirects to `/dashboard/content`. `ContentLibrary`/`LibraryImageUploadField` dropped `workspaceId`/`workspaceName`. Editor + dashboard card links point at the global library.
+- Resolution: editor page and `projects/actions.ts` (`saveDraftAction`/`publishProjectAction`) resolve active library items globally (no per-workspace filter).
+- **Verification:** `npx tsc --noEmit` clean, `npm run lint` 0 errors (3 pre-existing warnings), `npm run build` clean, full E2E **24 passed / 1 skipped** (content-library spec updated for the global page + legacy-URL redirect).
+- **Operational note:** apply `supabase/migrations/20260810000002_content_library_global.sql` to the real Supabase project (after 20260809000001 and 20260810000001) before authenticated use.
+
 # Session 043: Content Library — Canonical Content Source + Visibility Controls
 **Status:** Verified / Passing
 **Latest state:**
@@ -90,7 +147,7 @@
 **Latest state:**
 - Audited codebase vs `docs/FLOW_CLOSURE_PLAN.md`. Found A-1/A-2/A-4 already implemented; executed remaining gaps.
 - **A-3**: Rendered Profile Sync Banner JSX in `Editor.tsx` — banner now visible when `profileDiverged=true`, with "Sync dari Profil" button + loading state.
-- **B-1**: Fixed Xendit webhook env var mismatch — `XENDIT_WEBHOOK_VERIFICATION_TOKEN` → `XENDIT_WEBHOOK_TOKEN` in `xendit.ts` and `webhooks/xendit/route.ts` (matches `.env.example`).
+- **B-1**: Fixed Midtrans webhook env var mismatch — `MIDTRANS_SERVER_KEY` → `MIDTRANS_IS_PRODUCTION` in `midtrans.ts` and `webhooks/midtrans/route.ts` (matches `.env.example`).
 - **B-2**: Created migration `20260808000001_add_freelancer_template.sql` to seed `freelancer` into `templates` table → gallery now shows 8 templates.
 - **B-4**: Installed `@vercel/analytics` and added `<Analytics />` to `[locale]/layout.tsx` for page view + performance tracking.
 - **B-5**: Replaced `window.confirm()` in `BlocklistClientView.tsx` with inline Yes/Cancel confirmation state + `useToast()` feedback. Also removed `window.confirm()` from `DashboardClientView.tsx` `handleDelete`.
@@ -190,5 +247,3 @@
 
 **Next Steps:**
 - All MVP launch sprints (Sprint 0–3) codebase requirements are complete! Optional Sprint 4 (Google OAuth / Custom Domain) available for Fase 2 expansion.
-
-

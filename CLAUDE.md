@@ -8,7 +8,7 @@ Project: Portofio — SaaS portfolio-website builder (form + template, no
 drag-and-drop). Building and previewing is free; publishing to a subdomain
 requires a paid monthly subscription (single plan, not freemium). Full product
 spec lives in `docs/PRD.md`. Planned stack: Next.js (App Router, TS) + Tailwind +
-Supabase (DB/Auth/Storage) + Xendit (billing) + Vercel (hosting, wildcard
+Supabase (DB/Auth/Storage) + Midtrans (billing) + Vercel (hosting, wildcard
 subdomains). See PRD section 9 before making architecture decisions. All app
 UI (marketing, auth, dashboard, editor) must follow the design system in
 `docs/DESIGN.md` — light mode only.

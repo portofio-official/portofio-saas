@@ -72,8 +72,8 @@ export default async function TermsPage({
               </h2>
               <p>
                 {isEn
-                  ? "Subscriptions renew monthly via Xendit. If a subscription lapses, a 7-day grace period applies. After 7 days without renewal, published websites are automatically soft-unpublished (set to draft). Your portfolio data remains strictly preserved and intact."
-                  : "Langganan diperbarui setiap bulan melalui Xendit. Jika pembayaran langganan terhenti, berlaku masa tenggang (grace period) 7 hari. Setelah 7 hari tanpa perpanjangan, website publik otomatis di-unpublish (kembali ke status draft). Data portofolio Anda tetap aman dan tidak akan dihapus."}
+                  ? "Subscriptions renew monthly via Midtrans. If a subscription lapses, a 7-day grace period applies. After 7 days without renewal, published websites are automatically soft-unpublished (set to draft). Your portfolio data remains strictly preserved and intact."
+                  : "Langganan diperbarui setiap bulan melalui Midtrans. Jika pembayaran langganan terhenti, berlaku masa tenggang (grace period) 7 hari. Setelah 7 hari tanpa perpanjangan, website publik otomatis di-unpublish (kembali ke status draft). Data portofolio Anda tetap aman dan tidak akan dihapus."}
               </p>
             </section>
 

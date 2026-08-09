@@ -50,8 +50,8 @@ export default async function PrivacyPage({
               </h2>
               <p>
                 {isEn
-                  ? "We collect information you provide directly to us when creating an account, constructing a portfolio document (such as bio, work experiences, education history, and projects), uploading profile photos, or subscribing to our billing service via Xendit."
-                  : "Kami mengumpulkan informasi yang Anda berikan secara langsung saat membuat akun, menyusun dokumen portofolio (seperti bio, pengalaman kerja, riwayat pendidikan, dan project), mengunggah foto profil, atau berlangganan layanan via Xendit."}
+                  ? "We collect information you provide directly to us when creating an account, constructing a portfolio document (such as bio, work experiences, education history, and projects), uploading profile photos, or subscribing to our billing service via Midtrans."
+                  : "Kami mengumpulkan informasi yang Anda berikan secara langsung saat membuat akun, menyusun dokumen portofolio (seperti bio, pengalaman kerja, riwayat pendidikan, dan project), mengunggah foto profil, atau berlangganan layanan via Midtrans."}
               </p>
             </section>
 
@@ -61,8 +61,8 @@ export default async function PrivacyPage({
               </h2>
               <p>
                 {isEn
-                  ? "Your portfolio data is strictly used to dynamically render your public portfolio website at your chosen subdomain. Payment details are processed securely through certified payment gateways (Xendit)."
-                  : "Data portofolio Anda digunakan secara khusus untuk merender website portofolio publik Anda secara dinamis pada subdomain yang dipilih. Detail pembayaran diproses secara aman melalui payment gateway tersertifikasi (Xendit)."}
+                  ? "Your portfolio data is strictly used to dynamically render your public portfolio website at your chosen subdomain. Payment details are processed securely through certified payment gateways (Midtrans)."
+                  : "Data portofolio Anda digunakan secara khusus untuk merender website portofolio publik Anda secara dinamis pada subdomain yang dipilih. Detail pembayaran diproses secara aman melalui payment gateway tersertifikasi (Midtrans)."}
               </p>
             </section>
 

@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createXenditInvoice } from "./xendit";
+import { createMidtransTransaction } from "./midtrans";
 import { getSubscriptionState } from "./subscription";
 
 export async function createCheckoutInvoiceAction(): Promise<{ url?: string; error?: string }> {
@@ -15,17 +15,14 @@ export async function createCheckoutInvoiceAction(): Promise<{ url?: string; err
     }
 
     const domain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "http://localhost:3000";
-    const successRedirectUrl = `${domain}/dashboard/billing?checkout=success`;
-    const failureRedirectUrl = `${domain}/dashboard/billing?checkout=failed`;
-
-    const { invoiceUrl } = await createXenditInvoice({
+    const finishRedirectUrl = `${domain}/dashboard/billing?checkout=success`;
+    const { redirectUrl } = await createMidtransTransaction({
       userId: user.id,
       email: user.email,
-      successRedirectUrl,
-      failureRedirectUrl,
+      finishRedirectUrl,
     });
 
-    return { url: invoiceUrl };
+    return { url: redirectUrl };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to initiate checkout";
     return { error: message };
@@ -94,5 +91,4 @@ export async function activateDevSubscriptionAction(): Promise<{ ok: boolean; er
     return { ok: false, error: message };
   }
 }
-
 

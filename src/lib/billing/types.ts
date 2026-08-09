@@ -1,4 +1,4 @@
-// Types for Billing, Subscriptions, and Xendit Integrations
+// Types for billing, subscriptions, and payment integrations.
 
 export type SubscriptionStatus =
   | "active"
@@ -24,17 +24,14 @@ export interface SubscriptionStateDetails {
   daysRemainingInGracePeriod?: number;
 }
 
-export interface XenditWebhookPayload {
-  id?: string;
-  event?: string;
-  external_id?: string;
-  amount?: number;
-  status?: string;
-  user_id?: string;
-  payer_email?: string;
-  description?: string;
-  created?: string;
-  updated?: string;
-  paid_at?: string;
+export interface MidtransNotificationPayload {
+  order_id?: string;
+  transaction_id?: string;
+  transaction_status?: string;
+  fraud_status?: string;
+  status_code?: string;
+  gross_amount?: string;
+  signature_key?: string;
+  settlement_time?: string;
   [key: string]: unknown;
 }

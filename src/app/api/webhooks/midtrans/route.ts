@@ -11,10 +11,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const eventId = payload.transaction_id || payload.order_id;
-    if (!eventId || !payload.order_id) {
+    if (!payload.order_id || !payload.transaction_status) {
       return NextResponse.json({ error: "Missing transaction identifier" }, { status: 400 });
     }
+
+    // Dedup per (order, status), NOT per transaction_id: Midtrans may notify
+    // multiple times for one order with the same transaction_id across status
+    // transitions (pending -> capture -> settlement). Keying only on
+    // transaction_id would skip the activation event and leave the
+    // subscription stuck. Same (order, status) retries stay idempotent.
+    const eventId = `${payload.order_id}:${payload.transaction_status}`;
 
     const supabase = createAdminClient();
     const { data: existingEvent } = await supabase

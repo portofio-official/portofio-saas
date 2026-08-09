@@ -5,6 +5,9 @@ import { useTranslations } from "next-intl";
 import { listContentItemsAction } from "@/lib/content/actions";
 import type { ContentItem } from "@/lib/content/types";
 
+// The editor's Projects import only consumes project-type library items.
+const IMPORT_TYPE = "project" as const;
+
 export interface ImportedProject {
   title: string;
   description: string;
@@ -29,7 +32,7 @@ export function ContentLibraryImportModal({
     let cancelled = false;
     listContentItemsAction()
       .then((result) => {
-        if (!cancelled) setItems(result);
+        if (!cancelled) setItems(result.filter((item) => item.contentType === IMPORT_TYPE));
       })
       .catch(() => {
         if (!cancelled) setError("loadError");

@@ -3,7 +3,16 @@
 // Projects/Testimonials/etc. sections. One global library per user, shared
 // across all their workspaces.
 
-export type ContentType = "project" | "testimonial" | "certificate" | "caseStudy" | "gallery";
+export type ContentType =
+  | "project"
+  | "testimonial"
+  | "certificate"
+  | "experience"
+  | "education"
+  | "publication"
+  | "media"
+  | "caseStudy"
+  | "gallery";
 
 export interface ContentItem {
   id: string;

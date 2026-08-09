@@ -14,6 +14,9 @@ export function resolveLibraryData(
       if (type === "testimonial") return { ...base, name: item.title, quote: item.description, body: item.description };
       if (type === "certificate") return { ...base, issuer: String(item.content.issuer ?? ""), date: String(item.content.date ?? "") };
       if (type === "caseStudy") return { ...base, images: item.imageUrl ? [item.imageUrl] : [], achievements: item.content.achievements ?? [], tech: item.content.tech ?? [] };
+      if (type === "experience") return { ...base, company: String(item.content.company ?? ""), role: String(item.content.role ?? ""), startDate: String(item.content.startDate ?? ""), endDate: String(item.content.endDate ?? "") };
+      if (type === "education") return { ...base, institution: String(item.content.institution ?? ""), degree: String(item.content.degree ?? ""), field: String(item.content.field ?? ""), startYear: item.content.startYear, endYear: item.content.endYear };
+      if (type === "media") return { ...base, location: String(item.content.location ?? ""), date: String(item.content.date ?? "") };
       return base;
     });
 
@@ -23,5 +26,7 @@ export function resolveLibraryData(
   if ("certificates" in next) next.certificates = byType("certificate");
   if ("caseStudies" in next) next.caseStudies = byType("caseStudy");
   if ("gallery" in next) next.gallery = byType("gallery");
+  if ("experiences" in next) next.experiences = byType("experience");
+  if ("educations" in next) next.educations = byType("education");
   return next;
 }

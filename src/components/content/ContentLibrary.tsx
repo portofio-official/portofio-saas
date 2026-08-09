@@ -13,26 +13,65 @@ import {
 import type { ContentItem, ContentType } from "@/lib/content/types";
 import { LibraryImageUploadField } from "@/components/content/LibraryImageUploadField";
 
+interface MetaField {
+  key: string;
+  year?: boolean;
+}
+
+// Per-type extra fields rendered in the add/edit modal. Keys map to the
+// `content` JSON the templates and resolver expect (e.g. experience →
+// company/role/startDate/endDate, education → institution/degree/field).
+const META_FIELDS: Record<ContentType, MetaField[]> = {
+  project: [],
+  testimonial: [{ key: "role" }],
+  certificate: [{ key: "issuer" }, { key: "date", year: true }],
+  experience: [{ key: "company" }, { key: "role" }, { key: "startDate" }, { key: "endDate" }],
+  education: [{ key: "institution" }, { key: "degree" }, { key: "field" }, { key: "startYear", year: true }, { key: "endYear", year: true }],
+  publication: [{ key: "venue" }, { key: "year", year: true }],
+  media: [{ key: "location" }, { key: "date", year: true }],
+  caseStudy: [{ key: "category" }, { key: "date", year: true }],
+  gallery: [{ key: "location" }, { key: "date", year: true }],
+};
+
 interface ItemForm {
   title: string;
   description: string;
   imageUrl: string;
   link: string;
   contentType: ContentType;
-  metaA: string;
-  metaB: string;
+  meta: Record<string, string>;
 }
 
-const EMPTY_FORM: ItemForm = { title: "", description: "", imageUrl: "", link: "", contentType: "project", metaA: "", metaB: "" };
-const CONTENT_TYPES: ContentType[] = ["project", "testimonial", "certificate", "caseStudy", "gallery"];
+const emptyMeta = (type: ContentType) =>
+  Object.fromEntries(META_FIELDS[type].map((f) => [f.key, ""]));
+
+const EMPTY_FORM: ItemForm = {
+  title: "",
+  description: "",
+  imageUrl: "",
+  link: "",
+  contentType: "project",
+  meta: {},
+};
+
+// All selectable content types — caseStudy/gallery stay usable here (in the
+// type dropdown + pill rail) even though the dashboard sidebar only surfaces
+// the seven primary types.
+const CONTENT_TYPES: ContentType[] = [
+  "project", "testimonial", "certificate",
+  "experience", "education", "publication", "media",
+  "caseStudy", "gallery",
+];
 
 const inputCls =
   "w-full rounded-lg bg-surface ring-1 ring-black/10 px-3.5 py-2.5 text-sm font-medium text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent transition-shadow";
 
 export function ContentLibrary({
   initialItems,
+  initialType = "project",
 }: {
   initialItems: ContentItem[];
+  initialType?: ContentType;
 }) {
   const t = useTranslations("ContentLibrary");
   const router = useRouter();
@@ -44,7 +83,7 @@ export function ContentLibrary({
   const [form, setForm] = useState<ItemForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [activeType, setActiveType] = useState<ContentType>("project");
+  const [activeType, setActiveType] = useState<ContentType>(initialType);
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -65,20 +104,24 @@ export function ContentLibrary({
 
   function openNew() {
     setEditing(null);
-    setForm({ ...EMPTY_FORM, contentType: activeType });
+    setForm({ ...EMPTY_FORM, contentType: activeType, meta: emptyMeta(activeType) });
     setShowModal(true);
   }
 
   function openEdit(item: ContentItem) {
     setEditing(item);
+    const meta: Record<string, string> = {};
+    for (const field of META_FIELDS[item.contentType]) {
+      const v = item.content[field.key];
+      meta[field.key] = v === undefined || v === null ? "" : String(v);
+    }
     setForm({
       title: item.title,
       description: item.description,
       imageUrl: item.imageUrl,
       link: item.link,
       contentType: item.contentType,
-      metaA: String(item.content.role ?? item.content.issuer ?? item.content.category ?? item.content.location ?? ""),
-      metaB: String(item.content.date ?? ""),
+      meta,
     });
     setShowModal(true);
   }
@@ -91,6 +134,14 @@ export function ContentLibrary({
     }
 
     setSaving(true);
+    const content: Record<string, unknown> = {};
+    for (const field of META_FIELDS[form.contentType]) {
+      const raw = (form.meta[field.key] ?? "").trim();
+      const isEducationYear =
+        form.contentType === "education" &&
+        (field.key === "startYear" || field.key === "endYear");
+      content[field.key] = isEducationYear ? (raw ? Number(raw) : "") : raw;
+    }
     const payload = {
       title: form.title.trim(),
       description: form.description.trim(),
@@ -98,15 +149,7 @@ export function ContentLibrary({
       link: form.link.trim(),
       contentType: form.contentType,
       isActive: editing?.isActive ?? true,
-      content: form.contentType === "testimonial"
-        ? { role: form.metaA }
-        : form.contentType === "certificate"
-          ? { issuer: form.metaA, date: form.metaB }
-          : form.contentType === "caseStudy"
-            ? { category: form.metaA, date: form.metaB }
-            : form.contentType === "gallery"
-              ? { location: form.metaA, date: form.metaB }
-              : {},
+      content,
     };
     try {
       let saved = false;
@@ -175,6 +218,8 @@ export function ContentLibrary({
       setDeletingId(null);
     }
   }
+
+  const metaFields = META_FIELDS[form.contentType];
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-white">
@@ -379,7 +424,10 @@ export function ContentLibrary({
                   <span className="text-[12.5px] font-semibold text-ink-soft">{t("typeLabel")}</span>
                   <select
                     value={form.contentType}
-                    onChange={(e) => setForm((f) => ({ ...f, contentType: e.target.value as ContentType }))}
+                    onChange={(e) => {
+                      const type = e.target.value as ContentType;
+                      setForm((f) => ({ ...f, contentType: type, meta: emptyMeta(type) }));
+                    }}
                     className={inputCls}
                   >
                     {CONTENT_TYPES.map((type) => <option key={type} value={type}>{t(`types.${type}`)}</option>)}
@@ -397,27 +445,23 @@ export function ContentLibrary({
                 </label>
               </div>
 
-              {form.contentType !== "project" && (
+              {metaFields.length > 0 && (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-[12px] font-semibold text-ink-soft">{t(`metaA.${form.contentType}`)}</span>
-                    <input
-                      value={form.metaA}
-                      onChange={(e) => setForm((f) => ({ ...f, metaA: e.target.value }))}
-                      className={inputCls}
-                    />
-                  </label>
-                  {(["certificate", "caseStudy", "gallery"] as ContentType[]).includes(form.contentType) && (
-                    <label className="flex flex-col gap-1.5">
-                      <span className="text-[12px] font-semibold text-ink-soft">{t("dateLabel")}</span>
+                  {metaFields.map((field) => (
+                    <label key={field.key} className="flex flex-col gap-1.5">
+                      <span className="text-[12px] font-semibold text-ink-soft">
+                        {t(`metaLabels.${field.key}`)}
+                      </span>
                       <input
-                        value={form.metaB}
-                        onChange={(e) => setForm((f) => ({ ...f, metaB: e.target.value }))}
-                        placeholder="2026"
+                        value={form.meta[field.key] ?? ""}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, meta: { ...f.meta, [field.key]: e.target.value } }))
+                        }
+                        placeholder={field.year ? "2026" : undefined}
                         className={inputCls}
                       />
                     </label>
-                  )}
+                  ))}
                 </div>
               )}
 

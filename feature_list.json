@@ -502,6 +502,29 @@
       "notes": "Scope: dashboard entry surfaces (shell + sidebar + /dashboard grid + preview modal) only. Existing DESIGN.md-token dashboard pages (billing/templates/content/profile) keep their own UIs; the layout shell changes apply globally to them. Green accent kept; accumulated verified evidence recorded in the verify steps."
     },
     {
+      "id": "dashboard-ux-002",
+      "priority": 17,
+      "area": "dashboard",
+      "title": "Dashboard layered navigation: clustered sidebar + per-type Content Library routes",
+      "user_visible_behavior": "The dashboard sidebar is organized into a Portofio portfolio tree: Websites and Templates at the top, a collapsible Content Library group with seven sub-items (Projects, Testimonials, Certificates, Experience, Education, Publications, Media), Analytics, then a collapsible Settings group (Profile, Domains [coming soon], Billing). The Content Library now lives on per-type routes so each sub-item opens its own filtered library view and highlights correctly; Experience/Education/Publications/Media are real content types stored in the same account-global library.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npm run lint: 0 errors (1 pre-existing warning in BillingClientView, unrelated).",
+        "npm run build: clean; new dynamic route [locale]/dashboard/content/[type] present.",
+        "Route smoke: /id/dashboard/content/(projects|testimonials|certificates|experience|education|publications|media) → 307 to /login when unauthenticated (no 404); /id/dashboard/content/bogus → 307 to /login.",
+        "npx playwright test: 25 passed / 1 skipped (added per-type content-route test to e2e/flows/11-content-library.spec.ts)."
+      ],
+      "evidence": [
+        "2026-08-11 (Session 052): Rewrote DashboardSidebar as a collapsible grouped nav (chevron toggle, animated height, DESIGN.md tokens, active left-bar indicator): primary Websites/Templates, Content Library group (7 typed children with per-type item counts fed from the server layout; caseStudy/gallery stay selectable but unlinked), Analytics (Pro badge), and a Settings group (Profile / Domains Soon / Billing). Replaced the brittle flat \"isWebsites = everything else\" matching with per-item path-prefix matching; editor route still hides the sidebar.",
+        "2026-08-11: New content types experience/education/publication/media added to src/lib/content/types.ts (ContentType union) with resolver mapping src/lib/content/resolve.ts (experience→experiences, education→educations, media→gallery; publication stored/curated only, documented). Migration supabase/migrations/20260810000005_content_library_add_types.sql widens the content_library content_type CHECK constraint while preserving caseStudy/gallery.",
+        "2026-08-11: ContentLibrary manager accepts an initialType prop, and its add/edit modal now renders per-type meta fields (META_FIELDS config — role/issuer/company/role/startDate/endDate, institution/degree/field/startYear/endYear, venue/year, location/date), writing content_json shapes the resolver and template schemas expect; education start/end years are the only numeric-coerced fields. Manager strings generalized to type-agnostic copy (Add item / Edit item / Title is required…).",
+        "2026-08-11: New routes — /dashboard/content redirects to /dashboard/content/projects; /dashboard/content/[type] validates against the seven sidebar types (invalid → redirect) and hosts the app against type. ContentLibraryImportModal filters to project-type items only. Sidebar i18n moved into Sidebar + Workspace namespaces; ContentLibrary.types gained experience/education/publication/media labels and a metaLabels map; content-type counts are passed by the server layout.",
+        "2026-08-11: Added per-type route test to e2e/flows/11-content-library.spec.ts; suite 25 passed / 1 skipped."
+      ],
+      "notes": "Scope: dashboard navigation structure + per-type content-browsing routes + the four new curated content types. Case Studies and Gallery remain stored/selectable but are not sidebar sub-items (decision recorded from UX request). The new migration must be applied to the real Supabase project before the extra types accept items. Publication items are stored and curated but no template consumes that type yet (future template work); experience/education resolve into templates that expose those fields."
+    },
+    {
       "id": "analytics-001",
       "priority": 15,
       "area": "analytics",

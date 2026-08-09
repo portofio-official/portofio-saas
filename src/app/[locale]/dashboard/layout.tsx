@@ -1,6 +1,7 @@
 import { redirect } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
+import { listContentItems } from "@/lib/content/store";
 
 export default async function DashboardLayout({
   children,
@@ -16,6 +17,13 @@ export default async function DashboardLayout({
     return redirect({ href: "/login", locale });
   }
 
+  // Per-type item counts for the sidebar's Content Library sub-navigation.
+  const contentItems = await listContentItems();
+  const contentCounts: Record<string, number> = {};
+  for (const item of contentItems) {
+    contentCounts[item.contentType] = (contentCounts[item.contentType] ?? 0) + 1;
+  }
+
   return (
     <div className="relative flex h-dvh w-full overflow-hidden bg-canvas p-3 font-sans sm:p-5 sm:gap-4">
       {/* Ambient canvas lighting — kept behind every panel */}
@@ -28,7 +36,7 @@ export default async function DashboardLayout({
         className="pointer-events-none absolute bottom-[-6rem] left-[16%] h-72 w-72 rounded-full bg-[#7c9bff]/[0.07] blur-3xl"
       />
 
-      <DashboardSidebar email={email} />
+      <DashboardSidebar email={email} contentCounts={contentCounts} />
       <main className="relative flex flex-1 flex-col overflow-hidden rounded-2xl bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
         {children}
       </main>

@@ -1,6 +1,6 @@
--- Migration: add billing_events table (Xendit webhook audit log)
+-- Migration: add billing_events table (Midtrans webhook audit log)
 -- Digunakan oleh billing-001 sebagai:
---   1. Audit trail semua transaksi dari Xendit
+--   1. Audit trail semua transaksi dari Midtrans
 --   2. Idempotency key — mencegah proses ulang webhook yang sama
 --
 -- Hanya service_role (webhook handler) yang bisa menulis ke tabel ini.
@@ -10,11 +10,11 @@ create table if not exists public.billing_events (
   id              uuid primary key default gen_random_uuid(),
   -- user_id nullable: kalau user dihapus, event history tetap tersimpan
   user_id         uuid references auth.users(id) on delete set null,
-  -- xendit_event_id sebagai idempotency key — unique constraint mencegah duplikat
-  xendit_event_id text unique not null,
-  -- tipe event dari Xendit, e.g. 'invoice.paid', 'subscription.cancelled'
+  -- provider_event_id sebagai idempotency key — unique constraint mencegah duplikat
+  provider_event_id text unique not null,
+  -- tipe event dari Midtrans, e.g. 'invoice.paid', 'subscription.cancelled'
   event_type      text not null,
-  -- raw payload dari Xendit webhook (simpan semua, query nanti kalau perlu)
+  -- raw payload dari Midtrans webhook (simpan semua, query nanti kalau perlu)
   payload         jsonb not null default '{}',
   processed_at    timestamptz not null default now()
 );

@@ -99,7 +99,7 @@ flowchart TD
     C4 --> R[Review]
     R -- Edit data / Ganti template --> C4
     R -- Siap deploy --> P{Langganan aktif?}
-    P -- Belum --> Q[Checkout langganan via Xendit]
+    P -- Belum --> Q[Checkout langganan via Midtrans]
     Q --> F[Deploy]
     P -- Ya --> F
     F --> G[Sistem generate subdomain unik]
@@ -167,7 +167,7 @@ Data contoh/demo untuk galeri publik: satu dokumen demo per template, sesuai ske
 - Satu paket langganan bulanan (tanpa tier). Akun tanpa langganan tetap bisa mengisi data, ganti template, dan melihat preview — tetapi tidak bisa publish/deploy
 - Publish gate: aksi Deploy (dan status published) hanya tersedia selama langganan aktif
 - **Cakupan langganan per akun atau per workspace (v1.3, belum diputuskan — lihat Open Questions 16):** dengan workspace jamak, apakah satu langganan meng-cover publish semua workspace milik akun, atau tiap workspace publish butuh langganannya sendiri? Default sementara untuk development: satu langganan per akun meng-cover seluruh workspace-nya (paling sederhana, sejalan dengan "satu paket langganan bulanan, tanpa tier") — dikonfirmasi sebelum go-live
-- Integrasi payment gateway lokal (Xendit) untuk checkout dan recurring bulanan
+- Integrasi payment gateway lokal (Midtrans) untuk checkout dan recurring bulanan
 - Notifikasi jatuh tempo dan invoice; pembatalan langganan
 - Perilaku saat langganan berakhir/gagal bayar (default usulan, bisa dikoreksi): grace period 7 hari, lalu seluruh website (semua workspace) auto-unpublish. Data portofolio tetap tersimpan; berlangganan lagi mengaktifkan kembali kemampuan republish
 
@@ -207,8 +207,8 @@ Mengingat sudah familiar dengan ekosistem Next.js/React dan Supabase, berikut re
 - Alasan pemilihan: mengurangi effort setup infrastruktur auth dan storage dari nol, cocok untuk kecepatan MVP
 
 **Payment Gateway**
-- Keputusan: Xendit, dipilih karena dukungan recurring/subscription native yang mencakup kartu, e-wallet, dan direct debit (lebih lengkap dibanding Midtrans yang saat ini membatasi recurring hanya pada kartu dan GoPay Tokenization serta membutuhkan approval tambahan dari bank)
-- API Xendit juga lebih ramah untuk integrasi custom (API-first), sesuai dengan pendekatan fullstack Next.js yang direkomendasikan
+- Keputusan: Midtrans, dipilih karena dukungan recurring/subscription native yang mencakup kartu, e-wallet, dan direct debit (lebih lengkap dibanding Midtrans yang saat ini membatasi recurring hanya pada kartu dan GoPay Tokenization serta membutuhkan approval tambahan dari bank)
+- API Midtrans juga lebih ramah untuk integrasi custom (API-first), sesuai dengan pendekatan fullstack Next.js yang direkomendasikan
 - Catatan: modul billing tetap dibangun dengan lapisan abstraksi (payment provider interface) agar provider dapat diganti di kemudian hari bila diperlukan
 
 **Hosting dan Infrastruktur**
@@ -269,8 +269,8 @@ Semua teks adalah plain text (tanpa HTML) dan wajib di-escape saat render untuk 
 
 - **Subdomain lokal**: gunakan `http://nama.localhost:3000` (browser modern me-resolve `*.localhost` ke loopback tanpa konfigurasi) atau `nama.lvh.me:3000` sebagai fallback. Middleware harus memperlakukan host lokal ini sama dengan wildcard produksi.
 - **Domain produksi**: belum ditentukan — `appku.com` di dokumen ini adalah placeholder. Simpan sebagai env var (`NEXT_PUBLIC_ROOT_DOMAIN`) sejak awal agar penggantian domain hanya soal konfigurasi.
-- **Env vars minimum**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `XENDIT_SECRET_KEY` (sandbox), `XENDIT_WEBHOOK_TOKEN`, `NEXT_PUBLIC_ROOT_DOMAIN`. Sediakan `.env.example` saat scaffold.
-- **Billing di lokal**: gunakan Xendit sandbox; webhook diuji via tunnel (mis. `ngrok`) atau simulasi request manual.
+- **Env vars minimum**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `MIDTRANS_SERVER_KEY` (sandbox), `MIDTRANS_IS_PRODUCTION`, `NEXT_PUBLIC_ROOT_DOMAIN`. Sediakan `.env.example` saat scaffold.
+- **Billing di lokal**: gunakan Midtrans sandbox; webhook diuji via tunnel (mis. `ngrok`) atau simulasi request manual.
 
 ### 9.8 Estimasi Kompleksitas Development
 
@@ -337,7 +337,7 @@ Checklist tingkat produk yang harus terpenuhi sebelum MVP diluncurkan ke publik:
 - Seluruh functional requirement di section 7 sudah diimplementasi dan lulus DoD
 - Ketujuh template sudah siap dan lulus QA visual di berbagai ukuran layar
 - Alur signup sampai publish (termasuk checkout langganan) bisa diselesaikan di bawah 15 menit, sesuai target KPI di section 3
-- Integrasi Xendit sudah diuji end-to-end, termasuk penanganan webhook untuk status pembayaran dan alur langganan berakhir (grace period → auto-unpublish)
+- Integrasi Midtrans sudah diuji end-to-end, termasuk penanganan webhook untuk status pembayaran dan alur langganan berakhir (grace period → auto-unpublish)
 - Terjemahan UI lengkap untuk kedua bahasa (id/en) di seluruh alur inti
 - Kebijakan privasi dan syarat & ketentuan sudah dipublikasikan di aplikasi
 - Moderasi dasar aktif: filter kata terlarang untuk nama subdomain dan rate limiting pada signup/publish

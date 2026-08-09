@@ -1,6 +1,6 @@
 -- Migration: add subscriptions table for billing gate
 -- ponytail: minimal schema — just what publish gate needs now.
--- billing-001 (Xendit integration) will add invoice_id, plan_id, etc.
+-- billing-001 (Midtrans integration) will add invoice_id, plan_id, etc.
 
 create table if not exists public.subscriptions (
   id uuid primary key default gen_random_uuid(),

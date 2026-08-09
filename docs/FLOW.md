@@ -14,7 +14,7 @@ Dokumen ini mendefinisikan **semua alur pengguna** (user flows) yang diimplement
 2. [Flow 2: Onboarding → Registrasi & Konfirmasi Email](#flow-2-onboarding--registrasi--konfirmasi-email)
 3. [Flow 3: Pilih Template → Buat Project Pertama](#flow-3-pilih-template--buat-project-pertama)
 4. [Flow 4: Editor → Isi Data → Live Preview → Autosave](#flow-4-editor--isi-data--live-preview--autosave)
-5. [Flow 5: Publish → Xendit Checkout → Site Live](#flow-5-publish--xendit-checkout--site-live)
+5. [Flow 5: Publish → Midtrans Checkout → Site Live](#flow-5-publish--midtrans-checkout--site-live)
 6. [Flow 6: Dashboard → Kelola Project](#flow-6-dashboard--kelola-project)
 7. [Flow 7: Billing & Subscription Lifecycle](#flow-7-billing--subscription-lifecycle)
 8. [Flow 8: Akses Site Publik (Multi-Tenant)](#flow-8-akses-site-publik-multi-tenant)
@@ -201,7 +201,7 @@ flowchart LR
 
 ---
 
-## Flow 5: Publish → Xendit Checkout → Site Live
+## Flow 5: Publish → Midtrans Checkout → Site Live
 
 **Aktor**: User yang ingin mempublikasikan project  
 **Entry point**: Panel Publish di dalam Editor
@@ -212,14 +212,14 @@ flowchart TD
     B -- Tidak --> C[Tampilkan CTA: 'Berlangganan untuk publish']
     C --> D[Klik 'Berlangganan']
     D --> E[createCheckoutInvoiceAction]
-    E --> F[Xendit Invoice URL dibuat]
-    F --> G[Redirect ke Xendit Payment Page]
+    E --> F[Midtrans Invoice URL dibuat]
+    F --> G[Redirect ke Midtrans Payment Page]
     G --> H{Pembayaran berhasil?}
     H -- Tidak --> I[Redirect ke /dashboard?checkout=failed]
     H -- Ya --> J[Redirect ke /dashboard?checkout=success]
-    J --> K[Xendit Webhook → /api/webhooks/xendit]
-    K --> L[Verifikasi signature x-callback-token]
-    K --> M[Cek idempotency via billing_events.xendit_event_id]
+    J --> K[Midtrans Webhook → /api/webhooks/midtrans]
+    K --> L[Verifikasi signature SHA-512 signature_key]
+    K --> M[Cek idempotency via billing_events.midtrans_event_id]
     L & M --> N[Update subscriptions.status = 'active']
     N --> O[User kembali ke Editor → Publish aktif]
     B -- Ya --> P[Tampilkan form: input subdomain]
@@ -242,8 +242,8 @@ flowchart TD
 **Komponen kunci:**
 - `src/components/dashboard/Editor.tsx` — Publish Panel (inline di editor)
 - `src/lib/projects/actions.ts` — `publishProjectAction`, `unpublishProjectAction`
-- `src/app/api/webhooks/xendit/route.ts` — Xendit webhook handler
-- `src/lib/billing/xendit.ts` — `createXenditInvoice`, `verifyXenditWebhookSignature`
+- `src/app/api/webhooks/midtrans/route.ts` — Midtrans webhook handler
+- `src/lib/billing/midtrans.ts` — `createMidtransInvoice`, `verifyMidtransWebhookSignature`
 
 ---
 
@@ -305,7 +305,7 @@ stateDiagram-v2
     Canceled --> SoftUnpublish
 ```
 
-**Webhook Events yang ditangani (`/api/webhooks/xendit`):**
+**Webhook Events yang ditangani (`/api/webhooks/midtrans`):**
 
 | Event | Aksi |
 |---|---|
@@ -452,7 +452,7 @@ flowchart TD
 | `/admin` | Admin | Panel admin |
 | `/sites/{subdomain}` | Publik | Site publik hasil publish |
 | `/auth/confirm` | Publik | Callback verifikasi email |
-| `/api/webhooks/xendit` | Service | Xendit webhook receiver |
+| `/api/webhooks/midtrans` | Service | Midtrans webhook receiver |
 
 ---
 
@@ -464,7 +464,7 @@ flowchart TD
 | Flow 2: Onboarding & Email | ✅ Selesai | Email template di Supabase perlu dikonfigurasi manual |
 | Flow 3: Pilih Template & Buat Project | ✅ Selesai | 8 template tersedia |
 | Flow 4: Editor & Autosave | ✅ Selesai | |
-| Flow 5: Publish & Xendit | ✅ Selesai | Perlu XENDIT_SECRET_KEY & XENDIT_WEBHOOK_TOKEN di .env |
+| Flow 5: Publish & Midtrans | ✅ Selesai | Perlu MIDTRANS_SERVER_KEY & MIDTRANS_IS_PRODUCTION di .env |
 | Flow 6: Dashboard Kelola Project | ✅ Selesai | |
 | Flow 7: Billing Lifecycle | ✅ Selesai | Termasuk billing page `/dashboard/billing` |
 | Flow 8: Site Publik | ✅ Selesai | |

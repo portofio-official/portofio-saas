@@ -37,7 +37,7 @@ Docs mengklaim 10/10 FLOW + Sprint 0–3 selesai. Audit kode menemukan beberapa 
 - **AC**: user menginput subdomain → publish sukses; subdomain invalid/duplikat/terlarang → error tampil; kuota 1 publish/akun berjalan (pesan persis FLOW.md:240).
 
 ### A-2: Subscription CTA di Editor (FLOW 5 step 5 — tanpa langganan)
-- **Gap**: tanpa langganan, klik Publish harus menampilkan CTA "Berlangganan untuk publish" → checkout Xendit (FLOW.md:211–217). Branch billing gate ada, UI CTA tidak dirender.
+- **Gap**: tanpa langganan, klik Publish harus menampilkan CTA "Berlangganan untuk publish" → checkout Midtrans (FLOW.md:211–217). Branch billing gate ada, UI CTA tidak dirender.
 - **Implementasi**: render blok `subscription_required` berisi tombol yang memanggil `createCheckoutInvoiceAction`/redirect ke `/dashboard/billing`.
 - **AC**: user tanpa subs tidak bisa publish; CTA menuju invoice/billing page.
 
@@ -55,8 +55,8 @@ Docs mengklaim 10/10 FLOW + Sprint 0–3 selesai. Audit kode menemukan beberapa 
 
 ## Grup B — Hardening & Bugfix (sebelum go-live)
 
-### B-1: Fix env var webhook Xendit
-- **Gap**: `.env.example:8` + PRD §9.7 dokumentasikan `XENDIT_WEBHOOK_TOKEN`, tapi kode membaca `XENDIT_WEBHOOK_VERIFICATION_TOKEN` (`src/lib/billing/xendit.ts:13`, `src/app/api/webhooks/xendit/route.ts:13`). → signature check di-skip.
+### B-1: Fix env var webhook Midtrans
+- **Gap**: `.env.example:8` + PRD §9.7 dokumentasikan `MIDTRANS_IS_PRODUCTION`, tapi kode membaca `MIDTRANS_SERVER_KEY` (`src/lib/billing/midtrans.ts:13`, `src/app/api/webhooks/midtrans/route.ts:13`). → signature check di-skip.
 - **Implementasi**: samakan nama (pilih satu, update `.env.example` + PRD §9.7), log error bila env tidak set.
 - **AC**: dengan env sesuai docs, webhook memverifikasi dan menolak callback dengan `x`-callback-token salah.
 
@@ -133,6 +133,6 @@ Grup D   D-* (post-go-live)
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | ya |
 | `NEXT_PUBLIC_ROOT_DOMAIN` | ya |
-| `XENDIT_SECRET_KEY`, `XENDIT_WEBHOOK_TOKEN` (sync nama kode di B-1) | prod |
+| `MIDTRANS_SERVER_KEY`, `MIDTRANS_IS_PRODUCTION` (sync nama kode di B-1) | prod |
 | `CRON_SECRET` | prod (dicek cron) |
 | `NEXT_PUBLIC_SENTRY_DSN` (B-4) | opsional |

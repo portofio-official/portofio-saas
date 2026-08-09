@@ -14,7 +14,7 @@ Seluruh 10 alur pengguna utama dalam [FLOW.md](file:///Users/maaullntech/Dev/por
 | **Flow 2** | Onboarding & Email Verification | ✅ Passing | `src/lib/auth/actions.ts`, `src/app/auth/confirm/route.ts` |
 | **Flow 3** | Template Pick → First Project | ✅ Passing | `src/components/dashboard/TemplateGallery.tsx` |
 | **Flow 4** | Editor → Data Form → Autosave | ✅ Passing | `src/components/dashboard/Editor.tsx`, `src/templates/registry.tsx` |
-| **Flow 5** | Publish → Xendit Checkout → Site Live | ✅ Passing | `src/app/api/webhooks/xendit/route.ts`, `src/lib/projects/actions.ts` |
+| **Flow 5** | Publish → Midtrans Checkout → Site Live | ✅ Passing | `src/app/api/webhooks/midtrans/route.ts`, `src/lib/projects/actions.ts` |
 | **Flow 6** | Dashboard → Project Management | ✅ Passing | `src/components/dashboard/DashboardClientView.tsx` |
 | **Flow 7** | Billing & Subscription Lifecycle | ✅ Passing | `src/components/dashboard/BillingClientView.tsx`, `src/lib/billing/unpublish.ts` |
 | **Flow 8** | Public Multi-Tenant Site | ✅ Passing | `src/middleware.ts`, `src/app/sites/[subdomain]/page.tsx` |
@@ -94,7 +94,7 @@ gantt
   - Hubungkan domain produksi (misal `portofio.id`) ke Vercel dengan CNAME wildcard `*.portofio.id`.
   - Pasang seluruh env secrets produksi.
 - [ ] **3.2 Stopwatch Target KPI Test (< 15 Menit)**
-  - Lakukan smoke test manual dari Visitor → Signup → Editor → Xendit Checkout → Publish di bawah 15 menit (PRD §3 KPI).
+  - Lakukan smoke test manual dari Visitor → Signup → Editor → Midtrans Checkout → Publish di bawah 15 menit (PRD §3 KPI).
 - [ ] **3.3 Go-Live Audit Checklist (PRD §15)**
   - Verifikasi responsivitas 8 template di Mobile/Desktop & coverage terjemahan i18n (`id`/`en`).
 

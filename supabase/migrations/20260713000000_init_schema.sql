@@ -79,7 +79,7 @@ create policy "portfolio_data_public_read_published" on public.portfolio_data
 
 -- subscriptions: per-account billing status (PRD 7.6, single plan).
 -- Users may only READ their own row; only the server (service_role, which
--- bypasses RLS — e.g. a Xendit webhook handler) writes status changes.
+-- bypasses RLS — e.g. a Midtrans webhook handler) writes status changes.
 create table if not exists public.subscriptions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,

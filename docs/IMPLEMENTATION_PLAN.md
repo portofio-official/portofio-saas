@@ -29,11 +29,11 @@
 
 ## 1. Ringkasan Eksekutif
 
-Portofio adalah SaaS builder portofolio berbasis **form + template** (bukan drag-and-drop). Model bisnis: **gratis membuat & preview, berbayar untuk publish** — satu paket langganan bulanan via Xendit.
+Portofio adalah SaaS builder portofolio berbasis **form + template** (bukan drag-and-drop). Model bisnis: **gratis membuat & preview, berbayar untuk publish** — satu paket langganan bulanan via Midtrans.
 
 | Aspek | Keputusan |
 |---|---|
-| Stack | Next.js 16 (App Router) + TypeScript + Tailwind + Supabase + Xendit + Vercel |
+| Stack | Next.js 16 (App Router) + TypeScript + Tailwind + Supabase + Midtrans + Vercel |
 | Multi-tenant | Dynamic rendering via subdomain wildcard atau path `/sites/{subdomain}` |
 | Data model | `workspaces` → `workspace_profile` + `projects` (versioned) + `subscriptions` |
 | Template | 8 template di `TEMPLATE_REGISTRY` — metadata & Zod schema di kode, bukan DB |
@@ -70,7 +70,7 @@ Ikuti aturan repo (`AGENTS.md` / `CLAUDE.md`):
 | template-002 | Galeri publik di landing page | ✅ passing |
 | publish-001 | Publish ke subdomain | ✅ passing |
 | dashboard-001 | Dashboard + billing section | ✅ passing |
-| billing-001 | Publish gate via Xendit | ✅ passing |
+| billing-001 | Publish gate via Midtrans | ✅ passing |
 | arch-001 | Workspace Profile + Project Architecture | ✅ passing |
 | template-arch-001 | Template-as-a-Unit refactor | ✅ passing |
 | rbac-001 | RBAC + Admin panel | ✅ passing |
@@ -83,7 +83,7 @@ Ikuti aturan repo (`AGENTS.md` / `CLAUDE.md`):
 | Flow 2 | Onboarding & Email Verification | ✅ |
 | Flow 3 | Pilih Template → Buat Project | ✅ |
 | Flow 4 | Editor → Autosave → Live Preview | ✅ |
-| Flow 5 | Publish → Xendit → Site Live | ✅ |
+| Flow 5 | Publish → Midtrans → Site Live | ✅ |
 | Flow 6 | Dashboard → Kelola Project | ✅ |
 | Flow 7 | Billing & Subscription Lifecycle | ✅ |
 | Flow 8 | Akses Site Publik (Multi-Tenant) | ✅ |
@@ -115,7 +115,7 @@ Sudah diimplementasi tapi **belum tercatat lengkap di SPRINTS.md**:
 | 7.3 | 8 template + kustomisasi tema | Flow 1, 3, 4 | `/templates`, `/dashboard/templates` | `src/templates/registry.tsx` |
 | 7.4 | Publish + subdomain | Flow 5 | Editor Publish Panel | `src/lib/projects/actions.ts` |
 | 7.5 | Dashboard kelola project | Flow 6 | `/dashboard` | `DashboardClientView.tsx` |
-| 7.6 | Billing Xendit + grace period | Flow 7 | `/dashboard/billing` | `src/lib/billing/*` |
+| 7.6 | Billing Midtrans + grace period | Flow 7 | `/dashboard/billing` | `src/lib/billing/*` |
 | 7.7 | i18n id/en | Semua flow | `/[locale]/*` | `messages/{id,en}.json` |
 | 9.3 | Multi-tenant rendering | Flow 8 | `/sites/[subdomain]` | `src/proxy.ts`, `sites/[subdomain]/page.tsx` |
 | 9.5 | RBAC + RLS | Flow 9 | `/admin` | `src/lib/auth/roles.ts` |
@@ -134,7 +134,7 @@ flowchart LR
     subgraph NextJS
         MW[proxy.ts / middleware]
         SA[Server Actions]
-        WH[Webhook /api/webhooks/xendit]
+        WH[Webhook /api/webhooks/midtrans]
         CR[Cron /api/cron/check-subscriptions]
     end
 
@@ -145,7 +145,7 @@ flowchart LR
     end
 
     subgraph External
-        XE[Xendit]
+        XE[Midtrans]
         VR[Vercel CDN]
     end
 
@@ -208,7 +208,7 @@ flowchart LR
 | Task ID | Judul | Flow | Status | File Kunci |
 |---|---|---|---|---|
 | A-030 | Publish panel + subdomain | Flow 5 | ✅ | `publishProjectAction` |
-| A-031 | Xendit checkout + webhook | Flow 5, 7 | ✅ | `src/lib/billing/xendit.ts` |
+| A-031 | Midtrans checkout + webhook | Flow 5, 7 | ✅ | `src/lib/billing/midtrans.ts` |
 | A-032 | Subscription state machine | Flow 7 | ✅ | `subscription.ts`, `unpublish.ts` |
 | A-033 | Billing dashboard page | Flow 7 | ✅ | `BillingClientView.tsx` |
 | A-034 | Kuota 1 publish/akun | PRD §7.4, §16 | ✅ | `publishProjectAction` |
@@ -374,7 +374,7 @@ npm run lint && npx tsc --noEmit && npm run build
 
 ---
 
-### B-010 — Xendit End-to-End Sandbox Test
+### B-010 — Midtrans End-to-End Sandbox Test
 
 | | |
 |---|---|
@@ -507,8 +507,8 @@ Apply **berurutan** (21 file):
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | Supabase client |
 | `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Admin client, cron, webhooks |
 | `NEXT_PUBLIC_ROOT_DOMAIN` | ✅ | Subdomain URL generation |
-| `XENDIT_SECRET_KEY` | ✅ prod | Checkout invoice |
-| `XENDIT_WEBHOOK_TOKEN` | ✅ prod | Webhook verification |
+| `MIDTRANS_SERVER_KEY` | ✅ prod | Checkout invoice |
+| `MIDTRANS_IS_PRODUCTION` | ✅ prod | Webhook verification |
 | `CRON_SECRET` | ✅ prod | Cron auth |
 | `SENTRY_DSN` | opsional | Error tracking |
 
@@ -523,7 +523,7 @@ Pastikan `.env.example` selalu sync dengan daftar ini.
 | 1 | Seluruh FR §7 implemented + DoD | Fase A | ✅ |
 | 2 | 8 template QA visual mobile/desktop | B-013 | ✅ |
 | 3 | Signup → publish < 15 menit | B-012 | ✅ (2s Stopwatch KPI passed) |
-| 4 | Xendit E2E + webhook + grace unpublish | B-010 | ✅ |
+| 4 | Midtrans E2E + webhook + grace unpublish | B-010 | ✅ |
 | 5 | Terjemahan id/en flow inti | B-013 | ✅ |
 | 6 | Privacy & Terms published | B-007 | ✅ |
 | 7 | Blocklist + rate limiting | B-005, B-014 | ✅ |
@@ -578,7 +578,7 @@ gantt
     B-007 Footer Legal Links          :b007, 2026-08-10, 1d
     B-008 Vercel Cron Config          :b008, 2026-08-10, 1d
     B-009 Sentry Setup                :b009, 2026-08-11, 1d
-    B-010 Xendit E2E                  :b010, 2026-08-11, 2d
+    B-010 Midtrans E2E                  :b010, 2026-08-11, 2d
     section Sprint 3 - Go-Live
     B-011 Production Deploy           :b011, 2026-08-14, 2d
     B-012 KPI Stopwatch Test          :b012, 2026-08-15, 1d
@@ -600,7 +600,7 @@ Ikuti urutan ini — setiap step bergantung pada step sebelumnya:
 1. B-001  Sync DB migrations          ← BLOCKER: tanpa ini publish/auth gagal di prod
 2. B-002  Email templates             ← BLOCKER: signup/reset tidak jalan
 3. B-003  Custom claims deploy        ← BLOCKER: admin panel
-4. B-010  Xendit E2E sandbox          ← Validasi monetisasi
+4. B-010  Midtrans E2E sandbox          ← Validasi monetisasi
 5. B-004  Playwright E2E              ← Regression safety net
 6. B-005  Rate limiting
 7. B-006  XSS wiring

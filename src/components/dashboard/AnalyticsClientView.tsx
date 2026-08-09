@@ -294,6 +294,61 @@ export function AnalyticsClientView({
               </div>
             )}
 
+            {/* Section engagement + performance */}
+            {summary.sectionEngagement && (
+              <div className="rounded-2xl bg-surface p-5 shadow-sm ring-1 ring-black/5">
+                <div className="mb-5 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px] text-accent-deep">donut_small</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[14px] font-bold text-ink">{t("perfSectionTitle")}</p>
+                    <p className="text-[12px] text-ink-faint">{t("perfSectionDesc")}</p>
+                  </div>
+                </div>
+
+                <div className="mb-5 grid grid-cols-3 gap-3">
+                  <div className="rounded-xl bg-shell/70 p-3.5 ring-1 ring-black/5">
+                    <p className="font-display text-[22px] font-bold leading-none tabular-nums text-accent-deep">
+                      {summary.sectionEngagement.avgSections.toLocaleString(locale)}
+                    </p>
+                    <p className="mt-1.5 text-[11px] font-medium leading-tight text-ink-faint">{t("avgSections")}</p>
+                  </div>
+                  <div className="rounded-xl bg-shell/70 p-3.5 ring-1 ring-black/5">
+                    <p className="font-display text-[22px] font-bold leading-none tabular-nums text-ink">
+                      {summary.sectionEngagement.engagedRate}%
+                    </p>
+                    <p className="mt-1.5 text-[11px] font-medium leading-tight text-ink-faint">{t("engagedRate")}</p>
+                  </div>
+                  <div className="rounded-xl bg-shell/70 p-3.5 ring-1 ring-black/5">
+                    <p className="font-display text-[22px] font-bold leading-none tabular-nums text-ink">
+                      {formatCount(summary.sectionEngagement.deepVisitors)}
+                    </p>
+                    <p className="mt-1.5 text-[11px] font-medium leading-tight text-ink-faint">{t("deepVisitors")}</p>
+                  </div>
+                </div>
+
+                {summary.sectionEngagement.sections.length > 0 ? (
+                  <div className="flex flex-col gap-4">
+                    {summary.sectionEngagement.sections.map((s) => (
+                      <div key={s.key} className="flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="min-w-0 truncate text-[13px] font-semibold text-ink">{s.label}</span>
+                          <span className="shrink-0 text-[11px] font-medium tabular-nums text-ink-faint">
+                            {formatCount(s.views)} {t("sectionViews")} · {formatCount(s.visitors)} {t("sectionVisitors")} ·{" "}
+                            <span className="font-semibold text-accent-deep">{s.share}%</span>
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink/[0.06]">
+                          <div className="h-full rounded-full bg-accent" style={{ width: `${Math.min(100, Math.max(3, s.share))}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyMini label={t("sectionsEmpty")} />
+                )}
+              </div>
+            )}
+
             {/* Breakdowns */}
             <div className="grid gap-4 lg:grid-cols-2">
               <BreakdownCard title={t("topPagesTitle")} icon="route">

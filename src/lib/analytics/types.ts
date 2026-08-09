@@ -13,6 +13,22 @@ export interface DayBucket {
   visitors: number;
 }
 
+export interface SectionPerformance {
+  key: string;
+  label: string;
+  views: number;
+  visitors: number;
+  share: number; // % of page unique visitors who reached this section
+}
+
+export interface SectionEngagement {
+  avgSections: number; // average distinct sections per engaged visitor
+  engagedVisitors: number; // distinct visitors who reached at least one section
+  engagedRate: number; // % of page unique visitors who reached any section
+  deepVisitors: number; // distinct visitors who reached 2+ different sections
+  sections: SectionPerformance[];
+}
+
 export interface AnalyticsSummary {
   range: AnalyticsRange;
   totalViews: number;
@@ -26,4 +42,5 @@ export interface AnalyticsSummary {
   devices: { device: string; views: number; visitors: number }[];
   browsers: { browser: string | null; views: number }[];
   countries: { country: string | null; views: number; visitors: number }[];
+  sectionEngagement: SectionEngagement | null;
 }

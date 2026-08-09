@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { AnalyticsRange, AnalyticsSite, AnalyticsSummary, DayBucket } from "./types";
+import type { AnalyticsRange, AnalyticsSite, AnalyticsSummary, DayBucket, SectionEngagement } from "./types";
 
 const DAY_MS = 86_400_000;
 
@@ -63,7 +63,96 @@ export async function getProjectAnalytics(
 
   // Bots may execute the beacon; exclude them from every aggregate.
   const rows = (data as unknown as VisitRow[]).filter((r) => r.device_type !== "bot");
-  return aggregate(rows, range, meta.days, start);
+  const summary = aggregate(rows, range, meta.days, start);
+  summary.sectionEngagement = await getSectionEngagement(
+    supabase,
+    projectId,
+    start.toISOString(),
+    summary.uniqueVisitors
+  );
+  return summary;
+}
+
+// Section engagement -----------------------------------------------------------
+
+interface SectionRow {
+  visitor_hash: string | null;
+  section_key: string;
+  section_label: string | null;
+  device_type: string | null;
+}
+
+async function getSectionEngagement(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  projectId: string,
+  startIso: string,
+  pageVisitors: number
+): Promise<SectionEngagement | null> {
+  const { data, error } = await supabase
+    .from("section_visits")
+    .select("visitor_hash, section_key, section_label, device_type")
+    .eq("project_id", projectId)
+    .gte("created_at", startIso)
+    .order("created_at", { ascending: false })
+    .limit(4000);
+
+  if (error || !data) return null;
+
+  // Bots may execute the beacon; exclude them from every aggregate.
+  const rows = (data as unknown as SectionRow[]).filter(
+    (r) => r.device_type !== "bot" && !!r.visitor_hash && !!r.section_key
+  );
+
+  if (rows.length === 0) {
+    return { avgSections: 0, engagedVisitors: 0, engagedRate: 0, deepVisitors: 0, sections: [] };
+  }
+
+  const byKey = new Map<string, { label: string; views: number; visitors: Set<string> }>();
+  const perVisitor = new Map<string, Set<string>>();
+
+  for (const r of rows) {
+    const visitor = r.visitor_hash!;
+    let v = perVisitor.get(visitor);
+    if (!v) {
+      v = new Set<string>();
+      perVisitor.set(visitor, v);
+    }
+    v.add(r.section_key);
+
+    let g = byKey.get(r.section_key);
+    if (!g) {
+      g = { label: r.section_label || r.section_key, views: 0, visitors: new Set<string>() };
+      byKey.set(r.section_key, g);
+    }
+    g.views += 1;
+    g.visitors.add(visitor);
+  }
+
+  let totalDistinct = 0;
+  let deep = 0;
+  for (const set of perVisitor.values()) {
+    totalDistinct += set.size;
+    if (set.size >= 2) deep += 1;
+  }
+
+  const sections = [...byKey.entries()]
+    .map(([key, g]) => ({
+      key,
+      label: g.label || key,
+      views: g.views,
+      visitors: g.visitors.size,
+      share: pageVisitors > 0 ? Math.round((g.visitors.size / pageVisitors) * 100) : 0,
+    }))
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 8);
+
+  return {
+    avgSections: perVisitor.size > 0 ? Math.round((totalDistinct / perVisitor.size) * 10) / 10 : 0,
+    engagedVisitors: perVisitor.size,
+    engagedRate: pageVisitors > 0 ? Math.round((perVisitor.size / pageVisitors) * 100) : 0,
+    deepVisitors: deep,
+    sections,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -157,6 +246,7 @@ function aggregate(rows: VisitRow[], range: AnalyticsRange, days: number, start:
     views7d: human.filter((r) => new Date(r.created_at).getTime() >= weekStart).length,
     views30d: human.filter((r) => new Date(r.created_at).getTime() >= monthStart).length,
     perDay: buildPerDay(human, range, days, start),
+    sectionEngagement: null,
     topPages: topGrouped(human, (r) => r.page_path || "/", 6).map((g) => ({
       path: g.key ?? "/",
       views: g.views,

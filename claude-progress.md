@@ -1,3 +1,26 @@
+# Session 057: SP2-031 — Section Engagement & Section Performance Metrics
+**Status:** Verified / Passing locally + pushed
+- Implemented the missing Sprint-2 backlog item SP2-031 (user asked: build analytics first; SP2-020 / SP2-022 are held / deferred).
+- **Data:** `supabase/migrations/20260811000006_section_engagement.sql` — new `public.section_visits` (project_id, subdomain, section_key, section_label, page_path, visitor_hash, device_type, created_at) + indexes + RLS mirroring `page_visits` (public insert for published projects; owner read/delete via workspace chain).
+- **Beacon:** the published-site inline script in `src/app/sites/[subdomain]/page.tsx` now also runs a self-contained IntersectionObserver over `[data-section-key]` and `section[id]` (thresholds 0.1/0.25, `-8%` bottom rootMargin, DOMContentLoaded-safe), reporting each distinct section **once per visitor session** with a heading-derived label (`h1/h2/h3` text, fallback = key).
+- **Endpoint:** `src/app/api/track/route.ts` accepts `{ type: "section", section: {key, label}, … }`; validates key (1–80) and label (≤140), inserts a device-classified `section_visits` row only for currently-published subdomains (same project lookup as views), returns 204.
+- **Aggregation:** `src/lib/analytics/types.ts` + `src/lib/analytics/store.ts` — `summary.sectionEngagement`: `avgSections` (avg distinct sections per engaged visitor), `engagedVisitors`, `engagedRate` (% of page unique visitors who reached any section), `deepVisitors` (2+ sections), and top-8 `sections` (views, unique visitors, share vs page unique visitors) — bots excluded from every aggregate.
+- **Dashboard:** `AnalyticsClientView.tsx` gained an "Performa Section / Section performance" card (3 mini KPIs + share-bar section list, DESIGN.md tokens); new Analytics i18n keys in `messages/id.json` + `en.json`.
+- **E2E:** `e2e/flows/08-public-site.spec.ts` extended — GET /api/track → 405, POST section beacon with unknown subdomain → 204.
+- **Verification:** `npx tsc --noEmit` clean; `npm run lint` 0 errors; `npm run build` clean; full `npx playwright test` passing. Recorded as `analytics-002` in `feature_list.json`; `SP2-031` marked Done in `docs/backlog/sprint-2.csv`.
+- **Operational note:** apply `20260811000006_section_engagement.sql` to the real Supabase project before live section data starts aggregating.
+- Pushed to `origin/main`.
+
+# Session 056: Sprint-2 Backlog Audit — docs/backlog/sprint-2.csv
+**Status:** Verified against codebase (28/31 Done, 3 gap)
+- Audited every SP2-001..031 task in `docs/backlog/sprint-2.csv` against the shipped code + existing `feature_list.json` evidence (as of Session 055 baseline: tsc/lint/build clean, E2E 27 passed / 1 skipped).
+- Marked **Done** the tasks whose user-visible behavior exists in the product: website content fetch (profile + `resolveLibraryData`), per-template editor forms, zod validation + autosave, Content Library, editor layout/accordion/live-preview/section-click/progress, draft save + draft preview + responsive Desktop/Tablet/Mobile device preview + draft-vs-published split, publish/unpublish + status + subdomain routing + single-active-website gate, dashboard management actions, template mappers, subscription/billing (Midtrans), account/password settings, and visitor analytics.
+- **NOT marked Done** initially (genuinely unimplemented, kept `To Do`):
+  1. `SP2-020` — no UI/action to change the template of an EXISTING website that already has content (template is fixed at project creation; no switch flow) — **still deferred** (user asked to hold).
+  2. `SP2-022` — no per-template "preview the new template as a draft without touching the Published Website" flow (same missing switch mechanism) — **still deferred** (user asked to hold).
+  3. `SP2-031` — section engagement / per-section performance — **IMPLEMENTED in Session 057**.
+- Status column in `sprint-2.csv` updated.
+
 # Session 055: Landing Preview Modal — Interaction Isolation (landing no longer follows clicks)
 **Status:** Verified / Passing locally
 - Fixed: interacting with a template inside the landing `TemplateShowcase` preview modal (desktop/tablet/mobile viewports) caused the landing page to follow — e.g. clicking a `mailto:`/nav link in the preview fired the landing link (smooth-scroll/`#` navigation) and could close the modal. Root cause: template anchors/hover areas inside the modal subtree reached page-level handlers (`setActiveIndex` coverflow clicks, link default navigation) because only the preview card's own `onClick` was stopped.

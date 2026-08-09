@@ -596,7 +596,15 @@
     "noSiteCta": "Go to dashboard",
     "noDataTitle": "No visits yet",
     "noDataDesc": "Share your site link to start collecting data. Analytics begin tracking as soon as a website is published.",
-    "unknownError": "Analytics could not be loaded right now. Please try again shortly."
+    "unknownError": "Analytics could not be loaded right now. Please try again shortly.",
+    "perfSectionTitle": "Section performance",
+    "perfSectionDesc": "How deep visitors scroll into each section of the site.",
+    "avgSections": "Avg sections per visitor",
+    "engagedRate": "Engagement rate",
+    "deepVisitors": "Deep readers (2+ sections)",
+    "sectionsEmpty": "No section engagement yet.",
+    "sectionViews": "views",
+    "sectionVisitors": "visitors"
   },
   "Admin": {
     "portalLabel": "Admin Portal",

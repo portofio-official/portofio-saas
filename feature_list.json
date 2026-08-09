@@ -596,7 +596,31 @@
         "2026-08-11: i18n — new Profile keys in messages/en.json + id.json (phonePlaceholder adjusted to a national-style example, phoneHint, countrySearch, noCountryHint); page.tsx now reads route locale and passes it to the phone input for localized country names.",
         "Verified 2026-08-11: npx tsc --noEmit clean, npm run lint 0 errors (1 pre-existing warning), npm run build clean, npm run test:e2e 26 passed / 1 skipped, plus a throwaway node flow test confirming detection + canonical outcomes for US/ID/GB/SG/local-zero inputs."
       ],
-      "notes": "Scope: profile settings form only. The editor's per-template contact phone fields and the signup phone field were intentionally left unchanged. Detection deliberately triggers only on an explicit '+' (or a pasted international number) — no heuristic country-guessing on bare national digits (an Indonesian 08…/8… national number would otherwise be miscast, e.g. 81x → Japan). Stored format remains international (+<CC> <national digits>) so templates and the rest of the app keep rendering it unchanged."
+      81x → Japan). Stored format remains international (+<CC> <national digits>) so templates and the rest of the app keep rendering it unchanged."
+    },
+    {
+      "id": "analytics-002",
+      "priority": 20,
+      "area": "analytics",
+      "title": "Section engagement & performance metrics (SP2-031)",
+      "user_visible_behavior": "The analytics dashboard shows how deeply visitors explore a published site: an Engagement block (avg sections per engaged visitor, engagement rate = % of unique visitors who reached any section, deep-reader count for 2+ sections) plus a Section performance list (per section: views, unique visitors, and share % of page visitors who reached it).",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npm run lint: 0 errors.",
+        "npm run build: clean.",
+        "npx playwright test: full suite passes including new /api/track smoke tests.",
+        "Beacon: public sites send { type:'section', section:{key,label} } events via an IntersectionObserver over [data-section-key] / section[id], each distinct section once per visitor session; /api/track (POST) inserts into section_visits for currently-published subdomains only, with bot rows excluded from aggregates."
+      ],
+      "evidence": [
+        "2026-08-11 (Session 056): supabase/migrations/20260811000006_section_engagement.sql — section_visits table + indexes + RLS (anon/authenticated public insert for published projects; owner read/delete via workspace chain), mirroring page_visits.",
+        "2026-08-11: /api/track accepts section events (type + {key,label}); validates key/label length; inserts device-classified rows (bots excluded in aggregation).",
+        "2026-08-11: published-site inline beacon extended with a self-contained IntersectionObserver (thresholds 0.1/0.25, -8% bottom rootMargin, DOMContentLoaded-safe) reporting each distinct section at most once per session with a heading-derived label.",
+        "2026-08-11: src/lib/analytics/store.ts aggregates section_visits into avgSections / engagedVisitors / engagedRate (vs page unique visitors) / deepVisitors (2+ sections) / top-8 sections sorted by views; wired into getProjectAnalytics as summary.sectionEngagement.",
+        "2026-08-11: AnalyticsClientView gained an Engagement + Section performance card (3 mini KPIs + share-bar section list on DESIGN.md tokens); Analytics i18n keys added (id+en).",
+        "Verified 2026-08-11: npx tsc --noEmit clean, npm run lint 0 errors, npm run build clean; e2e/flows/08-public-site.spec.ts extended with track-endpoint smoke tests."
+      ],
+      "notes": "Closes sprint backlog SP2-031. Requires applying supabase/migrations/20260811000006_section_engagement.sql to the real Supabase project before new browsers arrive via the deployed beacon. SP2-020 (switch template on a content-bearing site) and SP2-022 (preview a new template without altering the published site) remain deliberately deferred/not-implemented."
     }
   ]
 }

@@ -1,0 +1,52 @@
+ ,Goal,"Membangun platform web builder berbasis template yang memungkinkan pengguna membuat, mengelola, dan mempublikasikan website portfolio profesional dengan cepat tanpa memerlukan kemampuan coding.",,,,,
+,,,,,,,
+,,,,,,,
+ID,Title (Fitur),User Story,Priority,Sprint,Story Points/Estimation,DoD,Status
+PB-001,Authentication,"Sebagai pengguna, saya ingin membuat akun dan masuk ke Portofio agar saya dapat mengakses dan mengelola website portfolio saya.",Must Have (Wajib),1,3,"• Pengguna dapat registrasi akun.
+• Pengguna dapat login ke sistem.
+• Pengguna dapat logout dari sistem.
+• Pengguna dapat mengakses Workspace secara aman.",To Do
+PB-002,Profile,"Sebagai pengguna, saya ingin menyimpan informasi dasar saya agar data tersebut dapat digunakan kembali ketika membuat website baru.",Must Have (Wajib),1,3,"• Pengguna dapat mengelola profil dasar.
+• Perubahan profil tersimpan.
+• Data profil dapat digunakan kembali pada website lain.",To Do
+PB-003,My Workspace,"Sebagai pengguna, saya ingin melihat seluruh website yang saya miliki agar saya dapat mengelola website portfolio saya dengan mudah.",Must Have (Wajib),1,2,"• Pengguna dapat melihat daftar website.
+• Pengguna dapat melihat status setiap website.
+• Pengguna dapat membuat website baru.",To Do
+PB-004,Create Website,"Sebagai pengguna, saya ingin membuat website baru agar saya dapat memiliki portfolio dengan template yang saya pilih.",Must Have (Wajib),1,2,Pengguna dapat memulai pembuatan website baru dari Workspace.,To Do
+PB-005,Template Gallery & Preview,"Sebagai pengguna, saya ingin melihat koleksi template beserta preview dan informasi yang dimilikinya agar saya dapat memilih template yang paling sesuai.",Must Have (Wajib),1,4,"• Pengguna dapat melihat daftar template.
+• Pengguna dapat melihat preview template.
+• Pengguna dapat melihat section yang tersedia.
+• Pengguna dapat melihat informasi template.",To Do
+PB-006,Website Content,"Sebagai pengguna, saya ingin melengkapi informasi yang dibutuhkan website agar website saya dapat ditampilkan secara lengkap tanpa perlu mengisi data yang sama berulang kali.",Must Have (Wajib),2,5,"• Sistem menggunakan data yang sudah tersedia.
+• Sistem meminta data yang belum tersedia.
+• Data yang diinput disimpan untuk digunakan kembali pada website lain.",To Do
+PB-007,Website Editor,"Sebagai pengguna, saya ingin mengedit isi website agar website sesuai dengan kebutuhan saya sebelum dipublikasikan.",Must Have (Wajib),2,5,"• Pengguna dapat mengubah konten website.
+• Pengguna dapat mengatur section yang diperbolehkan.
+• Pengguna dapat mengubah tampilan dasar website.
+• Pengguna dapat melihat progress kelengkapan website.",To Do
+PB-008,Draft & Preview,"Sebagai pengguna, saya ingin menyimpan perubahan sebagai draft dan melihat preview website agar saya dapat memastikan hasil sebelum dipublikasikan.",Must Have (Wajib),2,3,"• Draft perubahan dapat disimpan.
+• Preview website dapat ditampilkan.
+• Website publik tidak berubah sebelum dipublikasikan.",To Do
+PB-009,Website Publishing,"Sebagai pengguna, saya ingin mempublikasikan website agar website saya dapat diakses oleh orang lain melalui alamat publik.",Must Have (Wajib),3,3,"• Website dapat dipublikasikan.
+• Website memiliki status publikasi yang jelas.
+• Website dapat diakses melalui URL publik.",To Do
+PB-010,Website Management,"Sebagai pengguna, saya ingin mengelola website yang telah saya buat agar saya dapat mengedit, melihat, atau menghapus website sesuai kebutuhan.",Must Have (Wajib),3,3,"• Pengguna dapat melihat status website.
+• Pengguna dapat membuka editor website.
+• Pengguna dapat melakukan preview website.
+• Pengguna dapat mempublikasikan ulang website.
+• Pengguna dapat menghapus website.",To Do
+PB-011,Template Switching,"Sebagai pengguna, saya ingin mencoba template lain tanpa kehilangan konten yang sudah saya miliki agar saya dapat memilih tampilan website yang paling sesuai.",Should Have (Penting),4,4,"• Pengguna dapat membandingkan template lama dan baru.
+• Pengguna dapat melihat perubahan section.
+• Pengguna dapat melengkapi konten yang dibutuhkan.
+• Pengguna dapat menerapkan template sebagai draft.",To Do
+PB-012,Analytics Dashboard,"Sebagai pengguna Premium, saya ingin melihat performa website saya agar saya dapat memahami bagaimana pengunjung berinteraksi dengan portfolio saya.",Should Have (Penting),4,5,"• Dashboard menampilkan jumlah visitor.
+• Dashboard menampilkan page views.
+• Dashboard menampilkan engagement pengguna.
+• Dashboard menampilkan performa setiap section website.",To Do
+PB-013,Subscription & Billing,"Sebagai pengguna, saya ingin meningkatkan akun ke Premium agar saya dapat menggunakan fitur tambahan yang tersedia.",Should Have (Penting),4,4,"• Pengguna dapat melihat paket langganan.
+• Pengguna dapat melakukan pembayaran.
+• Status akun berubah setelah pembayaran berhasil.",To Do
+PB-014,Settings,"Sebagai pengguna, saya ingin mengelola pengaturan akun dan workspace agar informasi akun saya selalu sesuai dan aman.",Should Have (Penting),4,2,"• Pengguna dapat mengubah informasi akun.
+• Pengguna dapat mengubah informasi Workspace.
+• Pengguna dapat mengubah password.
+• Pengguna dapat mengubah preferensi dasar akun.",To Do

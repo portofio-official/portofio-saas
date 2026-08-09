@@ -596,7 +596,15 @@
     "noSiteCta": "Ke dashboard",
     "noDataTitle": "Belum ada kunjungan",
     "noDataDesc": "Bagikan link situsmu untuk mulai mengumpulkan data. Analytics mulai melacak begitu website dipublish.",
-    "unknownError": "Analytics gagal dimuat saat ini. Silakan coba lagi sebentar lagi."
+    "unknownError": "Analytics gagal dimuat saat ini. Silakan coba lagi sebentar lagi.",
+    "perfSectionTitle": "Performa Section",
+    "perfSectionDesc": "Seberapa dalam pengunjung menjelajah setiap section di website.",
+    "avgSections": "Rata-rata section per pengunjung",
+    "engagedRate": "Tingkat engagement",
+    "deepVisitors": "Pengunjung eksplorasi (2+ section)",
+    "sectionsEmpty": "Belum ada data engagement section.",
+    "sectionViews": "kunjungan",
+    "sectionVisitors": "pengunjung"
   },
   "Admin": {
     "portalLabel": "Admin Portal",

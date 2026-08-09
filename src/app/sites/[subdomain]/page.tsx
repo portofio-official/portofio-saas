@@ -131,11 +131,26 @@ export default async function PublicSitePage({
   };
 
   const Renderer = definition.renderer;
+  // Self-contained inline beacon: records the page view (page_visits via
+  // /api/track) and, once the DOM is ready, watches sections ([data-section-key]
+  // or <section id>) with an IntersectionObserver. Each distinct section is
+  // reported at most once per visitor session (section_visits → engage data).
   const trackScript = `(function(){try{var K="__pvf_vid",v="";try{v=sessionStorage.getItem(K)||""}catch(e){}
-if(!v){try{v=(crypto.randomUUID?crypto.randomUUID():"v"+Math.random().toString(36).slice(2)+Date.now().toString(36));sessionStorage.setItem(K,v)}catch(e){v=""}}
-var b=JSON.stringify({subdomain:${JSON.stringify(subdomain)},path:location.pathname+location.search,visitorHash:v});
-if(navigator.sendBeacon){navigator.sendBeacon("/api/track",new Blob([b],{type:"application/json"}))}
-else{fetch("/api/track",{method:"POST",headers:{"Content-Type":"application/json"},body:b,keepalive:true})}}catch(e){}})();`;
+ if(!v){try{v=(crypto.randomUUID?crypto.randomUUID():"v"+Math.random().toString(36).slice(2)+Date.now().toString(36));sessionStorage.setItem(K,v)}catch(e){v=""}}
+ var base={subdomain:${JSON.stringify(subdomain)},path:location.pathname+location.search,visitorHash:v};
+ function post(b){if(navigator.sendBeacon){navigator.sendBeacon("/api/track",new Blob([JSON.stringify(b)],{type:"application/json"}))}
+ else{fetch("/api/track",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b),keepalive:true})}}
+ post(base);
+ var seen={};
+ function labelOf(el){try{var h=el.querySelector("h1,h2,h3");if(h){var t=(h.textContent||"").trim().replace(/\\s+/g," ");if(t)return t.slice(0,60)}}catch(e){}return""}
+ function trySection(el){var k="";try{k=(el.getAttribute("data-section-key")||el.id||"").trim()}catch(e){}
+ if(!k||k.length>240||seen[k])return;seen[k]=1;
+ post({type:"section",section:{key:k,label:labelOf(el)||k},subdomain:base.subdomain,path:base.path,visitorHash:v});}
+ function init(){try{if(!("IntersectionObserver" in window))return;
+ var io=new IntersectionObserver(function(es){for(var i=0;i<es.length;i++){if(es[i].isIntersecting&&es[i].intersectionRatio>=0.1){trySection(es[i].target)}}},{threshold:[0.1,0.25],rootMargin:"0px 0px -8% 0px"});
+ var els=document.querySelectorAll("[data-section-key],section[id]");for(var j=0;j<els.length;j++){io.observe(els[j])}}catch(e){}}
+ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",init)}else{init()}
+}catch(e){}})();`;
   return (
     <>
       <script

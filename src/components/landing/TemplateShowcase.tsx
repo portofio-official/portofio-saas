@@ -100,6 +100,27 @@ export function TemplateShowcase() {
     setActiveIndex((prev) => (prev + 1) % total);
   };
 
+  /**
+   * Isolates the template preview inside the modal: interactive template
+   * elements (anchor links incl. hash/#, mailto:, wa.me, and the templates'
+   * "back to top" buttons) must never do anything to the landing page behind
+   * the overlay. We neutralise those clicks at the canvas container (capture
+   * phase) so the preview is a dead interactive surface while remaining
+   * scrollable, and the modal's own controls (close / viewport / CTA) keep
+   * working because they live outside the canvas.
+   */
+  const isolatePreviewInteraction = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as Element | null;
+    if (!target) return;
+    const interactive = (target as Element).closest<HTMLElement>(
+      "a[href], button, [role='button'], input, select, textarea, [tabindex]"
+    );
+    if (interactive) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   const handleUseTemplate = (id: TemplateId) => {
     router.push(`/signup?templateId=${id}`);
   };
@@ -334,6 +355,7 @@ export function TemplateShowcase() {
           {/* Modal Main Viewport / Scroll Canvas */}
           <div
             className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center items-start"
+            onClickCapture={isolatePreviewInteraction}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 setPreviewId(null);
@@ -358,7 +380,7 @@ export function TemplateShowcase() {
                   <div className="h-1.5 w-12 rounded-full bg-gray-700" />
                 </div>
                 <div className="flex-1 overflow-y-auto">
-                  <TemplateRenderer templateId={previewId} data={PREVIEW_DATA} />
+                    <TemplateRenderer templateId={previewId} data={PREVIEW_DATA} />
                 </div>
               </div>
             ) : (
@@ -371,7 +393,7 @@ export function TemplateShowcase() {
                   <div className="h-3.5 w-24 rounded-full bg-black" />
                 </div>
                 <div className="flex-1 overflow-y-auto">
-                  <TemplateRenderer templateId={previewId} data={PREVIEW_DATA} />
+                    <TemplateRenderer templateId={previewId} data={PREVIEW_DATA} />
                 </div>
               </div>
             )}

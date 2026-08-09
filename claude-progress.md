@@ -1,3 +1,13 @@
+# Session 055: Landing Preview Modal — Interaction Isolation (landing no longer follows clicks)
+**Status:** Verified / Passing locally
+- Fixed: interacting with a template inside the landing `TemplateShowcase` preview modal (desktop/tablet/mobile viewports) caused the landing page to follow — e.g. clicking a `mailto:`/nav link in the preview fired the landing link (smooth-scroll/`#` navigation) and could close the modal. Root cause: template anchors/hover areas inside the modal subtree reached page-level handlers (`setActiveIndex` coverflow clicks, link default navigation) because only the preview card's own `onClick` was stopped.
+- Fix in `src/components/landing/TemplateShowcase.tsx`:
+  - Added `isolatePreviewInteraction(e)` — an `onClickCapture` handler on the **modal scroll canvas** that finds the interacting element (`a[href]`, `button`, `[role=button]`, `input`, `select`, `textarea`, `[tabindex]`) via `closest()` and calls `e.preventDefault()` + `e.stopPropagation()`, dropping the interaction before it reaches any landing handler. Backdrop-click-to-close on the canvas itself (`e.target === e.currentTarget`) is preserved.
+  - Tablet/mobile previews now scroll **inside a dedicated `flex-1 overflow-y-auto` device-frame container** (removed the old `flex-1` spacer + oversized frame) so wheel/touch scrolling lands in the modal's scroll containers only.
+  - `inert` was tried on the preview subtree but makes clicks fall through to the modal canvas and close the preview; the capture interceptor alone is the correct mechanism (kept intentionally).
+- E2E: new `e2e/flows/12-preview-isolation.spec.ts` — opens the preview modal on the active coverflow card, clicks the Minimal template's `mailto:` anchor inside the preview, and asserts no `hashchange`, unchanged URL, and modal still open.
+- **Verification:** `npx tsc --noEmit` clean; `npm run lint` 0 errors (1 pre-existing warning in BillingClientView); `npm run build` clean; full `npm run test:e2e` **27 passed / 1 skipped**.
+
 # Session 054: Strong-Password on Signup + "Confirmation Email Not Received" Root-Cause Fix
 **Status:** Verified / Passing locally + pushed
 - **Strong password on registration:** new shared `src/lib/auth/password.ts` (`PASSWORD_MIN_LENGTH = 8`, rules: min length / lowercase / uppercase / number / special, `checkPasswordStrength`, `firstFailedPasswordRule`) used by BOTH the client UI and the server actions.

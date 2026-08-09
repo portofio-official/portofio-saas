@@ -4,38 +4,38 @@ import { corporateSchema, CORPORATE_SECTIONS } from "./schema";
 export const CORPORATE_VARIANTS: TemplateVariant[] = [
   {
     id: "default",
-    label: "Default",
+    label: "Navy",
     colors: {
-      primary: "#2563eb",
-      background: "#ffffff",
-      surface: "#f8fafc",
-      text: "#0f172a",
-      textMuted: "#64748b",
-      border: "#e2e8f0",
+      primary: "#173B57",
+      background: "#F7F6F2",
+      surface: "#E9EEF1",
+      text: "#12202B",
+      textMuted: "#5D6871",
+      border: "#CDD3D6",
     }
   },
   {
     id: "emerald",
-    label: "Emerald",
+    label: "Forest",
     colors: {
-      primary: "#10b981",
-      background: "#ffffff",
-      surface: "#f0fdf4",
-      text: "#064e3b",
-      textMuted: "#059669",
-      border: "#d1fae5",
+      primary: "#315B4A",
+      background: "#F6F5F0",
+      surface: "#E7ECE7",
+      text: "#183028",
+      textMuted: "#66716B",
+      border: "#CDD3CE",
     }
   },
   {
     id: "slate",
-    label: "Slate",
+    label: "Graphite",
     colors: {
-      primary: "#cbd5e1",
-      background: "#0f172a",
-      surface: "#1e293b",
-      text: "#f8fafc",
-      textMuted: "#94a3b8",
-      border: "#334155",
+      primary: "#4B5563",
+      background: "#F4F4F3",
+      surface: "#E7E7E5",
+      text: "#202124",
+      textMuted: "#666A70",
+      border: "#D0D1D2",
     }
   }
 ];
@@ -50,11 +50,11 @@ export const corporateDefinition: TemplateDefinition<typeof corporateSchema> = {
   version: 1,
   meta: {
     name: "Corporate",
-    description: "Structured and formal, experience timeline prominent. For job seekers.",
+    description: "A formal executive profile with structured experience, credentials, and consulting engagements.",
     thumbnailUrl: "",
     category: "portfolio",
     capabilities: ["experience", "education", "skills", "pricing", "contact"],
-    tags: ["formal", "timeline", "job-seeker", "professional"],
+    tags: ["formal", "executive", "consultant", "professional"],
     author: "portofio",
     price: 0,
     gallery: {

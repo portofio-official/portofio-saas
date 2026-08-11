@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { toggleUserSuspensionAction } from "@/lib/admin/actions";
 
 interface Props {
@@ -13,6 +14,7 @@ export function SuspendUserButton({ userId, isSuspended }: Props) {
   const [error, setError] = useState<string | null>(null);
   // B-5: inline confirmation instead of window.confirm()
   const [showConfirm, setShowConfirm] = useState(false);
+  const router = useRouter();
 
   const actionText = isSuspended ? "Reactivate" : "Suspend";
 
@@ -20,8 +22,9 @@ export function SuspendUserButton({ userId, isSuspended }: Props) {
     startTransition(async () => {
       setError(null);
       setShowConfirm(false);
-      try {
-        await toggleUserSuspensionAction(userId, !isSuspended);
+        try {
+          await toggleUserSuspensionAction(userId, !isSuspended);
+          router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       }

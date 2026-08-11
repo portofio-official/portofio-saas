@@ -43,9 +43,11 @@ PB-012,Analytics Dashboard,"Sebagai pengguna Premium, saya ingin melihat perform
 • Dashboard menampilkan page views.
 • Dashboard menampilkan engagement pengguna.
 • Dashboard menampilkan performa setiap section website.",To Do
-PB-013,Subscription & Billing,"Sebagai pengguna, saya ingin meningkatkan akun ke Premium agar saya dapat menggunakan fitur tambahan yang tersedia.",Should Have (Penting),4,4,"• Pengguna dapat melihat paket langganan.
+PB-013,Subscription & Billing,"Sebagai pengguna, saya ingin memilih Basic, Premium, atau Enterprise agar saya dapat menggunakan fitur yang sesuai kebutuhan.",Should Have (Penting),4,4,"• Pengguna dapat melihat tiga paket langganan.
 • Pengguna dapat melakukan pembayaran.
-• Status akun berubah setelah pembayaran berhasil.",To Do
+• Status akun dan entitlement berubah setelah pembayaran berhasil.
+• Pengguna dapat memilih billing monthly atau annual.
+• Semua paket sementara dibatasi satu website live per akun.",To Do
 PB-014,Settings,"Sebagai pengguna, saya ingin mengelola pengaturan akun dan workspace agar informasi akun saya selalu sesuai dan aman.",Should Have (Penting),4,2,"• Pengguna dapat mengubah informasi akun.
 • Pengguna dapat mengubah informasi Workspace.
 • Pengguna dapat mengubah password.

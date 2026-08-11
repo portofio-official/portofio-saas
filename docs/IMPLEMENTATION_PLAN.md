@@ -2,7 +2,7 @@
 
 **Versi**: 1.0  
 **Tanggal**: 1 Agustus 2026  
-**Berdasarkan**: [PRD.md](./PRD.md) v1.7 · [FLOW.md](./FLOW.md) v1.0 · [feature_list.json](../feature_list.json)  
+**Berdasarkan**: [PRD.md](./PRD.md) v1.9 · [FLOW.md](./FLOW.md) v1.1 · [feature_list.json](../feature_list.json)
 **Tujuan dokumen**: Blueprint eksekusi terstruktur — setiap task punya ID, sumber requirement, acceptance criteria, file target, dan langkah verifikasi.
 
 ---
@@ -29,7 +29,7 @@
 
 ## 1. Ringkasan Eksekutif
 
-Portofio adalah SaaS builder portofolio berbasis **form + template** (bukan drag-and-drop). Model bisnis: **gratis membuat & preview, berbayar untuk publish** — satu paket langganan bulanan via Midtrans.
+Portofio adalah SaaS builder portofolio berbasis **form + template** (bukan drag-and-drop). Model bisnis: **gratis membuat & preview, berbayar untuk publish** melalui Basic, Premium, dan Enterprise dengan billing monthly/annual via Midtrans.
 
 | Aspek | Keputusan |
 |---|---|
@@ -38,9 +38,10 @@ Portofio adalah SaaS builder portofolio berbasis **form + template** (bukan drag
 | Data model | `workspaces` → `workspace_profile` + `projects` (versioned) + `subscriptions` |
 | Template | 8 template di `TEMPLATE_REGISTRY` — metadata & Zod schema di kode, bukan DB |
 | i18n UI | Indonesia (default) + English via `next-intl` |
-| Kuota publish | **1 website published aktif per akun** (PRD v1.7, terkunci) |
+| Paket billing | Basic, Premium, Enterprise; monthly dan annual via Midtrans |
+| Kuota publish | **1 website published aktif per akun untuk semua tier** (PRD v1.9, terkunci sementara) |
 
-**Status proyek**: Seluruh 10 user flow MVP sudah diimplementasi di codebase (`feature_list.json` → `passing`). Sisa pekerjaan utama adalah **infra remote sync, QA otomatis, hardening keamanan, dan go-live production** — bukan fitur MVP baru.
+**Status proyek**: Core user flows dan single-plan publish gate sudah tersedia di codebase. Tiered billing Basic/Premium/Enterprise belum diimplementasikan; pekerjaan berikutnya mencakup plan catalog, entitlement, annual billing, custom-domain/watermark gates, dan webhook plan-aware selain infra remote sync, QA, hardening keamanan, dan go-live production.
 
 ---
 
@@ -70,7 +71,8 @@ Ikuti aturan repo (`AGENTS.md` / `CLAUDE.md`):
 | template-002 | Galeri publik di landing page | ✅ passing |
 | publish-001 | Publish ke subdomain | ✅ passing |
 | dashboard-001 | Dashboard + billing section | ✅ passing |
-| billing-001 | Publish gate via Midtrans | ✅ passing |
+| billing-001 | Publish gate via Midtrans, single-plan baseline | ✅ passing |
+| billing-002 | Tiered billing Basic/Premium/Enterprise | ⬜ planned |
 | arch-001 | Workspace Profile + Project Architecture | ✅ passing |
 | template-arch-001 | Template-as-a-Unit refactor | ✅ passing |
 | rbac-001 | RBAC + Admin panel | ✅ passing |
@@ -116,6 +118,7 @@ Sudah diimplementasi tapi **belum tercatat lengkap di SPRINTS.md**:
 | 7.4 | Publish + subdomain | Flow 5 | Editor Publish Panel | `src/lib/projects/actions.ts` |
 | 7.5 | Dashboard kelola project | Flow 6 | `/dashboard` | `DashboardClientView.tsx` |
 | 7.6 | Billing Midtrans + grace period | Flow 7 | `/dashboard/billing` | `src/lib/billing/*` |
+| 7.6 | Tiered plan entitlement + monthly/annual billing | Flow 5, 7 | `/dashboard/billing` | `src/lib/billing/*`, `plans`, `entitlements` |
 | 7.7 | i18n id/en | Semua flow | `/[locale]/*` | `messages/{id,en}.json` |
 | 9.3 | Multi-tenant rendering | Flow 8 | `/sites/[subdomain]` | `src/proxy.ts`, `sites/[subdomain]/page.tsx` |
 | 9.5 | RBAC + RLS | Flow 9 | `/admin` | `src/lib/auth/roles.ts` |
@@ -454,6 +457,28 @@ npm run lint && npx tsc --noEmit && npm run build
 
 ---
 
+### B-015 — Tiered Billing dan Plan Entitlements
+
+| | |
+|---|---|
+| **Prioritas** | P0 — Blocker monetization launch |
+| **PRD** | §7.6, §10, §15 |
+| **Flow** | Flow 5, Flow 7 |
+| **Status** | ⬜ Belum diimplementasikan |
+
+**Acceptance criteria:**
+
+- [ ] Basic, Premium, dan Enterprise tersedia dengan monthly dan annual product identifiers di Midtrans.
+- [ ] Semua tier membatasi satu website live per akun.
+- [ ] Basic memakai subdomain Portofio dan watermark kecil.
+- [ ] Premium mendukung custom domain dan menghapus watermark.
+- [ ] Template access mengikuti visibility Admin dan minimum plan.
+- [ ] Webhook menyimpan plan, billing cycle, provider event, dan status secara idempotent.
+- [ ] Upgrade, downgrade, cancellation, grace period, dan republish mempertahankan data portfolio.
+- [ ] Harga dan plan tidak dapat dimanipulasi dari client.
+
+---
+
 ## 8. Fase C — Post-MVP / Fase 2
 
 > Di luar scope MVP (PRD §5). Jangan mulai sebelum Fase B go-live checklist lulus.
@@ -461,11 +486,12 @@ npm run lint && npx tsc --noEmit && npm run build
 | Task ID | Fitur | PRD | Estimasi | Dependensi |
 |---|---|---|---|---|
 | C-001 | Google OAuth | §5 Fase 2 | 2–3 hari | Supabase Google provider |
-| C-002 | Custom domain mapping | §5 Fase 2 | 5–7 hari | DNS verification, Vercel domains API |
-| C-003 | Visitor analytics | §5 Fase 2 | 3–5 hari | Tracking pixel atau Plausible |
-| C-004 | Designer submission portal | §5 Fase 2 | 5 hari | `template_submissions` table sudah ada |
+| C-002 | Enterprise team collaboration & governance | §13 Fase 3 | TBD | B-015 tiered billing selesai |
+| C-003 | Advanced analytics | §5 Fase 2 | TBD | Basic analytics baseline sudah tersedia |
+| C-004 | Designer submission portal | §5 Fase 2 | ✅ vertical slice | `template_submissions` + private source bucket; authenticated E2E passing |
+| C-004b | Designer revenue sharing | §5 Fase 2 | TBD | Tiered billing, attribution, payout policy |
 | C-005 | Workspace asset manager UI | §9.4 | 3 hari | `workspace_assets` stub |
-| C-006 | Marketplace template | §13 Fase 3 | TBD | C-004 selesai |
+| C-006 | Marketplace template penuh | §13 Fase 3 | TBD | C-004 selesai |
 
 ---
 
@@ -487,7 +513,7 @@ Apply **berurutan** (21 file):
 | 10 | `20260719000001_add_profiles.sql` | profiles + role |
 | 11 | `20260719000002_add_billing_events.sql` | billing_events |
 | 12 | `20260719000003_add_subdomain_blocklist.sql` | blocklist + seed 38 kata |
-| 13 | `20260719000004_add_template_submissions.sql` | Fase 2 stub |
+| 13 | `20260719000004_add_template_submissions.sql` | Template submissions base schema |
 | 14 | `20260720000001_add_admin_read_policies.sql` | Admin RLS read |
 | 15 | `20260720131552_add_active_templates.sql` | Template visibility |
 | 16 | `20260727000001_fix_rls_policies_and_stale_references.sql` | RLS fix |
@@ -523,12 +549,13 @@ Pastikan `.env.example` selalu sync dengan daftar ini.
 | 1 | Seluruh FR §7 implemented + DoD | Fase A | ✅ |
 | 2 | 8 template QA visual mobile/desktop | B-013 | ✅ |
 | 3 | Signup → publish < 15 menit | B-012 | ✅ (2s Stopwatch KPI passed) |
-| 4 | Midtrans E2E + webhook + grace unpublish | B-010 | ✅ |
-| 5 | Terjemahan id/en flow inti | B-013 | ✅ |
-| 6 | Privacy & Terms published | B-007 | ✅ |
-| 7 | Blocklist + rate limiting | B-005, B-014 | ✅ |
-| 8 | Error tracking | B-009 | 🔄 Ready for DSN |
-| 9 | DB backup terjadwal | Supabase Dashboard | ⬜ |
+| 4 | Midtrans E2E + webhook + grace unpublish | B-010 | ✅ baseline; tiered E2E pending B-015 |
+| 5 | Basic/Premium/Enterprise entitlement behavior | B-015 | ⬜ |
+| 6 | Terjemahan id/en flow inti | B-013 | ✅ |
+| 7 | Privacy & Terms published | B-007 | ✅ |
+| 8 | Blocklist + rate limiting | B-005, B-014 | ✅ |
+| 9 | Error tracking | B-009 | 🔄 Ready for DSN |
+| 10 | DB backup terjadwal | Supabase Dashboard | ⬜ |
 
 
 ---
@@ -537,12 +564,14 @@ Pastikan `.env.example` selalu sync dengan daftar ini.
 
 | # | Pertanyaan | Status | Keputusan Development |
 |---|---|---|---|
-| 1 | Harga final (`Rp[X]`) | ⬜ Open | UI sementara: Rp 49.000/bulan |
+| 1 | Harga final Basic/Premium/Enterprise monthly + annual | ⬜ Open | UI dan backend masih single-plan baseline |
 | 2 | Domain produksi | ⬜ Open | Placeholder `portofio.id` — set via env |
 | 3 | Grace period 7 hari | ✅ Default | Implemented |
 | 4 | Target bisnis X bulan / Z users | ⬜ Open | Tidak block dev |
 | 5 | Langganan per akun vs workspace | ✅ **Terkunci v1.7** | Per akun; max 1 published site |
 | 6 | Max workspace per akun | ✅ | Unlimited draft; 1 published |
+| 7 | Revenue sharing Designer | ⬜ Open | Persentase, threshold, hold, KYC, dan payout belum dikunci |
+| 8 | Midtrans recurring behavior | ⬜ Open | Pilih recurring native atau monthly renewal dengan reminder |
 
 ---
 

@@ -17,6 +17,18 @@ const SIDEBAR_TYPES: ContentType[] = [
   "media",
 ];
 
+const TYPE_ALIASES: Record<string, ContentType> = {
+  projects: "project",
+  testimonials: "testimonial",
+  certificates: "certificate",
+  publications: "publication",
+};
+
+function normalizeContentType(type: string): ContentType | null {
+  if (SIDEBAR_TYPES.includes(type as ContentType)) return type as ContentType;
+  return TYPE_ALIASES[type] ?? null;
+}
+
 // Auth-gated page (reads the session) — never prerender statically.
 export const dynamic = "force-dynamic";
 
@@ -27,7 +39,8 @@ export async function generateMetadata({
 }) {
   const { locale, type } = await params;
   const t = await getTranslations({ locale, namespace: "ContentLibrary" });
-  return { title: `${t("title")} — ${t(`types.${type}`)}` };
+  const contentType = normalizeContentType(type);
+  return { title: `${t("title")} — ${t(`types.${contentType ?? "project"}`)}` };
 }
 
 export default async function DashboardContentTypePage({
@@ -37,7 +50,8 @@ export default async function DashboardContentTypePage({
 }) {
   const { locale, type } = await params;
 
-  if (!SIDEBAR_TYPES.includes(type as ContentType)) {
+  const contentType = normalizeContentType(type);
+  if (!contentType) {
     return redirect({ href: "/dashboard/content", locale });
   }
 
@@ -49,5 +63,5 @@ export default async function DashboardContentTypePage({
 
   const items = await listContentItems();
 
-  return <ContentLibrary initialItems={items} initialType={type as ContentType} />;
+  return <ContentLibrary initialItems={items} initialType={contentType} />;
 }

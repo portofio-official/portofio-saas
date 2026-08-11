@@ -6,7 +6,7 @@ verification over speed.
 
 Project: Portofio — SaaS portfolio-website builder (form + template, no
 drag-and-drop). Building and previewing is free; publishing to a subdomain
-requires a paid monthly subscription (single plan, not freemium). Full product
+requires a paid Basic, Premium, or Enterprise subscription through Midtrans. All plans temporarily allow one live website per account; Premium adds custom domains and removes the Basic watermark. Full product
 spec lives in `docs/PRD.md`. Planned stack: Next.js (App Router, TS) + Tailwind +
 Supabase (DB/Auth/Storage) + Midtrans (billing) + Vercel (hosting, wildcard
 subdomains). See PRD section 9 before making architecture decisions. All app

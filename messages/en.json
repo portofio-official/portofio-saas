@@ -559,7 +559,11 @@
     "toastUnpubOk": "Website unpublished.",
     "toastUnpubErr": "Error unpublishing website.",
     "toastDelOk": "Website deleted.",
-    "toastDelErr": "Error deleting website."
+    "toastDelErr": "Error deleting website.",
+    "confirmDeleteTitle": "Delete this website?",
+    "confirmDeleteDesc": "Website \"{name}\" and all of its draft data will be deleted. This cannot be undone.",
+    "cancel": "Cancel",
+    "confirmDelete": "Yes, delete"
   },
   "Analytics": {
     "eyebrow": "Analytics",
@@ -606,12 +610,97 @@
     "sectionViews": "views",
     "sectionVisitors": "visitors"
   },
+  "Designer": {
+    "portal": "Designer Portal",
+    "navigation": "Navigation",
+    "overview": "Overview",
+    "submissions": "My Submissions",
+    "logout": "Log out",
+    "eyebrow": "Template Studio",
+    "title": "Build templates for the community",
+    "subtitle": "Submit your template work for review and a chance to appear in the Portofio gallery.",
+    "newSubmission": "New Submission",
+    "submissionsTitle": "Template Submissions",
+    "recentTitle": "Recent submissions",
+    "recentSubtitle": "Track review progress and requested changes.",
+    "viewAll": "View all",
+    "emptyTitle": "No submissions yet",
+    "emptyDescription": "Start by submitting your first template. Save it as a draft and complete it before sending it for review.",
+    "startSubmission": "Create your first submission",
+    "untitled": "Untitled",
+    "noDescription": "No description yet.",
+    "backToSubmissions": "Back to submissions",
+    "editSubmission": "Edit submission",
+    "statuses": {
+      "draft": "Draft",
+      "pending": "Pending review",
+      "revision_requested": "Revision requested",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "categories": {
+      "minimal": "Minimal",
+      "creative": "Creative",
+      "corporate": "Corporate",
+      "developer": "Developer",
+      "agency": "Agency",
+      "other": "Other"
+    },
+    "form": {
+      "metadataTitle": "Template metadata",
+      "metadataDescription": "Describe the template's character and target audience.",
+      "name": "Template name",
+      "namePlaceholder": "Example: Mono Studio",
+      "description": "Description",
+      "descriptionPlaceholder": "What makes this template different and who is it for?",
+      "category": "Category",
+      "tags": "Tags",
+      "tagsPlaceholder": "portfolio, creative, editorial",
+      "previewTitle": "Template preview",
+      "previewDescription": "Provide screenshot or preview links reviewers can open.",
+      "desktopPreview": "Desktop preview URL",
+      "mobilePreview": "Mobile preview URL",
+      "sourceTitle": "Source package",
+      "sourceDescription": "Upload the template source ZIP. It is stored privately and never executed by the app.",
+      "sourceFile": "Source ZIP",
+      "sourceSelected": "Selected file: {name}",
+      "license": "License and asset ownership",
+      "licensePlaceholder": "Example: Original assets / Unsplash with compliant license",
+      "securityNote": "By submitting, you confirm that you own or have permission to use the source and assets.",
+      "saveDraft": "Save draft",
+      "saving": "Saving...",
+      "submit": "Submit for review",
+      "submitting": "Submitting...",
+      "saved": "Draft saved.",
+      "submitted": "Submission sent for review.",
+      "locked": "This submission is under review or complete. Its fields cannot be edited.",
+      "errors": "Something went wrong"
+    },
+    "errors": {
+      "nameRequired": "Template name must be at least 3 characters.",
+      "descriptionRequired": "Description must be at least 20 characters.",
+      "previewRequired": "A desktop preview URL is required.",
+      "licenseRequired": "License information is required.",
+      "invalidUrl": "Preview URL is invalid.",
+      "sourceRequired": "Upload a source ZIP before submitting.",
+      "zipOnly": "The source must be a ZIP file.",
+      "invalidZip": "The file contents do not look like a valid ZIP.",
+      "sourceTooLarge": "Source size is limited to 25 MB.",
+      "uploadFailed": "Source upload failed.",
+      "saveFailed": "Submission could not be saved.",
+      "submitFailed": "Submission could not be sent.",
+      "notFound": "Submission not found.",
+      "locked": "This submission cannot be edited in its current status.",
+      "notAuthenticated": "No authenticated session found."
+    }
+  },
   "Admin": {
     "portalLabel": "Admin Portal",
     "navLabel": "Navigation",
     "navUsers": "Users",
     "navTemplates": "Templates",
     "navBlocklist": "Blocklist",
+    "navAuditLog": "Audit log",
     "logout": "Logout",
     "users": {
       "title": "Users",
@@ -638,6 +727,16 @@
     },
     "templates": {
       "title": "Templates"
+    },
+    "audit": {
+      "title": "Audit log",
+      "subtitle": "Administrative and platform moderation activity",
+      "time": "Time",
+      "action": "Action",
+      "target": "Target",
+      "details": "Details",
+      "actor": "Admin",
+      "empty": "No administrative activity yet."
     }
   },
   "ContentLibrary": {

@@ -1,5 +1,6 @@
 import { redirect } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
+import { requireRole } from "@/lib/auth/roles";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 export default async function AdminLayout({
@@ -14,6 +15,12 @@ export default async function AdminLayout({
 
   if (!email) {
     return redirect({ href: "/login", locale });
+  }
+
+  try {
+    await requireRole(["admin"]);
+  } catch {
+    return redirect({ href: "/dashboard", locale });
   }
 
   return (

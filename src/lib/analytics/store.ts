@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { AnalyticsRange, AnalyticsSite, AnalyticsSummary, DayBucket, SectionEngagement } from "./types";
+import { requireRole } from "@/lib/auth/roles";
 
 const DAY_MS = 86_400_000;
 
@@ -24,6 +25,7 @@ interface VisitRow {
 // RLS (page_visits_owner_all, to authenticated) restricts reads to the caller's
 // own published projects — no manual ownership filter needed.
 export async function getPublishedSites(): Promise<AnalyticsSite[]> {
+  await requireRole(["user", "designer"]);
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("projects")
@@ -45,6 +47,7 @@ export async function getProjectAnalytics(
   projectId: string,
   range: AnalyticsRange
 ): Promise<AnalyticsSummary | null> {
+  await requireRole(["user", "designer"]);
   const supabase = await createClient();
   const meta = RANGE_META[range];
   const now = Date.now();

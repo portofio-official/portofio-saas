@@ -1,6 +1,14 @@
 "use server";
 
-import { createProject, saveDraftJson, publishProject, unpublishProject, getProjectWithDraft } from "./store";
+import {
+  createProject,
+  saveDraftJson,
+  publishProject,
+  unpublishProject,
+  getProjectWithDraft,
+  listProjectVersions,
+  getProjectVersion,
+} from "./store";
 import { buildInitialDocument, type WebsiteDocument } from "@/templates/definition";
 import { getDefinition } from "@/templates/registry";
 import { getUserProfile } from "@/lib/profile/queries";
@@ -11,6 +19,7 @@ import { sanitizeObjectData } from "@/lib/utils/sanitize";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { listContentItems } from "@/lib/content/store";
 import { resolveLibraryData } from "@/lib/content/resolve";
+import { requireRole } from "@/lib/auth/roles";
 
 export async function createProjectAction(
   workspaceId: string,
@@ -18,6 +27,7 @@ export async function createProjectAction(
   templateId: string,
   locale = "id",
 ): Promise<{ ok: boolean; projectId?: string; error?: string }> {
+  await requireRole(["user", "designer"]);
   const definition = getDefinition(templateId);
   if (!definition) return { ok: false, error: "Template not found" };
 
@@ -34,6 +44,7 @@ export async function saveDraftAction(
   projectId: string,
   draftJson: WebsiteDocument,
 ): Promise<{ ok: boolean }> {
+  await requireRole(["user", "designer"]);
   const project = await getProjectWithDraft(projectId);
   if (!project) return { ok: false };
   const libraryItems = await listContentItems();
@@ -48,6 +59,7 @@ export async function saveDraftAction(
 export async function syncFromProfileAction(
   projectId: string,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireRole(["user", "designer"]);
   const projectWithDraft = await getProjectWithDraft(projectId);
   if (!projectWithDraft) return { ok: false, error: "Project not found" };
 
@@ -133,6 +145,7 @@ export async function publishProjectAction(
   projectId: string,
   subdomain: string,
 ): Promise<{ ok: boolean; error?: string; requiresSubscription?: boolean }> {
+  await requireRole(["user", "designer"]);
   // Validate format
   const formatError = validateSubdomain(subdomain);
   if (formatError) return { ok: false, error: formatError };
@@ -208,7 +221,41 @@ export async function publishProjectAction(
 export async function unpublishProjectAction(
   projectId: string,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireRole(["user", "designer"]);
   const ok = await unpublishProject(projectId);
   if (!ok) return { ok: false, error: "Failed to unpublish. Please try again." };
   return { ok: true };
+}
+
+export async function listProjectVersionsAction(projectId: string) {
+  await requireRole(["user", "designer"]);
+  const project = await getProjectWithDraft(projectId);
+  if (!project) return [];
+  return listProjectVersions(projectId);
+}
+
+export async function restoreProjectVersionAction(
+  projectId: string,
+  versionId: string,
+): Promise<{ ok: boolean; document?: WebsiteDocument; error?: string }> {
+  await requireRole(["user", "designer"]);
+  const project = await getProjectWithDraft(projectId);
+  if (!project) return { ok: false, error: "Project not found" };
+
+  const version = await getProjectVersion(versionId);
+  if (!version || version.projectId !== projectId) {
+    return { ok: false, error: "Version not found" };
+  }
+
+  const restoredDocument: WebsiteDocument = {
+    ...version.contentJson,
+    meta: {
+      ...version.contentJson.meta,
+      updatedAt: new Date().toISOString(),
+    },
+  };
+  const ok = await saveDraftJson(projectId, restoredDocument);
+
+  if (!ok) return { ok: false, error: "Failed to restore version" };
+  return { ok: true, document: restoredDocument };
 }

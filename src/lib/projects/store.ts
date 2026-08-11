@@ -88,6 +88,22 @@ export async function getProjectVersion(versionId: string): Promise<ProjectVersi
   return mapVersionRow(data);
 }
 
+export async function listProjectVersions(
+  projectId: string,
+  limit = 20,
+): Promise<ProjectVersion[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("project_versions")
+    .select("*")
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: false })
+    .limit(Math.min(Math.max(limit, 1), 50));
+
+  if (error || !data) return [];
+  return data.map((row) => mapVersionRow(row));
+}
+
 export async function getProjectCurrentDraft(projectId: string): Promise<ProjectVersion | null> {
   const project = await getProject(projectId);
   if (!project || !project.currentVersionId) return null;

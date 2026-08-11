@@ -4,9 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createMidtransTransaction } from "./midtrans";
 import { getSubscriptionState } from "./subscription";
+import { requireRole } from "@/lib/auth/roles";
 
 export async function createCheckoutInvoiceAction(): Promise<{ url?: string; error?: string }> {
   try {
+    await requireRole(["user", "designer"]);
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -30,11 +32,16 @@ export async function createCheckoutInvoiceAction(): Promise<{ url?: string; err
 }
 
 export async function getSubscriptionStatusAction() {
+  await requireRole(["user", "designer"]);
   return await getSubscriptionState();
 }
 
 export async function activateDevSubscriptionAction(): Promise<{ ok: boolean; error?: string }> {
   try {
+    if (process.env.NODE_ENV === "production") {
+      return { ok: false, error: "Development subscription activation is disabled in production." };
+    }
+    await requireRole(["user", "designer"]);
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -91,4 +98,3 @@ export async function activateDevSubscriptionAction(): Promise<{ ok: boolean; er
     return { ok: false, error: message };
   }
 }
-

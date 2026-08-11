@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { updateTemplateStatusAction } from "@/lib/admin/actions";
 
 interface Props {
@@ -11,6 +12,7 @@ export function ReviewTemplateDropdown({ submissionId }: Props) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -29,14 +31,9 @@ export function ReviewTemplateDropdown({ submissionId }: Props) {
     let registryId = "";
 
     if (action === "approved") {
-      const input = window.prompt("Enter the registry_id for this template (e.g. 'minimal', 'bold'):");
-      if (input === null) return; // cancelled
-      if (!input.trim()) {
-        window.alert("registry_id is required to approve a template.");
-        return;
-      }
-      registryId = input.trim();
-      
+      const input = window.prompt("Registry ID after code integration (optional):");
+      if (input) registryId = input.trim();
+
       const notes = window.prompt("(Optional) Enter approval notes for the designer:");
       if (notes) reviewNotes = notes.trim();
     } 
@@ -62,6 +59,7 @@ export function ReviewTemplateDropdown({ submissionId }: Props) {
     startTransition(async () => {
       try {
         await updateTemplateStatusAction(submissionId, action, reviewNotes, registryId);
+        router.refresh();
       } catch (err) {
         window.alert(err instanceof Error ? err.message : "An error occurred");
       }

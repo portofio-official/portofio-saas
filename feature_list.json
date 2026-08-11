@@ -198,8 +198,8 @@
       "id": "billing-001",
       "priority": 9,
       "area": "billing",
-      "title": "Publish gate: single paid subscription via Midtrans",
-      "user_visible_behavior": "A user without a subscription can build and preview but not publish; completing checkout for the single monthly plan unlocks publish. When the subscription lapses, the site auto-unpublishes after a 7-day grace period; data is kept.",
+      "title": "Publish gate: paid subscription via Midtrans (single-plan baseline)",
+      "user_visible_behavior": "A user without a subscription can build and preview but not publish; completing the current paid checkout unlocks publish. When the subscription lapses, the site auto-unpublishes after a 7-day grace period; data is kept.",
       "status": "passing",
       "verification": [
         "Complete a test subscription checkout through Midtrans sandbox and confirm publish unlocks.",
@@ -215,7 +215,24 @@
         "2026-07-27: Created migration supabase/migrations/20260727000002_update_subscription_statuses.sql updating subscriptions.status constraint.",
         "2026-07-27: Automated verification passed clean with npm run lint & npx tsc --noEmit (0 errors, 0 warnings)."
       ],
-      "notes": "PRD section 7.6, 10, and 15 (must be tested end-to-end including webhooks before go-live). Single plan, no tiers, not freemium. OPEN QUESTION (PRD 16, v1.3): does one subscription cover every workspace on the account, or does each workspace need its own? Current PRD default is per-account (simplest); confirm before building the gate so it isn't built against the wrong assumption."
+      "notes": "PRD sections 7.6, 10, and 15. This feature records the passing single-plan baseline. Tiered Basic/Premium/Enterprise billing, annual billing, plan-aware webhooks, and entitlement enforcement are tracked separately in billing-002. The one active published website per account invariant remains in force for all tiers."
+    },
+    {
+      "id": "billing-002",
+      "priority": 22,
+      "area": "billing",
+      "title": "Tiered subscription plans and entitlement enforcement",
+      "user_visible_behavior": "A user can choose Basic, Premium, or Enterprise with monthly or annual billing through Midtrans. Basic publishes to a Portofio subdomain with a small watermark; Premium supports custom domains and removes the watermark; all tiers remain limited to one active published website per account.",
+      "status": "not_started",
+      "verification": [
+        "Checkout monthly and annual products for Basic, Premium, and Enterprise in Midtrans sandbox.",
+        "Confirm webhooks persist plan, billing cycle, provider event, and subscription status idempotently.",
+        "Confirm Basic watermark/subdomain, Premium custom-domain/no-watermark, and template minimum-plan entitlements.",
+        "Confirm upgrade, downgrade, cancellation, grace period, auto-unpublish, and republish preserve portfolio data.",
+        "Confirm the server ignores client-manipulated price or plan values."
+      ],
+      "evidence": [],
+      "notes": "PRD v1.9. Enterprise is self-service but team collaboration, organization roles, approval workflow, and governance are roadmap items after tiered billing stabilizes. Final prices, annual discount, and Designer revenue-sharing policy remain open product decisions."
     },
     {
       "id": "arch-001",
@@ -253,21 +270,51 @@
       "priority": 10,
       "area": "auth",
       "title": "Role-Based Access Control (RBAC)",
-      "user_visible_behavior": "Unauthorized users cannot access /admin or /designer routes. Admin role has read-only access to user data.",
+      "user_visible_behavior": "A default `user` account can manage its own workspaces, portfolio projects, Content Library, billing, and analytics, while unauthorized users cannot access /admin or /designer routes. Admin role has read-only access to operational user data.",
       "status": "passing",
       "verification": [
         "Verify requireRole utility throws on unauthorized roles.",
         "Verify middleware blocks unauthorized access to /admin and /designer.",
-        "Verify admin RLS read policies permit select."
+        "Verify admin RLS read policies permit select.",
+        "Verify the default signup role is user and a user cannot mutate profiles.role.",
+        "Verify portfolio, content, billing, and analytics server actions reject admin-only or anonymous callers."
       ],
       "evidence": [
         "2026-07-20: Implemented requireRole utility in src/lib/auth/roles.ts.",
         "2026-07-20: Renamed src/proxy.ts to src/middleware.ts and added role checks for /admin and /designer routes.",
         "2026-07-20: Created migration 20260720000001_add_admin_read_policies.sql for read-only admin access to workspaces, workspace_profile, projects, subscriptions, and billing_events.",
         "2026-07-20: Verified with npm run lint and tsc.",
-        "2026-07-20: Built Admin UI at /admin with AdminSidebar and SuspendUserButton, utilizing Supabase Service Role client to list and suspend users."
+        "2026-07-20: Built Admin UI at /admin with AdminSidebar and SuspendUserButton, utilizing Supabase Service Role client to list and suspend users.",
+        "2026-08-11: PRD v1.8 clarified the three-role product model: user owns portfolios, designer inherits portfolio capabilities and owns only its template submissions, admin operates moderation/platform controls. Designer Portal remains Phase 2; RBAC and Admin operations are MVP foundations.",
+        "2026-08-11: Hardened user boundaries: signup role is forced to user in supabase/migrations/20260811000007_harden_role_boundaries.sql; authenticated users cannot mutate profiles.role; portfolio/content/billing/analytics server actions require user or designer; admin dashboard routing is separated; updateUserRoleAction is admin-only.",
+        "2026-08-11: Added unauthenticated /admin and /designer route smoke coverage in e2e/flows/02-auth.spec.ts; targeted lint, tsc, build, and full E2E passed."
       ],
-      "notes": "Backend protection and Admin UI are complete. Designer UI needs to be built."
+      "notes": "Backend protection and Admin UI are complete. Designer Portal/submission UI remains Phase 2 per PRD v1.8. Admin must not edit customer portfolio content through the standard admin flow."
+    },
+    {
+      "id": "admin-001",
+      "priority": 23,
+      "area": "admin",
+      "title": "Admin control plane and audit trail",
+      "user_visible_behavior": "An Admin can manage platform users and roles, suspend or reactivate accounts, moderate the subdomain blocklist, control template visibility, review Designer submissions, and inspect an auditable history of privileged actions.",
+      "status": "done",
+      "verification": [
+        "Admin can assign user, designer, or admin roles; self-demotion is rejected.",
+        "Admin can suspend and reactivate another account; the account cannot access protected application routes while suspended.",
+        "Admin can add valid blocklist slugs, cannot remove system-reserved slugs, and changes affect publish validation.",
+        "Admin can toggle built-in template visibility and the action is recorded.",
+        "Admin audit log lists role, suspension, blocklist, template visibility, review, and integration actions.",
+        "Non-admin users are redirected away from Admin routes and cannot invoke Admin server actions.",
+        "Applied 20260811000010_admin_audit_logs.sql to the real Supabase project (yvjwqammizdipwalvets); authenticated Admin E2E passed covering role assignment, suspend/reactivate, blocklist add/remove, template visibility toggle, audit history, and non-admin route protection."
+      ],
+      "evidence": [
+        "2026-08-11: Added UpdateUserRoleButton with server-side role validation and self-demotion protection.",
+        "2026-08-11: Added Admin audit log migration, recordAdminAudit, /admin/audit-log, and audit events for user, moderation, template, and Designer integration actions.",
+        "2026-08-11: Hardened blocklist input validation and protected system-reserved subdomains from removal.",
+        "2026-08-11: npx tsc --noEmit, targeted ESLint, and npm run build passed. Authenticated Admin E2E is pending the remote audit migration.",
+        "2026-08-11: Migration 20260811000010_admin_audit_logs.sql applied to remote Supabase; E2E_ADMIN_INTEGRATION=1 npx playwright test e2e/flows/14-admin-portal.spec.ts passed (21.7s). Fixed strict-mode assertion (suspend+reactivate emits two user.suspension audit rows) and non-admin redirect assertion (designer user lands on /id/onboarding, not /id/dashboard; goto uses domcontentloaded to avoid hanging on external onboarding resources)."
+      ],
+      "notes": "Admin control plane verified end-to-end against real Supabase. Full E2E suite with admin integration: 31 passed / 2 skipped / 0 failed. npx tsc --noEmit and targeted ESLint clean; npm run build clean."
     },
     {
       "id": "editor-003",
@@ -363,6 +410,28 @@
         "Verified 2026-08-08: npx tsc --noEmit clean, npm run lint (0 errors, 3 pre-existing warnings), npm run build clean, npm run test:e2e 16 passed / 1 skipped."
       ],
       "notes": "Revert is a draft-side action: it writes a new autosave version from the published snapshot; it does not change the live site. Undo (Cmd/Ctrl+Z via useHistory) can restore the pre-revert draft until the next edit. Remaining B-phase candidates: none."
+    },
+    {
+      "id": "editor-008",
+      "priority": 6,
+      "area": "editor",
+      "title": "User UX safety: publish readiness, version history, and draft/live clarity",
+      "user_visible_behavior": "A portfolio owner sees actionable publish-readiness checks, can jump from a missing requirement to its editor section, always sees whether the current work is Draft or Live, and can restore an earlier autosaved version without changing the published website.",
+      "status": "passing",
+      "verification": [
+        "Publish readiness lists missing name, headline, photo, project, and contact email with actionable editor-section navigation.",
+        "Editor header clearly shows Draft only or a Live link, and the existing draft-vs-published banner remains visible for unpublished changes.",
+        "Version history lists saved project versions; restoring a previous version creates a new draft version and does not publish it.",
+        "Deleting a workspace from the dashboard requires an explicit confirmation dialog."
+      ],
+      "evidence": [
+        "2026-08-11: Added listProjectVersionsAction and restoreProjectVersionAction with ownership enforced by user/designer role checks and project-version RLS.",
+        "2026-08-11: Editor now exposes a version history modal, safe restore flow, explicit Draft only/Live state, and actionable readiness issues.",
+        "2026-08-11: Dashboard deletion now requires an inline localized confirmation modal; added id/en translations.",
+        "2026-08-11: Fixed Content Library resolution so existing draft project content is preserved until that content type has library items; opt-in real Supabase publish/editor E2E passed.",
+        "Verified: targeted ESLint clean, npx tsc --noEmit clean, npm run build clean, auth/content E2E 10 passed."
+      ],
+      "notes": "Restoring a version never changes published_version_id or the public site; the restored content becomes a new draft autosave."
     },
     {
       "id": "oauth-001",
@@ -596,7 +665,32 @@
         "2026-08-11: i18n — new Profile keys in messages/en.json + id.json (phonePlaceholder adjusted to a national-style example, phoneHint, countrySearch, noCountryHint); page.tsx now reads route locale and passes it to the phone input for localized country names.",
         "Verified 2026-08-11: npx tsc --noEmit clean, npm run lint 0 errors (1 pre-existing warning), npm run build clean, npm run test:e2e 26 passed / 1 skipped, plus a throwaway node flow test confirming detection + canonical outcomes for US/ID/GB/SG/local-zero inputs."
       ],
-      81x → Japan). Stored format remains international (+<CC> <national digits>) so templates and the rest of the app keep rendering it unchanged."
+      "notes": "2026-08-11: Phone country detection also covers the +81 Japan calling-code prefix. Stored format remains international (+<CC> <national digits>) so templates and the rest of the app keep rendering it unchanged."
+    },
+    {
+      "id": "designer-001",
+      "priority": 21,
+      "area": "designer",
+      "title": "Designer Portal and template submission workflow",
+      "user_visible_behavior": "A designer can create and manage private template submissions, save drafts, upload a private ZIP source package, submit for review, see review status, and resubmit after revision requests. Admins can review decisions and track code integration status.",
+      "status": "passing",
+      "verification": [
+        "Unauthenticated users are redirected away from /designer, /designer/submissions, and /designer/submissions/new.",
+        "Designer integration flow creates a draft, uploads a ZIP, submits it, and sees the pending status.",
+        "Designer cannot read another designer's submission or change review-owned fields.",
+        "Admin can approve/reject/request revision and update integration status.",
+        "Source ZIP is private and never publicly readable.",
+        "Apply the Designer migration to the real Supabase project and run the opt-in authenticated E2E flow."
+      ],
+      "evidence": [
+        "2026-08-11: Added supabase/migrations/20260811000008_designer_submissions.sql with draft status, integration status, protected review fields, private template-submissions bucket, and Storage RLS.",
+        "2026-08-11: Added src/lib/designer/{types,store,actions}.ts for owner-scoped CRUD, draft/resubmit workflow, ZIP validation/upload, and server-side designer authorization.",
+        "2026-08-11: Added Designer Portal routes/components under src/app/[locale]/designer and src/components/designer, with id/en translations.",
+        "2026-08-11: Added Admin integration-status control, server-side review validation, and fixed the designer navbar link to /designer.",
+        "2026-08-11: Fixed Admin submission review mapping, added private source ZIP signed downloads, allowed registry ID assignment at integration merge, and refreshed Admin data after review actions.",
+        "Verified: tsc, targeted ESLint, build, default Designer route E2E skip, and authenticated E2E against real Supabase passed. The E2E covered draft creation, ZIP upload, pending status, revision request, resubmit, approval, in_review → merged integration, registry ID persistence, public Storage denial for the private ZIP, cross-designer read isolation, and rejection of Designer review-field tampering."
+      ],
+      "notes": "Designer submission vertical slice is passing. Approved submissions remain non-executable until Admin/engineering manually reviews and merges source into the codebase registry. Revenue sharing and marketplace payout are separate roadmap work."
     },
     {
       "id": "analytics-002",

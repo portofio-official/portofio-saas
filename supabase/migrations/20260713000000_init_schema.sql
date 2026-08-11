@@ -77,7 +77,7 @@ create policy "portfolio_data_public_read_published" on public.portfolio_data
   for select to anon
   using (exists (select 1 from public.sites s where s.workspace_id = portfolio_data.workspace_id and s.status = 'published'));
 
--- subscriptions: per-account billing status (PRD 7.6, single plan).
+-- subscriptions: per-account billing status (PRD 7.6, tiered plans are tracked by billing-002).
 -- Users may only READ their own row; only the server (service_role, which
 -- bypasses RLS — e.g. a Midtrans webhook handler) writes status changes.
 create table if not exists public.subscriptions (

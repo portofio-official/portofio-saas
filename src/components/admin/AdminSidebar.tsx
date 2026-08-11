@@ -12,12 +12,14 @@ export function AdminSidebar({ email }: { email: string }) {
 
   const initials = email.charAt(0).toUpperCase();
 
-  const isBlocklist = pathname?.includes("/admin/blocklist");
-  const isTemplates = pathname?.includes("/admin/templates");
-  const navItems = [
-    { href: "/admin", icon: "group", label: t("navUsers"), active: !isBlocklist && !isTemplates },
+    const isBlocklist = pathname?.includes("/admin/blocklist");
+    const isTemplates = pathname?.includes("/admin/templates");
+    const isAudit = pathname?.includes("/admin/audit-log");
+    const navItems = [
+    { href: "/admin", icon: "group", label: t("navUsers"), active: !isBlocklist && !isTemplates && !isAudit },
     { href: "/admin/templates", icon: "dashboard_customize", label: t("navTemplates"), active: !!isTemplates },
     { href: "/admin/blocklist", icon: "block", label: t("navBlocklist"), active: !!isBlocklist },
+    { href: "/admin/audit-log", icon: "history", label: t("navAuditLog"), active: !!isAudit },
   ];
 
   return (

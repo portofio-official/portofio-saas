@@ -30,3 +30,4 @@ SP2-028,Settings,Implementasi perubahan password dan preferensi dasar akun,Full 
 SP2-029,Analytics Dashboard,Implementasi pencatatan visitor dan pageviews website,Backend,Irawan,1 Day,Done
 SP2-030,Analytics Dashboard,Implementasi Dashboard Analytics dasar untuk pengguna Premium,Frontend,Irawan,1 Day,Done
 SP2-031,Analytics Dashboard,Implementasi metrik engagement dan performa section,Full Stack,Irawan,1 Day,Done
+SP2-032,Subscription & Billing,Implementasi tiered billing Basic Premium Enterprise dan annual billing,Full Stack,Irawan,TBD,To Do

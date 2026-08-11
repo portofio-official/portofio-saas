@@ -40,6 +40,9 @@ yarn-error.log*
 # temporary local data store (dummy persistence until a real DB exists)
 /.data/
 
+# scratch debug artifacts
+/scratch/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

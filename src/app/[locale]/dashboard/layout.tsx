@@ -1,7 +1,9 @@
 import { redirect } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
+import { getUserRole } from "@/lib/auth/roles";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { listContentItems } from "@/lib/content/store";
+import { redirect as redirectToLocale } from "@/i18n/navigation";
 
 export default async function DashboardLayout({
   children,
@@ -14,6 +16,14 @@ export default async function DashboardLayout({
   const email = await getCurrentUserEmail();
 
   if (!email) {
+    return redirect({ href: "/login", locale });
+  }
+
+  const role = await getUserRole();
+  if (role === "admin") {
+    return redirectToLocale({ href: "/admin", locale });
+  }
+  if (role !== "user" && role !== "designer") {
     return redirect({ href: "/login", locale });
   }
 

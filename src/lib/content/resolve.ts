@@ -7,6 +7,7 @@ export function resolveLibraryData(
   const active = items
     .filter((item) => item.isActive)
     .sort((a, b) => a.sortOrder - b.sortOrder);
+  const hasLibraryType = (type: ContentItem["contentType"]) => items.some((item) => item.contentType === type);
   const byType = (type: ContentItem["contentType"]) => active
     .filter((item) => item.contentType === type)
     .map((item) => {
@@ -21,12 +22,15 @@ export function resolveLibraryData(
     });
 
   const next = { ...data };
-  if ("projects" in next) next.projects = byType("project");
-  if ("testimonials" in next) next.testimonials = byType("testimonial");
-  if ("certificates" in next) next.certificates = byType("certificate");
-  if ("caseStudies" in next) next.caseStudies = byType("caseStudy");
-  if ("gallery" in next) next.gallery = byType("gallery");
-  if ("experiences" in next) next.experiences = byType("experience");
-  if ("educations" in next) next.educations = byType("education");
+  // Do not erase draft content for a section before the account has started
+  // managing that section in Content Library. Once a library item exists for
+  // a type, its active/hidden state becomes the canonical source for that type.
+  if ("projects" in next && hasLibraryType("project")) next.projects = byType("project");
+  if ("testimonials" in next && hasLibraryType("testimonial")) next.testimonials = byType("testimonial");
+  if ("certificates" in next && hasLibraryType("certificate")) next.certificates = byType("certificate");
+  if ("caseStudies" in next && hasLibraryType("caseStudy")) next.caseStudies = byType("caseStudy");
+  if ("gallery" in next && hasLibraryType("gallery")) next.gallery = byType("gallery");
+  if ("experiences" in next && hasLibraryType("experience")) next.experiences = byType("experience");
+  if ("educations" in next && hasLibraryType("education")) next.educations = byType("education");
   return next;
 }

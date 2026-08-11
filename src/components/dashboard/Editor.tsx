@@ -5,7 +5,14 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useAutosave } from "@/hooks/useAutosave";
-import { saveDraftAction, publishProjectAction, unpublishProjectAction, syncFromProfileAction } from "@/lib/projects/actions";
+import {
+  saveDraftAction,
+  publishProjectAction,
+  unpublishProjectAction,
+  syncFromProfileAction,
+  listProjectVersionsAction,
+  restoreProjectVersionAction,
+} from "@/lib/projects/actions";
 import { FONT_OPTIONS, ACCENT_COLOR_PRESETS, type TemplateId } from "@/templates/types";
 import type { BasePortfolioData } from "@/templates/shared/_base";
 import type { StudioData } from "@/templates/definitions/studio/schema";
@@ -50,6 +57,19 @@ type EditorData = BasePortfolioData &
     hero?: StudioData["hero"] | PortfolioProData["hero"];
   };
 
+type ReadinessIssue = {
+  id: string;
+  label: string;
+  detail: string;
+};
+
+type VersionListItem = {
+  id: string;
+  versionNumber: number;
+  createdAt: string;
+  isAutosave: boolean;
+};
+
 export function Editor({
   projectId,
   workspaceId,
@@ -87,7 +107,7 @@ export function Editor({
   
   // Publish Readiness State
   const [showPublishModal, setShowPublishModal] = useState(false);
-  const [publishErrors, setPublishErrors] = useState<string[]>([]);
+  const [publishErrors, setPublishErrors] = useState<ReadinessIssue[]>([]);
 
   // Publish dialog state
   const [showPublishDialog, setShowPublishDialog] = useState(false);
@@ -188,6 +208,10 @@ export function Editor({
   );
   const [showRevertDialog, setShowRevertDialog] = useState(false);
   const [revertLoading, setRevertLoading] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [versionHistory, setVersionHistory] = useState<VersionListItem[]>([]);
+  const [versionHistoryLoading, setVersionHistoryLoading] = useState(false);
+  const [restoringVersionId, setRestoringVersionId] = useState<string | null>(null);
 
   const draftDiverged =
     publishStatus === "published" &&
@@ -205,6 +229,71 @@ export function Editor({
     setShowRevertDialog(false);
     setPublishStatus("published");
     showToast("Draft dikembalikan ke versi yang live.", "info");
+  }
+
+  async function handleOpenVersionHistory() {
+    setShowVersionHistory(true);
+    setVersionHistoryLoading(true);
+    try {
+      const versions = await listProjectVersionsAction(projectId);
+      setVersionHistory(
+        versions.map((version) => ({
+          id: version.id,
+          versionNumber: version.versionNumber,
+          createdAt: version.createdAt,
+          isAutosave: version.isAutosave,
+        })),
+      );
+    } catch {
+      showToast("Riwayat versi tidak dapat dimuat.", "error");
+    } finally {
+      setVersionHistoryLoading(false);
+    }
+  }
+
+  async function handleRestoreVersion(versionId: string) {
+    setRestoringVersionId(versionId);
+    try {
+      const result = await restoreProjectVersionAction(projectId, versionId);
+      if (!result.ok || !result.document) {
+        showToast(result.error ?? "Versi tidak dapat dipulihkan.", "error");
+        return;
+      }
+      setData((result.document.data ?? {}) as EditorData);
+      setSeo(result.document.meta?.seo ?? {});
+      setShowVersionHistory(false);
+      showToast("Versi berhasil dipulihkan sebagai draft baru.", "success");
+    } catch {
+      showToast("Versi tidak dapat dipulihkan.", "error");
+    } finally {
+      setRestoringVersionId(null);
+    }
+  }
+
+  function readinessIssues(): ReadinessIssue[] {
+    const issues: ReadinessIssue[] = [];
+    if (!data.profile?.fullName) {
+      issues.push({ id: "profile", label: "Tambahkan nama lengkap", detail: "Nama akan menjadi judul utama website." });
+    }
+    if (!data.profile?.headline) {
+      issues.push({ id: "profile", label: "Tambahkan headline", detail: "Jelaskan peran atau keahlian utama kamu." });
+    }
+    if (!data.profile?.photoUrl) {
+      issues.push({ id: "profile", label: "Upload foto profil", detail: "Foto membantu pengunjung mengenali kamu." });
+    }
+    if (!data.projects?.length) {
+      issues.push({ id: "projects", label: "Tambahkan minimal satu project", detail: "Tampilkan karya terbaikmu sebelum publish." });
+    }
+    if (!data.contact?.email) {
+      issues.push({ id: "contact", label: "Tambahkan email kontak", detail: "Pengunjung membutuhkan cara untuk menghubungi kamu." });
+    }
+    return issues;
+  }
+
+  function goToReadinessIssue(issue: ReadinessIssue) {
+    setShowPublishModal(false);
+    setActiveLeftTab("content");
+    setExpandedSection(issue.id);
   }
 
   const domain = rootDomain ?? process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
@@ -483,8 +572,8 @@ export function Editor({
           </div>
 
           <div className="flex items-center justify-end gap-3 w-1/3">
-            {/* Live badge in header */}
-            {publishStatus === "published" && subdomain && (
+            {/* Explicit draft/live state so users know what is currently public. */}
+            {publishStatus === "published" && subdomain ? (
               <a
                 href={`http://${siteUrl}`}
                 target="_blank"
@@ -494,7 +583,21 @@ export function Editor({
                 <span className="h-1.5 w-1.5 rounded-full bg-positive" />
                 Live
               </a>
+            ) : (
+              <span className="flex items-center gap-1.5 rounded-full bg-ink/[0.06] px-3 py-1 text-[11px] font-bold text-ink-soft">
+                <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" />
+                Draft only
+              </span>
             )}
+            <button
+              type="button"
+              onClick={handleOpenVersionHistory}
+              className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-3 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
+              aria-label="Open version history"
+            >
+              <span className="material-symbols-outlined text-[14px]">history</span>
+              <span className="hidden xl:inline">Versions</span>
+            </button>
             <button
               onClick={() => setShowDesktopPreview(true)}
               className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
@@ -512,11 +615,7 @@ export function Editor({
             <button
               type="button"
               onClick={() => {
-                const missing = [];
-                if (!data.profile?.fullName) missing.push("Add your full name");
-                if (!data.profile?.photoUrl) missing.push("Upload a profile photo");
-                if (!data.projects?.length) missing.push("Add at least one project");
-                
+                const missing = readinessIssues();
                 if (missing.length > 0) {
                   setPublishErrors(missing);
                   setShowPublishModal(true);
@@ -717,7 +816,7 @@ export function Editor({
                           if (templateId === "portfolio-pro" && sectionId === "about") {
                             return <PortfolioProAboutSection about={data.about!} onChange={patch => setData({ ...data, about: { ...data.about!, ...patch } })} />
                           }
-                          return <ProfileSection t={tProfile} description="Tell visitors who you are and what you do." profile={data.profile} onChange={(patch) => setData({ ...data, profile: { ...data.profile, ...patch } })} />;
+                          return <ProfileSection t={tProfile} description="Tell visitors who you are and what you do." profile={data.profile || { fullName: "", headline: "", bio: "", photoUrl: "", location: "" }} onChange={(patch) => setData({ ...data, profile: { ...(data.profile || {}), ...patch } })} />;
                         }
                         if (sectionId === "hero") {
                           if (templateId === "studio") {
@@ -727,7 +826,7 @@ export function Editor({
                             return <PortfolioProHeroSection hero={data.hero as PortfolioProData["hero"]} onChange={patch => setData({ ...data, hero: { ...(data.hero as PortfolioProData["hero"]), ...patch } })} />
                           }
                           // Fallback to profile section if hero isn't explicitly defined
-                          return <ProfileSection t={tProfile} description="Introduce yourself and set the tone of your portfolio." profile={data.profile} onChange={(patch) => setData({ ...data, profile: { ...data.profile, ...patch } })} />;
+                          return <ProfileSection t={tProfile} description="Introduce yourself and set the tone of your portfolio." profile={data.profile || { fullName: "", headline: "", bio: "", photoUrl: "", location: "" }} onChange={(patch) => setData({ ...data, profile: { ...(data.profile || {}), ...patch } })} />;
                         }
                         if (sectionId === "expertise") {
                           return <StudioExpertiseSection expertise={data.expertise || []} onChange={items => setData({ ...data, expertise: items })} />
@@ -794,9 +893,9 @@ export function Editor({
                         if (sectionId === "contact" || sectionId === "socials") {
                           return (
                             <div className="flex flex-col gap-6">
-                              <ContactSection t={tContact} contact={data.contact} onChange={(patch) => setData({ ...data, contact: { ...data.contact, ...patch } })} />
-                              {sectionId === "contact" && (
-                                <SocialsSection t={tSocials} items={data.socials} onChange={(items) => setData({ ...data, socials: items })} />
+                               <ContactSection t={tContact} contact={data.contact || { email: "", phone: "", whatsapp: "" }} onChange={(patch) => setData({ ...data, contact: { ...(data.contact || {}), ...patch } })} />
+                               {sectionId === "contact" && (
+                                 <SocialsSection t={tSocials} items={data.socials || []} onChange={(items) => setData({ ...data, socials: items })} />
                               )}
                             </div>
                           );
@@ -1323,6 +1422,75 @@ export function Editor({
         </div>
       )}
 
+      {/* Version history */}
+      {showVersionHistory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-floating ring-1 ring-black/5">
+            <div className="flex items-start justify-between border-b border-black/5 px-6 py-5">
+              <div>
+                <h3 className="text-lg font-bold text-ink">Version history</h3>
+                <p className="mt-1 text-sm text-ink-soft">Restore an earlier autosave without changing the live website.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowVersionHistory(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink"
+                aria-label="Close version history"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+            <div className="max-h-[min(28rem,65vh)] overflow-y-auto p-4">
+              {versionHistoryLoading ? (
+                <div className="flex items-center justify-center gap-2 px-4 py-12 text-sm text-ink-soft">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink/20 border-t-accent" />
+                  Loading versions...
+                </div>
+              ) : versionHistory.length === 0 ? (
+                <div className="rounded-xl bg-canvas px-4 py-8 text-center text-sm text-ink-soft">
+                  No saved versions yet. Keep editing and autosave will create a recovery point.
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {versionHistory.map((version, index) => (
+                    <div
+                      key={version.id}
+                      className="flex items-center justify-between gap-4 rounded-xl bg-canvas px-4 py-3 ring-1 ring-black/5"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className={`material-symbols-outlined shrink-0 text-[18px] ${index === 0 ? "text-accent" : "text-ink-faint"}`}>
+                          {index === 0 ? "schedule" : "history"}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-ink">
+                            Version {version.versionNumber}{index === 0 ? " · Latest" : ""}
+                          </p>
+                          <p className="text-xs text-ink-soft">
+                            {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(version.createdAt))}
+                            {version.isAutosave ? " · Autosave" : " · Initial draft"}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={restoringVersionId !== null || index === 0}
+                        onClick={() => handleRestoreVersion(version.id)}
+                        className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink ring-1 ring-black/10 transition-colors hover:bg-accent hover:text-white hover:ring-accent disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        {restoringVersionId === version.id ? "Restoring..." : index === 0 ? "Current" : "Restore"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="border-t border-black/5 px-6 py-4 text-xs text-ink-soft">
+              Restoring creates a new draft version. Your published website stays unchanged until you publish again.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Publish Readiness Modal (missing required data) */}
       {showPublishModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
@@ -1331,7 +1499,7 @@ export function Editor({
               <div>
                 <h3 className="text-lg font-bold text-ink">Publish Not Ready Yet</h3>
                 <p className="mt-1 text-sm text-ink-soft">
-                  Complete the following items before publishing your website:
+                   Complete the following items before publishing your website. Select an item to jump to its editor section.
                 </p>
               </div>
               <button type="button" onClick={() => setShowPublishModal(false)} className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink">
@@ -1339,10 +1507,20 @@ export function Editor({
               </button>
             </div>
             <ul className="flex flex-col gap-2">
-              {publishErrors.map((err) => (
-                <li key={err} className="flex items-center gap-2.5 rounded-xl bg-amber-50 px-3.5 py-2.5 text-sm font-medium text-amber-800">
-                  <span className="material-symbols-outlined text-[18px] text-amber-500">error_outline</span>
-                  {err}
+              {publishErrors.map((issue) => (
+                <li key={`${issue.id}-${issue.label}`}>
+                  <button
+                    type="button"
+                    onClick={() => goToReadinessIssue(issue)}
+                    className="flex w-full items-start gap-2.5 rounded-xl bg-amber-50 px-3.5 py-2.5 text-left text-sm font-medium text-amber-800 transition-colors hover:bg-amber-100"
+                  >
+                    <span className="material-symbols-outlined mt-0.5 text-[18px] text-amber-500">error_outline</span>
+                    <span>
+                      <span className="block">{issue.label}</span>
+                      <span className="mt-0.5 block text-xs font-normal text-amber-700">{issue.detail}</span>
+                    </span>
+                    <span className="material-symbols-outlined ml-auto mt-0.5 text-[16px]">arrow_forward</span>
+                  </button>
                 </li>
               ))}
             </ul>

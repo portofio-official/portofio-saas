@@ -1,3 +1,95 @@
+# Session 066: Admin Control Plane — Remote Migration Applied + Authenticated E2E Verified
+**Status:** Verified / Passing against real Supabase
+- Applied `20260811000010_admin_audit_logs.sql` to the real Supabase project (`yvjwqammizdipwalvets`) via the management API. All schema tables already existed remotely (templates, section_visits, etc.); only the audit table was missing.
+- Ran `E2E_ADMIN_INTEGRATION=1 npx playwright test e2e/flows/14-admin-portal.spec.ts`; verified the full Admin control plane against real Supabase: role assignment (user→designer via UI), suspend + reactivate (banned_until toggles verified via auth admin API), blocklist add/remove, template visibility toggle, audit history rendering, and non-admin route protection.
+- Two test fixes (test-only, not app bugs):
+  1. Strict-mode violation: suspend + reactivate emits TWO `user.suspension` audit rows, so assertions use `.first()`.
+  2. Non-admin redirect: the target user is made a `designer` during the test, so `/id/admin` redirects to `/id/onboarding` (not `/id/dashboard`). Changed `waitForURL("**/id/dashboard**")` to a predicate rejecting any `/admin` path, and `goto` uses `waitUntil: "domcontentloaded"` because the onboarding page has external resources (fonts/analytics/HMR) that prevent the `load` event from settling.
+- Added `test.setTimeout(120_000)` to the Admin flow (long multi-step authenticated flow).
+- Verification: `npx tsc --noEmit` clean, targeted ESLint clean, `npm run build` clean, Admin E2E passed (21.7s), full E2E suite with admin integration ON `31 passed / 2 skipped / 0 failed`.
+- Updated `feature_list.json`: `admin-001` → **done** with full evidence.
+- Cleanup: removed temporary `scratch/debug-admin.mjs` used to reproduce the designer redirect chain.
+
+# Session 065: Admin Control Plane
+**Status:** Code implemented; remote audit migration pending
+- Added `admin_audit_logs` schema migration `supabase/migrations/20260811000010_admin_audit_logs.sql` with Admin-only reads and server-side writes.
+- Added server-side audit events for role changes, suspension, template review, integration status, template visibility, and blocklist changes.
+- Added Admin role assignment UI with self-demotion protection, refreshed suspension state, protected system-reserved blocklist words, and `/admin/audit-log` viewer.
+- Added `e2e/flows/14-admin-portal.spec.ts` opt-in integration coverage for role assignment, suspend/reactivate, blocklist, template visibility, audit history, and non-admin route protection.
+- Verification: `npx tsc --noEmit`, targeted ESLint, JSON validation, default Admin route E2E skip, and `npm run build` passed.
+- Authenticated Admin E2E is currently blocked by the remote database missing `admin_audit_logs`; after applying `20260811000010_admin_audit_logs.sql`, rerun `E2E_ADMIN_INTEGRATION=1 npx playwright test e2e/flows/14-admin-portal.spec.ts`.
+
+# Session 064: Supabase Schema Drift Audit
+**Status:** Drift identified; reconciliation migration created, remote DDL application pending
+- Audited the live Supabase REST schema using the service-role key without exposing secrets.
+- Confirmed `template_submissions` has all Designer lifecycle columns and `template-submissions` Storage bucket exists with `public=false`.
+- Found remote drift: `public.templates` and `public.section_visits` are missing; `billing_events` still exposes `xendit_event_id` instead of `provider_event_id`; `subscriptions` does not yet have future tier fields such as `plan_id`.
+- Added `supabase/migrations/20260811000009_reconcile_remote_schema.sql` to idempotently create the missing template catalog and section engagement tables, seed all 8 built-in templates, and reconcile the Midtrans webhook idempotency column.
+- `subscriptions.plan_id` and other tiered-billing fields remain intentionally deferred to `billing-002`, which is not implemented yet.
+- Operational blocker: the repository has Supabase URL/anon/service-role keys but no database password or Management API token, so DDL cannot be executed from this environment. Apply migration `20260811000009_reconcile_remote_schema.sql` in Supabase SQL Editor, then rerun the schema audit.
+
+# Session 063: Designer Portal Completion
+**Status:** Passing; authenticated Supabase E2E verified
+- Hardened Designer source/review flow: Admin service-role review mutations are accepted by the protection trigger, source upload cleans up orphaned objects on DB failure, and Designer routes revalidate after save/upload/submit.
+- Fixed Admin template review data mapping. Admin now sees designer identity, desktop/mobile preview links, private source download via 10-minute signed URL, review status, integration status, and submitted date.
+- Approval no longer requires a registry ID before code integration. Merging requires and persists a registry ID and integration status refreshes after the server action.
+- Added `e2e/flows/13-designer-portal.spec.ts` opt-in integration flow covering Designer draft/upload/submit, Admin revision request, Designer resubmit, Admin approval, `in_review → merged`, registry ID persistence, public access denial for the private ZIP, cross-designer read isolation, and review-field tampering rejection.
+- Verification: `npx tsc --noEmit`, targeted ESLint, `npm run build`, authenticated Designer E2E against real Supabase, and full single-worker Playwright E2E (`30 passed / 2 skipped`) passed. A parallel 4-worker run had transient timeouts in existing content-library/preview flows; the single-worker rerun passed all tests.
+
+# Session 062: PRD v1.9 Tiered Billing Product Correction
+**Status:** Documentation updated; tiered billing implementation not started
+- Updated `docs/PRD.md` to v1.9 with Basic, Premium, and Enterprise plans, monthly/annual Midtrans billing, one live website per account across all tiers, Basic watermark, Premium custom domain, and Enterprise self-service.
+- Clarified Designer as an additive capability that inherits User permissions, with Admin-controlled template visibility/minimum plan and future revenue sharing.
+- Synced `docs/FLOW.md`, `docs/IMPLEMENTATION_PLAN.md`, `docs/SPRINTS.md`, `docs/FLOW_CLOSURE_PLAN.md`, product backlog CSVs, `README.md`, `AGENTS.md`, and `CLAUDE.md`.
+- Added `billing-002` and implementation task B-015 for plan catalog, entitlement enforcement, annual billing, plan-aware Midtrans webhooks, watermark/domain gates, and tiered E2E verification.
+- Enterprise team collaboration, organization roles, approval workflow, and governance are explicitly roadmap items after tiered billing stabilizes.
+- Verification: feature/messages JSON parse clean and `git diff --check` clean after documentation whitespace fixes. `./init.sh` baseline remains blocked by pre-existing `scratch/pp-shots/*.js` lint errors and one existing BillingClientView warning.
+
+# Session 061: Designer Portal Vertical Slice
+**Status:** Implemented; pending real Supabase migration + authenticated submission verification
+- Added `supabase/migrations/20260811000008_designer_submissions.sql`: draft status, private source-package bucket, Storage RLS, integration status, and trigger protection for review-owned fields.
+- Added `src/lib/designer/{types,store,actions}.ts`: designer-only CRUD, draft/edit/resubmit workflow, strict submit validation, private ZIP upload (25 MB limit), and owner-scoped actions.
+- Added Designer Portal UI: `/designer`, `/designer/submissions`, `/designer/submissions/new`, and `/designer/submissions/[id]`, with responsive dashboard, status cards, submission wizard, preview URLs, license declaration, ZIP upload, and id/en translations.
+- Hardened Admin review: server validates registry ID and review notes, approved submissions move to integration review, and Admin can update `not_started/in_review/merged/failed` integration status.
+- Added server-side Admin layout role check and fixed the designer navbar link from `/dashboard` to `/designer`.
+- Expanded unauthenticated role-route smoke coverage to all Designer routes.
+- Verification: `npx tsc --noEmit` clean after generated-route refresh, targeted ESLint clean, `npm run build` clean, messages/feature JSON valid, auth route E2E passed 7/7.
+- `20260811000007_harden_role_boundaries.sql` was applied to the real Supabase project by the user; signup role hardening, profile role protection, and private workspace-profile access are now live.
+- Operational blocker for `designer-001`: apply `20260811000008_designer_submissions.sql` after the role migration, then run an authenticated Designer submission E2E against real Supabase. `designer-001` remains `in_progress` until that evidence exists.
+
+# Session 060: User Role UX Safety and Recovery
+**Status:** Implemented and verified locally
+- Audited existing user UX and preserved already-shipped autosave, setup progress, draft-vs-live banner, revert-to-live, preview, and dashboard empty states.
+- Added `listProjectVersionsAction` and `restoreProjectVersionAction` backed by the existing `project_versions` model and RLS. Restoring creates a new draft version and never changes the published site.
+- Editor now has a Version History modal, explicit `Draft only`/`Live` state, and a readiness checklist that validates name, headline, photo, project, and contact email. Each missing item links directly to its editor section.
+- Dashboard workspace deletion now requires a localized confirmation dialog and explicitly warns that draft data will be deleted.
+- Added `editor-008` to `feature_list.json` with acceptance criteria and verification evidence.
+- Fixed a related Content Library regression found by the real Supabase integration test: existing draft content is preserved until the account has at least one library item for that content type.
+- Verification: targeted ESLint clean, `npx tsc --noEmit` clean, `npm run build` clean, auth/content E2E 10 passed, opt-in real Supabase publish/editor E2E 1 passed, full E2E 30 passed / 1 skipped. Full lint remains blocked only by pre-existing `scratch/pp-shots/*.js` `require()` errors and the existing BillingClientView warning.
+
+# Session 059: User Role Boundary Hardening
+**Status:** Verified locally; Supabase migration still needs applying to the real project
+- Audited the `user` role against PRD v1.8 and found a privilege-escalation gap: the original profile RLS policy and signup trigger trusted client-controlled role values.
+- Added `supabase/migrations/20260811000007_harden_role_boundaries.sql`: signup profiles are always created as `user`, authenticated users cannot mutate their own `profiles.role`, and the admin-wide workspace profile read policy is removed to keep customer content owner-only.
+- `requireRole()` now rejects anonymous requests instead of treating them as the fallback `user` role.
+- Portfolio, workspace, Content Library, analytics, checkout, and dev-subscription server actions now explicitly allow only `user`/`designer`; the dev subscription action rejects production calls.
+- Dashboard layout redirects `admin` accounts to `/admin`; an admin-only `updateUserRoleAction` provides the protected server-side role assignment path.
+- Added auth E2E coverage for unauthenticated `/admin` and `/designer` access. Full suite: 30 passed / 1 skipped.
+- Fixed plural Content Library route aliases so `generateMetadata` no longer emits missing-translation errors for existing route smoke paths.
+- Verification: targeted ESLint clean, `npx tsc --noEmit` clean, `npm run build` clean, full `npm run test:e2e` 30 passed / 1 skipped. Full `npm run lint` remains blocked by pre-existing `scratch/pp-shots/*.js` `require()` errors.
+- Operational blocker: apply `20260811000007_harden_role_boundaries.sql` to the real Supabase project before relying on the role boundary in production.
+
+# Session 058: PRD v1.8 — Three Role Product Model
+**Status:** Documentation updated; technical baseline has pre-existing lint failures
+- Reworked `docs/PRD.md` from a single portfolio-owner perspective into a three-role product specification: `user`, `designer`, and `admin`.
+- Locked the role model: one primary account role; `user` owns portfolio workspaces/projects, `designer` inherits portfolio capabilities and owns only its template submissions, and `admin` operates moderation/platform controls.
+- Added permission matrix, tenant/data-isolation rules, Designer submission lifecycle, Admin moderation flow, RBAC functional requirements, security requirements, role-aware DoD, go-live checks, and decision register/open questions.
+- Clarified MVP versus Phase 2: RBAC foundation and Admin operations are MVP; Designer Portal/template submission UI is Phase 2.
+- Synced PRD with current codebase: 8 templates including Freelancer, account-global Content Library, basic visitor analytics, predefined template variants, `templates.is_active` catalog visibility, and codebase-backed template renderers/schema.
+- Updated `feature_list.json` evidence for `rbac-001` and removed the obsolete billing-scope open-question note.
+- `./init.sh` was run before editing but baseline lint fails on pre-existing `scratch/pp-shots/audit.js` and `scratch/pp-shots/shoot.js` `require()` errors; one existing BillingClientView warning remains. No scratch files were changed.
+- Unrelated pre-existing worktree changes in `src/templates/definitions/portfolio-pro/{definition,renderer}.tsx` were left untouched.
+
 # Session 057: SP2-031 — Section Engagement & Section Performance Metrics
 **Status:** Verified / Passing locally + pushed
 - Implemented the missing Sprint-2 backlog item SP2-031 (user asked: build analytics first; SP2-020 / SP2-022 are held / deferred).

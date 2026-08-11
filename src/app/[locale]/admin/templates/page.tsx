@@ -1,11 +1,11 @@
-import { requireRole } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getTemplateSubmissionsAction } from "@/lib/admin/actions";
 import { ReviewTemplateDropdown } from "@/components/admin/ReviewTemplateDropdown";
 import { ToggleTemplateVisibilityButton } from "@/components/admin/ToggleTemplateVisibilityButton";
+import { TemplateIntegrationStatusButton } from "@/components/admin/TemplateIntegrationStatusButton";
+import { TemplateSourceDownloadButton } from "@/components/admin/TemplateSourceDownloadButton";
 
 export default async function TemplatesPage() {
-  await requireRole(["admin"]);
-
   const adminClient = createAdminClient();
   
   // Fetch built-in active templates
@@ -14,17 +14,7 @@ export default async function TemplatesPage() {
     .select("id, name, is_active, created_at")
     .order("created_at", { ascending: true });
 
-  // Fetch submissions (Phase 2 stub)
-  const { data: submissions } = await adminClient
-    .from("template_submissions")
-    .select(`
-      id,
-      name,
-      status,
-      created_at,
-      designer:designer_id(raw_user_meta_data)
-    `)
-    .order("created_at", { ascending: false });
+  const submissions = await getTemplateSubmissionsAction();
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -90,7 +80,7 @@ export default async function TemplatesPage() {
           <div className="mb-4">
             <h2 className="text-[16px] font-bold text-ink">Community Submissions</h2>
             <p className="text-[14px] text-ink-soft">
-              Review submitted templates from designers (Phase 2 stub).
+              Review submitted templates from designers before code integration.
             </p>
           </div>
 
@@ -99,7 +89,9 @@ export default async function TemplatesPage() {
               <tr className="border-b border-black/5 text-ink-faint">
                 <th className="pb-3 font-semibold">Template Name</th>
                 <th className="pb-3 font-semibold">Designer</th>
+                <th className="pb-3 font-semibold">Preview / source</th>
                 <th className="pb-3 font-semibold">Status</th>
+                <th className="pb-3 font-semibold">Integration</th>
                 <th className="pb-3 font-semibold">Submitted Date</th>
                 <th className="pb-3 text-right font-semibold">Action</th>
               </tr>
@@ -108,17 +100,31 @@ export default async function TemplatesPage() {
               {submissions?.map((sub) => (
                 <tr key={sub.id} className="group transition-colors hover:bg-black/[0.02]">
                   <td className="py-4 font-semibold text-ink">{sub.name}</td>
-                  <td className="py-4 text-ink-soft">
-                    {/* @ts-expect-error - foreign key join raw metadata */}
-                    {sub.designer?.raw_user_meta_data?.full_name || "Unknown"}
+                  <td className="py-4">
+                    <div className="flex flex-col">
+                      <span className="font-medium text-ink">{sub.designerName || "Unknown"}</span>
+                      <span className="text-xs text-ink-soft">{sub.designerEmail}</span>
+                    </div>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex min-w-[170px] flex-col items-start gap-2">
+                      <div className="flex flex-wrap gap-2">
+                        {sub.previewUrl && <a href={sub.previewUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-accent-deep hover:underline">Desktop preview</a>}
+                        {sub.previewMobileUrl && <a href={sub.previewMobileUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-accent-deep hover:underline">Mobile preview</a>}
+                      </div>
+                      <TemplateSourceDownloadButton submissionId={sub.id} filename={sub.sourceFilename} />
+                    </div>
                   </td>
                   <td className="py-4">
                     <span className="rounded-md bg-black/[0.04] px-2.5 py-1 text-[12px] font-medium capitalize text-ink">
                       {sub.status}
                     </span>
                   </td>
+                  <td className="py-4">
+                    <TemplateIntegrationStatusButton submissionId={sub.id} initialStatus={sub.integrationStatus as "not_started" | "in_review" | "merged" | "failed"} />
+                  </td>
                   <td className="py-4 text-ink-soft">
-                    {new Date(sub.created_at).toLocaleDateString("id-ID")}
+                    {sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString("id-ID") : "Draft"}
                   </td>
                   <td className="py-4 text-right">
                     <ReviewTemplateDropdown submissionId={sub.id} />
@@ -127,7 +133,7 @@ export default async function TemplatesPage() {
               ))}
               {(!submissions || submissions.length === 0) && (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-ink-soft">
+                    <td colSpan={7} className="py-8 text-center text-ink-soft">
                     No submissions found.
                   </td>
                 </tr>

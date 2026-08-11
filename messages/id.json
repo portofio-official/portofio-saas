@@ -559,7 +559,11 @@
     "toastUnpubOk": "Website di-unpublish.",
     "toastUnpubErr": "Terjadi kesalahan saat unpublish.",
     "toastDelOk": "Website dihapus.",
-    "toastDelErr": "Terjadi kesalahan saat menghapus."
+    "toastDelErr": "Terjadi kesalahan saat menghapus.",
+    "confirmDeleteTitle": "Hapus website ini?",
+    "confirmDeleteDesc": "Website \"{name}\" dan seluruh data draft-nya akan dihapus. Tindakan ini tidak bisa dibatalkan.",
+    "cancel": "Batal",
+    "confirmDelete": "Ya, hapus"
   },
   "Analytics": {
     "eyebrow": "Analytics",
@@ -606,12 +610,97 @@
     "sectionViews": "kunjungan",
     "sectionVisitors": "pengunjung"
   },
+  "Designer": {
+    "portal": "Designer Portal",
+    "navigation": "Navigasi",
+    "overview": "Ringkasan",
+    "submissions": "Submission Saya",
+    "logout": "Keluar",
+    "eyebrow": "Template Studio",
+    "title": "Bangun template untuk komunitas",
+    "subtitle": "Kirim karya template kamu untuk direview dan berpotensi tampil di gallery Portofio.",
+    "newSubmission": "Submission Baru",
+    "submissionsTitle": "Submission Template",
+    "recentTitle": "Submission terbaru",
+    "recentSubtitle": "Pantau proses review dan revisi template kamu.",
+    "viewAll": "Lihat semua",
+    "emptyTitle": "Belum ada submission",
+    "emptyDescription": "Mulai dengan mengirim template pertamamu. Simpan sebagai draft dan lengkapi sebelum dikirim untuk review.",
+    "startSubmission": "Buat submission pertama",
+    "untitled": "Tanpa judul",
+    "noDescription": "Belum ada deskripsi.",
+    "backToSubmissions": "Kembali ke submission",
+    "editSubmission": "Edit submission",
+    "statuses": {
+      "draft": "Draft",
+      "pending": "Menunggu review",
+      "revision_requested": "Perlu revisi",
+      "approved": "Disetujui",
+      "rejected": "Ditolak"
+    },
+    "categories": {
+      "minimal": "Minimal",
+      "creative": "Creative",
+      "corporate": "Corporate",
+      "developer": "Developer",
+      "agency": "Agency",
+      "other": "Lainnya"
+    },
+    "form": {
+      "metadataTitle": "Metadata template",
+      "metadataDescription": "Jelaskan karakter dan target pengguna template ini.",
+      "name": "Nama template",
+      "namePlaceholder": "Contoh: Mono Studio",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Apa yang membuat template ini berbeda dan cocok untuk siapa?",
+      "category": "Kategori",
+      "tags": "Tags",
+      "tagsPlaceholder": "portfolio, creative, editorial",
+      "previewTitle": "Preview template",
+      "previewDescription": "Berikan link screenshot atau preview yang dapat dilihat reviewer.",
+      "desktopPreview": "URL preview desktop",
+      "mobilePreview": "URL preview mobile",
+      "sourceTitle": "Source package",
+      "sourceDescription": "Upload ZIP source template. File disimpan privat dan tidak dieksekusi oleh aplikasi.",
+      "sourceFile": "Source ZIP",
+      "sourceSelected": "File dipilih: {name}",
+      "license": "Lisensi dan kepemilikan asset",
+      "licensePlaceholder": "Contoh: Semua asset original / Unsplash + license sesuai",
+      "securityNote": "Dengan submit, kamu menyatakan memiliki hak atas source dan asset yang digunakan.",
+      "saveDraft": "Simpan draft",
+      "saving": "Menyimpan...",
+      "submit": "Kirim untuk review",
+      "submitting": "Mengirim...",
+      "saved": "Draft berhasil disimpan.",
+      "submitted": "Submission dikirim untuk review.",
+      "locked": "Submission ini sedang direview atau sudah selesai. Field tidak dapat diubah.",
+      "errors": "Terjadi kesalahan"
+    },
+    "errors": {
+      "nameRequired": "Nama template minimal 3 karakter.",
+      "descriptionRequired": "Deskripsi minimal 20 karakter.",
+      "previewRequired": "URL preview desktop wajib diisi.",
+      "licenseRequired": "Informasi lisensi wajib diisi.",
+      "invalidUrl": "URL preview tidak valid.",
+      "sourceRequired": "Upload source ZIP sebelum submit.",
+      "zipOnly": "Source harus berupa file ZIP.",
+      "invalidZip": "Isi file tidak terdeteksi sebagai ZIP yang valid.",
+      "sourceTooLarge": "Ukuran source maksimal 25 MB.",
+      "uploadFailed": "Source gagal diupload.",
+      "saveFailed": "Submission gagal disimpan.",
+      "submitFailed": "Submission gagal dikirim.",
+      "notFound": "Submission tidak ditemukan.",
+      "locked": "Submission ini tidak dapat diubah pada status sekarang.",
+      "notAuthenticated": "Sesi login tidak ditemukan."
+    }
+  },
   "Admin": {
     "portalLabel": "Admin Portal",
     "navLabel": "Navigasi",
     "navUsers": "Pengguna",
     "navTemplates": "Template",
     "navBlocklist": "Blocklist",
+    "navAuditLog": "Audit Log",
     "logout": "Keluar",
     "users": {
       "title": "Pengguna",
@@ -638,6 +727,16 @@
     },
     "templates": {
       "title": "Template"
+    },
+    "audit": {
+      "title": "Audit Log",
+      "subtitle": "Riwayat aksi administratif dan moderation platform",
+      "time": "Waktu",
+      "action": "Aksi",
+      "target": "Target",
+      "details": "Detail",
+      "actor": "Admin",
+      "empty": "Belum ada aktivitas administratif."
     }
   },
   "ContentLibrary": {

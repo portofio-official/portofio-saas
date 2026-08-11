@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { getUsersAction } from "@/lib/admin/actions";
 import { SuspendUserButton } from "@/components/admin/SuspendUserButton";
+import { UpdateUserRoleButton } from "@/components/admin/UpdateUserRoleButton";
 
 export default async function AdminDashboardPage() {
   const t = await getTranslations("Admin");
@@ -22,8 +23,8 @@ export default async function AdminDashboardPage() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-8">
-        <div className="rounded-[1.6rem] bg-white p-6 shadow-sm ring-1 ring-black/5">
-          <table className="w-full text-left text-[14px]">
+        <div className="overflow-x-auto rounded-[1.6rem] bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <table className="w-full min-w-[760px] text-left text-[14px]">
             <thead>
               <tr className="border-b border-black/5 text-ink-faint">
                 <th className="pb-3 font-semibold">{t("users.colUser")}</th>
@@ -44,11 +45,7 @@ export default async function AdminDashboardPage() {
                       <span className="text-[13px] text-ink-soft">{user.email}</span>
                     </div>
                   </td>
-                  <td className="py-4">
-                    <span className="rounded-md bg-black/[0.04] px-2.5 py-1 text-[12px] font-medium capitalize text-ink">
-                      {user.role}
-                    </span>
-                  </td>
+                  <td className="py-4"><UpdateUserRoleButton userId={user.id} role={user.role} /></td>
                   <td className="py-4 text-ink-soft">
                     {new Date(user.createdAt).toLocaleDateString("id-ID", {
                       year: "numeric",

@@ -4,6 +4,7 @@ import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
 import { listProjects, unpublishProject } from "@/lib/projects/store";
+import { requireRole } from "@/lib/auth/roles";
 
 export type CreateWorkspaceState = { error: string | null };
 
@@ -11,6 +12,7 @@ export async function createWorkspaceAction(
   _prevState: CreateWorkspaceState,
   formData: FormData,
 ): Promise<CreateWorkspaceState> {
+  await requireRole(["user", "designer"]);
   const name = String(formData.get("name") ?? "").trim();
   const templateId = String(formData.get("templateId") ?? "").trim();
   if (!name) return { error: "nameRequired" };
@@ -43,6 +45,7 @@ export async function createWorkspaceAction(
 }
 
 export async function deleteWorkspaceAction(workspaceId: string): Promise<{ error: string | null }> {
+  await requireRole(["user", "designer"]);
   const supabase = await createClient();
   const {
     data: { user },
@@ -67,6 +70,7 @@ export async function deleteWorkspaceAction(workspaceId: string): Promise<{ erro
 export async function unpublishWorkspaceProjectAction(
   workspaceId: string,
 ): Promise<{ ok: boolean }> {
+  await requireRole(["user", "designer"]);
   const projects = await listProjects(workspaceId);
   if (!projects[0]) return { ok: false };
   const ok = await unpublishProject(projects[0].id);
@@ -77,6 +81,7 @@ export async function unpublishWorkspaceProjectAction(
 export async function duplicateWorkspaceAction(
   workspaceId: string,
 ): Promise<{ error: string | null; id?: string }> {
+  await requireRole(["user", "designer"]);
   const supabase = await createClient();
   const {
     data: { user },
@@ -123,4 +128,3 @@ export async function duplicateWorkspaceAction(
 
   return { error: null, id: newWorkspace.id };
 }
-

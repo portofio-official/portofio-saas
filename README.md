@@ -2,7 +2,7 @@
 
 SaaS portfolio-website builder: fill a structured form, pick a template, preview live, publish to a subdomain. No drag-and-drop canvas — form + template, built for non-technical users (fresh graduates, freelancers, job seekers, content creators) who want a professional portfolio site without learning design or code.
 
-Building and previewing a portfolio is **free**. Publishing it to a live subdomain (`namamu.appku.com`) requires a paid monthly subscription (single plan, no freemium tiers).
+Building and previewing a portfolio is **free**. Publishing requires a paid Basic, Premium, or Enterprise plan through Midtrans. All plans temporarily allow one live website per account; Premium adds custom domains and removes the Basic watermark.
 
 **Live demo:** https://portofio-beta.vercel.app/
 

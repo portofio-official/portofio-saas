@@ -108,7 +108,7 @@ export function Navbar({ userEmail, userRole = "user" }: { userEmail: string | n
                 )}
 
                 {userRole === "designer" && (
-                  <Link href="/dashboard" className={styles.profileDropdownItem} onClick={() => setDropdownOpen(false)}>
+                  <Link href="/designer" className={styles.profileDropdownItem} onClick={() => setDropdownOpen(false)}>
                     <span className={`material-symbols-outlined ${styles.dropdownIcon}`}>palette</span>
                     {t("designerDashboard")}
                   </Link>

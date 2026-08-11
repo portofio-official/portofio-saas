@@ -190,6 +190,11 @@ test.describe("Flow 5 — Editor Publish Dialog (subdomain + subscription gate)"
     await page.goto(`/id/dashboard/${workspaceId}/editor`);
     await expect(page.getByRole("button", { name: "Publish" })).toBeVisible();
 
+    await page.getByRole("button", { name: "Open version history" }).click();
+    await expect(page.getByRole("heading", { name: "Version history" })).toBeVisible();
+    await expect(page.getByText(/Version 1/)).toBeVisible();
+    await page.getByRole("button", { name: "Close version history" }).click();
+
     // Click Publish: data is complete (name/photo/project), so the subdomain
     // dialog opens instead of the readiness modal.
     await page.getByRole("button", { name: "Publish" }).click();

@@ -12,6 +12,7 @@ import {
 } from "./store";
 import { sanitizeString } from "@/lib/utils/sanitize";
 import type { ContentItem, ContentItemInput } from "./types";
+import { requireRole } from "@/lib/auth/roles";
 
 const CONTENT_BUCKET = "content";
 
@@ -28,10 +29,12 @@ function sanitizeInput(input: ContentItemInput): ContentItemInput {
 }
 
 export async function listContentItemsAction(): Promise<ContentItem[]> {
+  await requireRole(["user", "designer"]);
   return listContentItems();
 }
 
 export async function getContentItemAction(id: string): Promise<ContentItem | null> {
+  await requireRole(["user", "designer"]);
   return getContentItem(id);
 }
 
@@ -40,6 +43,7 @@ export async function getContentItemAction(id: string): Promise<ContentItem | nu
 export async function uploadContentImageAction(
   dataUrl: string,
 ): Promise<{ ok: boolean; url?: string; error?: string }> {
+  await requireRole(["user", "designer"]);
   const match = /^data:(image\/(?:png|jpeg|webp|gif));base64,(.+)$/.exec(dataUrl ?? "");
   if (!match) return { ok: false, error: "Invalid image data." };
 
@@ -68,6 +72,7 @@ export async function uploadContentImageAction(
 export async function createContentItemAction(
   input: ContentItemInput,
 ): Promise<{ ok: boolean; item?: ContentItem; error?: string }> {
+  await requireRole(["user", "designer"]);
   const item = await createContentItem(sanitizeInput(input));
   if (!item) return { ok: false, error: "Failed to save item" };
   return { ok: true, item };
@@ -77,6 +82,7 @@ export async function updateContentItemAction(
   id: string,
   input: ContentItemInput,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireRole(["user", "designer"]);
   const ok = await updateContentItem(id, sanitizeInput(input));
   return ok ? { ok: true } : { ok: false, error: "Failed to update item" };
 }
@@ -84,6 +90,7 @@ export async function updateContentItemAction(
 export async function deleteContentItemAction(
   id: string,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireRole(["user", "designer"]);
   const ok = await deleteContentItem(id);
   return ok ? { ok: true } : { ok: false, error: "Failed to delete item" };
 }
@@ -93,5 +100,6 @@ export async function updateContentItemStateAction(
   isActive: boolean,
   sortOrder: number,
 ): Promise<{ ok: boolean }> {
+  await requireRole(["user", "designer"]);
   return { ok: await updateContentItemState(id, isActive, Math.max(0, Math.round(sortOrder))) };
 }

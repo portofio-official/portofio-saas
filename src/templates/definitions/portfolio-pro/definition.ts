@@ -1,4 +1,7 @@
-import type { TemplateDefinition, TemplateVariant } from "@/templates/definition";
+import type {
+  TemplateDefinition,
+  TemplateVariant,
+} from "@/templates/definition";
 import { portfolioProSchema, PORTFOLIO_PRO_SECTIONS } from "./schema";
 
 export const PORTFOLIO_PRO_VARIANTS: TemplateVariant[] = [
@@ -12,7 +15,7 @@ export const PORTFOLIO_PRO_VARIANTS: TemplateVariant[] = [
       text: "#181A20",
       textMuted: "#676A72",
       border: "#D2D1CB",
-    }
+    },
   },
   {
     id: "emerald",
@@ -24,7 +27,7 @@ export const PORTFOLIO_PRO_VARIANTS: TemplateVariant[] = [
       text: "#17261F",
       textMuted: "#647169",
       border: "#CFD7D1",
-    }
+    },
   },
   {
     id: "slate",
@@ -36,8 +39,8 @@ export const PORTFOLIO_PRO_VARIANTS: TemplateVariant[] = [
       text: "#F0EEE9",
       textMuted: "#A09E98",
       border: "#393B3D",
-    }
-  }
+    },
+  },
 ];
 
 import { PORTFOLIO_PRO_DEFAULTS } from "./defaults";
@@ -45,15 +48,28 @@ import { mapProfileToPortfolioPro } from "./mapper";
 import { portfolioProMigrations } from "./migrations";
 import { PortfolioProRenderer } from "./renderer";
 
-export const portfolioProDefinition: TemplateDefinition<typeof portfolioProSchema> = {
+export const portfolioProDefinition: TemplateDefinition<
+  typeof portfolioProSchema
+> = {
   id: "portfolio-pro",
   version: 1,
   meta: {
     name: "Portfolio Pro",
-    description: "A complete professional portfolio with skills, case studies, certificates, and a gallery — plus a visitor-facing color/dark-mode switcher.",
+    description:
+      "An editorial, technically-minded portfolio for engineers and researchers: case-study work, experience, skills, certifications, and a gallery in a restrained Swiss-style layout.",
     thumbnailUrl: "",
     category: "portfolio",
-    capabilities: ["projects", "experience", "education", "skills", "contact", "hero", "case-studies", "certificates", "gallery"],
+    capabilities: [
+      "projects",
+      "experience",
+      "education",
+      "skills",
+      "contact",
+      "hero",
+      "case-studies",
+      "certificates",
+      "gallery",
+    ],
     tags: ["professional", "case-study", "analytics", "complete"],
     author: "portofio",
     price: 0,

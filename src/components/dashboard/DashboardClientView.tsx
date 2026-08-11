@@ -62,6 +62,7 @@ export function DashboardClientView({
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [isDuplicating, setIsDuplicating] = useState<string | null>(null);
   const [previewWorkspace, setPreviewWorkspace] = useState<Workspace | null>(null);
+  const [deleteCandidate, setDeleteCandidate] = useState<Workspace | null>(null);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   // Keyboard shortcut listener: Cmd/Ctrl + K focuses the search input
@@ -501,7 +502,10 @@ export function DashboardClientView({
 
                                 <button
                                   type="button"
-                                  onClick={() => handleDelete(workspace)}
+                                  onClick={() => {
+                                    setOpenMenuId(null);
+                                    setDeleteCandidate(workspace);
+                                  }}
                                   className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-danger transition-colors hover:bg-danger/5"
                                 >
                                   <span className="material-symbols-outlined text-[16px]">delete</span>
@@ -625,6 +629,44 @@ export function DashboardClientView({
                   <p className="max-w-sm text-[13px] font-medium text-ink-soft">{t("previewPlaceholder")}</p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteCandidate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-floating ring-1 ring-black/5">
+            <div className="mb-5 flex items-start gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-danger/10 text-danger">
+                <span className="material-symbols-outlined">delete</span>
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-ink">{t("confirmDeleteTitle")}</h2>
+                <p className="mt-1 text-sm leading-6 text-ink-soft">
+                  {t("confirmDeleteDesc", { name: deleteCandidate.name })}
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setDeleteCandidate(null)}
+                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink ring-1 ring-black/10 transition-colors hover:bg-black/5"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const workspace = deleteCandidate;
+                  setDeleteCandidate(null);
+                  await handleDelete(workspace);
+                }}
+                className="rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-danger/90"
+              >
+                {t("confirmDelete")}
+              </button>
             </div>
           </div>
         </div>

@@ -1,3 +1,36 @@
+# Session 068: Premium Dashboard Polish — Phase 2 (per-page) + Phase 3 (Editor)
+**Status:** Verified / Passing locally
+- Continued the Premium Dashboard plan: executed **Phase 2 (per-page premium polish)** and **Phase 3 (Editor localization + token cleanup)**. Phase 0+1 (Session 067) already landed shared primitives + consistency.
+- **Phase 2 — per-page:**
+  - **Home** (`DashboardClientView`): stat chips (Total/Live/Draft) are now clickable filters wired to the existing All/Live/Draft filter; live website cards render a 7-day views mini-insight chip; a launch-checklist banner appears when nothing is live yet. Added `getRecentViewsByWorkspace` in `src/lib/analytics/store.ts` (RLS-scoped) + `recentViews` prop fed from the dashboard page. New `Dashboard` i18n keys (viewsLabel/views7d/launchTitle/launchCta/launchSkippedDesc).
+  - **Analytics** (`AnalyticsClientView` + `store.ts`/`types.ts`): KPI cards now show ▲/▼ % deltas vs the previous equal-length window (`prevViews`/`prevVisitors` added to `AnalyticsSummary`, computed in `getProjectAnalytics`); `TrendChart` gained Y-axis value labels + an interactive crosshair tooltip (React hover state). New `Analytics.deltaTitle` key.
+  - **Billing**: active subscription plan card gets an accent top-bar + ring highlight.
+  - **Profile**: added avatar upload via the existing `PhotoUploadField` (writes `profile.avatar_url` through `updateUserProfile`); new Profile i18n keys (avatarLabel/avatarUpload/avatarReplace).
+  - **Sidebar** (`DashboardSidebar` + `layout.tsx`): layout fetches subscription state (`getSubscriptionState`) and passes `isPremium`; the account footer now shows a Pro badge or a Free/upgrade pill (Workspace.planPro/planFree).
+  - **Templates**: gallery badges templates already in use via `getInUseTemplateIds` (workspace/queries) + `inUseTemplateIds` prop + `TemplateGallery.inUse`.
+- **Phase 3 — Editor (`Editor.tsx`):** added an `Editor` i18n namespace (en+id) and localized the header cluster (back-to-dashboard, Live/Draft only, Versions, Preview, Save, Publish), the profile-sync and draft-divergence banners, the Content/Sections tabs, the sticky context header (Editing/Select to Edit/Content Overview), the Setup Progress card (completedOf/next), the Layout/Section Visibility + Appearance/SEO/Site Title/Description/Social Image URL labels, "Manage projects in Content Library", Fit Screen, and the desktop-preview / version-history / publish dialog titles. Amber/sky banner classes → `warning`/`info` semantic tokens; preview canvas `bg-[#EEF2FF]` → `bg-shell`.
+- **Deferred (documented):** Editor modal structural migration to the shared `Modal` (kept hand-rolled for stability — risky to refactor the 1700-line component under this scope); tiered billing price display deferred to `billing-002`.
+- Verification: `npx tsc --noEmit` clean; full `npm run lint` only pre-existing scratch + Billing warning; `npm run build` clean; full `npx playwright test` **30 passed / 3 skipped / 0 failed** (editor "Publish"/"Publish Website" en values kept identical so E2E selectors stay green).
+- Recorded as `dashboard-ux-004` in `feature_list.json`.
+- **Note for next session:** Premium Dashboard is functionally complete through Phase 3. Follow-ups if desired: Editor modal refactor to shared Modal, further Editor string cleanup, billing tiered-price card (post `billing-002`). The dirty pre-existing `docs/backlog/010.*.csv` file remains untouched.
+
+# Session 067: Premium Dashboard Polish — Phase 0+1 (Primitives, Consistency, Localization, UX Fixes)
+**Status:** Verified / Passing locally
+- Audit + plan completed (scope: dashboard shell + 6 pages + editor, editorial-premium direction, canvas stays `#E6EAF4`). This session executed **Phase 0 (foundation) + Phase 1 (consistency & UX fixes)**. Editor polish is Phase 3 (untouched).
+- **Phase 0 — Foundation:**
+  - Synced `docs/DESIGN.md` to the live canvas token `#E6EAF4`, documented `shell`/`accent-tint`, and added semantic `warning`/`info` (+ `*-soft`) tokens to `globals.css` + DESIGN.md; banned hardcoded brand hexes.
+  - Added shared primitives: `src/components/ui/PageHeader.tsx`, `Modal.tsx` (ESC, backdrop-click, focus trap, `role=dialog`, focus restore, size md/lg/xl), `SegmentedControl.tsx`, `EmptyState.tsx`.
+- **Phase 1 — Consistency & UX fixes:**
+  - **Template Gallery**: full localization via new `TemplateGallery` i18n namespace (en+id); replaced hardcoded id strings ("Galeri Template", "Gunakan Template", "Cari template...", "Beri Nama Project Anda", device labels, etc.), the `bg-ink` active category pill → `bg-accent`, and hardcoded `#00cf7c`/`#00b368` → tokens. Aligned the en tooltip to "Preview Live" so existing E2E selectors keep passing.
+  - **Billing**: header → `PageHeader`, content constrained to `max-w-4xl`, amber/sky banners + grace badge → `warning`/`info` tokens, arbitrary radii (`rounded-[14/16/20px]`) → token radii.
+  - **Content Library**: header → `PageHeader` + `SegmentedControl`; add/edit modal → shared `Modal`; delete now requires a confirmation dialog (new `deleteTitle`/`deleteConfirmDesc` i18n); root bg-white → bg-surface.
+  - **Profile**: header → `PageHeader` (wrapper padding removed so header sits flush), fields grouped into labeled sections (Identity / Contact / Online presence / Skills) with new i18n keys, save feedback via the existing Toast system instead of inline text.
+  - **Dashboard home**: workspace cards + default sort now use a real last-edited time (`updatedAt`) surfaced from the current draft version's `meta.updatedAt` in `src/lib/workspace/queries.ts` (added `Workspace.updatedAt`, fallback to createdAt); hover overlay reachable via keyboard/touch (`group-focus-within`) + more-menu gained Preview; preview modal + delete dialog → shared `Modal`; search/filter empty state → `EmptyState`; overlay hex `bg-[#111827]/50` → `bg-ink/50`.
+  - **Analytics**: `HeaderBlock` → `PageHeader`; range pill rail → `SegmentedControl`.
+- Verification: `npx tsc --noEmit` clean; full `npm run lint` has only pre-existing errors (`scratch/pp-shots/*.js` `require()`) + pre-existing BillingClientView warning; `npm run build` clean; full `npx playwright test` **30 passed / 3 skipped / 0 failed** (installed the Playwright chromium browser first — was missing).
+- Recorded as `dashboard-ux-003` in `feature_list.json`.
+- **Note for next session:** Phase 2 (clickable stat chips, card mini-insights from analytics, analytics KPI deltas + chart crosshair, plan-card pricing, avatar/skills chips, sidebar plan badge) and Phase 3 (Editor localization + standardized panels/modals) are the remaining Premium Dashboard phases. Full lint baseline is unchanged — scratch errors are pre-existing and left untouched.
+
 # Session 066: Admin Control Plane — Remote Migration Applied + Authenticated E2E Verified
 **Status:** Verified / Passing against real Supabase
 - Applied `20260811000010_admin_audit_logs.sql` to the real Supabase project (`yvjwqammizdipwalvets`) via the management API. All schema tables already existed remotely (templates, section_visits, etc.); only the audit table was missing.

@@ -67,6 +67,26 @@ export async function getProjectAnalytics(
   // Bots may execute the beacon; exclude them from every aggregate.
   const rows = (data as unknown as VisitRow[]).filter((r) => r.device_type !== "bot");
   const summary = aggregate(rows, range, meta.days, start);
+
+  // Baseline for trend deltas: count views + distinct visitors over the
+  // immediately preceding equal-length window (the same-day relative range
+  // always maps cleanly because "all" reuses a 365-day window).
+  const prevStart = new Date(start.getTime() - meta.days * DAY_MS);
+  const { data: prevRows } = await supabase
+    .from("page_visits")
+    .select("visitor_hash, device_type, created_at")
+    .eq("project_id", projectId)
+    .gte("created_at", prevStart.toISOString())
+    .lt("created_at", start.toISOString())
+    .order("created_at", { ascending: false })
+    .limit(meta.limit);
+  const prevHuman = (prevRows as unknown as { visitor_hash: string | null; device_type: string | null }[] | null)
+    ?.filter((r) => r.device_type !== "bot") ?? [];
+  const prevVisitors = new Set<string>();
+  for (const r of prevHuman) if (r.visitor_hash) prevVisitors.add(r.visitor_hash);
+  summary.prevViews = prevHuman.length;
+  summary.prevVisitors = prevVisitors.size;
+
   summary.sectionEngagement = await getSectionEngagement(
     supabase,
     projectId,
@@ -77,6 +97,45 @@ export async function getProjectAnalytics(
 }
 
 // Section engagement -----------------------------------------------------------
+
+export async function getRecentViewsByWorkspace(
+  workspaceIds: string[]
+): Promise<Map<string, number>> {
+  const map = new Map<string, number>();
+  if (workspaceIds.length === 0) return map;
+
+  await requireRole(["user", "designer"]);
+  const supabase = await createClient();
+  const start = new Date(Date.now() - 6 * DAY_MS);
+  start.setUTCHours(0, 0, 0, 0);
+
+  const { data: projectRows } = await supabase
+    .from("projects")
+    .select("id, workspace_id")
+    .in("workspace_id", workspaceIds);
+
+  if (!projectRows) return map;
+  const projectIds = projectRows.map((p) => p.id as string);
+  if (projectIds.length === 0) return map;
+
+  const workspaceByProject = new Map<string, string>();
+  for (const p of projectRows) workspaceByProject.set(p.id as string, p.workspace_id as string);
+
+  const { data: visitRows } = await supabase
+    .from("page_visits")
+    .select("project_id")
+    .in("project_id", projectIds)
+    .gte("created_at", start.toISOString())
+    .order("created_at", { ascending: false })
+    .limit(3000);
+
+  if (!visitRows) return map;
+  for (const v of visitRows) {
+    const wid = workspaceByProject.get(v.project_id as string);
+    if (wid) map.set(wid, (map.get(wid) ?? 0) + 1);
+  }
+  return map;
+}
 
 interface SectionRow {
   visitor_hash: string | null;
@@ -248,6 +307,8 @@ function aggregate(rows: VisitRow[], range: AnalyticsRange, days: number, start:
     viewsToday: human.filter((r) => new Date(r.created_at) >= todayStart).length,
     views7d: human.filter((r) => new Date(r.created_at).getTime() >= weekStart).length,
     views30d: human.filter((r) => new Date(r.created_at).getTime() >= monthStart).length,
+    prevViews: 0,
+    prevVisitors: 0,
     perDay: buildPerDay(human, range, days, start),
     sectionEngagement: null,
     topPages: topGrouped(human, (r) => r.page_path || "/", 6).map((g) => ({

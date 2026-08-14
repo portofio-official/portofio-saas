@@ -12,6 +12,9 @@ import {
 } from "@/lib/content/actions";
 import type { ContentItem, ContentType } from "@/lib/content/types";
 import { LibraryImageUploadField } from "@/components/content/LibraryImageUploadField";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { Modal } from "@/components/ui/Modal";
 
 interface MetaField {
   key: string;
@@ -85,6 +88,7 @@ export function ContentLibrary({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<ContentType>(initialType);
   const [query, setQuery] = useState("");
+  const [deleteCandidate, setDeleteCandidate] = useState<ContentItem | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -219,17 +223,24 @@ export function ContentLibrary({
     }
   }
 
+  async function confirmDelete() {
+    if (deleteCandidate) {
+      const target = deleteCandidate;
+      setDeleteCandidate(null);
+      await handleDelete(target);
+    }
+  }
+
   const metaFields = META_FIELDS[form.contentType];
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-white">
+    <div className="flex h-full flex-col overflow-hidden bg-surface">
       {/* Header */}
-      <header className="shrink-0 border-b border-black/5 bg-white px-6 py-5 sm:px-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-[20px] font-bold tracking-tight text-ink">{t("title")}</h1>
-            <p className="mt-1 text-[12.5px] font-medium text-ink-soft">{t("subtitle")}</p>
-          </div>
+      <PageHeader
+        eyebrow={t("title")}
+        title={t("title")}
+        subtitle={t("subtitle")}
+        actions={
           <button
             type="button"
             onClick={openNew}
@@ -238,47 +249,37 @@ export function ContentLibrary({
             <span className="material-symbols-outlined text-[17px]">add</span>
             {t("addItem")}
           </button>
-        </div>
+        }
+      />
 
-        <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <nav
-            className="inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-full bg-black/[0.045] p-1"
-            aria-label={t("typesLabel")}
-          >
-            {CONTENT_TYPES.map((type) => {
-              const active = activeType === type;
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setActiveType(type)}
-                  className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-                    active ? "bg-surface text-ink shadow-sm ring-1 ring-black/5" : "text-ink-soft hover:text-ink"
-                  }`}
-                >
-                  {t(`types.${type}`)}
-                  <span className={`ml-1.5 text-[11px] font-bold ${active ? "text-accent" : "text-ink-faint"}`}>
-                    {counts[type]}
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
+      {/* Toolbar: type filter + search */}
+      <div className="flex flex-col gap-3 border-b border-black/5 bg-surface px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+        <SegmentedControl
+          size="sm"
+          ariaLabel={t("typesLabel")}
+          options={CONTENT_TYPES.map((type) => ({
+            value: type,
+            label: t(`types.${type}`),
+            count: counts[type],
+          }))}
+          value={activeType}
+          onChange={(v) => setActiveType(v as ContentType)}
+          className="sm:max-w-[70%]"
+        />
 
-          <div className="relative w-full max-w-[260px]">
-            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[15px] text-ink-faint">
-              search
-            </span>
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t("searchPlaceholder")}
-              className="w-full rounded-full bg-shell py-1.5 pl-8 pr-3 text-xs font-medium text-ink placeholder:text-ink-faint ring-1 ring-transparent focus:outline-none focus:bg-surface focus:ring-black/10 transition-shadow"
-            />
-          </div>
+        <div className="relative w-full max-w-[260px] shrink-0">
+          <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[15px] text-ink-faint">
+            search
+          </span>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("searchPlaceholder")}
+            className="w-full rounded-full bg-shell py-1.5 pl-8 pr-3 text-xs font-medium text-ink placeholder:text-ink-faint ring-1 ring-transparent focus:outline-none focus:bg-surface focus:ring-black/10 transition-shadow"
+          />
         </div>
-      </header>
+      </div>
 
       {/* Grid */}
       <div className="flex-1 overflow-y-auto bg-shell/40 px-6 py-6 sm:px-8">
@@ -383,7 +384,7 @@ export function ContentLibrary({
                         type="button"
                         aria-label={t("delete")}
                         disabled={deletingId === item.id}
-                        onClick={() => handleDelete(item)}
+                        onClick={() => setDeleteCandidate(item)}
                         className="flex h-7 w-7 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-danger/10 hover:text-danger disabled:opacity-40"
                       >
                         <span className="material-symbols-outlined text-[15px]">delete</span>
@@ -398,16 +399,15 @@ export function ContentLibrary({
       </div>
 
       {/* Add/Edit Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-          <div className="flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-surface p-6 shadow-floating ring-1 ring-black/5">
-            <div className="mb-5 flex items-start justify-between">
-              <div>
-                <h3 className="text-[17px] font-bold text-ink">
-                  {editing ? t("editTitle") : t("addTitle")}
-                </h3>
-                <p className="mt-1 text-[12.5px] text-ink-soft">{t("modalHint")}</p>
-              </div>
+      <Modal open={showModal} onOpenChange={(o) => !o && setShowModal(false)} labelledBy="content-modal-title">
+        <div className="flex max-h-[90vh] flex-col overflow-hidden p-6">
+          <div className="mb-5 flex items-start justify-between">
+            <div>
+              <h3 id="content-modal-title" className="text-[17px] font-bold text-ink">
+                {editing ? t("editTitle") : t("addTitle")}
+              </h3>
+              <p className="mt-1 text-[12.5px] text-ink-soft">{t("modalHint")}</p>
+            </div>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
@@ -522,9 +522,42 @@ export function ContentLibrary({
                 )}
               </button>
             </div>
+        </div>
+      </Modal>
+
+      {/* Delete confirmation */}
+      <Modal open={!!deleteCandidate} onOpenChange={(o) => !o && setDeleteCandidate(null)}>
+        <div className="p-6">
+          <div className="mb-5 flex items-start gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-danger/10 text-danger">
+              <span className="material-symbols-outlined">delete</span>
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-ink">{t("deleteTitle")}</h3>
+              <p className="mt-1 text-sm leading-6 text-ink-soft">
+                {t("deleteConfirmDesc", { title: deleteCandidate?.title ?? "" })}
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setDeleteCandidate(null)}
+              className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink ring-1 ring-black/10 transition-colors hover:bg-black/5"
+            >
+              {t("cancel")}
+            </button>
+            <button
+              type="button"
+              disabled={deletingId === deleteCandidate?.id}
+              onClick={confirmDelete}
+              className="rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-danger/90 disabled:opacity-60"
+            >
+              {t("delete")}
+            </button>
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

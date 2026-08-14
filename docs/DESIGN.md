@@ -33,21 +33,31 @@ Defined as Tailwind v4 `@theme` tokens in `src/app/[locale]/globals.css`.
 
 ```css
 @theme {
-  --color-canvas:      #F0F3F9;  /* App background */
+  --color-canvas:      #E6EAF4;  /* App background (canonical — matches code) */
   --color-surface:     #FFFFFF;  /* Cards, modals, inputs */
+  --color-shell:       #F5F7FB;  /* Sub-layers inside surfaces (preview backdrops, subtle tiles) */
   --color-ink:         #111827;  /* Primary text */
   --color-ink-soft:    #4B5563;  /* Secondary text */
   --color-ink-faint:   #9CA3AF;  /* Placeholders, meta */
   --color-accent:      #00cf7c;  /* Brand green — CTAs, active states */
   --color-accent-deep: #00b368;  /* Accent hover/pressed */
+  --color-accent-tint: #e6fbf2;  /* Accent-tinted fills (active toggles, badges) */
   --color-positive:    #00cf7c;  /* Success */
   --color-danger:      #EF4444;  /* Destructive, errors */
+  --color-warning:     #D97706;  /* Semantic warning — grace periods, sync banners */
+  --color-warning-soft:#FFFBEB;  /* Warning tinted surface */
+  --color-info:        #0369A1;  /* Semantic info — draft divergence, dev stubs */
+  --color-info-soft:   #F0F9FF;  /* Info tinted surface */
 }
 ```
 
 Rules:
 - Borders are subtle and light: `ring-1 ring-black/5` or `ring-black/10`.
-- Use the vibrant green accent (`--color-accent`) for primary actions and active states. 
+- Use the vibrant green accent (`--color-accent`) for primary actions and active states.
+- Prefer the semantic `warning`/`info` tokens (with `*-soft` surfaces) over
+  ad-hoc `amber-*`/`sky-*` classes for status/notice banners.
+- Do not hardcode brand hexes (`#00cf7c`, `#00b368`) in components — use
+  `bg-accent` / `hover:bg-accent-deep`.
 
 ---
 

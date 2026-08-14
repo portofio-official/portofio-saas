@@ -36,6 +36,9 @@ export interface AnalyticsSummary {
   viewsToday: number;
   views7d: number;
   views30d: number;
+  // Baseline from the preceding equal-length window (for KPI trend deltas).
+  prevViews: number;
+  prevVisitors: number;
   perDay: DayBucket[];
   topPages: { path: string; views: number; visitors: number }[];
   topReferrers: { host: string | null; views: number; visitors: number }[];

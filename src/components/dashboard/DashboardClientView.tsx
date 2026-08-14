@@ -7,6 +7,8 @@ import { useTranslations, useLocale } from "next-intl";
 import type { Workspace } from "@/lib/workspace/types";
 import { PreviewTemplateRenderer } from "@/templates/registry";
 import { useToast } from "@/components/ui/Toast";
+import { Modal } from "@/components/ui/Modal";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
@@ -43,10 +45,12 @@ type FilterOption = "all" | "published" | "draft";
 
 export function DashboardClientView({
   workspaces,
+  recentViews = new Map(),
   preferredTemplateId,
 }: {
   email: string;
   workspaces: Workspace[];
+  recentViews?: Map<string, number>;
   dict: Dict;
   preferredTemplateId?: string;
 }) {
@@ -83,10 +87,10 @@ export function DashboardClientView({
   const draftCount = totalCount - publishedCount;
 
   const latestWorkspace = [...workspaces].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.updatedAt ?? b.createdAt).getTime() - new Date(a.updatedAt ?? a.createdAt).getTime()
   )[0];
 
-  const lastUpdatedText = latestWorkspace ? timeAgo(latestWorkspace.createdAt, locale) : "Never";
+  const lastUpdatedText = latestWorkspace ? timeAgo(latestWorkspace.updatedAt ?? latestWorkspace.createdAt, locale) : "Never";
 
   // Filter and sort items
   const filteredWorkspaces = workspaces
@@ -103,6 +107,9 @@ export function DashboardClientView({
     .sort((a, b) => {
       if (sortBy === "name") {
         return a.name.localeCompare(b.name);
+      }
+      if (sortBy === "updated") {
+        return new Date(b.updatedAt ?? b.createdAt).getTime() - new Date(a.updatedAt ?? a.createdAt).getTime();
       }
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
@@ -162,10 +169,10 @@ export function DashboardClientView({
     { value: "created", label: t("sortCreated") },
   ];
 
-  const statChips: { count: number; label: string; live?: boolean }[] = [
-    { count: totalCount, label: t("totalLabel") },
-    { count: publishedCount, label: t("publishedLabel"), live: true },
-    { count: draftCount, label: t("draftLabel") },
+  const statChips: { filter: FilterOption; count: number; label: string; live?: boolean }[] = [
+    { filter: "all", count: totalCount, label: t("totalLabel") },
+    { filter: "published", count: publishedCount, label: t("publishedLabel"), live: true },
+    { filter: "draft", count: draftCount, label: t("draftLabel") },
   ];
 
   return (
@@ -197,24 +204,36 @@ export function DashboardClientView({
 
           {/* Stats + Tools */}
           <div className="flex flex-col gap-3 border-t border-black/5 py-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* Stat chips */}
+            {/* Stat chips (clickable filters) */}
             <div className="flex items-center gap-2">
-              {statChips.map((chip) => (
-                <div
-                  key={chip.label}
-                  className="flex items-center gap-2 rounded-full bg-ink/[0.04] px-3 py-1.5 ring-1 ring-black/5"
-                >
-                  {chip.live && <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />}
-                  <span
-                    className={`font-mono text-[13px] font-semibold tabular-nums ${
-                      chip.live ? "text-accent-deep" : "text-ink"
+              {statChips.map((chip) => {
+                const active = filterBy === chip.filter;
+                return (
+                  <button
+                    key={chip.label}
+                    type="button"
+                    onClick={() => setFilterBy(chip.filter)}
+                    title={`${chip.label} — filter`}
+                    className={`flex items-center gap-2 rounded-full px-3 py-1.5 ring-1 transition-all duration-150 ${
+                      active
+                        ? "bg-surface shadow-sm ring-black/10"
+                        : "bg-ink/[0.04] ring-black/5 hover:bg-ink/[0.07]"
                     }`}
                   >
-                    {chip.count}
-                  </span>
-                  <span className="text-[11px] font-medium text-ink-faint">{chip.label}</span>
-                </div>
-              ))}
+                    {chip.live && <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />}
+                    <span
+                      className={`font-mono text-[13px] font-semibold tabular-nums ${
+                        active ? "text-accent-deep" : chip.live ? "text-accent-deep" : "text-ink"
+                      }`}
+                    >
+                      {chip.count}
+                    </span>
+                    <span className={`text-[11px] font-medium ${active ? "text-ink" : "text-ink-faint"}`}>
+                      {chip.label}
+                    </span>
+                  </button>
+                );
+              })}
               <div className="hidden items-center gap-1.5 rounded-full px-3 py-1.5 sm:flex">
                 <span className="text-[11px] font-medium text-ink-faint">
                   {t("updatedLabel")} {lastUpdatedText}
@@ -320,6 +339,33 @@ export function DashboardClientView({
 
       {/* Main Grid View */}
       <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">
+        {/* Launch checklist banner — surfaced when nothing is live yet */}
+        {publishedCount === 0 && workspaces.length > 0 && (
+          <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-accent/20 bg-accent/[0.05] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+            <div className="flex items-start gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-accent text-white">
+                <span className="material-symbols-outlined text-[20px]">rocket_launch</span>
+              </div>
+              <div>
+                <p className="text-[14px] font-bold text-ink">{t("launchTitle")}</p>
+                <p className="mt-0.5 text-[13px] text-ink-soft">{t("launchSkippedDesc")}</p>
+              </div>
+            </div>
+            {(() => {
+              const draftWs = workspaces.find((w) => w.publishStatus !== "published");
+              return draftWs ? (
+                <Link
+                  href={`/dashboard/${draftWs.id}/editor`}
+                  className="inline-flex h-9 shrink-0 items-center gap-1.5 self-start rounded-full bg-accent px-4 text-[12px] font-bold text-white shadow-[0_8px_18px_-6px_rgba(0,207,124,0.5)] transition-all duration-200 hover:bg-accent-deep active:scale-[0.98] sm:self-auto"
+                >
+                  <span className="material-symbols-outlined text-[16px]">edit</span>
+                  {t("launchCta")}
+                </Link>
+              ) : null;
+            })()}
+          </div>
+        )}
+
         {filteredWorkspaces.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {/* Website Cards */}
@@ -380,7 +426,7 @@ export function DashboardClientView({
                         )}
 
                         {/* Hover Actions Overlay */}
-                        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-[#111827]/50 backdrop-blur-[2px] opacity-0 transition-opacity duration-200 group-hover:opacity-100 p-4">
+                        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-ink/50 backdrop-blur-[2px] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100 p-4">
                           <Link
                             href={`/dashboard/${workspace.id}/editor`}
                             className="flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-bold text-white shadow-sm transition-all duration-200 hover:bg-accent-deep active:scale-[0.97]"
@@ -438,9 +484,23 @@ export function DashboardClientView({
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <p className="text-[12px] font-medium text-ink-faint">
-                          {t("editedLabel")} {timeAgo(workspace.createdAt, locale)}
-                        </p>
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <p className="truncate text-[12px] font-medium text-ink-faint">
+                            {t("editedLabel")} {timeAgo(workspace.updatedAt ?? workspace.createdAt, locale)}
+                          </p>
+                          {isPublished && (recentViews.get(workspace.id) ?? 0) > 0 && (
+                            <Link
+                              href="/dashboard/analytics"
+                              className="flex shrink-0 items-center gap-1 rounded-full bg-accent/[0.1] px-2 py-0.5 text-[11px] font-bold text-accent-deep ring-1 ring-accent/20 transition-colors hover:bg-accent/[0.16]"
+                              title={t("views7d")}
+                            >
+                              <span className="material-symbols-outlined text-[12px]">insights</span>
+                              <span className="tabular-nums">
+                                {recentViews.get(workspace.id)} {t("viewsLabel")}
+                              </span>
+                            </Link>
+                          )}
+                        </div>
 
                         {/* Card More Menu */}
                         <div className="relative">
@@ -475,6 +535,18 @@ export function DashboardClientView({
                                   <span className="material-symbols-outlined text-[16px]">folder_open</span>
                                   {t("contentLibrary")}
                                 </Link>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setOpenMenuId(null);
+                                    setPreviewWorkspace(workspace);
+                                  }}
+                                  className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
+                                >
+                                  <span className="material-symbols-outlined text-[16px]">visibility</span>
+                                  {t("preview")}
+                                </button>
 
                                 {isPublished && workspace.subdomain && (
                                   <a
@@ -545,17 +617,11 @@ export function DashboardClientView({
           </div>
         ) : (
           /* Search / Filter Empty State */
-          <div className="flex min-h-[320px] items-center justify-center">
-            <div className="flex max-w-sm flex-col items-center gap-3 text-center">
-              <div className="grid h-16 w-16 place-items-center rounded-2xl bg-accent/[0.1] text-accent-deep ring-1 ring-accent/20">
-                <span className="material-symbols-outlined text-[30px]">search_off</span>
-              </div>
-              <div>
-                <p className="text-[16px] font-bold text-ink">{t("noResultsTitle")}</p>
-                <p className="mt-1 text-[13px] font-medium text-ink-soft">
-                  {t("noResultsDesc", { search })}
-                </p>
-              </div>
+          <EmptyState
+            icon="search_off"
+            title={t("noResultsTitle")}
+            description={t("noResultsDesc", { search })}
+            action={
               <button
                 type="button"
                 onClick={() => {
@@ -566,77 +632,80 @@ export function DashboardClientView({
               >
                 {t("clearFilters")}
               </button>
-            </div>
-          </div>
+            }
+          />
         )}
       </div>
 
       {/* Quick Website Preview Modal */}
-      {previewWorkspace && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111827]/60 p-4 backdrop-blur-sm">
-          <div className="relative flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-surface shadow-2xl ring-1 ring-black/5">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-black/5 bg-shell px-6 py-4">
-              <div className="flex min-w-0 items-center gap-3">
-                <h3 className="truncate font-display text-[17px] font-bold leading-none tracking-tight text-ink">
-                  {previewWorkspace.name}
-                </h3>
-                {previewWorkspace.publishStatus === "published" ? (
-                  <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent/[0.12] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-deep ring-1 ring-accent/20">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-                    {t("live")}
-                  </span>
-                ) : (
-                  <span className="shrink-0 rounded-full bg-ink/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint ring-1 ring-black/5">
-                    {t("draftPreview")}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2.5">
-                <Link
-                  href={`/dashboard/${previewWorkspace.id}/editor`}
-                  className="flex h-9 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-bold text-white shadow-[0_8px_18px_-6px_rgba(0,207,124,0.5)] transition-all duration-200 hover:bg-accent-deep active:scale-[0.98]"
-                >
-                  <span className="material-symbols-outlined text-[16px]">edit</span>
-                  {t("openEditor")}
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={() => setPreviewWorkspace(null)}
-                  className="grid h-9 w-9 place-items-center rounded-full text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink"
-                  aria-label={t("close")}
-                >
-                  <span className="material-symbols-outlined text-[20px]">close</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Body */}
-            <div className="relative flex-1 overflow-auto bg-shell p-6">
-              {previewWorkspace.preview ? (
-                <div className="mx-auto max-w-4xl overflow-hidden rounded-xl bg-surface shadow-md ring-1 ring-black/5">
-                  <PreviewTemplateRenderer
-                    templateId={previewWorkspace.preview.templateId}
-                    data={previewWorkspace.preview.data}
-                  />
-                </div>
+      <Modal
+        open={!!previewWorkspace}
+        onOpenChange={(o) => !o && setPreviewWorkspace(null)}
+        size="xl"
+        panelClassName="h-[85vh] flex flex-col overflow-hidden"
+      >
+        <div className="flex h-full flex-col">
+          {/* Modal Header */}
+          <div className="flex items-center justify-between gap-3 border-b border-black/5 bg-shell px-6 py-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <h3 className="truncate font-display text-[17px] font-bold leading-none tracking-tight text-ink">
+                {previewWorkspace?.name}
+              </h3>
+              {previewWorkspace?.publishStatus === "published" ? (
+                <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent/[0.12] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-deep ring-1 ring-accent/20">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                  {t("live")}
+                </span>
               ) : (
-                <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                  <div className="grid h-14 w-14 place-items-center rounded-2xl bg-ink/[0.04] text-ink-faint ring-1 ring-black/5">
-                    <span className="material-symbols-outlined text-[28px]">image_not_supported</span>
-                  </div>
-                  <p className="max-w-sm text-[13px] font-medium text-ink-soft">{t("previewPlaceholder")}</p>
-                </div>
+                <span className="shrink-0 rounded-full bg-ink/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint ring-1 ring-black/5">
+                  {t("draftPreview")}
+                </span>
               )}
             </div>
+            <div className="flex items-center gap-2.5">
+              <Link
+                href={`/dashboard/${previewWorkspace?.id}/editor`}
+                className="flex h-9 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-bold text-white shadow-[0_8px_18px_-6px_rgba(0,207,124,0.5)] transition-all duration-200 hover:bg-accent-deep active:scale-[0.98]"
+              >
+                <span className="material-symbols-outlined text-[16px]">edit</span>
+                {t("openEditor")}
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setPreviewWorkspace(null)}
+                className="grid h-9 w-9 place-items-center rounded-full text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink"
+                aria-label={t("close")}
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Modal Body */}
+          <div className="relative flex-1 overflow-auto bg-shell p-6">
+            {previewWorkspace?.preview ? (
+              <div className="mx-auto max-w-4xl overflow-hidden rounded-xl bg-surface shadow-md ring-1 ring-black/5">
+                <PreviewTemplateRenderer
+                  templateId={previewWorkspace.preview.templateId}
+                  data={previewWorkspace.preview.data}
+                />
+              </div>
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-ink/[0.04] text-ink-faint ring-1 ring-black/5">
+                  <span className="material-symbols-outlined text-[28px]">image_not_supported</span>
+                </div>
+                <p className="max-w-sm text-[13px] font-medium text-ink-soft">{t("previewPlaceholder")}</p>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </Modal>
 
       {deleteCandidate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-floating ring-1 ring-black/5">
+        <Modal open onOpenChange={(o) => !o && setDeleteCandidate(null)}>
+          <div className="p-6">
             <div className="mb-5 flex items-start gap-3">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-danger/10 text-danger">
                 <span className="material-symbols-outlined">delete</span>
@@ -669,7 +738,7 @@ export function DashboardClientView({
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

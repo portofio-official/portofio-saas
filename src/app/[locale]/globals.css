@@ -3,7 +3,26 @@
 @theme {
   /* Landing Page Aligned Palette */
   --color-canvas:      #E6EAF4;
+  --color-background:  #FFFFFF;
   --color-surface:     #FFFFFF;
+  --color-foreground:  #111827;
+  --color-primary:     #111827;
+  --color-primary-foreground: #FFFFFF;
+  --color-border:      #1118270d;
+  --color-input:       #1118271a;
+  --color-ring:        #00cf7c;
+  --color-accent:      #00cf7c;
+  --color-accent-foreground: #00b368;
+  --color-muted-foreground: #9CA3AF;
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+  --color-card:        #FFFFFF;
+  --color-card-foreground: #111827;
+  --color-popover:     #FFFFFF;
+  --color-popover-foreground: #111827;
+  --color-muted:       #F5F7FB;
+  --color-secondary:   #F5F7FB;
+  --color-secondary-foreground: #111827;
   --color-shell:       #F5F7FB;
   --color-ink:         #111827;
   --color-ink-soft:    #4B5563;
@@ -13,6 +32,10 @@
   --color-accent-tint: #e6fbf2;
   --color-positive:    #00cf7c;
   --color-danger:      #EF4444;
+  --color-warning:     #D97706;
+  --color-warning-soft:#FFFBEB;
+  --color-info:        #0369A1;
+  --color-info-soft:   #F0F9FF;
 
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
@@ -21,7 +44,7 @@
   /* Fluid Motion & Haptics */
   --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  
+
   /* Highly diffused ambient shadows */
   --shadow-diffused: 0 24px 48px -12px rgba(0, 0, 0, 0.04);
   --shadow-inner-bezel: inset 0 1px 1px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(0, 0, 0, 0.03);
@@ -38,6 +61,14 @@
   --color-accent-deep: #00b368;
   --color-accent-tint: #e6fbf2;
   --accent: #00cf7c;
+  --sidebar:              #ffffff;
+  --sidebar-foreground:   #111827;
+  --sidebar-primary:      #00cf7c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:       #e6fbf2;
+  --sidebar-accent-foreground: #00b368;
+  --sidebar-border:       #1118270d;
+  --sidebar-ring:         #00cf7c;
 }
 
 body {
@@ -108,3 +139,14 @@ html.landing-scroll main > section[id] {
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in-up-custom { animation: fadeInUpCustom 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@theme inline {
+  --color-sidebar:      var(--sidebar);
+  --color-sidebar-foreground:      var(--sidebar-foreground);
+  --color-sidebar-primary:      var(--sidebar-primary);
+  --color-sidebar-primary-foreground:      var(--sidebar-primary-foreground);
+  --color-sidebar-accent:      var(--sidebar-accent);
+  --color-sidebar-accent-foreground:      var(--sidebar-accent-foreground);
+  --color-sidebar-border:      var(--sidebar-border);
+  --color-sidebar-ring:      var(--sidebar-ring);
+}

@@ -5,6 +5,9 @@ export interface Workspace {
   id: string;
   name: string;
   createdAt: string;
+  // Most recent edit time, derived from the current draft version's
+  // meta.updatedAt across the workspace's projects; falls back to createdAt.
+  updatedAt?: string;
   // From the workspace's first project (if any)
   publishStatus?: "draft" | "published" | null;
   subdomain?: string | null;

@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from "react";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { type TemplateId } from "@/templates/types";
 import { PreviewTemplateRenderer as TemplateRenderer, TEMPLATE_CATALOG, TEMPLATE_CATEGORIES } from "@/templates/registry";
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { type BasePortfolioData, BASE_PROFILE_DEFAULTS } from "@/templates/shared/_base";
 import type { StudioData } from "@/templates/definitions/studio/schema";
 import type { PortfolioProData } from "@/templates/definitions/portfolio-pro/schema";
@@ -127,11 +130,13 @@ export function TemplateGallery({
   embedded = false,
   landingMode = false,
   activeTemplateIds,
+  inUseTemplateIds,
 }: { 
   isLoggedIn?: boolean; 
   embedded?: boolean;
   landingMode?: boolean;
   activeTemplateIds?: string[];
+  inUseTemplateIds?: string[];
 }) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -140,6 +145,7 @@ export function TemplateGallery({
   const [viewportMode, setViewportMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [creatingForId, setCreatingForId] = useState<TemplateId | null>(null);
   const router = useRouter();
+  const t = useTranslations("TemplateGallery");
 
   // ponytail: handle ESC key press & disable body scroll when preview modal is open
   useEffect(() => {
@@ -183,71 +189,55 @@ export function TemplateGallery({
     <>
       {/* Top hero bar - Hide in landing mode */}
       {!landingMode && (
-        <header className="gsap-header shrink-0 px-12 pt-12">
-          <p className="mb-3 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-ink-faint w-max bg-black/[0.03]">
-            Pilih Desain Terbaik Anda
-          </p>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">
-                Galeri Template
-              </h1>
-              <p className="mt-1 text-sm text-ink-soft">
-                Pilih template profesional yang siap disesuaikan dengan portofolio Anda.
-              </p>
-            </div>
+        <>
+          <PageHeader
+            eyebrow={t("eyebrow")}
+            title={t("title")}
+            subtitle={t("subtitle")}
+            actions={
+              <div className="relative w-full min-w-[240px] md:w-[280px]">
+                <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[18px] text-ink-faint">
+                  search
+                </span>
+                <input
+                  type="text"
+                  placeholder={t("searchPlaceholder")}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-full bg-black/[0.03] pl-10 pr-4 py-2 text-xs text-ink placeholder:text-ink-faint ring-1 ring-black/5 focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">close</span>
+                  </button>
+                )}
+              </div>
+            }
+          />
 
-            {/* Search Input */}
-            <div className="relative min-w-[240px] md:min-w-[280px]">
-              <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[18px] text-ink-faint">
-                search
-              </span>
-              <input
-                type="text"
-                placeholder="Cari template..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-full bg-black/[0.03] pl-10 pr-4 py-2 text-xs text-ink placeholder:text-ink-faint ring-1 ring-black/5 focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"
-                >
-                  <span className="material-symbols-outlined text-[16px]">close</span>
-                </button>
-              )}
-            </div>
+          {/* Category filter — horizontal segmented rail */}
+          <div className="flex flex-wrap items-center gap-2 px-6 py-5 sm:px-8">
+            <SegmentedControl
+              ariaLabel={t("eyebrow")}
+              options={CATEGORIES.map((cat) => ({ value: cat as string, label: cat }))}
+              value={activeCategory}
+              onChange={(v) => setActiveCategory(v as string)}
+            />
           </div>
-
-          {/* Category filter — horizontal, not a sidebar */}
-          <div className="mt-8 flex flex-wrap gap-2">
-            {CATEGORIES.map((cat) => (
-              <button
-                type="button"
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold transition-all duration-300 ease-[var(--ease-fluid)] ${
-                  activeCategory === cat
-                    ? "bg-ink text-white shadow-sm"
-                    : "bg-black/[0.03] text-ink-soft hover:bg-black/[0.06] hover:text-ink active:scale-[0.98]"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </header>
+        </>
       )}
 
       {/* Cards grid */}
-      <div className={`flex-1 px-12 pb-24 ${landingMode ? "pt-0" : "overflow-y-auto pt-8"}`}>
+      <div className={`flex-1 ${landingMode ? "pt-0" : "overflow-y-auto px-6 pb-24 pt-8 sm:px-8"}`}>
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <span className="material-symbols-outlined text-[48px] text-ink-faint">search_off</span>
-            <p className="mt-2 font-display text-base font-bold text-ink">Tidak ada template ditemukan</p>
-            <p className="mt-1 text-xs text-ink-soft">Coba kata kunci pencarian lain atau pilih filter kategori.</p>
+            <p className="mt-2 font-display text-base font-bold text-ink">{t("searchEmptyTitle")}</p>
+            <p className="mt-1 text-xs text-ink-soft">{t("searchEmptyDesc")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -273,7 +263,7 @@ export function TemplateGallery({
                         <div className="h-2.5 w-2.5 rounded-full bg-amber-400/90" />
                         <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/90" />
                       </div>
-                      <span className="font-mono text-[10px] font-medium text-gray-400 select-none tracking-tight">
+                      <span className="font-mono text-[10px] font-medium text-ink-faint select-none tracking-tight">
                         {meta.id}.portofio.app
                       </span>
                     </div>
@@ -297,15 +287,15 @@ export function TemplateGallery({
                         <button type="button"
                           onClick={(e) => { e.stopPropagation(); setPreviewId(meta.id); }}
                           className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all duration-300 ease-[var(--ease-fluid)] hover:scale-110 hover:bg-white/30"
-                          title="Preview Live"
+                          title={t("previewLive")}
                         >
                           <span className="material-symbols-outlined text-[20px]">visibility</span>
                         </button>
                         <button type="button"
                           onClick={(e) => { e.stopPropagation(); handleUseTemplate(meta.id); }}
-                          className="flex items-center gap-2 rounded-full bg-[#00cf7c] py-2 pl-5 pr-2 text-xs font-semibold text-white shadow-lg transition-all duration-300 ease-[var(--ease-fluid)] hover:bg-[#00b368] active:scale-[0.98]"
+                          className="flex items-center gap-2 rounded-full bg-accent py-2 pl-5 pr-2 text-xs font-semibold text-white shadow-lg transition-all duration-300 ease-[var(--ease-fluid)] hover:bg-accent-deep active:scale-[0.98]"
                         >
-                          Gunakan Template
+                          {t("useTemplate")}
                           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 transition-transform duration-300 ease-[var(--ease-fluid)] group-hover:translate-x-0.5">
                             <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
                           </div>
@@ -318,11 +308,16 @@ export function TemplateGallery({
                   <div className="flex flex-col px-4 py-4">
                     <div className="flex items-center justify-between">
                       <p className="font-display text-base font-bold text-ink">{meta.name}</p>
-                      {isPopular && (
-                        <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold text-accent-deep ring-1 ring-accent/20">
-                          ★ Populer
+                      {inUseTemplateIds?.includes(meta.id) ? (
+                        <span className="flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold text-accent-deep ring-1 ring-accent/20">
+                          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                          {t("inUse")}
                         </span>
-                      )}
+                      ) : isPopular ? (
+                        <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold text-accent-deep ring-1 ring-accent/20">
+                          ★ {t("popular")}
+                        </span>
+                      ) : null}
                     </div>
                     <p className="mt-1 line-clamp-2 text-[12px] font-medium text-ink-soft leading-relaxed">{meta.description}</p>
                     
@@ -379,7 +374,7 @@ export function TemplateGallery({
                   {TEMPLATE_META.find((m) => m.id === previewId)?.name}
                 </span>
                 <span className="ml-2.5 rounded-full bg-black/[0.05] px-2.5 py-0.5 text-[11px] font-medium text-ink-soft">
-                  Live Preview
+                  {t("livePreview")}
                 </span>
               </div>
             </div>
@@ -394,7 +389,7 @@ export function TemplateGallery({
                 }`}
               >
                 <span className="material-symbols-outlined text-[16px]">desktop_windows</span>
-                Desktop
+                {t("desktop")}
               </button>
               <button
                 type="button"
@@ -404,7 +399,7 @@ export function TemplateGallery({
                 }`}
               >
                 <span className="material-symbols-outlined text-[16px]">tablet_mac</span>
-                Tablet
+                {t("tablet")}
               </button>
               <button
                 type="button"
@@ -414,18 +409,19 @@ export function TemplateGallery({
                 }`}
               >
                 <span className="material-symbols-outlined text-[16px]">smartphone</span>
-                Mobile
+                {t("mobile")}
               </button>
             </div>
 
             {/* CTA Button */}
-            <button type="button"
-              onClick={() => { handleUseTemplate(previewId); setPreviewId(null); }}
-              className="flex items-center gap-2 rounded-full bg-[#00cf7c] px-6 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-[#00b368] active:scale-95"
-            >
-              Gunakan Template Ini
-              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => { handleUseTemplate(previewId); setPreviewId(null); }}
+                className="flex items-center gap-2 rounded-full bg-accent px-6 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-accent-deep active:scale-95"
+              >
+                {t("useThisTemplate")}
+                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </button>
           </div>
 
           {/* Modal Main Viewport / Scroll Canvas */}
@@ -487,9 +483,9 @@ export function TemplateGallery({
           <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-xl ring-1 ring-black/5">
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <h2 className="font-display text-lg font-bold text-ink">Beri Nama Project Anda</h2>
+                <h2 className="font-display text-lg font-bold text-ink">{t("createProjectTitle")}</h2>
                 <p className="mt-0.5 text-xs text-ink-soft">
-                  Menggunakan template <span className="font-semibold text-ink">{TEMPLATE_META.find(t => t.id === creatingForId)?.name}</span>
+                  {t("createProjectDesc", { name: TEMPLATE_META.find(tpl => tpl.id === creatingForId)?.name ?? "" })}
                 </p>
               </div>
               <button type="button"

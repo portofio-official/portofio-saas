@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { AnalyticsRange, AnalyticsSite, AnalyticsSummary, DayBucket } from "@/lib/analytics/types";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 
 const RANGES: { value: AnalyticsRange; labelKey: "range7d" | "range30d" | "rangeAll" }[] = [
   { value: "7d", labelKey: "range7d" },
@@ -26,54 +29,77 @@ function formatCount(n: number): string {
 function TrendChart({ days, locale, label }: { days: DayBucket[]; locale: string; label: string }) {
   const W = 720;
   const H = 220;
-  const PAD = 10;
+  const PADX = 38;
+  const PADT = 10;
   const BOTTOM = 28;
+
+  const [hover, setHover] = useState<number | null>(null);
 
   if (!days.length) return null;
 
   const max = Math.max(1, ...days.map((d) => d.views));
-  const innerW = W - PAD * 2;
-  const innerH = H - PAD - BOTTOM;
+  const innerW = W - PADX * 2;
+  const innerH = H - PADT - BOTTOM;
   const stepX = days.length > 1 ? innerW / (days.length - 1) : 0;
-  const x = (i: number) => PAD + i * stepX;
-  const y = (v: number) => PAD + innerH * (1 - v / max);
+  const x = (i: number) => PADX + i * stepX;
+  const y = (v: number) => PADT + innerH * (1 - v / max);
 
   const line = days.map((d, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(d.views).toFixed(1)}`).join(" ");
-  const area = `${line} L${x(days.length - 1).toFixed(1)},${(PAD + innerH).toFixed(1)} L${PAD},${(PAD + innerH).toFixed(1)} Z`;
+  const area = `${line} L${x(days.length - 1).toFixed(1)},${(PADT + innerH).toFixed(1)} L${PADX},${(PADT + innerH).toFixed(1)} Z`;
 
   const fmt = new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", timeZone: "UTC" });
   const labelEvery = Math.max(1, Math.ceil(days.length / 5));
-  const gridLines = [0.25, 0.5, 0.75].map((f) => PAD + innerH * (1 - f));
+  const gridLines = [0, 0.25, 0.5, 0.75, 1].map((f) => ({ y: PADT + innerH * (1 - f), v: Math.round(max * f) }));
+
+  const handleMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (days.length === 0) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = ((e.clientX - rect.left) / rect.width) * W;
+    const i = Math.round((px - PADX) / stepX);
+    setHover(Math.max(0, Math.min(days.length - 1, i)));
+  };
+
+  const hoverDay = hover !== null ? days[hover] : null;
 
   return (
     <div className="mt-5 w-full">
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-[200px] w-full" role="img" aria-label={label}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-[200px] w-full" role="img" aria-label={label} onMouseMove={handleMove} onMouseLeave={() => setHover(null)}>
         <defs>
           <linearGradient id="pv-area" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="var(--color-accent)" stopOpacity="0.22" />
             <stop offset="100%" stopColor="var(--color-accent)" stopOpacity="0" />
           </linearGradient>
         </defs>
-        {gridLines.map((gy, i) => (
-          <line
-            key={i}
-            x1={PAD}
-            x2={W - PAD}
-            y1={gy}
-            y2={gy}
-            stroke="var(--color-ink-faint)"
-            strokeOpacity={0.2}
-            strokeWidth={1}
-            strokeDasharray="3 5"
-          />
+        {gridLines.map((g) => (
+          <g key={g.v}>
+            <line x1={PADX} x2={W - PADX} y1={g.y} y2={g.y} stroke="var(--color-ink-faint)" strokeOpacity={0.2} strokeWidth={1} strokeDasharray="3 5" />
+            <text x={PADX - 6} y={g.y + 3} textAnchor="end" fill="var(--color-ink-faint)" style={{ fontSize: 10 }}>
+              {formatCount(g.v)}
+            </text>
+          </g>
         ))}
         <path d={area} fill="url(#pv-area)" />
         <path d={line} fill="none" stroke="var(--color-accent)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-        {days.map((d, i) => (
-          <circle key={d.date} cx={x(i)} cy={y(d.views)} r={2.5} fill="var(--color-accent)">
-            <title>{`${fmt.format(new Date(`${d.date}T00:00:00Z`))} — ${d.views}`}</title>
-          </circle>
-        ))}
+
+        {hoverDay && hover !== null && (
+          <>
+            <line x1={x(hover)} x2={x(hover)} y1={PADT} y2={PADT + innerH} stroke="var(--color-ink-faint)" strokeOpacity={0.4} strokeWidth={1} strokeDasharray="3 3" />
+            <g transform={`translate(${x(hover)},${y(hoverDay.views)})`}>
+              <circle r={5} fill="var(--color-accent)" opacity={0.25} />
+              <circle r={3} fill="var(--color-accent)" stroke="#fff" strokeWidth={1.5} />
+            </g>
+            <g transform={`translate(${Math.min(W - 74, Math.max(PADX, x(hover) - 37))},${Math.max(4, y(hoverDay.views) - 34)})`}>
+              <rect width={74} height={26} rx={6} fill="#111827" opacity={0.9} />
+              <text x={37} y={11} textAnchor="middle" fill="#fff" style={{ fontSize: 10, fontWeight: 600 }}>
+                {fmt.format(new Date(`${hoverDay.date}T00:00:00Z`))}
+              </text>
+              <text x={37} y={21} textAnchor="middle" fill="#00cf7c" style={{ fontSize: 11, fontWeight: 700 }}>
+                {hoverDay.views}
+              </text>
+            </g>
+          </>
+        )}
+
         {days.map((d, i) =>
           i % labelEvery === 0 ? (
             <text
@@ -111,20 +137,7 @@ function ProgressRow({ label, value, max, tone }: { label: React.ReactNode; valu
 }
 
 function HeaderBlock({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle: string }) {
-  return (
-    <header className="shrink-0 border-b border-black/5 bg-surface px-6 pt-6 pb-5 sm:px-8">
-      <div className="min-w-0">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/[0.1] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-deep">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-          {eyebrow}
-        </span>
-        <h1 className="mt-2.5 font-display text-[26px] font-bold leading-tight tracking-tight text-ink sm:text-[30px]">
-          {title}
-        </h1>
-        <p className="mt-1 text-sm font-medium text-ink-soft">{subtitle}</p>
-      </div>
-    </header>
-  );
+  return <PageHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />;
 }
 
 function BreakdownCard({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
@@ -227,20 +240,12 @@ export function AnalyticsClientView({
           <p className="text-[12px] font-medium text-ink-faint">
             {t("siteLabel")}: <span className="text-ink">{selected.subdomain}.portofio.app</span>
           </p>
-          <div className="flex items-center gap-0.5 rounded-full bg-ink/[0.05] p-1">
-            {RANGES.map((r) => (
-              <button
-                key={r.value}
-                type="button"
-                onClick={() => setRange(r.value)}
-                className={`h-7 rounded-full px-3 text-[12px] font-semibold transition-all duration-150 ${
-                  range === r.value ? "bg-surface text-ink shadow-sm ring-1 ring-black/5" : "text-ink-faint hover:text-ink-soft"
-                }`}
-              >
-                {t(r.labelKey)}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            size="sm"
+            options={RANGES.map((r) => ({ value: r.value, label: t(r.labelKey) }))}
+            value={range}
+            onChange={(r) => setRange(r)}
+          />
         </div>
       </div>
 
@@ -260,22 +265,44 @@ export function AnalyticsClientView({
             {/* Stat cards */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               {[
-                { label: t("statViews"), value: summary.totalViews, icon: "visibility", tone: true },
-                { label: t("statVisitors"), value: summary.uniqueVisitors, icon: "groups" },
+                { label: t("statViews"), value: summary.totalViews, icon: "visibility", tone: true, prev: summary.prevViews },
+                { label: t("statVisitors"), value: summary.uniqueVisitors, icon: "groups", prev: summary.prevVisitors },
                 { label: t("statToday"), value: summary.viewsToday, icon: "today" },
                 { label: t("stat7d"), value: summary.views7d, icon: "monitoring" },
-              ].map((card) => (
-                <div key={card.label} className="rounded-xl bg-surface p-4 shadow-sm ring-1 ring-black/5">
-                  <div className="flex items-center justify-between">
-                    <span className="material-symbols-outlined text-[20px] text-ink-faint">{card.icon}</span>
-                    {card.tone ? <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> : null}
+              ].map((card) => {
+                const delta = card.prev !== undefined && card.prev > 0
+                  ? Math.round(((card.value - card.prev) / card.prev) * 100)
+                  : card.prev !== undefined && card.value > 0
+                    ? 100
+                    : 0;
+                const showDelta = card.prev !== undefined;
+                const up = delta >= 0;
+                return (
+                  <div key={card.label} className="rounded-xl bg-surface p-4 shadow-sm ring-1 ring-black/5">
+                    <div className="flex items-center justify-between">
+                      <span className="material-symbols-outlined text-[20px] text-ink-faint">{card.icon}</span>
+                      <div className="flex items-center gap-1.5">
+                        {card.tone ? <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> : null}
+                        {showDelta ? (
+                          <span
+                            className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums ${
+                              up ? "bg-accent/10 text-accent-deep" : "bg-danger/10 text-danger"
+                            }`}
+                            title={t("deltaTitle")}
+                          >
+                            <span className="material-symbols-outlined text-[11px]">{up ? "arrow_upward" : "arrow_downward"}</span>
+                            {Math.abs(delta)}%
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                    <p className={`mt-3 font-display text-[24px] font-bold leading-none tracking-tight tabular-nums ${card.tone ? "text-accent-deep" : "text-ink"}`}>
+                      {formatCount(card.value)}
+                    </p>
+                    <p className="mt-1.5 text-[12px] font-medium text-ink-faint">{card.label}</p>
                   </div>
-                  <p className={`mt-3 font-display text-[24px] font-bold leading-none tracking-tight tabular-nums ${card.tone ? "text-accent-deep" : "text-ink"}`}>
-                    {formatCount(card.value)}
-                  </p>
-                  <p className="mt-1.5 text-[12px] font-medium text-ink-faint">{card.label}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Trend chart */}

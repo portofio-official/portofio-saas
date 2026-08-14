@@ -595,6 +595,56 @@
       "notes": "Scope: dashboard navigation structure + per-type content-browsing routes + the four new curated content types. Case Studies and Gallery remain stored/selectable but are not sidebar sub-items (decision recorded from UX request). The new migration must be applied to the real Supabase project before the extra types accept items. Publication items are stored and curated but no template consumes that type yet (future template work); experience/education resolve into templates that expose those fields."
     },
     {
+      "id": "dashboard-ux-003",
+      "priority": 16,
+      "area": "dashboard",
+      "title": "Premium Dashboard polish — shared primitives, consistency, localization, UX fixes (Phase 0+1)",
+      "user_visible_behavior": "The whole dashboard is visually consistent and more premium. All dashboard surfaces share one page-header pattern (accent eyebrow pill + Outfit display title + subtitle + actions), one segmented-pill control, one modal with ESC/backdrop/focus-trap, and one empty-state component. The template gallery is fully localized (en+id) with the active category pill on the brand accent. Semantic warning/info colors replace ad-hoc amber/sky classes. Website cards now show a true \"last edited\" time and expose Preview (and hover actions) to keyboard/touch users; content-library and workspace deletes use a confirmation dialog; the profile page is grouped into labeled sections and reports saves via toast; billing is constrained to a centered max-width.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npm run lint: 0 errors (only the pre-existing scratch/pp-shots require() errors and the pre-existing BillingClientView warning).",
+        "npm run build: clean.",
+        "npx playwright test: full suite 30 passed / 3 skipped (baseline-comparable; the two previously-flaky template tooltip selectors pass after aligning the en gallery tooltip to \"Preview Live\")."
+      ],
+      "evidence": [
+        "2026-08-13 (Session 067, Phase 0): Synced docs/DESIGN.md to the live canvas token #E6EAF4 and documented shell/accent-tint; added semantic warning/info tokens to globals.css + DESIGN.md.",
+        "2026-08-13: Added shared primitives src/components/ui/{PageHeader,Modal,SegmentedControl,EmptyState}.tsx (Modal: ESC, backdrop-click, focus trap, role=dialog, focus restore; size md/lg/xl).",
+        "2026-08-13 (Phase 1): Localized the Template Gallery via a new TemplateGallery i18n namespace (en+id), replaced hardcoded id strings and the bg-ink active pill (now bg-accent) and hardcoded #00cf7c/#00b368 with tokens.",
+        "2026-08-13: Billing header → PageHeader, content constrained to max-w-4xl, amber/sky banners + grace badge → warning/info tokens, arbitrary radii → token radii.",
+        "2026-08-13: Content Library header → PageHeader + SegmentedControl, delete now asks for confirmation (Modal), add/edit modal migrated to the shared Modal.",
+        "2026-08-13: Profile page → PageHeader + grouped sections (Identity / Contact / Online presence / Skills) + toast-based save feedback; wrapper padding removed so the header sits flush like other dashboard pages.",
+        "2026-08-13: Dashboard home — workspace card time and default sort now use a real last-edited value (updatedAt) surfaced from the draft version meta via src/lib/workspace/queries.ts (Workspace.updatedAt), hover overlay is keyboard/touch-reachable (group-focus-within) and the more-menu gained Preview; preview modal + delete dialog migrated to the shared Modal; search/filter empty state uses EmptyState; sort dropdown and stat chips unchanged.",
+        "2026-08-13: Analytics HeaderBlock + range rail consolidated onto PageHeader + SegmentedControl."
+      ],
+      "notes": "Phase 0+1 of the Premium Dashboard plan. Phase 2 (per-page premium polish: clickable stat chips, card mini-insights, analytics deltas/chart crosshair, plan card pricing, avatar/skills chips, sidebar plan badge) and Phase 3 (Editor localization + standardized panels/modals) are tracked as follow-up sessions; Editor UI untouched in this phase."
+    },
+    {
+      "id": "dashboard-ux-004",
+      "priority": 16,
+      "area": "dashboard",
+      "title": "Premium Dashboard polish — Phase 2 (per-page) + Phase 3 (Editor)",
+      "user_visible_behavior": "The dashboard now surfaces insight and premium touches everywhere. Home stat chips are clickable filters (Total/Live/Draft); live website cards show a 7-day views mini-insight chip and accounts with nothing live yet get a launch checklist banner. Analytics KPI cards show change-vs-previous-period deltas (▲/▼) and the trend chart gained a Y-axis and an interactive crosshair tooltip. The billing plan card is highlighted when the subscription is active. The profile page gains avatar upload. The sidebar shows a Pro/Free plan badge under the account email. The template gallery badges templates already in use. The Editor is localized (header, banners, panels, modals), its amber/sky banners now use semantic warning/info tokens, and its preview canvas uses the shell token.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npm run lint: 0 errors (only the pre-existing scratch/pp-shots require() errors and the pre-existing BillingClientView warning).",
+        "npm run build: clean.",
+        "npx playwright test: full suite 30 passed / 3 skipped / 0 failed."
+      ],
+      "evidence": [
+        "2026-08-13 (Session 068, Phase 2): Home stat chips are now clickable filters wired to the existing All/Live/Draft filter; live website cards render a 7-day views mini-insight chip (new getRecentViewsByWorkspace in src/lib/analytics/store.ts, gated behind RLS) and a launch-checklist banner appears when nothing is live yet (Dashboard + Analytics i18n keys).",
+        "2026-08-13: Analytics KPIs show ▲/▼ % deltas vs the previous equal-length window (prevViews/prevVisitors added to AnalyticsSummary and computed in getProjectAnalytics); TrendChart gained Y-axis labels and an interactive crosshair tooltip.",
+        "2026-08-13: Billing plan card shows an accent top-bar + ring when the subscription is active.",
+        "2026-08-13: Profile page gains avatar upload via the existing PhotoUploadField (writes profile.avatar_url through updateUserProfile).",
+        "2026-08-13: Dashboard layout fetches subscription state and passes isPremium to DashboardSidebar, which shows a Pro badge or a Free/upgrade pill under the account email (Workspace.planPro/planFree).",
+        "2026-08-13: Template gallery badges templates already in use (getInUseTemplateIds in workspace/queries, inUseTemplateIds prop, TemplateGallery.inUse).",
+        "2026-08-13 (Phase 3, Editor): Added an Editor i18n namespace (en+id) and localized the header cluster (back-to-dashboard, Live/Draft, Versions, Preview, Save, Publish), the profile-sync and draft-divergence banners, the Content/Sections tabs, the sticky context header, the Setup Progress card, the right-panel Appearance/SEO labels, and the desktop-preview / version-history / publish dialog titles. Amber/sky banner classes became warning/info semantic tokens; the preview canvas bg-[#EEF2FF] became bg-shell.",
+        "2026-08-13: Editor modal structural migration to the shared Modal was intentionally deferred (risk/scope); existing hand-rolled editor modals kept for stability."
+      ],
+      "notes": "Phase 2 + 3 of the Premium Dashboard plan (Phase 0+1 recorded as dashboard-ux-003). Editor modal refactor to the shared Modal and further Editor string cleanup are tracked as follow-ups. Billing tiered pricing display is deferred to billing-002 (no price data wired yet)."
+    },
+    {
       "id": "analytics-001",
       "priority": 15,
       "area": "analytics",

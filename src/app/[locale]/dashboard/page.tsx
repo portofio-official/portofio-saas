@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { listWorkspaces } from "@/lib/workspace/queries";
+import { getRecentViewsByWorkspace } from "@/lib/analytics/store";
 import { DashboardClientView } from "@/components/dashboard/DashboardClientView";
 
 export default async function DashboardPage({
@@ -25,10 +26,13 @@ export default async function DashboardPage({
     return redirect({ href: "/onboarding", locale });
   }
 
+  const recentViews = await getRecentViewsByWorkspace(workspaces.map((w) => w.id));
+
   return (
     <DashboardClientView
       email={email}
       workspaces={workspaces}
+      recentViews={recentViews}
       preferredTemplateId={preferredTemplateId}
       dict={{
         eyebrow: t("eyebrow"),

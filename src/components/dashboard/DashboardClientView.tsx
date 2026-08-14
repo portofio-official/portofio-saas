@@ -13,6 +13,7 @@ import {
   type FilterOption,
   type ViewMode,
 } from "./components/DashboardToolbar";
+import { WorkspaceGrid } from "./components/WorkspaceGrid";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
@@ -76,7 +77,6 @@ export function DashboardClientView({
     return "grid";
   });
 
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [isDuplicating, setIsDuplicating] = useState<string | null>(null);
   const [previewWorkspace, setPreviewWorkspace] = useState<Workspace | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<Workspace | null>(null);
@@ -134,7 +134,6 @@ export function DashboardClientView({
 
   const handleDuplicate = async (workspaceId: string) => {
     setIsDuplicating(workspaceId);
-    setOpenMenuId(null);
     try {
       const { duplicateWorkspaceAction } = await import("@/lib/workspace/actions");
       const res = await duplicateWorkspaceAction(workspaceId);
@@ -152,7 +151,6 @@ export function DashboardClientView({
   };
 
   const handleUnpublish = async (workspaceId: string) => {
-    setOpenMenuId(null);
     try {
       const { unpublishWorkspaceProjectAction } = await import("@/lib/workspace/actions");
       await unpublishWorkspaceProjectAction(workspaceId);
@@ -164,7 +162,6 @@ export function DashboardClientView({
   };
 
   const handleDelete = async (workspace: Workspace) => {
-    setOpenMenuId(null);
     try {
       const { deleteWorkspaceAction } = await import("@/lib/workspace/actions");
       await deleteWorkspaceAction(workspace.id);
@@ -230,231 +227,15 @@ export function DashboardClientView({
       <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">
         {filteredWorkspaces.length > 0 ? (
           viewMode === "grid" ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {/* Website Cards: Double-Bezel Nested Architecture */}
-              {filteredWorkspaces.map((workspace, index) => {
-                const siteSubdomain = workspace.subdomain ?? workspace.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
-                const fullSiteUrl = `http://${ROOT_DOMAIN}/sites/${siteSubdomain}`;
-                const isPublished = workspace.publishStatus === "published";
-
-                return (
-                  <div
-                    key={workspace.id}
-                    className="group relative flex flex-col overflow-hidden rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] animate-fade-in-up-custom"
-                    style={{ animationDelay: `${Math.min(index * 45, 360)}ms` }}
-                  >
-                    <div className="flex-1 flex flex-col overflow-hidden rounded-[1.4rem] bg-surface shadow-sm ring-1 ring-black/5">
-                      {/* Miniature Browser Chrome */}
-                      <div className="relative flex flex-col bg-shell">
-                        <div className="flex items-center justify-between gap-2 border-b border-black/5 bg-shell px-3 py-2.5">
-                          <div className="flex items-center gap-1.5">
-                            <span className="h-2 w-2 rounded-full bg-[#FF5F56]/80" />
-                            <span className="h-2 w-2 rounded-full bg-[#FFBD2E]/80" />
-                            <span className="h-2 w-2 rounded-full bg-[#27C93F]/80" />
-                          </div>
-                          <div className="flex min-w-0 items-center gap-1 rounded-md bg-surface px-2.5 py-1 text-[10px] font-mono text-ink-faint ring-1 ring-black/5">
-                            {isPublished ? (
-                              <span className="material-symbols-outlined text-[11px] text-accent-deep">lock</span>
-                            ) : (
-                              <span className="material-symbols-outlined text-[11px]">edit_note</span>
-                            )}
-                            <span className="truncate">
-                              {siteSubdomain}.portofio.app
-                            </span>
-                          </div>
-                          <div className="w-7" />
-                        </div>
-
-                        {/* Preview Canvas */}
-                        <div className="relative flex h-[185px] w-full items-center justify-center overflow-hidden bg-shell">
-                          {workspace.preview ? (
-                            <div
-                              className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-[1.04]"
-                              style={{ transform: "scale(0.33)", width: "303%", height: "303%" }}
-                            >
-                              <PreviewTemplateRenderer
-                                templateId={workspace.preview.templateId}
-                                data={workspace.preview.data}
-                              />
-                            </div>
-                          ) : (
-                            <div className="relative w-[72%] rounded-xl border border-black/5 bg-surface p-3.5 shadow-xs transition-transform duration-300 group-hover:scale-105">
-                              <div className="mb-2 h-2.5 w-1/3 rounded-full bg-ink/[0.08]" />
-                              <div className="mb-2 h-14 w-full rounded-md bg-shell" />
-                              <div className="flex gap-2">
-                                <div className="h-8 w-1/2 rounded-md bg-shell" />
-                                <div className="h-8 w-1/2 rounded-md bg-shell" />
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Hover Actions Overlay */}
-                          <div className="absolute inset-0 flex items-center justify-center gap-2 bg-[#111827]/55 backdrop-blur-[3px] opacity-0 transition-opacity duration-300 group-hover:opacity-100 p-4">
-                            <Link
-                              href={`/dashboard/${workspace.id}/editor`}
-                              className="flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-[12px] font-bold text-white shadow-sm transition-all duration-200 hover:bg-accent-deep active:scale-[0.97]"
-                            >
-                              <span className="material-symbols-outlined text-[17px]">edit</span>
-                              {t("edit")}
-                            </Link>
-
-                            <button
-                              type="button"
-                              onClick={() => setPreviewWorkspace(workspace)}
-                              className="grid h-10 w-10 place-items-center rounded-full bg-surface text-ink-soft shadow-sm transition-all duration-200 hover:bg-white hover:text-ink active:scale-[0.95]"
-                              title={t("preview")}
-                            >
-                              <span className="material-symbols-outlined text-[18px]">visibility</span>
-                            </button>
-
-                            {isPublished ? (
-                              <button
-                                type="button"
-                                onClick={() => handleUnpublish(workspace.id)}
-                                className="grid h-10 w-10 place-items-center rounded-full bg-surface text-[#D97706] shadow-sm transition-all duration-200 hover:bg-[#FFFBEB] active:scale-[0.95]"
-                                title={t("unpublish")}
-                              >
-                                <span className="material-symbols-outlined text-[18px]">cloud_off</span>
-                              </button>
-                            ) : (
-                              <Link
-                                href={`/dashboard/${workspace.id}/editor`}
-                                className="grid h-10 w-10 place-items-center rounded-full bg-surface text-accent-deep shadow-sm transition-all duration-200 hover:bg-accent/10 active:scale-[0.95]"
-                                title={t("publish")}
-                              >
-                                <span className="material-symbols-outlined text-[18px]">cloud_upload</span>
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Card Footer */}
-                      <div className="flex flex-col gap-2.5 border-t border-black/5 bg-surface p-4">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="truncate font-display text-[15px] font-bold text-ink">{workspace.name}</p>
-
-                          {isPublished ? (
-                            <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent/[0.12] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-deep ring-1 ring-accent/20">
-                              <span className="relative flex h-1.5 w-1.5">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-                              </span>
-                              {t("live")}
-                            </span>
-                          ) : (
-                            <span className="shrink-0 rounded-full bg-ink/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint ring-1 ring-black/5">
-                              {t("filterDraft")}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <p className="text-[12px] font-medium text-ink-faint">
-                            {t("editedLabel")} {timeAgo(workspace.createdAt, locale)}
-                          </p>
-
-                          {/* Card More Menu */}
-                          <div className="relative">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setOpenMenuId(openMenuId === workspace.id ? null : workspace.id);
-                              }}
-                              className="grid h-7 w-7 place-items-center rounded-lg text-ink-faint transition-colors hover:bg-ink/[0.06] hover:text-ink"
-                              title={t("moreActions")}
-                            >
-                              <span className="material-symbols-outlined text-[16px]">more_vert</span>
-                            </button>
-
-                            {openMenuId === workspace.id && (
-                              <>
-                                <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                                <div className="absolute right-0 bottom-8 z-20 flex w-48 flex-col overflow-hidden rounded-xl bg-surface p-1 shadow-[var(--shadow-diffused)] ring-1 ring-black/5 animate-fade-in-up-custom">
-                                  <Link
-                                    href={`/dashboard/${workspace.id}/editor`}
-                                    className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
-                                  >
-                                    <span className="material-symbols-outlined text-[16px]">edit</span>
-                                    {t("edit")} Website
-                                  </Link>
-
-                                  <Link
-                                    href={`/dashboard/content`}
-                                    className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
-                                  >
-                                    <span className="material-symbols-outlined text-[16px]">folder_open</span>
-                                    {t("contentLibrary")}
-                                  </Link>
-
-                                  {isPublished && workspace.subdomain && (
-                                    <a
-                                      href={fullSiteUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-accent-deep transition-colors hover:bg-accent/[0.08]"
-                                    >
-                                      <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-                                      {t("visitLiveSite")}
-                                    </a>
-                                  )}
-
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDuplicate(workspace.id)}
-                                    disabled={isDuplicating === workspace.id}
-                                    className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
-                                  >
-                                    <span className="material-symbols-outlined text-[16px]">content_copy</span>
-                                    {isDuplicating === workspace.id ? t("duplicating") : t("duplicate")}
-                                  </button>
-
-                                  <div className="my-1 border-t border-black/5" />
-
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setOpenMenuId(null);
-                                      setDeleteCandidate(workspace);
-                                    }}
-                                    className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-danger transition-colors hover:bg-danger/5"
-                                  >
-                                    <span className="material-symbols-outlined text-[16px]">delete</span>
-                                    {t("delete")}
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Create Website Card (Double Bezel Dashed) */}
-              <Link
-                href="/dashboard/templates"
-                className="group flex min-h-[220px] flex-col overflow-hidden rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] animate-fade-in-up-custom"
-                style={{ animationDelay: `${Math.min(filteredWorkspaces.length * 45, 360)}ms` }}
-              >
-                <div className="flex min-h-full flex-1 flex-col items-center justify-center gap-3.5 rounded-[1.4rem] border-2 border-dashed border-black/10 bg-surface px-6 py-8 text-center transition-all duration-300 group-hover:border-accent/50 group-hover:bg-accent/[0.02]">
-                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-accent/10 text-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-accent group-hover:text-white shadow-xs group-hover:shadow-[0_8px_20px_rgba(0,207,124,0.4)]">
-                    <span className="material-symbols-outlined text-[24px]">add</span>
-                  </div>
-                  <div>
-                    <p className="font-display text-[15px] font-bold text-ink transition-colors duration-200 group-hover:text-accent-deep">
-                      {t("createWebsite")}
-                    </p>
-                    <p className="mt-1 max-w-[220px] text-[12px] font-normal text-ink-soft">
-                      {t("createWebsiteDesc")}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            </div>
+            <WorkspaceGrid
+              workspaces={filteredWorkspaces}
+              locale={locale}
+              onPreview={setPreviewWorkspace}
+              onDuplicate={handleDuplicate}
+              isDuplicating={isDuplicating}
+              onUnpublish={handleUnpublish}
+              onDelete={setDeleteCandidate}
+            />
           ) : (
             /* Framer-Grade Initial List View Container */
             <div className="overflow-hidden rounded-2xl bg-surface ring-1 ring-black/5 shadow-xs">

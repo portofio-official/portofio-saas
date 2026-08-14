@@ -86,7 +86,7 @@ export function DashboardClientView({
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   )[0];
 
-  const lastUpdatedText = latestWorkspace ? timeAgo(latestWorkspace.createdAt, locale) : "Never";
+  const lastUpdatedText = latestWorkspace ? timeAgo(latestWorkspace.createdAt, locale) : "—";
 
   // Filter and sort items
   const filteredWorkspaces = workspaces
@@ -175,36 +175,46 @@ export function DashboardClientView({
         <div className="flex flex-col gap-5">
           <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
             <div className="min-w-0 max-w-xl">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/[0.1] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-deep">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/[0.1] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent-deep ring-1 ring-accent/20">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+                </span>
                 {t("eyebrow")}
               </span>
-              <h1 className="mt-2.5 font-display text-[26px] font-bold leading-tight tracking-tight text-ink sm:text-[30px]">
+              <h1 className="mt-2.5 font-display text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[34px]">
                 {t("title")}
               </h1>
               <p className="mt-1 text-sm font-medium text-ink-soft">{t("subtitle")}</p>
             </div>
 
-            {/* Primary CTA */}
+            {/* Nested CTA: Button-in-Button Trailing Icon Architecture */}
             <Link
               href="/dashboard/templates"
-              className="flex h-10 shrink-0 items-center gap-2 rounded-full bg-accent px-5 text-[13px] font-bold text-white shadow-[0_10px_24px_-8px_rgba(0,207,124,0.55)] transition-all duration-200 hover:bg-accent-deep active:scale-[0.98]"
+              className="group relative flex h-11 shrink-0 items-center gap-3 rounded-full bg-accent pl-5 pr-2.5 text-[13px] font-bold text-white shadow-[0_10px_28px_-8px_rgba(0,207,124,0.55)] transition-all duration-300 hover:bg-accent-deep hover:shadow-[0_14px_32px_-6px_rgba(0,207,124,0.65)] active:scale-[0.98]"
             >
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              {t("newWebsite")}
+              <span>{t("newWebsite")}</span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white transition-transform duration-300 group-hover:scale-110 group-hover:bg-white/30">
+                <span className="material-symbols-outlined text-[16px]">add</span>
+              </span>
             </Link>
           </div>
 
-          {/* Stats + Tools */}
+          {/* Stats + Tools Toolbar */}
           <div className="flex flex-col gap-3 border-t border-black/5 py-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Stat chips */}
             <div className="flex items-center gap-2">
               {statChips.map((chip) => (
                 <div
                   key={chip.label}
-                  className="flex items-center gap-2 rounded-full bg-ink/[0.04] px-3 py-1.5 ring-1 ring-black/5"
+                  className="flex items-center gap-2 rounded-full bg-ink/[0.04] px-3.5 py-1.5 ring-1 ring-black/5 transition-colors hover:bg-ink/[0.06]"
                 >
-                  {chip.live && <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />}
+                  {chip.live ? (
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+                    </span>
+                  ) : null}
                   <span
                     className={`font-mono text-[13px] font-semibold tabular-nums ${
                       chip.live ? "text-accent-deep" : "text-ink"
@@ -226,7 +236,7 @@ export function DashboardClientView({
             <div className="flex flex-wrap items-center gap-2">
               {/* Search input with ⌘K */}
               <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-3 text-[16px] text-ink-faint">
+                <span className="material-symbols-outlined absolute left-3.5 text-[16px] text-ink-faint">
                   search
                 </span>
                 <input
@@ -235,23 +245,34 @@ export function DashboardClientView({
                   placeholder={t("searchPlaceholder")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="h-9 w-52 rounded-full bg-ink/[0.04] pl-9 pr-12 text-[13px] font-medium text-ink ring-1 ring-transparent placeholder:text-ink-faint transition-all focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-0 focus:bg-surface sm:w-56"
+                  className="h-9 w-52 rounded-full bg-ink/[0.04] pl-9 pr-12 text-[13px] font-medium text-ink ring-1 ring-transparent placeholder:text-ink-faint transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-0 focus:bg-surface sm:w-56"
                 />
-                <span className="absolute right-3 flex items-center gap-0.5 rounded-md bg-surface px-1.5 py-0.5 text-[10px] font-mono text-ink-faint ring-1 ring-black/5 pointer-events-none">
-                  ⌘K
-                </span>
+                {search ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearch("")}
+                    aria-label="Clear search"
+                    className="absolute right-3 grid h-5 w-5 place-items-center rounded-full text-ink-faint hover:bg-ink/10 hover:text-ink"
+                  >
+                    <span className="material-symbols-outlined text-[13px]">close</span>
+                  </button>
+                ) : (
+                  <span className="absolute right-3 flex items-center gap-0.5 rounded-md bg-surface px-1.5 py-0.5 text-[10px] font-mono text-ink-faint ring-1 ring-black/5 pointer-events-none">
+                    ⌘K
+                  </span>
+                )}
               </div>
 
               {/* Filter segmented control */}
-              <div className="flex items-center gap-0.5 rounded-full bg-ink/[0.05] p-1">
+              <div className="flex items-center gap-0.5 rounded-full bg-ink/[0.05] p-1 ring-1 ring-black/5">
                 {filterOptions.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => setFilterBy(opt.value)}
-                    className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-[12px] font-semibold transition-all duration-150 ${
+                    className={`flex h-7 items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold transition-all duration-200 ${
                       filterBy === opt.value
-                        ? "bg-surface text-ink shadow-sm ring-1 ring-black/5"
+                        ? "bg-surface text-ink shadow-xs ring-1 ring-black/5"
                         : "text-ink-faint hover:text-ink-soft"
                     }`}
                   >
@@ -268,7 +289,7 @@ export function DashboardClientView({
                 <button
                   type="button"
                   onClick={() => setShowSortDropdown((v) => !v)}
-                  className={`flex h-9 items-center gap-1.5 rounded-full px-3 pl-3.5 text-[13px] font-medium transition-all duration-150 ${
+                  className={`flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition-all duration-200 ${
                     showSortDropdown
                       ? "bg-ink/[0.06] text-ink ring-1 ring-inset ring-ink/10"
                       : "bg-ink/[0.04] text-ink-soft ring-1 ring-black/5 hover:bg-ink/[0.06] hover:text-ink"
@@ -322,7 +343,7 @@ export function DashboardClientView({
       <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">
         {filteredWorkspaces.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {/* Website Cards */}
+            {/* Website Cards: Double-Bezel Nested Architecture */}
             {filteredWorkspaces.map((workspace, index) => {
               const siteSubdomain = workspace.subdomain ?? workspace.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
               const fullSiteUrl = `http://${ROOT_DOMAIN}/sites/${siteSubdomain}`;
@@ -331,10 +352,10 @@ export function DashboardClientView({
               return (
                 <div
                   key={workspace.id}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 animate-fade-in-up-custom"
+                  className="group relative flex flex-col overflow-hidden rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] animate-fade-in-up-custom"
                   style={{ animationDelay: `${Math.min(index * 45, 360)}ms` }}
                 >
-                  <div className="flex-1 flex flex-col overflow-hidden rounded-[1.6rem] bg-surface shadow-sm ring-1 ring-black/5">
+                  <div className="flex-1 flex flex-col overflow-hidden rounded-[1.4rem] bg-surface shadow-sm ring-1 ring-black/5">
                     {/* Miniature Browser Chrome */}
                     <div className="relative flex flex-col bg-shell">
                       <div className="flex items-center justify-between gap-2 border-b border-black/5 bg-shell px-3 py-2.5">
@@ -343,7 +364,7 @@ export function DashboardClientView({
                           <span className="h-2 w-2 rounded-full bg-[#FFBD2E]/80" />
                           <span className="h-2 w-2 rounded-full bg-[#27C93F]/80" />
                         </div>
-                        <div className="flex min-w-0 items-center gap-1 rounded-md bg-surface px-2 py-1 text-[10px] font-mono text-ink-faint ring-1 ring-black/5">
+                        <div className="flex min-w-0 items-center gap-1 rounded-md bg-surface px-2.5 py-1 text-[10px] font-mono text-ink-faint ring-1 ring-black/5">
                           {isPublished ? (
                             <span className="material-symbols-outlined text-[11px] text-accent-deep">lock</span>
                           ) : (
@@ -357,10 +378,10 @@ export function DashboardClientView({
                       </div>
 
                       {/* Preview Canvas */}
-                      <div className="relative flex h-[180px] w-full items-center justify-center overflow-hidden bg-shell">
+                      <div className="relative flex h-[185px] w-full items-center justify-center overflow-hidden bg-shell">
                         {workspace.preview ? (
                           <div
-                            className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-300 group-hover:scale-[1.03]"
+                            className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-[1.04]"
                             style={{ transform: "scale(0.33)", width: "303%", height: "303%" }}
                           >
                             <PreviewTemplateRenderer
@@ -369,8 +390,8 @@ export function DashboardClientView({
                             />
                           </div>
                         ) : (
-                          <div className="relative w-[70%] rounded-xl border border-black/5 bg-surface p-3 shadow-xs transition-transform duration-300 group-hover:scale-105">
-                            <div className="mb-2 h-2 w-1/3 rounded-full bg-ink/[0.08]" />
+                          <div className="relative w-[72%] rounded-xl border border-black/5 bg-surface p-3.5 shadow-xs transition-transform duration-300 group-hover:scale-105">
+                            <div className="mb-2 h-2.5 w-1/3 rounded-full bg-ink/[0.08]" />
                             <div className="mb-2 h-14 w-full rounded-md bg-shell" />
                             <div className="flex gap-2">
                               <div className="h-8 w-1/2 rounded-md bg-shell" />
@@ -380,10 +401,10 @@ export function DashboardClientView({
                         )}
 
                         {/* Hover Actions Overlay */}
-                        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-[#111827]/50 backdrop-blur-[2px] opacity-0 transition-opacity duration-200 group-hover:opacity-100 p-4">
+                        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-[#111827]/55 backdrop-blur-[3px] opacity-0 transition-opacity duration-300 group-hover:opacity-100 p-4">
                           <Link
                             href={`/dashboard/${workspace.id}/editor`}
-                            className="flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-bold text-white shadow-sm transition-all duration-200 hover:bg-accent-deep active:scale-[0.97]"
+                            className="flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-[12px] font-bold text-white shadow-sm transition-all duration-200 hover:bg-accent-deep active:scale-[0.97]"
                           >
                             <span className="material-symbols-outlined text-[17px]">edit</span>
                             {t("edit")}
@@ -392,7 +413,7 @@ export function DashboardClientView({
                           <button
                             type="button"
                             onClick={() => setPreviewWorkspace(workspace)}
-                            className="grid h-10 w-10 place-items-center rounded-full bg-surface text-ink-soft shadow-sm transition-colors duration-200 hover:bg-white hover:text-ink"
+                            className="grid h-10 w-10 place-items-center rounded-full bg-surface text-ink-soft shadow-sm transition-all duration-200 hover:bg-white hover:text-ink active:scale-[0.95]"
                             title={t("preview")}
                           >
                             <span className="material-symbols-outlined text-[18px]">visibility</span>
@@ -402,7 +423,7 @@ export function DashboardClientView({
                             <button
                               type="button"
                               onClick={() => handleUnpublish(workspace.id)}
-                              className="grid h-10 w-10 place-items-center rounded-full bg-surface text-[#D97706] shadow-sm transition-colors duration-200 hover:bg-[#FFFBEB]"
+                              className="grid h-10 w-10 place-items-center rounded-full bg-surface text-[#D97706] shadow-sm transition-all duration-200 hover:bg-[#FFFBEB] active:scale-[0.95]"
                               title={t("unpublish")}
                             >
                               <span className="material-symbols-outlined text-[18px]">cloud_off</span>
@@ -410,7 +431,7 @@ export function DashboardClientView({
                           ) : (
                             <Link
                               href={`/dashboard/${workspace.id}/editor`}
-                              className="grid h-10 w-10 place-items-center rounded-full bg-surface text-accent-deep shadow-sm transition-colors duration-200 hover:bg-accent/10"
+                              className="grid h-10 w-10 place-items-center rounded-full bg-surface text-accent-deep shadow-sm transition-all duration-200 hover:bg-accent/10 active:scale-[0.95]"
                               title={t("publish")}
                             >
                               <span className="material-symbols-outlined text-[18px]">cloud_upload</span>
@@ -423,11 +444,14 @@ export function DashboardClientView({
                     {/* Card Footer */}
                     <div className="flex flex-col gap-2.5 border-t border-black/5 bg-surface p-4">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="truncate text-[14px] font-bold text-ink">{workspace.name}</p>
+                        <p className="truncate font-display text-[15px] font-bold text-ink">{workspace.name}</p>
 
                         {isPublished ? (
                           <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent/[0.12] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-deep ring-1 ring-accent/20">
-                            <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                            <span className="relative flex h-1.5 w-1.5">
+                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+                            </span>
                             {t("live")}
                           </span>
                         ) : (
@@ -450,7 +474,7 @@ export function DashboardClientView({
                               e.preventDefault();
                               setOpenMenuId(openMenuId === workspace.id ? null : workspace.id);
                             }}
-                            className="grid h-7 w-7 place-items-center rounded-lg text-ink-faint transition-colors hover:bg-ink/[0.05] hover:text-ink"
+                            className="grid h-7 w-7 place-items-center rounded-lg text-ink-faint transition-colors hover:bg-ink/[0.06] hover:text-ink"
                             title={t("moreActions")}
                           >
                             <span className="material-symbols-outlined text-[16px]">more_vert</span>
@@ -459,7 +483,7 @@ export function DashboardClientView({
                           {openMenuId === workspace.id && (
                             <>
                               <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                              <div className="absolute right-0 bottom-8 z-20 flex w-48 flex-col overflow-hidden rounded-xl bg-surface p-1 shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
+                              <div className="absolute right-0 bottom-8 z-20 flex w-48 flex-col overflow-hidden rounded-xl bg-surface p-1 shadow-[var(--shadow-diffused)] ring-1 ring-black/5 animate-fade-in-up-custom">
                                 <Link
                                   href={`/dashboard/${workspace.id}/editor`}
                                   className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
@@ -522,15 +546,15 @@ export function DashboardClientView({
               );
             })}
 
-            {/* Create Website Card (Dashed) */}
+            {/* Create Website Card (Double Bezel Dashed) */}
             <Link
               href="/dashboard/templates"
-              className="group flex min-h-[150px] flex-col overflow-hidden rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 animate-fade-in-up-custom"
+              className="group flex min-h-[220px] flex-col overflow-hidden rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] animate-fade-in-up-custom"
               style={{ animationDelay: `${Math.min(filteredWorkspaces.length * 45, 360)}ms` }}
             >
-              <div className="flex min-h-full flex-1 flex-col items-center justify-center gap-3 rounded-[1.6rem] border-2 border-dashed border-black/10 bg-surface px-6 py-8 text-center transition-colors duration-200 group-hover:border-accent/40">
-                <div className="grid h-11 w-11 place-items-center rounded-full bg-accent/10 text-accent transition-all duration-200 group-hover:bg-accent group-hover:text-white">
-                  <span className="material-symbols-outlined text-[22px]">add</span>
+              <div className="flex min-h-full flex-1 flex-col items-center justify-center gap-3.5 rounded-[1.4rem] border-2 border-dashed border-black/10 bg-surface px-6 py-8 text-center transition-all duration-300 group-hover:border-accent/50 group-hover:bg-accent/[0.02]">
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-accent/10 text-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-accent group-hover:text-white shadow-xs group-hover:shadow-[0_8px_20px_rgba(0,207,124,0.4)]">
+                  <span className="material-symbols-outlined text-[24px]">add</span>
                 </div>
                 <div>
                   <p className="font-display text-[15px] font-bold text-ink transition-colors duration-200 group-hover:text-accent-deep">
@@ -545,14 +569,14 @@ export function DashboardClientView({
           </div>
         ) : (
           /* Search / Filter Empty State */
-          <div className="flex min-h-[320px] items-center justify-center">
+          <div className="flex min-h-[340px] items-center justify-center">
             <div className="flex max-w-sm flex-col items-center gap-3 text-center">
               <div className="grid h-16 w-16 place-items-center rounded-2xl bg-accent/[0.1] text-accent-deep ring-1 ring-accent/20">
-                <span className="material-symbols-outlined text-[30px]">search_off</span>
+                <span className="material-symbols-outlined text-[32px]">search_off</span>
               </div>
               <div>
-                <p className="text-[16px] font-bold text-ink">{t("noResultsTitle")}</p>
-                <p className="mt-1 text-[13px] font-medium text-ink-soft">
+                <p className="font-display text-[17px] font-bold text-ink">{t("noResultsTitle")}</p>
+                <p className="mt-1 text-[13px] font-medium text-ink-soft leading-relaxed">
                   {t("noResultsDesc", { search })}
                 </p>
               </div>
@@ -562,7 +586,7 @@ export function DashboardClientView({
                   setSearch("");
                   setFilterBy("all");
                 }}
-                className="mt-2 h-9 rounded-full border border-black/10 bg-surface px-4 text-[12px] font-semibold text-ink-soft transition-all duration-200 hover:bg-ink/[0.04] hover:text-ink active:scale-[0.98]"
+                className="mt-2 h-9 rounded-full border border-black/10 bg-surface px-5 text-[12px] font-semibold text-ink-soft transition-all duration-200 hover:bg-ink/[0.05] hover:text-ink active:scale-[0.98]"
               >
                 {t("clearFilters")}
               </button>
@@ -573,17 +597,20 @@ export function DashboardClientView({
 
       {/* Quick Website Preview Modal */}
       {previewWorkspace && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111827]/60 p-4 backdrop-blur-sm">
-          <div className="relative flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-surface shadow-2xl ring-1 ring-black/5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-md animate-fade-in-up-custom">
+          <div className="relative flex h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-surface shadow-2xl ring-1 ring-black/5">
             {/* Modal Header */}
             <div className="flex items-center justify-between gap-3 border-b border-black/5 bg-shell px-6 py-4">
               <div className="flex min-w-0 items-center gap-3">
-                <h3 className="truncate font-display text-[17px] font-bold leading-none tracking-tight text-ink">
+                <h3 className="truncate font-display text-[18px] font-bold leading-none tracking-tight text-ink">
                   {previewWorkspace.name}
                 </h3>
                 {previewWorkspace.publishStatus === "published" ? (
                   <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent/[0.12] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-deep ring-1 ring-accent/20">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+                    </span>
                     {t("live")}
                   </span>
                 ) : (
@@ -604,7 +631,7 @@ export function DashboardClientView({
                 <button
                   type="button"
                   onClick={() => setPreviewWorkspace(null)}
-                  className="grid h-9 w-9 place-items-center rounded-full text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink"
+                  className="grid h-9 w-9 place-items-center rounded-full text-ink-soft transition-colors hover:bg-ink/[0.06] hover:text-ink"
                   aria-label={t("close")}
                 >
                   <span className="material-symbols-outlined text-[20px]">close</span>
@@ -634,16 +661,17 @@ export function DashboardClientView({
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
       {deleteCandidate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-md animate-fade-in-up-custom">
           <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-floating ring-1 ring-black/5">
-            <div className="mb-5 flex items-start gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-danger/10 text-danger">
-                <span className="material-symbols-outlined">delete</span>
+            <div className="mb-5 flex items-start gap-3.5">
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-danger/10 text-danger ring-1 ring-danger/20">
+                <span className="material-symbols-outlined text-[22px]">delete</span>
               </div>
               <div>
-                <h2 className="text-base font-bold text-ink">{t("confirmDeleteTitle")}</h2>
-                <p className="mt-1 text-sm leading-6 text-ink-soft">
+                <h2 className="font-display text-base font-bold text-ink">{t("confirmDeleteTitle")}</h2>
+                <p className="mt-1 text-sm leading-relaxed text-ink-soft">
                   {t("confirmDeleteDesc", { name: deleteCandidate.name })}
                 </p>
               </div>
@@ -652,7 +680,7 @@ export function DashboardClientView({
               <button
                 type="button"
                 onClick={() => setDeleteCandidate(null)}
-                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink ring-1 ring-black/10 transition-colors hover:bg-black/5"
+                className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-ink ring-1 ring-black/10 transition-colors hover:bg-black/5"
               >
                 {t("cancel")}
               </button>
@@ -663,7 +691,7 @@ export function DashboardClientView({
                   setDeleteCandidate(null);
                   await handleDelete(workspace);
                 }}
-                className="rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-danger/90"
+                className="rounded-full bg-danger px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-danger/90"
               >
                 {t("confirmDelete")}
               </button>

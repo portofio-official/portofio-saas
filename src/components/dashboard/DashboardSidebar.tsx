@@ -24,7 +24,6 @@ interface ContentChild extends NavItem {
 }
 
 // The seven primary Content Library types surfaced in the sidebar.
-// (caseStudy/gallery stay selectable in the manager but are not linked here.)
 const CONTENT_GROUPS: { type: ContentType; icon: string }[] = [
   { type: "project", icon: "workspaces" },
   { type: "testimonial", icon: "rate_review" },
@@ -159,11 +158,11 @@ export function DashboardSidebar({
     const content = (
       <>
         {item.active && (
-          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
+          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent shadow-[0_0_8px_rgba(0,207,124,0.8)]" />
         )}
         <span
-          className={`material-symbols-outlined text-[19px] transition-colors ${
-            item.active ? "text-accent drop-shadow-[0_2px_6px_rgba(0,207,124,0.35)]" : "text-ink-faint group-hover:text-ink"
+          className={`material-symbols-outlined text-[19px] transition-transform duration-200 group-hover:scale-105 ${
+            item.active ? "text-accent drop-shadow-[0_2px_8px_rgba(0,207,124,0.4)]" : "text-ink-faint group-hover:text-ink"
           }`}
         >
           {item.icon}
@@ -175,7 +174,7 @@ export function DashboardSidebar({
           <span className="font-mono text-[10.5px] font-semibold tabular-nums text-ink-faint">{item.count}</span>
         )}
         {!compact && item.badge && (
-          <span className="rounded-full bg-accent/[0.12] px-2 py-0.5 text-[9px] font-bold tracking-wider text-accent-deep uppercase">
+          <span className="rounded-full bg-accent/[0.12] px-2.5 py-0.5 text-[9.5px] font-bold tracking-wider text-accent-deep uppercase ring-1 ring-accent/20">
             {item.badge}
           </span>
         )}
@@ -187,12 +186,12 @@ export function DashboardSidebar({
         <div
           key={item.label}
           title={compact ? `${item.label} (${t("comingSoon")})` : "Coming soon"}
-          className={`flex items-center justify-between rounded-xl px-2.5 py-2 text-[13px] font-medium text-ink-faint cursor-not-allowed ${
+          className={`flex items-center justify-between rounded-xl px-2.5 py-2 text-[13px] font-medium text-ink-faint/70 cursor-not-allowed ${
             compact ? "justify-center px-0" : ""
           }`}
         >
           <div className={`flex items-center gap-2.5 ${indented && !compact ? "pl-6" : ""}`}>
-            <span className="material-symbols-outlined text-[19px] text-ink-faint/70">{item.icon}</span>
+            <span className="material-symbols-outlined text-[19px] text-ink-faint/50">{item.icon}</span>
             <span className={compact ? "hidden" : ""}>{item.label}</span>
           </div>
           {!compact && (
@@ -210,9 +209,9 @@ export function DashboardSidebar({
         href={item.href}
         aria-current={item.active ? "page" : undefined}
         title={compact ? item.label : undefined}
-        className={`group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-150 ${
+        className={`group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-200 active:scale-[0.98] ${
           item.active
-            ? "bg-accent/[0.09] text-accent-deep font-bold"
+            ? "bg-accent/[0.1] text-accent-deep font-bold shadow-xs"
             : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink"
         } ${compact ? "justify-center px-0" : ""}`}
       >
@@ -247,26 +246,26 @@ export function DashboardSidebar({
           onClick={handleGroupClick}
           aria-expanded={open}
           title={compact ? label : undefined}
-          className={`group relative flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-150 ${
+          className={`group relative flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-200 active:scale-[0.98] ${
             parentActive && (!open || compact)
-              ? "bg-accent/[0.09] text-accent-deep font-bold"
+              ? "bg-accent/[0.1] text-accent-deep font-bold shadow-xs"
               : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink"
           } ${compact ? "justify-center px-0" : ""}`}
         >
           {parentActive && (
-            <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
+            <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent shadow-[0_0_8px_rgba(0,207,124,0.8)]" />
           )}
           <span
-            className={`material-symbols-outlined text-[19px] transition-colors ${
-              parentActive ? "text-accent drop-shadow-[0_2px_6px_rgba(0,207,124,0.35)]" : "text-ink-faint group-hover:text-ink"
+            className={`material-symbols-outlined text-[19px] transition-transform duration-200 group-hover:scale-105 ${
+              parentActive ? "text-accent drop-shadow-[0_2px_8px_rgba(0,207,124,0.4)]" : "text-ink-faint group-hover:text-ink"
             }`}
           >
             {icon}
           </span>
           <span className={`flex-1 truncate text-left ${compact ? "hidden" : ""}`}>{label}</span>
           <span
-            className={`material-symbols-outlined text-[16px] text-ink-faint transition-transform duration-200 ${
-              open ? "rotate-180" : ""
+            className={`material-symbols-outlined text-[16px] text-ink-faint transition-transform duration-300 ${
+              open ? "rotate-180 text-ink" : ""
             } ${compact ? "hidden" : ""}`}
           >
             expand_more
@@ -279,10 +278,10 @@ export function DashboardSidebar({
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
                 className="overflow-hidden"
               >
-                <div className="flex flex-col gap-0.5 pt-0.5">{children}</div>
+                <div className="flex flex-col gap-0.5 pt-1 pl-1 border-l border-black/5 ml-4 my-1">{children}</div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -297,13 +296,13 @@ export function DashboardSidebar({
     <div
       onClick={collapsed ? toggleCollapsed : undefined}
       title={collapsed ? t("expandSidebar") : undefined}
-      className={`flex items-center gap-2.5 min-w-0 ${
+      className={`flex items-center gap-3 min-w-0 ${
         collapsed ? "cursor-pointer group" : ""
       }`}
     >
       <div
-        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-accent text-white shadow-[0_8px_20px_rgba(0,207,124,0.35)] ${
-          collapsed ? "transition-transform group-hover:scale-105 active:scale-95" : ""
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-accent text-white shadow-[0_8px_20px_rgba(0,207,124,0.4)] ring-1 ring-white/30 transition-transform duration-300 ${
+          collapsed ? "group-hover:scale-105 active:scale-95" : ""
         }`}
       >
         <span className="material-symbols-outlined text-[20px]">workspaces</span>
@@ -350,7 +349,7 @@ export function DashboardSidebar({
   );
 
   const profile = (compact = collapsed) => (
-    <div className="border-t border-black/5 p-2.5">
+    <div className="border-t border-black/5 p-2.5 bg-surface">
       <div
         className={`flex items-center rounded-xl p-1.5 transition-colors ${
           compact ? "flex-col gap-2 justify-center" : "justify-between gap-2 hover:bg-ink/[0.04]"
@@ -361,10 +360,10 @@ export function DashboardSidebar({
           title={compact ? `${t("profile")} (${email})` : undefined}
           className={`flex min-w-0 items-center gap-2.5 ${compact ? "justify-center" : ""}`}
         >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/15 font-display text-[12px] font-bold text-accent-deep ring-1 ring-accent/20">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/15 font-display text-[13px] font-bold text-accent-deep ring-2 ring-accent/20 shadow-xs">
             {initials}
           </span>
-          <span className={`min-w-0 truncate text-[12px] font-medium text-ink-soft ${compact ? "hidden" : ""}`}>
+          <span className={`min-w-0 truncate text-[12px] font-semibold text-ink ${compact ? "hidden" : ""}`}>
             {email}
           </span>
         </Link>
@@ -373,9 +372,9 @@ export function DashboardSidebar({
             type="submit"
             title={tw("logout")}
             aria-label={tw("logout")}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-ink/[0.05] hover:text-danger"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-danger/10 hover:text-danger active:scale-95"
           >
-            <span className="material-symbols-outlined text-[16px]">logout</span>
+            <span className="material-symbols-outlined text-[17px]">logout</span>
           </button>
         </form>
       </div>
@@ -388,7 +387,7 @@ export function DashboardSidebar({
       onClick={toggleCollapsed}
       title={t("collapseSidebar")}
       aria-label={t("collapseSidebar")}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-ink/[0.06] hover:text-ink"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-ink/[0.06] hover:text-ink active:scale-95"
     >
       <span className="material-symbols-outlined text-[18px]">left_panel_close</span>
     </button>
@@ -399,7 +398,7 @@ export function DashboardSidebar({
       type="button"
       onClick={closeMobile}
       aria-label={t("closeMenu")}
-      className="flex h-9 w-9 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink"
+      className="flex h-9 w-9 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink active:scale-95"
     >
       <span className="material-symbols-outlined text-[20px]">close</span>
     </button>
@@ -452,7 +451,7 @@ export function DashboardSidebar({
       <motion.aside
         initial={{ x: -16, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
         className={`relative hidden h-full shrink-0 flex-col overflow-hidden rounded-2xl bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5 select-none transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:flex ${
           collapsed ? "w-[72px]" : "w-[248px]"
         }`}

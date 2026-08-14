@@ -43,7 +43,10 @@ function StatusBadge({
   if (status === "active") {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1 text-[12px] font-bold text-accent ring-1 ring-accent/20">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+        <span className="relative flex h-1.5 w-1.5">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+        </span>
         {t("badge.active")}
       </span>
     );
@@ -116,53 +119,58 @@ export function BillingClientView({
   const features = t.raw("features") as string[];
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto">
+    <div className="flex h-full flex-col overflow-y-auto bg-surface select-none">
       {/* Header */}
-      <header className="flex shrink-0 items-center justify-between border-b border-black/5 bg-surface/80 px-12 py-6 backdrop-blur-md sticky top-0 z-50">
-        <div className="flex flex-col">
-          <h1 className="font-display text-[22px] font-bold tracking-tight text-ink leading-none">
+      <header className="shrink-0 border-b border-black/5 bg-surface px-6 pt-6 pb-5 sm:px-8">
+        <div className="min-w-0">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/[0.1] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent-deep ring-1 ring-accent/20">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+            </span>
+            LANGGANAN / BILLING
+          </span>
+          <h1 className="mt-2.5 font-display text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[34px]">
             {t("title")}
           </h1>
-          <p className="mt-1 text-[13px] font-medium text-ink-soft leading-none">
-            {t("subtitle")}
-          </p>
+          <p className="mt-1 text-sm font-medium text-ink-soft">{t("subtitle")}</p>
         </div>
       </header>
 
       {/* Content */}
-      <div className="flex-1 px-12 py-10 space-y-6">
+      <div className="flex-1 space-y-6 px-6 py-6 sm:px-8">
         {/* Checkout Status Banners */}
         {checkoutNotice === "success" && (
-          <div className="flex items-start gap-4 rounded-[16px] bg-accent/10 px-5 py-4 ring-1 ring-accent/30">
+          <div className="flex items-start gap-4 rounded-2xl bg-accent/10 px-5 py-4 ring-1 ring-accent/30">
             <span className="material-symbols-outlined mt-0.5 text-[20px] text-accent">
               check_circle
             </span>
             <div>
-              <p className="text-[14px] font-bold text-accent">{t("notice.successTitle")}</p>
+              <p className="font-display text-[14px] font-bold text-accent">{t("notice.successTitle")}</p>
               <p className="mt-0.5 text-[13px] text-ink-soft">{t("notice.successDesc")}</p>
             </div>
           </div>
         )}
 
         {checkoutNotice === "failed" && (
-          <div className="flex items-start gap-4 rounded-[16px] bg-danger/10 px-5 py-4 ring-1 ring-danger/30">
+          <div className="flex items-start gap-4 rounded-2xl bg-danger/10 px-5 py-4 ring-1 ring-danger/30">
             <span className="material-symbols-outlined mt-0.5 text-[20px] text-danger">
               error
             </span>
             <div>
-              <p className="text-[14px] font-bold text-danger">{t("notice.failedTitle")}</p>
+              <p className="font-display text-[14px] font-bold text-danger">{t("notice.failedTitle")}</p>
               <p className="mt-0.5 text-[13px] text-ink-soft">{t("notice.failedDesc")}</p>
             </div>
           </div>
         )}
 
         {checkoutNotice === "stub" && (
-          <div className="flex items-start gap-4 rounded-[16px] bg-sky-50 px-5 py-4 ring-1 ring-sky-200">
+          <div className="flex items-start gap-4 rounded-2xl bg-sky-50 px-5 py-4 ring-1 ring-sky-200">
             <span className="material-symbols-outlined mt-0.5 text-[20px] text-sky-600">
               developer_mode
             </span>
             <div>
-              <p className="text-[14px] font-bold text-sky-900">{t("notice.stubTitle")}</p>
+              <p className="font-display text-[14px] font-bold text-sky-900">{t("notice.stubTitle")}</p>
               <p className="mt-0.5 text-[13px] text-sky-800">{t("notice.stubDesc")}</p>
             </div>
           </div>
@@ -170,12 +178,12 @@ export function BillingClientView({
 
         {/* Grace Period Warning Banner */}
         {isGracePeriod && (
-          <div className="flex items-start gap-4 rounded-[16px] bg-amber-50 px-5 py-4 ring-1 ring-amber-200">
+          <div className="flex items-start gap-4 rounded-2xl bg-amber-50 px-5 py-4 ring-1 ring-amber-200">
             <span className="material-symbols-outlined mt-0.5 text-[20px] text-amber-500">
               warning
             </span>
             <div>
-              <p className="text-[14px] font-bold text-amber-800">{t("notice.graceTitle")}</p>
+              <p className="font-display text-[14px] font-bold text-amber-800">{t("notice.graceTitle")}</p>
               <p className="mt-0.5 text-[13px] text-amber-700">
                 {t("notice.graceDesc", { days: daysRemainingInGracePeriod ?? 7 })}
               </p>
@@ -185,91 +193,98 @@ export function BillingClientView({
 
         {/* Auto-unpublish notice for expired */}
         {(status === "expired" || status === "canceled") && (
-          <div className="flex items-start gap-4 rounded-[16px] bg-danger/5 px-5 py-4 ring-1 ring-danger/20">
+          <div className="flex items-start gap-4 rounded-2xl bg-danger/5 px-5 py-4 ring-1 ring-danger/20">
             <span className="material-symbols-outlined mt-0.5 text-[20px] text-danger">
               cloud_off
             </span>
             <div>
-              <p className="text-[14px] font-bold text-danger">{t("notice.expiredTitle")}</p>
+              <p className="font-display text-[14px] font-bold text-danger">{t("notice.expiredTitle")}</p>
               <p className="mt-0.5 text-[13px] text-ink-soft">{t("notice.expiredDesc")}</p>
             </div>
           </div>
         )}
 
-        {/* Subscription Card */}
-        <div className="rounded-[20px] bg-surface ring-1 ring-black/5 p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[13px] font-medium text-ink-faint uppercase tracking-wide">
-                {t("currentPlan")}
-              </p>
-              <p className="mt-1.5 font-display text-[22px] font-bold tracking-tight text-ink">
-                {t("planName")}
-              </p>
-              <p className="mt-1 text-[13px] text-ink-soft">{t("planDesc")}</p>
-            </div>
-            <StatusBadge status={status} isGracePeriod={isGracePeriod} t={t} />
-          </div>
-
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-[14px] bg-canvas px-4 py-3">
-              <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-ink-faint">
-                {t("statusLabel")}
-              </p>
-              <p className="mt-1 text-[15px] font-bold text-ink capitalize">
-                {isGracePeriod ? t("badge.gracePeriod") : status.replace("_", " ")}
-              </p>
-            </div>
-            <div className="rounded-[14px] bg-canvas px-4 py-3">
-              <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-ink-faint">
-                {isActive && !isGracePeriod ? t("renewsOn") : t("expiredOn")}
-              </p>
-              <p className="mt-1 text-[15px] font-bold text-ink">{formatDate(expiresAt)}</p>
-            </div>
-          </div>
-
-          {/* What's included */}
-          <div className="mt-6 space-y-2">
-            {features.map((feature) => (
-              <div key={feature} className="flex items-center gap-2.5">
-                <span className="material-symbols-outlined text-[16px] text-accent">
-                  check_circle
-                </span>
-                <span className="text-[13px] font-medium text-ink-soft">{feature}</span>
+        {/* Subscription Card: Double Bezel */}
+        <div className="rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5">
+          <div className="rounded-[1.4rem] bg-surface p-6 shadow-sm ring-1 ring-black/5">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">
+                  {t("currentPlan")}
+                </p>
+                <p className="mt-1.5 font-display text-[24px] font-bold tracking-tight text-ink">
+                  {t("planName")}
+                </p>
+                <p className="mt-1 text-[13px] text-ink-soft">{t("planDesc")}</p>
               </div>
-            ))}
+              <StatusBadge status={status} isGracePeriod={isGracePeriod} t={t} />
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="rounded-xl bg-shell px-4 py-3.5 ring-1 ring-black/5">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">
+                  {t("statusLabel")}
+                </p>
+                <p className="mt-1 font-display text-[15px] font-bold text-ink capitalize">
+                  {isGracePeriod ? t("badge.gracePeriod") : status.replace("_", " ")}
+                </p>
+              </div>
+              <div className="rounded-xl bg-shell px-4 py-3.5 ring-1 ring-black/5">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">
+                  {isActive && !isGracePeriod ? t("renewsOn") : t("expiredOn")}
+                </p>
+                <p className="mt-1 font-display text-[15px] font-bold text-ink">{formatDate(expiresAt)}</p>
+              </div>
+            </div>
+
+            {/* What's included */}
+            <div className="mt-6 space-y-2.5 pt-4 border-t border-black/5">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-3">FITUR TERMASUK</p>
+              {features.map((feature) => (
+                <div key={feature} className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[17px] text-accent">
+                    check_circle
+                  </span>
+                  <span className="text-[13px] font-semibold text-ink-soft">{feature}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Subscribe / Renew CTA */}
         {showSubscribeButton && (
-          <div className="rounded-[20px] bg-accent/5 p-6 ring-1 ring-accent/15">
+          <div className="rounded-2xl bg-accent/[0.06] p-6 ring-1 ring-accent/20">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="font-display text-[17px] font-bold tracking-tight text-ink">
+                <p className="font-display text-[18px] font-bold tracking-tight text-ink">
                   {isGracePeriod ? t("cta.renewTitle") : t("cta.subscribeTitle")}
                 </p>
                 <p className="mt-1 text-[13px] text-ink-soft">
                   {isGracePeriod ? t("cta.renewDesc") : t("cta.subscribeDesc")}
                 </p>
               </div>
+
+              {/* Nested CTA: Button-in-Button Trailing Icon */}
               <button
                 type="button"
                 onClick={handleCheckout}
                 disabled={loading}
-                className="flex shrink-0 items-center gap-2 rounded-full bg-accent px-6 py-3 text-[14px] font-bold text-white shadow-[0_4px_14px_0_rgba(0,207,124,0.39)] transition-all hover:bg-accent-deep hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,207,124,0.23)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                className="group relative flex h-11 shrink-0 items-center gap-3 rounded-full bg-accent pl-5 pr-2.5 text-[13px] font-bold text-white shadow-[0_10px_28px_-8px_rgba(0,207,124,0.55)] transition-all duration-300 hover:bg-accent-deep hover:shadow-[0_14px_32px_-6px_rgba(0,207,124,0.65)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>
                     <span className="material-symbols-outlined animate-spin text-[18px]">
                       progress_activity
                     </span>
-                    {t("cta.redirecting")}
+                    <span>{t("cta.redirecting")}</span>
                   </>
                 ) : (
                   <>
-                    <span className="material-symbols-outlined text-[18px]">bolt</span>
-                    {isGracePeriod ? t("cta.renewBtn") : t("cta.subscribeBtn")}
+                    <span>{isGracePeriod ? t("cta.renewBtn") : t("cta.subscribeBtn")}</span>
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white transition-transform duration-300 group-hover:scale-110 group-hover:bg-white/30">
+                      <span className="material-symbols-outlined text-[16px]">bolt</span>
+                    </span>
                   </>
                 )}
               </button>
@@ -277,7 +292,7 @@ export function BillingClientView({
 
             {/* Dev Mode quick activation shortcut */}
             {(process.env.NODE_ENV !== "production" || checkoutNotice === "stub") && (
-              <div className="mt-4 flex items-center justify-between border-t border-accent/10 pt-4">
+              <div className="mt-4 flex items-center justify-between border-t border-accent/15 pt-4">
                 <p className="text-[12px] font-medium text-ink-soft">
                   <span className="font-bold text-accent">{t("dev.label")}</span>{" "}
                   {t("dev.hint")}
@@ -301,13 +316,13 @@ export function BillingClientView({
 
         {/* Active subscription management */}
         {isActive && !isGracePeriod && (
-          <div className="rounded-[20px] bg-surface ring-1 ring-black/5 p-6">
-            <p className="text-[14px] font-bold text-ink">{t("manage.title")}</p>
-            <p className="mt-1 text-[13px] text-ink-soft">
+          <div className="rounded-2xl bg-surface ring-1 ring-black/5 p-6 shadow-sm">
+            <p className="font-display text-[15px] font-bold text-ink">{t("manage.title")}</p>
+            <p className="mt-1 text-[13px] text-ink-soft leading-relaxed">
               {t("manage.desc", { email: "support@portofio.id" })}{" "}
               <a
                 href="mailto:support@portofio.id"
-                className="font-medium text-accent underline-offset-2 hover:underline"
+                className="font-semibold text-accent underline-offset-2 hover:underline"
               >
                 support@portofio.id
               </a>

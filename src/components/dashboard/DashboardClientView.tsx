@@ -14,6 +14,7 @@ import {
   type ViewMode,
 } from "./components/DashboardToolbar";
 import { WorkspaceGrid } from "./components/WorkspaceGrid";
+import { WorkspaceListView } from "./components/WorkspaceListView";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
@@ -237,70 +238,15 @@ export function DashboardClientView({
               onDelete={setDeleteCandidate}
             />
           ) : (
-            /* Framer-Grade Initial List View Container */
-            <div className="overflow-hidden rounded-2xl bg-surface ring-1 ring-black/5 shadow-xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-black/5 bg-shell/50 text-[11px] font-semibold uppercase tracking-wider text-ink-faint">
-                      <th className="px-6 py-3.5">{t("colName")}</th>
-                      <th className="px-6 py-3.5">{t("colStatus")}</th>
-                      <th className="px-6 py-3.5">{t("colDomain")}</th>
-                      <th className="px-6 py-3.5">{t("colLastEdited")}</th>
-                      <th className="px-6 py-3.5 text-right">{t("colActions")}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-black/5 text-[13px]">
-                    {filteredWorkspaces.map((workspace) => {
-                      const siteSubdomain = workspace.subdomain ?? workspace.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
-                      const isPublished = workspace.publishStatus === "published";
-                      return (
-                        <tr
-                          key={workspace.id}
-                          className="group transition-colors hover:bg-black/[0.02]"
-                        >
-                          <td className="px-6 py-4 font-semibold text-ink">
-                            <Link
-                              href={`/dashboard/${workspace.id}/editor`}
-                              className="hover:text-accent-deep transition-colors"
-                            >
-                              {workspace.name}
-                            </Link>
-                          </td>
-                          <td className="px-6 py-4">
-                            {isPublished ? (
-                              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/[0.12] px-2.5 py-0.5 text-[11px] font-bold text-accent-deep ring-1 ring-accent/20">
-                                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                                {t("live")}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center rounded-full bg-ink/[0.05] px-2.5 py-0.5 text-[11px] font-semibold text-ink-faint ring-1 ring-black/5">
-                                {t("filterDraft")}
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 font-mono text-[12px] text-ink-soft">
-                            {siteSubdomain}.portofio.app
-                          </td>
-                          <td className="px-6 py-4 text-ink-faint text-[12px]">
-                            {timeAgo(workspace.createdAt, locale)}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <Link
-                              href={`/dashboard/${workspace.id}/editor`}
-                              className="inline-flex h-8 items-center gap-1.5 rounded-full bg-ink/[0.05] px-3 text-[12px] font-semibold text-ink-soft hover:bg-accent hover:text-white transition-all"
-                            >
-                              <span className="material-symbols-outlined text-[14px]">edit</span>
-                              {t("edit")}
-                            </Link>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <WorkspaceListView
+              workspaces={filteredWorkspaces}
+              locale={locale}
+              onPreview={setPreviewWorkspace}
+              onDuplicate={handleDuplicate}
+              isDuplicating={isDuplicating}
+              onUnpublish={handleUnpublish}
+              onDelete={setDeleteCandidate}
+            />
           )
         ) : (
           /* Search / Filter Empty State */

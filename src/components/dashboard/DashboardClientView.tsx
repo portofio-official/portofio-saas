@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import type { Workspace } from "@/lib/workspace/types";
-import { PreviewTemplateRenderer } from "@/templates/registry";
 import { useToast } from "@/components/ui/Toast";
 import {
   DashboardToolbar,
@@ -15,6 +14,7 @@ import {
 } from "./components/DashboardToolbar";
 import { WorkspaceGrid } from "./components/WorkspaceGrid";
 import { WorkspaceListView } from "./components/WorkspaceListView";
+import { QuickPreviewModal } from "./components/QuickPreviewModal";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
@@ -278,68 +278,10 @@ export function DashboardClientView({
 
       {/* Quick Website Preview Modal */}
       {previewWorkspace && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-md animate-fade-in-up-custom">
-          <div className="relative flex h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-surface shadow-2xl ring-1 ring-black/5">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-black/5 bg-shell px-6 py-4">
-              <div className="flex min-w-0 items-center gap-3">
-                <h3 className="truncate font-display text-[18px] font-bold leading-none tracking-tight text-ink">
-                  {previewWorkspace.name}
-                </h3>
-                {previewWorkspace.publishStatus === "published" ? (
-                  <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent/[0.12] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-deep ring-1 ring-accent/20">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-                    </span>
-                    {t("live")}
-                  </span>
-                ) : (
-                  <span className="shrink-0 rounded-full bg-ink/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint ring-1 ring-black/5">
-                    {t("draftPreview")}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2.5">
-                <Link
-                  href={`/dashboard/${previewWorkspace.id}/editor`}
-                  className="flex h-9 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-bold text-white shadow-[0_8px_18px_-6px_rgba(0,207,124,0.5)] transition-all duration-200 hover:bg-accent-deep active:scale-[0.98]"
-                >
-                  <span className="material-symbols-outlined text-[16px]">edit</span>
-                  {t("openEditor")}
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={() => setPreviewWorkspace(null)}
-                  className="grid h-9 w-9 place-items-center rounded-full text-ink-soft transition-colors hover:bg-ink/[0.06] hover:text-ink"
-                  aria-label={t("close")}
-                >
-                  <span className="material-symbols-outlined text-[20px]">close</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Body */}
-            <div className="relative flex-1 overflow-auto bg-shell p-6">
-              {previewWorkspace.preview ? (
-                <div className="mx-auto max-w-4xl overflow-hidden rounded-xl bg-surface shadow-md ring-1 ring-black/5">
-                  <PreviewTemplateRenderer
-                    templateId={previewWorkspace.preview.templateId}
-                    data={previewWorkspace.preview.data}
-                  />
-                </div>
-              ) : (
-                <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                  <div className="grid h-14 w-14 place-items-center rounded-2xl bg-ink/[0.04] text-ink-faint ring-1 ring-black/5">
-                    <span className="material-symbols-outlined text-[28px]">image_not_supported</span>
-                  </div>
-                  <p className="max-w-sm text-[13px] font-medium text-ink-soft">{t("previewPlaceholder")}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <QuickPreviewModal
+          workspace={previewWorkspace}
+          onClose={() => setPreviewWorkspace(null)}
+        />
       )}
 
       {/* Delete Confirmation Modal */}

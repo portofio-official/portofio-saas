@@ -1,3 +1,15 @@
+# Session 067: Dashboard Sidebar Collapsible & Expandable UX Fix
+**Status:** Verified / Passing locally
+- Improved `DashboardSidebar.tsx` to support smooth collapse (minimize) and expand behavior:
+  - Default state set to expanded (`collapsed = false`), preserving initial full visibility of navigation items, counts, and submenus.
+  - Added `localStorage` persistence (`portofio_sidebar_collapsed`) so the user's preferred sidebar state survives page reloads.
+  - Re-positioned the toggle collapse/expand button in the desktop sidebar header cleanly: top right in expanded mode (`left_panel_close`), centered below the logo in minimized mode (`left_panel_open`) with accent hover highlights and localized tooltips.
+  - Enhanced compact mode: active indicator green accent pill (`bg-accent`) is visible on compact rail icons, sub-group parent icons display green glow when active, and clicking any group parent icon ("Content Library", "Settings") automatically expands the sidebar and opens the accordion.
+  - Profile footer in compact mode displays centered initials avatar and compact logout button with full hover tooltips.
+- Added `e2e/flows/15-sidebar-toggle.spec.ts` covering dashboard route auth gating and localStorage persistence.
+- Fixed `eslint.config.mjs` to ignore `scratch/**` so `./init.sh` baseline verification passes clean.
+- Verification: `./init.sh` clean, `npx tsc --noEmit` clean, `npm run lint` clean (0 errors), `npm run build` clean (34 static/dynamic routes compiled), `npx playwright test` passed (32 passed / 3 skipped / 0 failed).
+
 # Session 066: Admin Control Plane — Remote Migration Applied + Authenticated E2E Verified
 **Status:** Verified / Passing against real Supabase
 - Applied `20260811000010_admin_audit_logs.sql` to the real Supabase project (`yvjwqammizdipwalvets`) via the management API. All schema tables already existed remotely (templates, section_visits, etc.); only the audit table was missing.

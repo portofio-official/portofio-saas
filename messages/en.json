@@ -323,7 +323,11 @@
     "domains": "Domains",
     "billing": "Billing",
     "comingSoon": "Soon",
-    "pro": "Pro"
+    "pro": "Pro",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "Profile": {
     "eyebrow": "Profile",

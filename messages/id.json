@@ -323,7 +323,11 @@
     "domains": "Domain",
     "billing": "Tagihan",
     "comingSoon": "Segera",
-    "pro": "Pro"
+    "pro": "Pro",
+    "collapseSidebar": "Ciutkan sidebar",
+    "expandSidebar": "Perluas sidebar",
+    "openMenu": "Buka menu",
+    "closeMenu": "Tutup menu"
   },
   "Profile": {
     "eyebrow": "Profil",

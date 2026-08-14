@@ -35,7 +35,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="relative flex h-dvh w-full overflow-hidden bg-canvas p-3 font-sans sm:p-5 sm:gap-4">
+    <div className="relative flex h-dvh w-full overflow-hidden bg-canvas p-3 font-sans sm:gap-4 sm:p-5">
       {/* Ambient canvas lighting — kept behind every panel */}
       <div
         aria-hidden
@@ -47,7 +47,7 @@ export default async function DashboardLayout({
       />
 
       <DashboardSidebar email={email} contentCounts={contentCounts} />
-      <main className="relative flex flex-1 flex-col overflow-hidden rounded-2xl bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
+      <main className="relative mt-12 flex flex-1 flex-col overflow-hidden rounded-2xl bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5 md:mt-0">
         {children}
       </main>
     </div>

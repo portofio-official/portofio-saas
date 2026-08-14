@@ -1,3 +1,13 @@
+# Session 070: Framer-Style Dashboard UI/UX Redesign
+**Status:** Verified / Passing locally
+- Completed modular Framer-style Dashboard UI/UX redesign delivering a high-end SaaS workspace experience:
+  - **Framer-Grade Toolbar (`DashboardToolbar.tsx`):** Stat chips with live pulse indicator, keyboard shortcut search (⌘K), segmented filter controls (All / Live / Draft), sort popover dropdown, and Grid vs List view mode switcher with localStorage persistence (`portofio_dashboard_view_mode`).
+  - **Workspace Cards & Grid (`WorkspaceCard.tsx`, `WorkspaceGrid.tsx`, `CreateWorkspaceCard.tsx`):** Double-bezel (Doppelrand) container, miniature browser chrome with subdomain display, interactive hover overlay with smooth glassmorphism actions, and localized status badges.
+  - **High-Density List View (`WorkspaceListView.tsx`, `WorkspaceListItem.tsx`):** High-efficiency tabular/row layout with compact mini-previews, template pills, formatted relative timestamps, quick actions (Edit, Preview, Live Site, More Menu), and confirmation modals.
+  - **Multi-Device Quick Preview Modal (`QuickPreviewModal.tsx`):** Centered viewport modal with interactive device switcher (Desktop 100%, Tablet 768px, Mobile 375px), iframe template preview, live site link, and direct "Buka di Editor" action button.
+  - **E2E Test Coverage (`e2e/flows/16-dashboard-framer-ui.spec.ts`):** Verified unauthenticated `/id/dashboard` redirect to `/id/login`, localStorage persistence for `portofio_dashboard_view_mode` across grid and list modes, and state initialization.
+- Verification: `./init.sh` clean, `npx tsc --noEmit` clean (0 errors), `npm run lint` clean (0 errors, 1 pre-existing warning), `npm run build` clean (34 static/dynamic routes compiled), `npx playwright test` passed (35 passed / 3 skipped / 0 failed).
+
 # Session 068: Dashboard Premium UI/UX Redesign (Taste Skill High-End Visual Design)
 **Status:** Verified / Passing locally
 - Redesigned the User Dashboard UI/UX across all primary surfaces (`DashboardClientView.tsx`, `DashboardSidebar.tsx`, `AnalyticsClientView.tsx`, `BillingClientView.tsx`) to deliver an ultra-premium $150k+ agency experience in full compliance with `DESIGN.md` light-mode rules:
@@ -9,6 +19,25 @@
   - **Toolbar & Search Polish:** Enhanced search input with `⌘K` keyboard shortcut badge, instant clear button, segmented filter control (`All / Live / Draft`) with smooth active pills, and custom sort popover dropdowns.
   - **Sidebar & Layout Harmony:** Polished `DashboardSidebar.tsx` brand logo tile, active left-accent indicator with glow (`shadow-[0_0_8px_rgba(0,207,124,0.8)]`), accordion animations, and avatar status ring.
 - Verification: `./init.sh` clean, `npx tsc --noEmit` clean (0 errors), `npm run lint` clean (0 errors, 1 pre-existing warning), `npm run build` clean (34 static/dynamic routes compiled), `npx playwright test` passed (32 passed / 3 skipped / 0 failed).
+
+# Session 069: billing-002 — Tiered Billing Migration + Midtrans Plan-Aware Connection
+**Status:** Migration applied to real Supabase; code verified (tsc/lint/build); entitlement enforcement UI pending
+- Created and applied `supabase/migrations/20260814000000_tiered_billing.sql` to the real project (`yvjwqammizdipwalvets`):
+  - `plans` catalog: 6 rows (Basic/Premium/Enterprise × monthly/annual) with `price_idr` snapshots and `midtrans_product_id` (portofio-<tier>-<cycle>). Prices are PRD §10 placeholders (Basic 49k, Premium 99k, Enterprise 199k; annual = 10× monthly).
+  - `subscriptions` gained `plan_id` (FK→plans), `billing_cycle`, `plan_snapshot` (jsonb), `current_period_start`, `cancel_at_period_end`, `provider_order_id`, `provider_transaction_id`; existing active row backfilled to basic-monthly.
+  - `templates.minimum_plan` (default `basic`, all 8 current templates backfilled basic).
+  - `entitlements` table (tier PK: max_live_websites, publish_subdomain, custom_domain, watermark, advanced_analytics, priority_support, premium_templates) seeded for 3 tiers.
+  - Server-side resolver `public.get_user_entitlements(target_user_id)` (security invoker) joins subscriptions→plans→entitlements for active/grace rows; zero rows = free (no publish).
+  - RLS: plans readable by anon+authenticated (public pricing), entitlements readable by authenticated; writes service-role only.
+- Midtrans connection made tier-aware:
+  - `src/lib/billing/plans.ts`: DB-backed `listActivePlans`/`getActivePlan` (request client) + `getActivePlanByAdmin` (webhook), `DEFAULT_PLAN_ID`, `PERIOD_DAYS` (30/365).
+  - `src/lib/billing/midtrans.ts`: `createMidtransTransaction({ plan })` — order id `sub_<userId>_<planId>_<ts>`, item_details from DB plan; dev fallback URL now carries `&plan=<id>`.
+  - `src/lib/billing/actions.ts`: `createCheckoutInvoiceAction(planId?)` re-validates the plan server-side (price/product never trusted from client); dev subscription upserts plan fields.
+  - `src/app/api/webhooks/midtrans/route.ts`: parses plan from order id (legacy `sub_<userId>_<ts>` orders default to basic-monthly), persists plan_id/cycle/snapshot/period/provider ids, renewal extends from current period end, keeps (order,status) idempotency.
+  - `src/lib/billing/subscription.ts`: `getSubscriptionState` now surfaces `planId`/`planName`/`billingCycle`.
+  - `BillingClientView.tsx` + `/dashboard/billing` page: plan picker (monthly/annual toggle, per-tier price + features), current plan shown by name/cycle, checkout passes plan id. i18n `Billing.planCycle`, `Billing.picker.*`, `Billing.plans.*` in id+en.
+- Remaining for `billing-002` (kept `in_progress`, not done): watermark on Basic published sites, custom domain (Premium), template minimum_plan gating, upgrade/downgrade flow, and E2E checkout/webhook verification against Midtrans sandbox.
+- Verification: `npx tsc --noEmit` clean, `npm run lint` 0 errors (1 pre-existing BillingClientView warning), `npm run build` clean (36 routes). SQL verified live: 6 plans, subscriptions columns, templates.minimum_plan, `get_user_entitlements` returns the basic entitlement for the backfilled subscriber.
 
 # Session 067: Dashboard Sidebar Collapsible & Expandable UX Fix
 **Status:** Verified / Passing locally

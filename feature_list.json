@@ -1,6 +1,6 @@
 {
   "project": "portofyo",
-  "last_updated": "2026-08-11",
+  "last_updated": "2026-08-14",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -223,7 +223,7 @@
       "area": "billing",
       "title": "Tiered subscription plans and entitlement enforcement",
       "user_visible_behavior": "A user can choose Basic, Premium, or Enterprise with monthly or annual billing through Midtrans. Basic publishes to a Portofio subdomain with a small watermark; Premium supports custom domains and removes the watermark; all tiers remain limited to one active published website per account.",
-      "status": "not_started",
+      "status": "in_progress",
       "verification": [
         "Checkout monthly and annual products for Basic, Premium, and Enterprise in Midtrans sandbox.",
         "Confirm webhooks persist plan, billing cycle, provider event, and subscription status idempotently.",
@@ -231,8 +231,12 @@
         "Confirm upgrade, downgrade, cancellation, grace period, auto-unpublish, and republish preserve portfolio data.",
         "Confirm the server ignores client-manipulated price or plan values."
       ],
-      "evidence": [],
-      "notes": "PRD v1.9. Enterprise is self-service but team collaboration, organization roles, approval workflow, and governance are roadmap items after tiered billing stabilizes. Final prices, annual discount, and Designer revenue-sharing policy remain open product decisions."
+      "evidence": [
+        "2026-08-14: Applied supabase/migrations/20260814000000_tiered_billing.sql to the real Supabase project (yvjwqammizdipwalvets). Adds `plans` catalog (6 seeded rows: Basic/Premium/Enterprise x monthly/annual with Midtrans product ids + price snapshots), plan-aware `subscriptions` columns (plan_id, billing_cycle, plan_snapshot, current_period_start, cancel_at_period_end, provider_order_id, provider_transaction_id), `templates.minimum_plan` (backfilled basic), `entitlements` table (3 tiers), and server-side `get_user_entitlements()` resolver. Existing active subscription backfilled to basic-monthly. Verified: 6 plans queryable, subscription columns present, all 8 templates minimum_plan=basic, get_user_entitlements returns correct basic entitlement row.",
+        "2026-08-14: Connected Midtrans to the tiered catalog — src/lib/billing/plans.ts (DB-backed plan fetch, PERIOD_DAYS, toPlanSnapshot), midtrans.ts createMidtransTransaction is now plan-aware (order id `sub_<userId>_<planId>_<ts>`, item details from DB plan), createCheckoutInvoiceAction(planId) re-validates the plan server-side (price/product never trusted from client), webhook persists plan_id/billing_cycle/plan_snapshot/period/provider ids idempotently with renewal extension and legacy-order compatibility, getSubscriptionState surfaces plan name/cycle, and BillingClientView gained a plan picker (monthly/annual toggle, per-tier pricing + features, checkout CTA).",
+        "Verification 2026-08-14: npx tsc --noEmit clean, npm run lint 0 errors (1 pre-existing warning in BillingClientView), npm run build clean (36 routes)."
+      ],
+      "notes": "PRD v1.9. Migrasi + koneksi Midtrans tiered selesai; entitlement enforcement UI (watermark pada situs Basic, custom domain Premium, template minimum_plan gating, upgrade/downgrade flow) dan E2E Midtrans sandbox masih pending. Enterprise is self-service but team collaboration, organization roles, approval workflow, and governance are roadmap items after tiered billing stabilizes. Final prices, annual discount, and Designer revenue-sharing policy remain open product decisions."
     },
     {
       "id": "arch-001",
@@ -568,7 +572,8 @@
         "2026-08-10 (Session 050): Redesigned the dashboard shell (layout.tsx ambient canvas with subtle radial glows, h-dvh, rounded-2xl white content panel), sidebar (DashboardSidebar: brand block, grouped nav with left-active accent indicator, hover/focus/aria-current states, profile+logout footer), and DashboardClientView: eyebrow pill + display title + subtitle, stat chips (Total/Live/Draft, mono numerals), segmented All/Live/Draft filter pill rail, refined sort dropdown, double-bezel website cards, dashed Create Website card, composed empty state, polished preview modal.",
         "2026-08-10: Localized relative timestamps via Intl.RelativeTimeFormat(locale). Added i18n keys in messages/en.json + id.json for the new Dashboard copy and the sidebar brand tagline.",
         "2026-08-14 (Session 068): Taste Skill High-End Visual Design redesign across DashboardClientView, DashboardSidebar, AnalyticsClientView, and BillingClientView: Doppelrand double-bezel cards, button-in-button CTAs, live pulsating accent dots, smooth spring physics (cubic-bezier), mini browser address bar, ⌘K search shortcut, and polished profile footer.",
-        "Verification: npx tsc --noEmit clean (0 errors), npm run lint 0 errors (1 pre-existing warning in BillingClientView), npm run build clean (34 routes compiled), npx playwright test 32 passed / 3 skipped / 0 failed."
+        "2026-08-14 (Session 070): Framer-Style Dashboard Redesign: Modularized components (DashboardToolbar, WorkspaceCard, WorkspaceGrid, WorkspaceListView, WorkspaceListItem, QuickPreviewModal). Implemented Grid/List view mode toggle with localStorage persistence (portofio_dashboard_view_mode), high-density List View, multi-device Quick Preview modal (Desktop 100%, Tablet 768px, Mobile 375px), and E2E Flow 16 (16-dashboard-framer-ui.spec.ts).",
+        "Verification: npx tsc --noEmit clean (0 errors), npm run lint 0 errors (1 pre-existing warning in BillingClientView), npm run build clean (34 routes compiled), npx playwright test 35 passed / 3 skipped / 0 failed."
       ],
       "notes": "Scope: dashboard entry surfaces (shell + sidebar + /dashboard grid + preview modal) only. Existing DESIGN.md-token dashboard pages (billing/templates/content/profile) keep their own UIs; the layout shell changes apply globally to them. Green accent kept; accumulated verified evidence recorded in the verify steps."
     },

@@ -3,7 +3,8 @@
 - Improved `DashboardSidebar.tsx` to support smooth collapse (minimize) and expand behavior:
   - Default state set to expanded (`collapsed = false`), preserving initial full visibility of navigation items, counts, and submenus.
   - Added `localStorage` persistence (`portofio_sidebar_collapsed`) so the user's preferred sidebar state survives page reloads.
-  - Re-positioned the toggle collapse/expand button in the desktop sidebar header cleanly: top right in expanded mode (`left_panel_close`), centered below the logo in minimized mode (`left_panel_open`) with accent hover highlights and localized tooltips.
+  - Removed arrow icon toggle button when sidebar is minimized; clicking the brand logo tile directly expands the sidebar cleanly.
+  - Re-positioned the toggle collapse button in the desktop sidebar header top right in expanded mode (`left_panel_close`).
   - Enhanced compact mode: active indicator green accent pill (`bg-accent`) is visible on compact rail icons, sub-group parent icons display green glow when active, and clicking any group parent icon ("Content Library", "Settings") automatically expands the sidebar and opens the accordion.
   - Profile footer in compact mode displays centered initials avatar and compact logout button with full hover tooltips.
 - Added `e2e/flows/15-sidebar-toggle.spec.ts` covering dashboard route auth gating and localStorage persistence.

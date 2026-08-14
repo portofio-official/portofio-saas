@@ -294,8 +294,18 @@ export function DashboardSidebar({
   const divider = <div className="mx-2.5 my-2 border-t border-black/5" />;
 
   const brand = (showLabel = !collapsed) => (
-    <>
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-accent text-white shadow-[0_8px_20px_rgba(0,207,124,0.35)]">
+    <div
+      onClick={collapsed ? toggleCollapsed : undefined}
+      title={collapsed ? t("expandSidebar") : undefined}
+      className={`flex items-center gap-2.5 min-w-0 ${
+        collapsed ? "cursor-pointer group" : ""
+      }`}
+    >
+      <div
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-accent text-white shadow-[0_8px_20px_rgba(0,207,124,0.35)] ${
+          collapsed ? "transition-transform group-hover:scale-105 active:scale-95" : ""
+        }`}
+      >
         <span className="material-symbols-outlined text-[20px]">workspaces</span>
       </div>
       {showLabel && (
@@ -304,7 +314,7 @@ export function DashboardSidebar({
           <p className="mt-1 truncate text-[11px] font-medium text-ink-faint">{tw("brandTagline")}</p>
         </div>
       )}
-    </>
+    </div>
   );
 
   const nav = (compact = collapsed) => (
@@ -376,15 +386,11 @@ export function DashboardSidebar({
     <button
       type="button"
       onClick={toggleCollapsed}
-      title={collapsed ? t("expandSidebar") : t("collapseSidebar")}
-      aria-label={collapsed ? t("expandSidebar") : t("collapseSidebar")}
-      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-ink/[0.06] hover:text-ink ${
-        collapsed ? "w-8 hover:bg-accent/10 hover:text-accent-deep" : ""
-      }`}
+      title={t("collapseSidebar")}
+      aria-label={t("collapseSidebar")}
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-ink/[0.06] hover:text-ink"
     >
-      <span className="material-symbols-outlined text-[18px]">
-        {collapsed ? "left_panel_open" : "left_panel_close"}
-      </span>
+      <span className="material-symbols-outlined text-[18px]">left_panel_close</span>
     </button>
   );
 
@@ -453,13 +459,11 @@ export function DashboardSidebar({
       >
         <div
           className={`flex border-b border-black/5 transition-all duration-300 ${
-            collapsed ? "flex-col items-center gap-2.5 px-2 py-3" : "items-center justify-between px-4 py-3.5"
+            collapsed ? "justify-center px-2 py-3.5" : "items-center justify-between px-4 py-3.5"
           }`}
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            {brand(!collapsed)}
-          </div>
-          {collapseToggleButton}
+          {brand(!collapsed)}
+          {!collapsed && collapseToggleButton}
         </div>
         {nav()}
         {profile()}

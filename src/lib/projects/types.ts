@@ -14,6 +14,7 @@ export interface Project {
   profileSyncedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  draftJson: WebsiteDocument;
 }
 
 export interface ProjectVersion {

@@ -233,9 +233,9 @@
       "eyebrow": "Start for free",
       "title": "Create your account",
       "emailLabel": "Email",
-"passwordLabel": "Password",
-  "passwordHint": "Use 8+ characters with uppercase, lowercase, a number, and a symbol.",
-  "submit": "Sign up",
+      "passwordLabel": "Password",
+      "passwordHint": "Use 8+ characters with uppercase, lowercase, a number, and a symbol.",
+      "submit": "Sign up",
       "submitPending": "Creating account…",
       "haveAccount": "Already have an account?",
       "loginLink": "Log in"
@@ -257,25 +257,25 @@
       "submit": "Save password",
       "submitPending": "Saving…"
     },
-"errors": {
-  "userExists": "This email is already registered.",
-  "invalidCredentials": "Incorrect email or password.",
-  "weakPassword": "Password must be at least 8 characters.",
-  "passwordStrength": "Password doesn't meet the requirements — check the list below.",
-  "passwordMismatch": "Passwords do not match.",
-  "emailNotConfirmed": "Please verify your email first.",
-  "confirmFailed": "This link is invalid or has expired.",
-  "oauthFailed": "Google sign-in failed. Please try again.",
-  "rateLimited": "Too many attempts. Please try again in a few minutes.",
-  "generic": "Something went wrong. Please try again."
- },
- "rules": {
-  "minLength": "At least 8 characters",
-  "lowercase": "A lowercase letter",
-  "uppercase": "An uppercase letter",
-  "number": "A number",
-  "special": "A special character (e.g. ! @ #)"
- },
+    "errors": {
+      "userExists": "This email is already registered.",
+      "invalidCredentials": "Incorrect email or password.",
+      "weakPassword": "Password must be at least 8 characters.",
+      "passwordStrength": "Password doesn't meet the requirements — check the list below.",
+      "passwordMismatch": "Passwords do not match.",
+      "emailNotConfirmed": "Please verify your email first.",
+      "confirmFailed": "This link is invalid or has expired.",
+      "oauthFailed": "Google sign-in failed. Please try again.",
+      "rateLimited": "Too many attempts. Please try again in a few minutes.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "rules": {
+      "minLength": "At least 8 characters",
+      "lowercase": "A lowercase letter",
+      "uppercase": "An uppercase letter",
+      "number": "A number",
+      "special": "A special character (e.g. ! @ #)"
+    },
     "oauth": {
       "or": "or",
       "google": "Sign in with Google",
@@ -323,7 +323,11 @@
     "domains": "Domains",
     "billing": "Billing",
     "comingSoon": "Soon",
-    "pro": "Pro"
+    "pro": "Pro",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "Profile": {
     "eyebrow": "Profile",
@@ -510,6 +514,49 @@
       "hint": "Test subscription activation without payment gateway",
       "btn": "⚡ Activate Test Sub (30 days)",
       "activating": "Activating..."
+    },
+    "planCycle": "Billing cycle: {cycle}",
+    "picker": {
+      "title": "Choose your plan",
+      "subtitle": "Pick a plan and billing cycle. You can upgrade or downgrade anytime.",
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "perMonth": "/ month",
+      "perYear": "/ year",
+      "choose": "Choose Plan",
+      "currentPlan": "Current Plan"
+    },
+    "plans": {
+      "basic": {
+        "name": "Basic",
+        "features": [
+          "Publish 1 website to your Portofio subdomain",
+          "Basic analytics",
+          "8 built-in templates",
+          "Real-time live preview",
+          "Auto-save drafts"
+        ]
+      },
+      "premium": {
+        "name": "Premium",
+        "features": [
+          "Publish 1 website to subdomain or custom domain",
+          "No Portofio watermark",
+          "Advanced analytics",
+          "All Basic features",
+          "Priority support"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "features": [
+          "Everything in Premium",
+          "Self-service checkout",
+          "Advanced analytics",
+          "Priority support",
+          "Team collaboration (roadmap)"
+        ]
+      }
     }
   },
   "Dashboard": {
@@ -533,6 +580,8 @@
     "createWebsite": "Create Website",
     "createWebsiteDesc": "Start from a professionally designed template",
     "editedLabel": "Edited",
+    "viewedLabel": "Viewed",
+    "allProjects": "All",
     "preview": "Preview Website",
     "unpublish": "Unpublish Website",
     "publish": "Publish Website",
@@ -563,7 +612,30 @@
     "confirmDeleteTitle": "Delete this website?",
     "confirmDeleteDesc": "Website \"{name}\" and all of its draft data will be deleted. This cannot be undone.",
     "cancel": "Cancel",
-    "confirmDelete": "Yes, delete"
+    "confirmDelete": "Yes, delete",
+    "viewGrid": "Grid view",
+    "viewList": "List view",
+    "colName": "Project",
+    "colStatus": "Status",
+    "colDomain": "Domain / URL",
+    "colLastEdited": "Last edited",
+    "colActions": "Actions",
+    "clearFilters": "Clear filters",
+    "welcomeBack": "Welcome back",
+    "metricLiveTitle": "Live Website",
+    "metricLiveSub": "Active on subdomain & secure SSL",
+    "metricNoLiveTitle": "No Live Websites",
+    "metricNoLiveSub": "Ready to be published",
+    "metricDraftTitle": "Portfolio Drafts",
+    "metricDraftSub": "Autosave active & up to date",
+    "metricTemplatesTitle": "Pro Templates",
+    "metricTemplatesSub": "5 ready-to-use designs",
+    "copyUrl": "Copy Link",
+    "urlCopied": "Link copied!",
+    "visitSite": "Visit",
+    "lastActive": "Last active",
+    "templateLabel": "Template",
+    "quickActions": "Quick Actions"
   },
   "Analytics": {
     "eyebrow": "Analytics",
@@ -744,7 +816,17 @@
     "subtitle": "One content source for every template",
     "hint": "Enter content once, then control its order and visibility. Every template uses active library items.",
     "typesLabel": "Content types",
-    "types": { "project": "Projects", "testimonial": "Testimonials", "certificate": "Certificates", "experience": "Experience", "education": "Education", "publication": "Publications", "media": "Media", "caseStudy": "Case Studies", "gallery": "Gallery" },
+    "types": {
+      "project": "Projects",
+      "testimonial": "Testimonials",
+      "certificate": "Certificates",
+      "experience": "Experience",
+      "education": "Education",
+      "publication": "Publications",
+      "media": "Media",
+      "caseStudy": "Case Studies",
+      "gallery": "Gallery"
+    },
     "typeLabel": "Content type",
     "active": "Visible",
     "inactive": "Hidden",
@@ -755,7 +837,23 @@
     "searchEmptyDesc": "No items match your search. Try a different keyword.",
     "moveUp": "Move up",
     "moveDown": "Move down",
-    "metaLabels": { "role": "Role / position", "issuer": "Issuer", "date": "Date / year", "company": "Company", "startDate": "Start (YYYY-MM)", "endDate": "End (YYYY-MM)", "institution": "Institution", "degree": "Degree", "field": "Field of study", "startYear": "Start year", "endYear": "End year", "venue": "Venue / publisher", "year": "Year", "location": "Location", "category": "Category" },
+    "metaLabels": {
+      "role": "Role / position",
+      "issuer": "Issuer",
+      "date": "Date / year",
+      "company": "Company",
+      "startDate": "Start (YYYY-MM)",
+      "endDate": "End (YYYY-MM)",
+      "institution": "Institution",
+      "degree": "Degree",
+      "field": "Field of study",
+      "startYear": "Start year",
+      "endYear": "End year",
+      "venue": "Venue / publisher",
+      "year": "Year",
+      "location": "Location",
+      "category": "Category"
+    },
     "addItem": "Add item",
     "editTitle": "Edit item",
     "addTitle": "Add item",

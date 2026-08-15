@@ -5,8 +5,11 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import type { Workspace } from "@/lib/workspace/types";
-import { PreviewTemplateRenderer } from "@/templates/registry";
 import { useToast } from "@/components/ui/Toast";
+import { type SortOption, type FilterOption } from "./components/DashboardToolbar";
+import { WorkspaceGrid } from "./components/WorkspaceGrid";
+import { WorkspaceListView } from "./components/WorkspaceListView";
+import { QuickPreviewModal } from "./components/QuickPreviewModal";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
 
@@ -38,9 +41,6 @@ function timeAgo(dateInput: string, locale: string): string {
   return rtf.format(years, "year");
 }
 
-type SortOption = "updated" | "name" | "created";
-type FilterOption = "all" | "published" | "draft";
-
 export function DashboardClientView({
   workspaces,
   preferredTemplateId,
@@ -58,35 +58,48 @@ export function DashboardClientView({
 
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("updated");
-  const [filterBy, setFilterBy] = useState<FilterOption>("all");
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [filterBy] = useState<FilterOption>("all");
+  const [showSearch, setShowSearch] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+
   const [isDuplicating, setIsDuplicating] = useState<string | null>(null);
   const [previewWorkspace, setPreviewWorkspace] = useState<Workspace | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<Workspace | null>(null);
-  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
-  // Keyboard shortcut listener: Cmd/Ctrl + K focuses the search input
+  // Focus search input when revealed
+  useEffect(() => {
+    if (showSearch) {
+      searchInputRef.current?.focus();
+    }
+  }, [showSearch]);
+
+  // Keyboard shortcut: Cmd/Ctrl + K toggles search
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        searchInputRef.current?.focus();
+        setShowSearch((v) => {
+          if (!v) return true;
+          searchInputRef.current?.focus();
+          return v;
+        });
+      }
+      if (e.key === "Escape" && showSearch) {
+        setShowSearch(false);
+        setSearch("");
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [showSearch]);
 
-  // Compute metadata counters
-  const totalCount = workspaces.length;
-  const publishedCount = workspaces.filter((w) => w.publishStatus === "published").length;
-  const draftCount = totalCount - publishedCount;
-
-  const latestWorkspace = [...workspaces].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  )[0];
-
-  const lastUpdatedText = latestWorkspace ? timeAgo(latestWorkspace.createdAt, locale) : "Never";
+  // Sort options
+  const sortOptions: { value: SortOption; label: string }[] = [
+    { value: "updated", label: t("sortUpdated") },
+    { value: "name", label: t("sortName") },
+    { value: "created", label: t("sortCreated") },
+  ];
+  const currentSortLabel = sortOptions.find((s) => s.value === sortBy)?.label ?? t("sortUpdated");
 
   // Filter and sort items
   const filteredWorkspaces = workspaces
@@ -101,15 +114,12 @@ export function DashboardClientView({
       return matchesSearch && matchesFilter;
     })
     .sort((a, b) => {
-      if (sortBy === "name") {
-        return a.name.localeCompare(b.name);
-      }
+      if (sortBy === "name") return a.name.localeCompare(b.name);
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
   const handleDuplicate = async (workspaceId: string) => {
     setIsDuplicating(workspaceId);
-    setOpenMenuId(null);
     try {
       const { duplicateWorkspaceAction } = await import("@/lib/workspace/actions");
       const res = await duplicateWorkspaceAction(workspaceId);
@@ -127,7 +137,6 @@ export function DashboardClientView({
   };
 
   const handleUnpublish = async (workspaceId: string) => {
-    setOpenMenuId(null);
     try {
       const { unpublishWorkspaceProjectAction } = await import("@/lib/workspace/actions");
       await unpublishWorkspaceProjectAction(workspaceId);
@@ -139,7 +148,6 @@ export function DashboardClientView({
   };
 
   const handleDelete = async (workspace: Workspace) => {
-    setOpenMenuId(null);
     try {
       const { deleteWorkspaceAction } = await import("@/lib/workspace/actions");
       await deleteWorkspaceAction(workspace.id);
@@ -150,409 +158,145 @@ export function DashboardClientView({
     }
   };
 
-  const filterOptions: { value: FilterOption; label: string; tone?: "live" | "draft" }[] = [
-    { value: "all", label: t("filterAll") },
-    { value: "published", label: t("filterPublished"), tone: "live" },
-    { value: "draft", label: t("filterDraft") },
-  ];
-
-  const sortOptions: { value: SortOption; label: string }[] = [
-    { value: "updated", label: t("sortUpdated") },
-    { value: "name", label: t("sortName") },
-    { value: "created", label: t("sortCreated") },
-  ];
-
-  const statChips: { count: number; label: string; live?: boolean }[] = [
-    { count: totalCount, label: t("totalLabel") },
-    { count: publishedCount, label: t("publishedLabel"), live: true },
-    { count: draftCount, label: t("draftLabel") },
-  ];
-
   return (
     <div className="flex h-full flex-col overflow-hidden bg-surface select-none">
-      {/* Top Header */}
-      <header className="shrink-0 border-b border-black/5 bg-surface px-6 pt-6 sm:px-8">
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
-            <div className="min-w-0 max-w-xl">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/[0.1] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-deep">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                {t("eyebrow")}
-              </span>
-              <h1 className="mt-2.5 font-display text-[26px] font-bold leading-tight tracking-tight text-ink sm:text-[30px]">
-                {t("title")}
-              </h1>
-              <p className="mt-1 text-sm font-medium text-ink-soft">{t("subtitle")}</p>
-            </div>
+      {/* ── Top Header ── */}
+      <header className="shrink-0 border-b border-black/5 bg-surface px-6 sm:px-8 py-4">
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: "All" heading */}
+          <h1 className="font-display text-[22px] font-bold tracking-tight text-ink">
+            {t("allProjects")}
+          </h1>
 
-            {/* Primary CTA */}
-            <Link
-              href="/dashboard/templates"
-              className="flex h-10 shrink-0 items-center gap-2 rounded-full bg-accent px-5 text-[13px] font-bold text-white shadow-[0_10px_24px_-8px_rgba(0,207,124,0.55)] transition-all duration-200 hover:bg-accent-deep active:scale-[0.98]"
-            >
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              {t("newWebsite")}
-            </Link>
-          </div>
-
-          {/* Stats + Tools */}
-          <div className="flex flex-col gap-3 border-t border-black/5 py-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* Stat chips */}
-            <div className="flex items-center gap-2">
-              {statChips.map((chip) => (
-                <div
-                  key={chip.label}
-                  className="flex items-center gap-2 rounded-full bg-ink/[0.04] px-3 py-1.5 ring-1 ring-black/5"
-                >
-                  {chip.live && <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />}
-                  <span
-                    className={`font-mono text-[13px] font-semibold tabular-nums ${
-                      chip.live ? "text-accent-deep" : "text-ink"
-                    }`}
-                  >
-                    {chip.count}
+          {/* Right: controls */}
+          <div className="flex items-center gap-2">
+            {/* Search icon → expands inline */}
+            <div className="flex items-center">
+              {showSearch ? (
+                <div className="flex items-center gap-1.5 rounded-full bg-ink/[0.04] ring-1 ring-black/5 pl-3 pr-1.5 h-9 transition-all duration-200">
+                  <span className="material-symbols-outlined text-[15px] text-ink-faint shrink-0">
+                    search
                   </span>
-                  <span className="text-[11px] font-medium text-ink-faint">{chip.label}</span>
-                </div>
-              ))}
-              <div className="hidden items-center gap-1.5 rounded-full px-3 py-1.5 sm:flex">
-                <span className="text-[11px] font-medium text-ink-faint">
-                  {t("updatedLabel")} {lastUpdatedText}
-                </span>
-              </div>
-            </div>
-
-            {/* Toolbar */}
-            <div className="flex flex-wrap items-center gap-2">
-              {/* Search input with ⌘K */}
-              <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-3 text-[16px] text-ink-faint">
-                  search
-                </span>
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder={t("searchPlaceholder")}
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="h-9 w-52 rounded-full bg-ink/[0.04] pl-9 pr-12 text-[13px] font-medium text-ink ring-1 ring-transparent placeholder:text-ink-faint transition-all focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-0 focus:bg-surface sm:w-56"
-                />
-                <span className="absolute right-3 flex items-center gap-0.5 rounded-md bg-surface px-1.5 py-0.5 text-[10px] font-mono text-ink-faint ring-1 ring-black/5 pointer-events-none">
-                  ⌘K
-                </span>
-              </div>
-
-              {/* Filter segmented control */}
-              <div className="flex items-center gap-0.5 rounded-full bg-ink/[0.05] p-1">
-                {filterOptions.map((opt) => (
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder={t("searchPlaceholder")}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-36 sm:w-48 bg-transparent text-[13px] font-medium text-ink placeholder:text-ink-faint focus:outline-none"
+                  />
                   <button
-                    key={opt.value}
                     type="button"
-                    onClick={() => setFilterBy(opt.value)}
-                    className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-[12px] font-semibold transition-all duration-150 ${
-                      filterBy === opt.value
-                        ? "bg-surface text-ink shadow-sm ring-1 ring-black/5"
-                        : "text-ink-faint hover:text-ink-soft"
-                    }`}
+                    onClick={() => {
+                      setShowSearch(false);
+                      setSearch("");
+                    }}
+                    className="grid h-6 w-6 place-items-center rounded-full text-ink-faint hover:bg-ink/10 hover:text-ink transition-colors"
+                    aria-label="Close search"
                   >
-                    {opt.tone === "live" && opt.value === "published" && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                    )}
-                    {opt.label}
+                    <span className="material-symbols-outlined text-[13px]">close</span>
                   </button>
-                ))}
-              </div>
-
-              {/* Sort dropdown */}
-              <div className="relative">
+                </div>
+              ) : (
                 <button
                   type="button"
-                  onClick={() => setShowSortDropdown((v) => !v)}
-                  className={`flex h-9 items-center gap-1.5 rounded-full px-3 pl-3.5 text-[13px] font-medium transition-all duration-150 ${
-                    showSortDropdown
-                      ? "bg-ink/[0.06] text-ink ring-1 ring-inset ring-ink/10"
-                      : "bg-ink/[0.04] text-ink-soft ring-1 ring-black/5 hover:bg-ink/[0.06] hover:text-ink"
-                  }`}
-                  aria-expanded={showSortDropdown}
+                  onClick={() => setShowSearch(true)}
+                  aria-label={t("searchPlaceholder")}
+                  className="grid h-9 w-9 place-items-center rounded-full text-ink-soft ring-1 ring-black/5 bg-ink/[0.04] transition-all duration-150 hover:bg-ink/[0.08] hover:text-ink"
+                  title={`${t("searchPlaceholder")} (⌘K)`}
                 >
-                  <span className="material-symbols-outlined text-[17px] text-ink-faint">sort</span>
-                  <span className="hidden sm:inline">{sortOptions.find((s) => s.value === sortBy)?.label}</span>
-                  <span className={`material-symbols-outlined text-[16px] text-ink-faint transition-transform duration-200 ${showSortDropdown ? "rotate-180" : ""}`}>
-                    expand_more
-                  </span>
+                  <span className="material-symbols-outlined text-[18px]">search</span>
                 </button>
-
-                {showSortDropdown && (
-                  <>
-                    <div className="fixed inset-0 z-10" onClick={() => setShowSortDropdown(false)} />
-                    <div className="absolute right-0 top-11 z-20 w-44 overflow-hidden rounded-xl bg-surface p-1 shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
-                      <p className="px-2.5 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
-                        {t("sortLabel")}
-                      </p>
-                      {sortOptions.map((opt) => (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => {
-                            setSortBy(opt.value);
-                            setShowSortDropdown(false);
-                          }}
-                          className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors ${
-                            sortBy === opt.value
-                              ? "bg-accent/[0.1] text-accent-deep font-semibold"
-                              : "text-ink-soft hover:bg-ink/[0.04]"
-                          }`}
-                        >
-                          {opt.label}
-                          {sortBy === opt.value && (
-                            <span className="material-symbols-outlined text-[14px]">check</span>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+              )}
             </div>
+
+            {/* Sort dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowSortDropdown((v) => !v)}
+                className="flex h-9 items-center gap-1.5 rounded-full bg-ink/[0.04] px-3.5 text-[13px] font-medium text-ink-soft ring-1 ring-black/5 transition-all duration-150 hover:bg-ink/[0.08] hover:text-ink"
+                aria-expanded={showSortDropdown}
+                id="sort-dropdown-btn"
+              >
+                <span className="hidden sm:inline">{currentSortLabel}</span>
+                <span className="sm:hidden material-symbols-outlined text-[16px]">sort</span>
+                <span
+                  className={`material-symbols-outlined text-[15px] text-ink-faint transition-transform duration-200 ${
+                    showSortDropdown ? "rotate-180" : ""
+                  }`}
+                >
+                  expand_more
+                </span>
+              </button>
+
+              {showSortDropdown && (
+                <>
+                  <div className="fixed inset-0 z-20" onClick={() => setShowSortDropdown(false)} />
+                  <div className="absolute right-0 top-10 z-30 w-48 overflow-hidden rounded-xl bg-surface p-1 shadow-floating ring-1 ring-black/5 animate-fade-in-up-custom">
+                    <p className="px-2.5 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
+                      {t("sortLabel")}
+                    </p>
+                    {sortOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          setSortBy(opt.value);
+                          setShowSortDropdown(false);
+                        }}
+                        className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors ${
+                          sortBy === opt.value
+                            ? "bg-accent/[0.1] text-accent-deep font-bold"
+                            : "text-ink-soft hover:bg-ink/[0.04]"
+                        }`}
+                      >
+                        {opt.label}
+                        {sortBy === opt.value && (
+                          <span className="material-symbols-outlined text-[14px]">check</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* New Project CTA */}
+            <Link
+              href="/dashboard/templates"
+              id="new-project-btn"
+              className="flex h-9 shrink-0 items-center gap-2 rounded-full bg-accent px-4 text-[13px] font-bold text-white transition-all duration-200 hover:bg-accent-deep active:scale-[0.98]"
+            >
+              <span className="material-symbols-outlined text-[16px]">add</span>
+              <span className="hidden sm:inline">{t("newWebsite")}</span>
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Grid View */}
+      {/* ── Main Content Area ── */}
       <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">
         {filteredWorkspaces.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {/* Website Cards */}
-            {filteredWorkspaces.map((workspace, index) => {
-              const siteSubdomain = workspace.subdomain ?? workspace.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
-              const fullSiteUrl = `http://${ROOT_DOMAIN}/sites/${siteSubdomain}`;
-              const isPublished = workspace.publishStatus === "published";
-
-              return (
-                <div
-                  key={workspace.id}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 animate-fade-in-up-custom"
-                  style={{ animationDelay: `${Math.min(index * 45, 360)}ms` }}
-                >
-                  <div className="flex-1 flex flex-col overflow-hidden rounded-[1.6rem] bg-surface shadow-sm ring-1 ring-black/5">
-                    {/* Miniature Browser Chrome */}
-                    <div className="relative flex flex-col bg-shell">
-                      <div className="flex items-center justify-between gap-2 border-b border-black/5 bg-shell px-3 py-2.5">
-                        <div className="flex items-center gap-1.5">
-                          <span className="h-2 w-2 rounded-full bg-[#FF5F56]/80" />
-                          <span className="h-2 w-2 rounded-full bg-[#FFBD2E]/80" />
-                          <span className="h-2 w-2 rounded-full bg-[#27C93F]/80" />
-                        </div>
-                        <div className="flex min-w-0 items-center gap-1 rounded-md bg-surface px-2 py-1 text-[10px] font-mono text-ink-faint ring-1 ring-black/5">
-                          {isPublished ? (
-                            <span className="material-symbols-outlined text-[11px] text-accent-deep">lock</span>
-                          ) : (
-                            <span className="material-symbols-outlined text-[11px]">edit_note</span>
-                          )}
-                          <span className="truncate">
-                            {siteSubdomain}.portofio.app
-                          </span>
-                        </div>
-                        <div className="w-7" />
-                      </div>
-
-                      {/* Preview Canvas */}
-                      <div className="relative flex h-[180px] w-full items-center justify-center overflow-hidden bg-shell">
-                        {workspace.preview ? (
-                          <div
-                            className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-300 group-hover:scale-[1.03]"
-                            style={{ transform: "scale(0.33)", width: "303%", height: "303%" }}
-                          >
-                            <PreviewTemplateRenderer
-                              templateId={workspace.preview.templateId}
-                              data={workspace.preview.data}
-                            />
-                          </div>
-                        ) : (
-                          <div className="relative w-[70%] rounded-xl border border-black/5 bg-surface p-3 shadow-xs transition-transform duration-300 group-hover:scale-105">
-                            <div className="mb-2 h-2 w-1/3 rounded-full bg-ink/[0.08]" />
-                            <div className="mb-2 h-14 w-full rounded-md bg-shell" />
-                            <div className="flex gap-2">
-                              <div className="h-8 w-1/2 rounded-md bg-shell" />
-                              <div className="h-8 w-1/2 rounded-md bg-shell" />
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Hover Actions Overlay */}
-                        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-[#111827]/50 backdrop-blur-[2px] opacity-0 transition-opacity duration-200 group-hover:opacity-100 p-4">
-                          <Link
-                            href={`/dashboard/${workspace.id}/editor`}
-                            className="flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-bold text-white shadow-sm transition-all duration-200 hover:bg-accent-deep active:scale-[0.97]"
-                          >
-                            <span className="material-symbols-outlined text-[17px]">edit</span>
-                            {t("edit")}
-                          </Link>
-
-                          <button
-                            type="button"
-                            onClick={() => setPreviewWorkspace(workspace)}
-                            className="grid h-10 w-10 place-items-center rounded-full bg-surface text-ink-soft shadow-sm transition-colors duration-200 hover:bg-white hover:text-ink"
-                            title={t("preview")}
-                          >
-                            <span className="material-symbols-outlined text-[18px]">visibility</span>
-                          </button>
-
-                          {isPublished ? (
-                            <button
-                              type="button"
-                              onClick={() => handleUnpublish(workspace.id)}
-                              className="grid h-10 w-10 place-items-center rounded-full bg-surface text-[#D97706] shadow-sm transition-colors duration-200 hover:bg-[#FFFBEB]"
-                              title={t("unpublish")}
-                            >
-                              <span className="material-symbols-outlined text-[18px]">cloud_off</span>
-                            </button>
-                          ) : (
-                            <Link
-                              href={`/dashboard/${workspace.id}/editor`}
-                              className="grid h-10 w-10 place-items-center rounded-full bg-surface text-accent-deep shadow-sm transition-colors duration-200 hover:bg-accent/10"
-                              title={t("publish")}
-                            >
-                              <span className="material-symbols-outlined text-[18px]">cloud_upload</span>
-                            </Link>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card Footer */}
-                    <div className="flex flex-col gap-2.5 border-t border-black/5 bg-surface p-4">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="truncate text-[14px] font-bold text-ink">{workspace.name}</p>
-
-                        {isPublished ? (
-                          <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent/[0.12] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-deep ring-1 ring-accent/20">
-                            <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-                            {t("live")}
-                          </span>
-                        ) : (
-                          <span className="shrink-0 rounded-full bg-ink/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint ring-1 ring-black/5">
-                            {t("filterDraft")}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <p className="text-[12px] font-medium text-ink-faint">
-                          {t("editedLabel")} {timeAgo(workspace.createdAt, locale)}
-                        </p>
-
-                        {/* Card More Menu */}
-                        <div className="relative">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setOpenMenuId(openMenuId === workspace.id ? null : workspace.id);
-                            }}
-                            className="grid h-7 w-7 place-items-center rounded-lg text-ink-faint transition-colors hover:bg-ink/[0.05] hover:text-ink"
-                            title={t("moreActions")}
-                          >
-                            <span className="material-symbols-outlined text-[16px]">more_vert</span>
-                          </button>
-
-                          {openMenuId === workspace.id && (
-                            <>
-                              <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                              <div className="absolute right-0 bottom-8 z-20 flex w-48 flex-col overflow-hidden rounded-xl bg-surface p-1 shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
-                                <Link
-                                  href={`/dashboard/${workspace.id}/editor`}
-                                  className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
-                                >
-                                  <span className="material-symbols-outlined text-[16px]">edit</span>
-                                  {t("edit")} Website
-                                </Link>
-
-                                <Link
-                                  href={`/dashboard/content`}
-                                  className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
-                                >
-                                  <span className="material-symbols-outlined text-[16px]">folder_open</span>
-                                  {t("contentLibrary")}
-                                </Link>
-
-                                {isPublished && workspace.subdomain && (
-                                  <a
-                                    href={fullSiteUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-accent-deep transition-colors hover:bg-accent/[0.08]"
-                                  >
-                                    <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-                                    {t("visitLiveSite")}
-                                  </a>
-                                )}
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleDuplicate(workspace.id)}
-                                  disabled={isDuplicating === workspace.id}
-                                  className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
-                                >
-                                  <span className="material-symbols-outlined text-[16px]">content_copy</span>
-                                  {isDuplicating === workspace.id ? t("duplicating") : t("duplicate")}
-                                </button>
-
-                                <div className="my-1 border-t border-black/5" />
-
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setOpenMenuId(null);
-                                    setDeleteCandidate(workspace);
-                                  }}
-                                  className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-danger transition-colors hover:bg-danger/5"
-                                >
-                                  <span className="material-symbols-outlined text-[16px]">delete</span>
-                                  {t("delete")}
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Create Website Card (Dashed) */}
-            <Link
-              href="/dashboard/templates"
-              className="group flex min-h-[150px] flex-col overflow-hidden rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 animate-fade-in-up-custom"
-              style={{ animationDelay: `${Math.min(filteredWorkspaces.length * 45, 360)}ms` }}
-            >
-              <div className="flex min-h-full flex-1 flex-col items-center justify-center gap-3 rounded-[1.6rem] border-2 border-dashed border-black/10 bg-surface px-6 py-8 text-center transition-colors duration-200 group-hover:border-accent/40">
-                <div className="grid h-11 w-11 place-items-center rounded-full bg-accent/10 text-accent transition-all duration-200 group-hover:bg-accent group-hover:text-white">
-                  <span className="material-symbols-outlined text-[22px]">add</span>
-                </div>
-                <div>
-                  <p className="font-display text-[15px] font-bold text-ink transition-colors duration-200 group-hover:text-accent-deep">
-                    {t("createWebsite")}
-                  </p>
-                  <p className="mt-1 max-w-[220px] text-[12px] font-normal text-ink-soft">
-                    {t("createWebsiteDesc")}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          </div>
+          <WorkspaceGrid
+            workspaces={filteredWorkspaces}
+            locale={locale}
+            onPreview={setPreviewWorkspace}
+            onDuplicate={handleDuplicate}
+            isDuplicating={isDuplicating}
+            onUnpublish={handleUnpublish}
+            onDelete={setDeleteCandidate}
+          />
         ) : (
           /* Search / Filter Empty State */
-          <div className="flex min-h-[320px] items-center justify-center">
+          <div className="flex min-h-[340px] items-center justify-center">
             <div className="flex max-w-sm flex-col items-center gap-3 text-center">
               <div className="grid h-16 w-16 place-items-center rounded-2xl bg-accent/[0.1] text-accent-deep ring-1 ring-accent/20">
-                <span className="material-symbols-outlined text-[30px]">search_off</span>
+                <span className="material-symbols-outlined text-[32px]">search_off</span>
               </div>
               <div>
-                <p className="text-[16px] font-bold text-ink">{t("noResultsTitle")}</p>
-                <p className="mt-1 text-[13px] font-medium text-ink-soft">
+                <p className="font-display text-[17px] font-bold text-ink">{t("noResultsTitle")}</p>
+                <p className="mt-1 text-[13px] font-medium text-ink-soft leading-relaxed">
                   {t("noResultsDesc", { search })}
                 </p>
               </div>
@@ -560,9 +304,9 @@ export function DashboardClientView({
                 type="button"
                 onClick={() => {
                   setSearch("");
-                  setFilterBy("all");
+                  setShowSearch(false);
                 }}
-                className="mt-2 h-9 rounded-full border border-black/10 bg-surface px-4 text-[12px] font-semibold text-ink-soft transition-all duration-200 hover:bg-ink/[0.04] hover:text-ink active:scale-[0.98]"
+                className="mt-2 h-9 rounded-full border border-black/10 bg-surface px-5 text-[12px] font-semibold text-ink-soft transition-all duration-200 hover:bg-ink/[0.05] hover:text-ink active:scale-[0.98]"
               >
                 {t("clearFilters")}
               </button>
@@ -573,77 +317,23 @@ export function DashboardClientView({
 
       {/* Quick Website Preview Modal */}
       {previewWorkspace && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111827]/60 p-4 backdrop-blur-sm">
-          <div className="relative flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-surface shadow-2xl ring-1 ring-black/5">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-black/5 bg-shell px-6 py-4">
-              <div className="flex min-w-0 items-center gap-3">
-                <h3 className="truncate font-display text-[17px] font-bold leading-none tracking-tight text-ink">
-                  {previewWorkspace.name}
-                </h3>
-                {previewWorkspace.publishStatus === "published" ? (
-                  <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent/[0.12] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-deep ring-1 ring-accent/20">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-                    {t("live")}
-                  </span>
-                ) : (
-                  <span className="shrink-0 rounded-full bg-ink/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint ring-1 ring-black/5">
-                    {t("draftPreview")}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2.5">
-                <Link
-                  href={`/dashboard/${previewWorkspace.id}/editor`}
-                  className="flex h-9 items-center gap-1.5 rounded-full bg-accent px-4 text-[12px] font-bold text-white shadow-[0_8px_18px_-6px_rgba(0,207,124,0.5)] transition-all duration-200 hover:bg-accent-deep active:scale-[0.98]"
-                >
-                  <span className="material-symbols-outlined text-[16px]">edit</span>
-                  {t("openEditor")}
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={() => setPreviewWorkspace(null)}
-                  className="grid h-9 w-9 place-items-center rounded-full text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink"
-                  aria-label={t("close")}
-                >
-                  <span className="material-symbols-outlined text-[20px]">close</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Body */}
-            <div className="relative flex-1 overflow-auto bg-shell p-6">
-              {previewWorkspace.preview ? (
-                <div className="mx-auto max-w-4xl overflow-hidden rounded-xl bg-surface shadow-md ring-1 ring-black/5">
-                  <PreviewTemplateRenderer
-                    templateId={previewWorkspace.preview.templateId}
-                    data={previewWorkspace.preview.data}
-                  />
-                </div>
-              ) : (
-                <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                  <div className="grid h-14 w-14 place-items-center rounded-2xl bg-ink/[0.04] text-ink-faint ring-1 ring-black/5">
-                    <span className="material-symbols-outlined text-[28px]">image_not_supported</span>
-                  </div>
-                  <p className="max-w-sm text-[13px] font-medium text-ink-soft">{t("previewPlaceholder")}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <QuickPreviewModal
+          workspace={previewWorkspace}
+          onClose={() => setPreviewWorkspace(null)}
+        />
       )}
 
+      {/* Delete Confirmation Modal */}
       {deleteCandidate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-md animate-fade-in-up-custom">
           <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-floating ring-1 ring-black/5">
-            <div className="mb-5 flex items-start gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-danger/10 text-danger">
-                <span className="material-symbols-outlined">delete</span>
+            <div className="mb-5 flex items-start gap-3.5">
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-danger/10 text-danger ring-1 ring-danger/20">
+                <span className="material-symbols-outlined text-[22px]">delete</span>
               </div>
               <div>
-                <h2 className="text-base font-bold text-ink">{t("confirmDeleteTitle")}</h2>
-                <p className="mt-1 text-sm leading-6 text-ink-soft">
+                <h2 className="font-display text-base font-bold text-ink">{t("confirmDeleteTitle")}</h2>
+                <p className="mt-1 text-sm leading-relaxed text-ink-soft">
                   {t("confirmDeleteDesc", { name: deleteCandidate.name })}
                 </p>
               </div>
@@ -652,7 +342,7 @@ export function DashboardClientView({
               <button
                 type="button"
                 onClick={() => setDeleteCandidate(null)}
-                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink ring-1 ring-black/10 transition-colors hover:bg-black/5"
+                className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-ink ring-1 ring-black/10 transition-colors hover:bg-black/5"
               >
                 {t("cancel")}
               </button>
@@ -663,7 +353,7 @@ export function DashboardClientView({
                   setDeleteCandidate(null);
                   await handleDelete(workspace);
                 }}
-                className="rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-danger/90"
+                className="rounded-full bg-danger px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-danger/90"
               >
                 {t("confirmDelete")}
               </button>

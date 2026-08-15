@@ -1,6 +1,7 @@
 import { redirect } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { getSubscriptionState } from "@/lib/billing/subscription";
+import { listActivePlans } from "@/lib/billing/plans";
 import { BillingClientView } from "@/components/dashboard/BillingClientView";
 
 export default async function BillingPage({
@@ -24,6 +25,7 @@ export default async function BillingPage({
   else if (billing_stub === "true") checkoutNotice = "stub";
 
   const subscriptionState = await getSubscriptionState();
+  const plans = await listActivePlans();
 
   return (
     <BillingClientView
@@ -31,9 +33,12 @@ export default async function BillingPage({
       isActive={subscriptionState.isActive}
       isGracePeriod={subscriptionState.isGracePeriod}
       expiresAt={subscriptionState.expiresAt?.toISOString() ?? null}
+      planId={subscriptionState.planId ?? null}
+      planName={subscriptionState.planName ?? null}
+      billingCycle={subscriptionState.billingCycle ?? null}
       daysRemainingInGracePeriod={subscriptionState.daysRemainingInGracePeriod}
       checkoutNotice={checkoutNotice}
+      plans={plans}
     />
   );
 }
-

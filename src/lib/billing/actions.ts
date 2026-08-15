@@ -4,9 +4,10 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createMidtransTransaction } from "./midtrans";
 import { getSubscriptionState } from "./subscription";
+import { getActivePlan, DEFAULT_PLAN_ID } from "./plans";
 import { requireRole } from "@/lib/auth/roles";
 
-export async function createCheckoutInvoiceAction(): Promise<{ url?: string; error?: string }> {
+export async function createCheckoutInvoiceAction(planId?: string): Promise<{ url?: string; error?: string }> {
   try {
     await requireRole(["user", "designer"]);
     const supabase = await createClient();
@@ -16,12 +17,21 @@ export async function createCheckoutInvoiceAction(): Promise<{ url?: string; err
       return { error: "Authentication required to checkout" };
     }
 
+    // The selected plan is always re-validated server-side; price and product id
+    // come from the database catalog, never from the client.
+    const selectedPlanId = planId || DEFAULT_PLAN_ID;
+    const plan = await getActivePlan(selectedPlanId);
+    if (!plan) {
+      return { error: "Invalid or inactive subscription plan" };
+    }
+
     const domain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "http://localhost:3000";
     const finishRedirectUrl = `${domain}/dashboard/billing?checkout=success`;
     const { redirectUrl } = await createMidtransTransaction({
       userId: user.id,
       email: user.email,
       finishRedirectUrl,
+      plan,
     });
 
     return { url: redirectUrl };
@@ -57,8 +67,13 @@ export async function activateDevSubscriptionAction(): Promise<{ ok: boolean; er
     const payload: Record<string, unknown> = {
       user_id: user.id,
       status: "active",
+      plan_id: DEFAULT_PLAN_ID,
+      billing_cycle: "monthly",
+      plan_snapshot: { tier: "basic", name: "Basic", billing_cycle: "monthly", price_idr: 49000 },
+      current_period_start: now.toISOString(),
       expires_at: expiresAt,
       current_period_end: expiresAt,
+      cancel_at_period_end: false,
       updated_at: now.toISOString(),
     };
 

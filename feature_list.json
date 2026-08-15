@@ -1,6 +1,6 @@
 {
   "project": "portofyo",
-  "last_updated": "2026-08-11",
+  "last_updated": "2026-08-14",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -223,7 +223,7 @@
       "area": "billing",
       "title": "Tiered subscription plans and entitlement enforcement",
       "user_visible_behavior": "A user can choose Basic, Premium, or Enterprise with monthly or annual billing through Midtrans. Basic publishes to a Portofio subdomain with a small watermark; Premium supports custom domains and removes the watermark; all tiers remain limited to one active published website per account.",
-      "status": "not_started",
+      "status": "in_progress",
       "verification": [
         "Checkout monthly and annual products for Basic, Premium, and Enterprise in Midtrans sandbox.",
         "Confirm webhooks persist plan, billing cycle, provider event, and subscription status idempotently.",
@@ -231,8 +231,12 @@
         "Confirm upgrade, downgrade, cancellation, grace period, auto-unpublish, and republish preserve portfolio data.",
         "Confirm the server ignores client-manipulated price or plan values."
       ],
-      "evidence": [],
-      "notes": "PRD v1.9. Enterprise is self-service but team collaboration, organization roles, approval workflow, and governance are roadmap items after tiered billing stabilizes. Final prices, annual discount, and Designer revenue-sharing policy remain open product decisions."
+      "evidence": [
+        "2026-08-14: Applied supabase/migrations/20260814000000_tiered_billing.sql to the real Supabase project (yvjwqammizdipwalvets). Adds `plans` catalog (6 seeded rows: Basic/Premium/Enterprise x monthly/annual with Midtrans product ids + price snapshots), plan-aware `subscriptions` columns (plan_id, billing_cycle, plan_snapshot, current_period_start, cancel_at_period_end, provider_order_id, provider_transaction_id), `templates.minimum_plan` (backfilled basic), `entitlements` table (3 tiers), and server-side `get_user_entitlements()` resolver. Existing active subscription backfilled to basic-monthly. Verified: 6 plans queryable, subscription columns present, all 8 templates minimum_plan=basic, get_user_entitlements returns correct basic entitlement row.",
+        "2026-08-14: Connected Midtrans to the tiered catalog — src/lib/billing/plans.ts (DB-backed plan fetch, PERIOD_DAYS, toPlanSnapshot), midtrans.ts createMidtransTransaction is now plan-aware (order id `sub_<userId>_<planId>_<ts>`, item details from DB plan), createCheckoutInvoiceAction(planId) re-validates the plan server-side (price/product never trusted from client), webhook persists plan_id/billing_cycle/plan_snapshot/period/provider ids idempotently with renewal extension and legacy-order compatibility, getSubscriptionState surfaces plan name/cycle, and BillingClientView gained a plan picker (monthly/annual toggle, per-tier pricing + features, checkout CTA).",
+        "Verification 2026-08-14: npx tsc --noEmit clean, npm run lint 0 errors (1 pre-existing warning in BillingClientView), npm run build clean (36 routes)."
+      ],
+      "notes": "PRD v1.9. Migrasi + koneksi Midtrans tiered selesai; entitlement enforcement UI (watermark pada situs Basic, custom domain Premium, template minimum_plan gating, upgrade/downgrade flow) dan E2E Midtrans sandbox masih pending. Enterprise is self-service but team collaboration, organization roles, approval workflow, and governance are roadmap items after tiered billing stabilizes. Final prices, annual discount, and Designer revenue-sharing policy remain open product decisions."
     },
     {
       "id": "arch-001",
@@ -567,7 +571,9 @@
       "evidence": [
         "2026-08-10 (Session 050): Redesigned the dashboard shell (layout.tsx ambient canvas with subtle radial glows, h-dvh, rounded-2xl white content panel), sidebar (DashboardSidebar: brand block, grouped nav with left-active accent indicator, hover/focus/aria-current states, profile+logout footer), and DashboardClientView: eyebrow pill + display title + subtitle, stat chips (Total/Live/Draft, mono numerals), segmented All/Live/Draft filter pill rail, refined sort dropdown, double-bezel website cards, dashed Create Website card, composed empty state, polished preview modal.",
         "2026-08-10: Localized relative timestamps via Intl.RelativeTimeFormat(locale). Added i18n keys in messages/en.json + id.json for the new Dashboard copy and the sidebar brand tagline.",
-        "Verification: npx tsc --noEmit clean, npm run lint 0 errors (1 pre-existing warning in BillingClientView), npm run build clean (23 routes), npm run test:e2e 24 passed / 1 skipped."
+        "2026-08-14 (Session 068): Taste Skill High-End Visual Design redesign across DashboardClientView, DashboardSidebar, AnalyticsClientView, and BillingClientView: Doppelrand double-bezel cards, button-in-button CTAs, live pulsating accent dots, smooth spring physics (cubic-bezier), mini browser address bar, ⌘K search shortcut, and polished profile footer.",
+        "2026-08-14 (Session 070): Framer-Style Dashboard Redesign: Modularized components (DashboardToolbar, WorkspaceCard, WorkspaceGrid, WorkspaceListView, WorkspaceListItem, QuickPreviewModal). Implemented Grid/List view mode toggle with localStorage persistence (portofio_dashboard_view_mode), high-density List View, multi-device Quick Preview modal (Desktop 100%, Tablet 768px, Mobile 375px), and E2E Flow 16 (16-dashboard-framer-ui.spec.ts).",
+        "Verification: npx tsc --noEmit clean (0 errors), npm run lint 0 errors (1 pre-existing warning in BillingClientView), npm run build clean (34 routes compiled), npx playwright test 35 passed / 3 skipped / 0 failed."
       ],
       "notes": "Scope: dashboard entry surfaces (shell + sidebar + /dashboard grid + preview modal) only. Existing DESIGN.md-token dashboard pages (billing/templates/content/profile) keep their own UIs; the layout shell changes apply globally to them. Green accent kept; accumulated verified evidence recorded in the verify steps."
     },
@@ -715,6 +721,134 @@
         "Verified 2026-08-11: npx tsc --noEmit clean, npm run lint 0 errors, npm run build clean; e2e/flows/08-public-site.spec.ts extended with track-endpoint smoke tests."
       ],
       "notes": "Closes sprint backlog SP2-031. Requires applying supabase/migrations/20260811000006_section_engagement.sql to the real Supabase project before new browsers arrive via the deployed beacon. SP2-020 (switch template on a content-bearing site) and SP2-022 (preview a new template without altering the published site) remain deliberately deferred/not-implemented."
+    },
+    {
+      "id": "research-001",
+      "priority": 0,
+      "area": "product-engineering-audit",
+      "title": "Deep product and engineering MVP audit",
+      "user_visible_behavior": "The repository contains a durable, evidence-backed product and engineering build plan for reducing Portofio to a production-focused MVP.",
+      "status": "passing",
+      "verification": [
+        "Repository and documentation cross-check completed.",
+        "./init.sh passed.",
+        "npx tsc --noEmit passed.",
+        "npm run build passed.",
+        "npx playwright test passed: 35 passed / 3 skipped.",
+        "External competitor research used primary product documentation with source URLs."
+      ],
+      "evidence": [
+        "2026-08-15: Full report written to docs/DEEP_RESEARCH_BUILD_PLAN.md.",
+        "2026-08-15: Report records current implementation, PRD-versus-code contradictions, product/UX/technical/security/performance gaps, MVP scope, architecture, Mermaid ERD, backlog, sprint plan, production checklist, competitive insights, top 10 actions, and red-team review.",
+        "2026-08-15: npm audit reports 3 high transitive vulnerabilities; report classifies remediation as a launch action."
+      ],
+      "notes": "This is an audit artifact, not a claim that all recommended launch blockers have been fixed. billing-002 and several operational/security findings remain incomplete in code."
+    },
+    {
+      "id": "research-002",
+      "priority": 0,
+      "area": "product-engineering-audit",
+      "title": "Structured 19-section product and engineering audit",
+      "user_visible_behavior": "The repository contains a decision-ready audit answering what to build, fix, remove, or defer before a production MVP launch.",
+      "status": "passing",
+      "verification": [
+        "Codebase re-inspected and cross-checked against docs.",
+        "./init.sh passed.",
+        "npx tsc --noEmit passed.",
+        "npm run build passed.",
+        "npx playwright test passed: 35 passed / 3 skipped."
+      ],
+      "evidence": [
+        "2026-08-15: Report written to docs/DEEP_PRODUCT_ENGINEERING_AUDIT.md with exec summary, assessment scores, prioritized problems, missing MVP requirements, NOT-to-build list, UX/security/architecture/database/publishing/billing/template/performance audits, production checklist, minimal MVP scope, sprint plan, backlog, and 8 ADRs.",
+        "2026-08-15: Verified Midtrans already replaces Xendit in code; template switching and entitlement enforcement remain incomplete; cron fail-open and non-atomic publish quota are launch blockers."
+      ],
+      "notes": "Audit artifact only; recommended fixes are not yet implemented in code."
+    },
+    {
+      "id": "hardening-001",
+      "priority": 0,
+      "area": "security-data-integrity",
+      "title": "Launch blockers batch 1: cron fail-closed + atomic publish",
+      "user_visible_behavior": "The subscription-expiry cron cannot be invoked without a secret in production, and publishing one website is enforced atomically inside the database (ownership, subscription gate, blocklist, subdomain uniqueness, one-live-site quota), so concurrent or direct RPC calls cannot bypass the rules.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npx eslint on changed files clean.",
+        "npm run build clean (36 routes).",
+        "npx playwright test: 35 passed / 3 skipped.",
+        "Remote Supabase behavioral tests: subscription_required / one_live_site_per_account / not authorized / subdomain_blocked all raise the expected errors; positive publish sets published_version_id = current_version_id; throwaway account cleaned up with 0 leftovers.",
+        "aclexplode confirms only authenticated/service_role/postgres can execute publish_project (anon + PUBLIC revoked)."
+      ],
+      "evidence": [
+        "2026-08-15: Rewrote src/app/api/cron/check-subscriptions/route.ts to fail closed (503 in production without CRON_SECRET, constant-time 401 on mismatch) and to run the full active→grace→expired state machine idempotently.",
+        "2026-08-15: Created supabase/migrations/20260815000000_harden_publish_project_rpc.sql; updated src/lib/projects/store.ts (publishProject returns error code) and src/lib/projects/actions.ts (error mapping; RPC is authority).",
+        "2026-08-15: Applied migration to real Supabase project yvjwqammizdipwalvets; verified function definition and execute privileges; ran 5 behavioral tests (3 negative + blocklist + positive) all passing; cleaned up all test rows."
+      ],
+      "notes": "Requires CRON_SECRET to be set in production Vercel env. Cron fail-closed path should be smoke-tested in a production/staging environment. Remaining blockers from the audit are tracked in claude-progress.md Session 073."
+    },
+    {
+      "id": "hardening-002",
+      "priority": 0,
+      "area": "security-reliability",
+      "title": "Launch blocker: durable Postgres-backed rate limiter",
+      "user_visible_behavior": "Rate limits on signup, OAuth, password reset, and publish survive multiple serverless instances and cold starts, so abuse cannot bypass them by rotating requests across instances.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npx eslint on changed files clean.",
+        "npm run build clean (36 routes).",
+        "npx playwright test: 35 passed / 3 skipped.",
+        "Remote RPC tests: increments per call (4th of max=3 rejected with retry_after≈60); expired window resets to allowed + count=1; set role authenticated cannot invoke the RPC and table reads are RLS-filtered; all test rows cleaned (0 rows)."
+      ],
+      "evidence": [
+        "2026-08-15: Created supabase/migrations/20260815000001_add_rate_limit_table.sql (rate_limits table + rate_limit_check RPC, atomic fixed-window counter, EXECUTE revoked from public/anon/authenticated).",
+        "2026-08-15: Rewrote src/lib/rate-limit.ts (async, service-role backed, fail-open) and added cleanupRateLimits(); awaited all 4 call sites in auth/actions.ts and projects/actions.ts; getClientIp now prefers trusted x-vercel-forwarded-for.",
+        "2026-08-15: Cron route runs best-effort cleanupRateLimits(24) and reports cleanedRateLimitRows.",
+        "2026-08-15: Migration applied to real Supabase project yvjwqammizdipwalvets and behavior verified (limit/reject/reset/RLS)."
+      ],
+      "notes": "None. Next blockers: autosave 1-upsert, webhook atomicity, URL/file validation, public render without service-role, SMTP/email templates, observability, template switching, UX single-entry flow."
+    },
+    {
+      "id": "hardening-003",
+      "priority": 0,
+      "area": "data-integrity",
+      "title": "Launch blocker: autosave 1-upsert + bounded history",
+      "user_visible_behavior": "Autosaving edits no longer creates a new database row per keystroke-debounce: the live draft is stored in one place and republishing produces bounded history snapshots, so there is no version-number race and no unbounded history growth.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npx eslint on changed files clean.",
+        "npm run build clean (36 routes).",
+        "npx playwright test: 35 passed / 3 skipped.",
+        "Remote round-trip tests: 3 autosaves produce exactly 1 project_versions row; publish snapshots the latest draft into a new version row; edit-after-publish + republish snapshots the new draft; history pruned to latest 20; all test rows cleaned up; existing published site untouched."
+      ],
+      "evidence": [
+        "2026-08-15: Created supabase/migrations/20260815000002_autosave_draft_json.sql (adds projects.draft_json, backfills existing rows, publish_project snapshots draft_json and prunes history to 20 rows).",
+        "2026-08-15: Rewrote src/lib/projects/store.ts saveDraftJson to a single in-place upsert; getProjectWithDraft/getProjectCurrentDraft read draft_json; createProject writes draft_json; Project type gains draftJson.",
+        "2026-08-15: Migration applied to real Supabase project yvjwqammizdipwalvets and behavior verified (no write amplification, publish snapshots, bounded history, backfill)."
+      ],
+      "notes": "None. Next blockers: webhook atomicity, URL/file validation, public render without service-role, SMTP/email templates, observability, template switching, UX single-entry flow."
+    },
+    {
+      "id": "hardening-004",
+      "priority": 0,
+      "area": "billing",
+      "title": "Launch blocker: Midtrans webhook atomic idempotency + amount validation",
+      "user_visible_behavior": "Payment notifications are processed exactly once even under concurrent or replayed delivery, a mid-way processing failure is retried cleanly, and a notification whose amount/currency does not match the purchased plan is rejected instead of silently granting the wrong entitlement.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npx eslint on changed files clean.",
+        "npm run build clean (36 routes).",
+        "npx playwright test: 35 passed / 3 skipped.",
+        "HTTP E2E via dev server with self-computed signature: settlement activates + extends period; duplicate replay returns Duplicate event without reprocessing; fresh-order amount mismatch rejected; bad signature 401; expire sets grace_period; reactivation sets active; all billing_events processed=true; test rows cleaned up."
+      ],
+      "evidence": [
+        "2026-08-15: Rewrote src/app/api/webhooks/midtrans/route.ts (insert-first idempotency with processed flag, reprocess-on-unprocessed, amount/currency validation for catalog plans, error checks on every write, mark-processed-after-success).",
+        "2026-08-15: Created supabase/migrations/20260815000003_billing_events_processed.sql (processed column + index).",
+        "2026-08-15: Migration applied to real Supabase project yvjwqammizdipwalvets; full behavior verified via real HTTP POSTs; test data cleaned up."
+      ],
+      "notes": "Real Midtrans sandbox E2E pending the user-provided MIDTRANS_SERVER_KEY. Next blockers: URL/file validation, public render without service-role, SMTP/email templates, observability, template switching, UX single-entry flow."
     }
   ]
 }

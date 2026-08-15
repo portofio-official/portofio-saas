@@ -286,7 +286,7 @@
       "googlePending": "Mengarahkan ke Google…"
     }
   },
-"Workspace": {
+  "Workspace": {
     "eyebrow": "Dashboard",
     "title": "Ruang kerja kamu",
     "logout": "Keluar",
@@ -323,7 +323,11 @@
     "domains": "Domain",
     "billing": "Tagihan",
     "comingSoon": "Segera",
-    "pro": "Pro"
+    "pro": "Pro",
+    "collapseSidebar": "Ciutkan sidebar",
+    "expandSidebar": "Perluas sidebar",
+    "openMenu": "Buka menu",
+    "closeMenu": "Tutup menu"
   },
   "Profile": {
     "eyebrow": "Profil",
@@ -510,6 +514,49 @@
       "hint": "Test aktivasi langganan tanpa payment gateway",
       "btn": "⚡ Aktifkan Test Sub (30 hari)",
       "activating": "Mengaktifkan..."
+    },
+    "planCycle": "Siklus billing: {cycle}",
+    "picker": {
+      "title": "Pilih paketmu",
+      "subtitle": "Pilih paket dan siklus billing. Kamu bisa upgrade atau downgrade kapan saja.",
+      "monthly": "Bulanan",
+      "annual": "Tahunan",
+      "perMonth": "/ bulan",
+      "perYear": "/ tahun",
+      "choose": "Pilih Paket",
+      "currentPlan": "Paket Saat Ini"
+    },
+    "plans": {
+      "basic": {
+        "name": "Basic",
+        "features": [
+          "Publish 1 website ke subdomain Portofio",
+          "Analytics dasar",
+          "8 template bawaan",
+          "Pratinjau live real-time",
+          "Auto-simpan draft"
+        ]
+      },
+      "premium": {
+        "name": "Premium",
+        "features": [
+          "Publish 1 website ke subdomain atau custom domain",
+          "Tanpa watermark Portofio",
+          "Analytics lanjutan",
+          "Semua fitur Basic",
+          "Dukungan prioritas"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "features": [
+          "Semua yang ada di Premium",
+          "Checkout self-service",
+          "Analytics lanjutan",
+          "Dukungan prioritas",
+          "Kolaborasi tim (roadmap)"
+        ]
+      }
     }
   },
   "Dashboard": {
@@ -533,6 +580,8 @@
     "createWebsite": "Buat Website",
     "createWebsiteDesc": "Mulai dari template yang dirancang profesional",
     "editedLabel": "Diedit",
+    "viewedLabel": "Dilihat",
+    "allProjects": "Semua",
     "preview": "Pratinjau Website",
     "unpublish": "Unpublish Website",
     "publish": "Publish Website",
@@ -563,7 +612,30 @@
     "confirmDeleteTitle": "Hapus website ini?",
     "confirmDeleteDesc": "Website \"{name}\" dan seluruh data draft-nya akan dihapus. Tindakan ini tidak bisa dibatalkan.",
     "cancel": "Batal",
-    "confirmDelete": "Ya, hapus"
+    "confirmDelete": "Ya, hapus",
+    "viewGrid": "Tampilan grid",
+    "viewList": "Tampilan list",
+    "colName": "Proyek",
+    "colStatus": "Status",
+    "colDomain": "Domain / URL",
+    "colLastEdited": "Terakhir diedit",
+    "colActions": "Aksi",
+    "clearFilters": "Hapus filter",
+    "welcomeBack": "Selamat datang kembali",
+    "metricLiveTitle": "Website Aktif",
+    "metricLiveSub": "Live di subdomain & SSL aman",
+    "metricNoLiveTitle": "Belum Ada Website Live",
+    "metricNoLiveSub": "Siap untuk dipublikasikan",
+    "metricDraftTitle": "Draft Portofolio",
+    "metricDraftSub": "Autosave aktif & tersimpan",
+    "metricTemplatesTitle": "Koleksi Template Pro",
+    "metricTemplatesSub": "5 desain siap pakai",
+    "copyUrl": "Salin Link",
+    "urlCopied": "Link disalin!",
+    "visitSite": "Kunjungi",
+    "lastActive": "Terakhir aktif",
+    "templateLabel": "Template",
+    "quickActions": "Aksi Cepat"
   },
   "Analytics": {
     "eyebrow": "Analytics",
@@ -744,7 +816,17 @@
     "subtitle": "Satu sumber konten untuk semua template",
     "hint": "Isi sekali, atur urutan dan status per item. Semua template memakai item aktif dari library ini.",
     "typesLabel": "Jenis konten",
-    "types": { "project": "Projects", "testimonial": "Testimoni", "certificate": "Sertifikat", "experience": "Pengalaman", "education": "Pendidikan", "publication": "Publikasi", "media": "Media", "caseStudy": "Case Studies", "gallery": "Gallery" },
+    "types": {
+      "project": "Projects",
+      "testimonial": "Testimoni",
+      "certificate": "Sertifikat",
+      "experience": "Pengalaman",
+      "education": "Pendidikan",
+      "publication": "Publikasi",
+      "media": "Media",
+      "caseStudy": "Case Studies",
+      "gallery": "Gallery"
+    },
     "typeLabel": "Jenis konten",
     "active": "Tampil",
     "inactive": "Disembunyikan",
@@ -755,7 +837,23 @@
     "searchEmptyDesc": "Tidak ada item yang cocok dengan pencarianmu. Coba kata kunci lain.",
     "moveUp": "Naikkan urutan",
     "moveDown": "Turunkan urutan",
-    "metaLabels": { "role": "Peran / jabatan", "issuer": "Penerbit", "date": "Tanggal / tahun", "company": "Perusahaan", "startDate": "Mulai (YYYY-MM)", "endDate": "Selesai (YYYY-MM)", "institution": "Institusi", "degree": "Gelar", "field": "Bidang studi", "startYear": "Tahun mulai", "endYear": "Tahun selesai", "venue": "Publikasi / penerbit", "year": "Tahun", "location": "Lokasi", "category": "Kategori" },
+    "metaLabels": {
+      "role": "Peran / jabatan",
+      "issuer": "Penerbit",
+      "date": "Tanggal / tahun",
+      "company": "Perusahaan",
+      "startDate": "Mulai (YYYY-MM)",
+      "endDate": "Selesai (YYYY-MM)",
+      "institution": "Institusi",
+      "degree": "Gelar",
+      "field": "Bidang studi",
+      "startYear": "Tahun mulai",
+      "endYear": "Tahun selesai",
+      "venue": "Publikasi / penerbit",
+      "year": "Tahun",
+      "location": "Lokasi",
+      "category": "Kategori"
+    },
     "addItem": "Tambah item",
     "editTitle": "Edit item",
     "addTitle": "Tambah item",

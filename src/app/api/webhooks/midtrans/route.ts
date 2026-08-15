@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyMidtransNotificationSignature } from "@/lib/billing/midtrans";
 import { softUnpublishUserProjects } from "@/lib/billing/unpublish";
 import { getActivePlanByAdmin, DEFAULT_PLAN_ID, PERIOD_DAYS, toPlanSnapshot } from "@/lib/billing/plans";
-import type { MidtransNotificationPayload, PlanRecord } from "@/lib/billing/types";
+import type { MidtransNotificationPayload, PlanRecord } from "@/lib/billing";
 
 const ORDER_ID_PATTERN = /^sub_([0-9a-f-]{36})_([a-z-]+)_\d+$/i;
 const LEGACY_ORDER_PATTERN = /^sub_([0-9a-f-]{36})_\d+$/i;

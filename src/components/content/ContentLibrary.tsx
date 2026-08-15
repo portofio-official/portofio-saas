@@ -9,8 +9,8 @@ import {
   updateContentItemAction,
   deleteContentItemAction,
   updateContentItemStateAction,
-} from "@/lib/content/actions";
-import type { ContentItem, ContentType } from "@/lib/content/types";
+} from "@/lib/content";
+import type { ContentItem, ContentType } from "@/lib/content";
 import { LibraryImageUploadField } from "@/components/content/LibraryImageUploadField";
 
 interface MetaField {

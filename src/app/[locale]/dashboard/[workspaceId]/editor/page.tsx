@@ -8,7 +8,7 @@ import { getDefinition } from "@/templates/registry";
 import { Editor } from "@/components/dashboard/Editor";
 import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
 import { listContentItems } from "@/lib/content/store";
-import { resolveLibraryData } from "@/lib/content/resolve";
+import { resolveLibraryData } from "@/lib/content";
 
 const DEFAULT_TEMPLATE: TemplateId = "minimal";
 

@@ -3,11 +3,11 @@
 import { useState, useCallback, useEffect } from "react";
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
-import { signOutAction } from "@/lib/auth/actions";
+import { signOutAction } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
-import type { ContentType } from "@/lib/content/types";
+import type { ContentType } from "@/lib/content";
 
 interface NavItem {
   href: string;

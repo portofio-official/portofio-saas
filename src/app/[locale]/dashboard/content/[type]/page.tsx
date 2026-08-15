@@ -3,7 +3,7 @@ import { redirect } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { listContentItems } from "@/lib/content/store";
 import { ContentLibrary } from "@/components/content/ContentLibrary";
-import type { ContentType } from "@/lib/content/types";
+import type { ContentType } from "@/lib/content";
 
 // The primary content types surfaced in the dashboard sidebar. Case studies
 // and gallery remain selectable in the manager but have no sidebar route.

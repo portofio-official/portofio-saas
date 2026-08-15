@@ -15,10 +15,10 @@ import { getUserProfile } from "@/lib/profile/queries";
 import { checkSubscription } from "@/lib/billing/subscription";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { sanitizeObjectData } from "@/lib/utils/sanitize";
+import { sanitizeObjectData } from "@/lib/utils";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { listContentItems } from "@/lib/content/store";
-import { resolveLibraryData } from "@/lib/content/resolve";
+import { resolveLibraryData } from "@/lib/content";
 import { requireRole } from "@/lib/auth/roles";
 
 export async function createProjectAction(

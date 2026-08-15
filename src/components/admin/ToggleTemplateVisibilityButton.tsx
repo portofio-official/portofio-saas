@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { toggleTemplateVisibilityAction } from "@/lib/admin/actions";
+import { toggleTemplateVisibilityAction } from "@/lib/admin";
 
 export function ToggleTemplateVisibilityButton({
   templateId,

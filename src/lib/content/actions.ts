@@ -10,7 +10,7 @@ import {
   deleteContentItem,
   updateContentItemState,
 } from "./store";
-import { sanitizeString } from "@/lib/utils/sanitize";
+import { sanitizeString } from "@/lib/utils";
 import type { ContentItem, ContentItemInput } from "./types";
 import { requireRole } from "@/lib/auth/roles";
 

@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getDefinition } from "@/templates/registry";
 import { parseDocumentData, type WebsiteDocument, type WorkspaceProfile } from "@/templates/definition";
 import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
-import { sanitizeObjectData } from "@/lib/utils/sanitize";
+import { sanitizeObjectData } from "@/lib/utils";
 
 // Revalidate public site pages every 60 seconds (ISR caching)
 export const revalidate = 60;

@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Workspace } from "@/lib/workspace/types";
+import type { Workspace } from "@/lib/workspace";
 import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
 import type { BasePortfolioData } from "@/templates/shared/_base";
 

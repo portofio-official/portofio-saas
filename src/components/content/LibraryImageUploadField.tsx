@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { compressImageToDataUrl } from "@/lib/utils/compressImage";
-import { uploadContentImageAction } from "@/lib/content/actions";
+import { uploadContentImageAction } from "@/lib/content";
 
 export function LibraryImageUploadField({
   label,

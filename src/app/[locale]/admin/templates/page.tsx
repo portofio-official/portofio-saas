@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getTemplateSubmissionsAction } from "@/lib/admin/actions";
+import { getTemplateSubmissionsAction } from "@/lib/admin";
 import { ReviewTemplateDropdown } from "@/components/admin/ReviewTemplateDropdown";
 import { ToggleTemplateVisibilityButton } from "@/components/admin/ToggleTemplateVisibilityButton";
 import { TemplateIntegrationStatusButton } from "@/components/admin/TemplateIntegrationStatusButton";

@@ -2,7 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import type { TemplateSubmission } from "@/lib/designer/types";
+import type { TemplateSubmission } from "@/lib/designer";
 
 const STATUS_STYLES: Record<TemplateSubmission["status"], string> = {
   draft: "bg-black/[0.05] text-ink-soft",

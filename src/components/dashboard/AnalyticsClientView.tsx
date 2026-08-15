@@ -2,7 +2,7 @@
 
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import type { AnalyticsRange, AnalyticsSite, AnalyticsSummary, DayBucket } from "@/lib/analytics/types";
+import type { AnalyticsRange, AnalyticsSite, AnalyticsSummary, DayBucket } from "@/lib/analytics";
 
 const RANGES: { value: AnalyticsRange; labelKey: "range7d" | "range30d" | "rangeAll" }[] = [
   { value: "7d", labelKey: "range7d" },

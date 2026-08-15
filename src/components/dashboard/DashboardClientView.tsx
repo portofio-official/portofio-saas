@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import type { Workspace } from "@/lib/workspace/types";
+import type { Workspace } from "@/lib/workspace";
 import { useToast } from "@/components/ui/Toast";
 import { type SortOption, type FilterOption } from "./components/DashboardToolbar";
 import { WorkspaceGrid } from "./components/WorkspaceGrid";

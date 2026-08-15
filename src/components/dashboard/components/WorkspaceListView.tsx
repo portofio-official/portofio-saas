@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { Workspace } from "@/lib/workspace/types";
+import type { Workspace } from "@/lib/workspace";
 import { WorkspaceListItem } from "./WorkspaceListItem";
 
 export interface WorkspaceListViewProps {

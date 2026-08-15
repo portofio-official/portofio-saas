@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { getUsersAction } from "@/lib/admin/actions";
+import { getUsersAction } from "@/lib/admin";
 import { SuspendUserButton } from "@/components/admin/SuspendUserButton";
 import { UpdateUserRoleButton } from "@/components/admin/UpdateUserRoleButton";
 

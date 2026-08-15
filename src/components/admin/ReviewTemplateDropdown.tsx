@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { updateTemplateStatusAction } from "@/lib/admin/actions";
+import { updateTemplateStatusAction } from "@/lib/admin";
 
 interface Props {
   submissionId: string;

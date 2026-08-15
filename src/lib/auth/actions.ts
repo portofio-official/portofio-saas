@@ -5,7 +5,7 @@ import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { checkPasswordStrength } from "@/lib/auth/password";
+import { checkPasswordStrength } from "@/lib/auth";
 export type ActionState = { error: string | null; success?: string | null };
 
 async function getClientIp(): Promise<string> {

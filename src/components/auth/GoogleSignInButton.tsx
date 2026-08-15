@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { googleSignInAction } from "@/lib/auth/actions";
+import { googleSignInAction } from "@/lib/auth";
 import styles from "./AuthSplitLayout.module.css";
 
 export function GoogleSignInButton({ templateId }: { templateId?: string }) {

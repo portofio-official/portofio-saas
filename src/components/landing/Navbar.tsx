@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { signOutAction } from "@/lib/auth/actions";
+import { signOutAction } from "@/lib/auth";
 import { Link, usePathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import shared from "./shared.module.css";

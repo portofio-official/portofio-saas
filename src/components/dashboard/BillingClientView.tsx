@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import type { BillingCycle, PlanRecord, SubscriptionStatus } from "@/lib/billing/types";
+import type { BillingCycle, PlanRecord, SubscriptionStatus } from "@/lib/billing";
 
 interface BillingClientViewProps {
   status: SubscriptionStatus;

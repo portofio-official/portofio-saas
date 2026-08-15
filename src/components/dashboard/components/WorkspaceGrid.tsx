@@ -1,6 +1,6 @@
 "use client";
 
-import type { Workspace } from "@/lib/workspace/types";
+import type { Workspace } from "@/lib/workspace";
 import { WorkspaceCard } from "./WorkspaceCard";
 import { CreateWorkspaceCard } from "./CreateWorkspaceCard";
 

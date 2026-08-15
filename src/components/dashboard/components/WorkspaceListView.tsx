@@ -26,8 +26,9 @@ export function WorkspaceListView({
   const t = useTranslations("Dashboard");
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-surface ring-1 ring-black/5 shadow-xs">
-      <div className="overflow-x-auto">
+    <div className="overflow-hidden rounded-2xl bg-surface ring-1 ring-black/5 pb-6">
+      {/* Desktop Table View (md+) */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-black/5 bg-shell/70 text-[11px] font-bold uppercase tracking-wider text-ink-faint">
@@ -53,6 +54,23 @@ export function WorkspaceListView({
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Stacked Card View (< md) */}
+      <div className="flex flex-col divide-y divide-black/5 md:hidden">
+        {workspaces.map((workspace) => (
+          <WorkspaceListItem
+            key={workspace.id}
+            workspace={workspace}
+            locale={locale}
+            onPreview={onPreview}
+            onDuplicate={onDuplicate}
+            isDuplicating={isDuplicating === workspace.id}
+            onUnpublish={onUnpublish}
+            onDelete={onDelete}
+            isMobileView
+          />
+        ))}
       </div>
     </div>
   );

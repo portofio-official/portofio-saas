@@ -74,22 +74,27 @@ src/
     [locale]/         # localized app routes (dashboard, login, signup, templates, ...)
     sites/[subdomain]/ # published-site rendering by subdomain
     auth/              # auth callback routes
+    api/               # route handlers (webhooks, cron, tracking)
   components/
     landing/           # marketing/landing page
     dashboard/         # dashboard + workspace management UI
     portfolio/         # portfolio rendering (shared sections)
-    templates/         # one folder per template (bold, corporate, creative, dark, minimal, portfolio-pro, studio)
-    workspace/  auth/  ui/
+    admin/  designer/  onboarding/  profile/  content/  workspace/  auth/  ui/
+  templates/
+    definitions/       # one folder per template (minimal, bold, creative, corporate, dark, studio, portfolio-pro)
+    registry.tsx       # TEMPLATE_REGISTRY
   lib/
     supabase/          # Supabase client/server helpers
-    templates/          # TEMPLATE_REGISTRY + per-template Zod schemas
-    workspace/  projects/  billing/  auth/  utils/
+    workspace/  projects/  billing/  content/  auth/  analytics/  designer/  admin/  utils/
   i18n/                # next-intl config
 messages/              # en.json / id.json translation files
-supabase/               # DB migrations
+supabase/              # DB migrations + edge functions
+scripts/               # maintenance scripts (e.g. scripts/backfill-profiles.mjs)
+e2e/                   # Playwright E2E specs (flows/ has one spec per flow)
+docs/                  # PRD, DESIGN, and other product/engineering docs
 ```
 
-Templates are defined in code via `TEMPLATE_REGISTRY` and per-template Zod schemas under `src/lib/templates/schemas/` — there is no `templates` table in the database.
+Templates are defined in code via `TEMPLATE_REGISTRY` in `src/templates/registry.tsx` — there is no `templates` table in the database.
 
 ---
 

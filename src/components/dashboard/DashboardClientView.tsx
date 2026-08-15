@@ -6,12 +6,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import type { Workspace } from "@/lib/workspace/types";
 import { useToast } from "@/components/ui/Toast";
-import {
-  DashboardToolbar,
-  type SortOption,
-  type FilterOption,
-  type ViewMode,
-} from "./components/DashboardToolbar";
+import { type SortOption, type FilterOption } from "./components/DashboardToolbar";
 import { WorkspaceGrid } from "./components/WorkspaceGrid";
 import { WorkspaceListView } from "./components/WorkspaceListView";
 import { QuickPreviewModal } from "./components/QuickPreviewModal";
@@ -63,56 +58,48 @@ export function DashboardClientView({
 
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("updated");
-  const [filterBy, setFilterBy] = useState<FilterOption>("all");
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const savedMode = localStorage.getItem("portofio_dashboard_view_mode") as ViewMode | null;
-        if (savedMode === "grid" || savedMode === "list") {
-          return savedMode;
-        }
-      } catch {
-        // ignore
-      }
-    }
-    return "grid";
-  });
+  const [filterBy] = useState<FilterOption>("all");
+  const [showSearch, setShowSearch] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   const [isDuplicating, setIsDuplicating] = useState<string | null>(null);
   const [previewWorkspace, setPreviewWorkspace] = useState<Workspace | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<Workspace | null>(null);
 
-  const handleViewModeChange = (mode: ViewMode) => {
-    setViewMode(mode);
-    try {
-      localStorage.setItem("portofio_dashboard_view_mode", mode);
-    } catch {
-      // ignore
+  // Focus search input when revealed
+  useEffect(() => {
+    if (showSearch) {
+      searchInputRef.current?.focus();
     }
-  };
+  }, [showSearch]);
 
-  // Keyboard shortcut listener: Cmd/Ctrl + K focuses the search input
+  // Keyboard shortcut: Cmd/Ctrl + K toggles search
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        searchInputRef.current?.focus();
+        setShowSearch((v) => {
+          if (!v) return true;
+          searchInputRef.current?.focus();
+          return v;
+        });
+      }
+      if (e.key === "Escape" && showSearch) {
+        setShowSearch(false);
+        setSearch("");
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [showSearch]);
 
-  // Compute metadata counters
-  const totalCount = workspaces.length;
-  const publishedCount = workspaces.filter((w) => w.publishStatus === "published").length;
-  const draftCount = totalCount - publishedCount;
-
-  const latestWorkspace = [...workspaces].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  )[0];
-
-  const lastUpdatedText = latestWorkspace ? timeAgo(latestWorkspace.createdAt, locale) : "—";
+  // Sort options
+  const sortOptions: { value: SortOption; label: string }[] = [
+    { value: "updated", label: t("sortUpdated") },
+    { value: "name", label: t("sortName") },
+    { value: "created", label: t("sortCreated") },
+  ];
+  const currentSortLabel = sortOptions.find((s) => s.value === sortBy)?.label ?? t("sortUpdated");
 
   // Filter and sort items
   const filteredWorkspaces = workspaces
@@ -127,9 +114,7 @@ export function DashboardClientView({
       return matchesSearch && matchesFilter;
     })
     .sort((a, b) => {
-      if (sortBy === "name") {
-        return a.name.localeCompare(b.name);
-      }
+      if (sortBy === "name") return a.name.localeCompare(b.name);
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
@@ -175,79 +160,133 @@ export function DashboardClientView({
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-surface select-none">
-      {/* Top Header */}
-      <header className="shrink-0 border-b border-black/5 bg-surface px-6 pt-6 sm:px-8">
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
-            <div className="min-w-0 max-w-xl">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/[0.1] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent-deep ring-1 ring-accent/20">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-                </span>
-                {t("eyebrow")}
-              </span>
-              <h1 className="mt-2.5 font-display text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[34px]">
-                {t("title")}
-              </h1>
-              <p className="mt-1 text-sm font-medium text-ink-soft">{t("subtitle")}</p>
+      {/* ── Top Header ── */}
+      <header className="shrink-0 border-b border-black/5 bg-surface px-6 sm:px-8 py-4">
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: "All" heading */}
+          <h1 className="font-display text-[22px] font-bold tracking-tight text-ink">
+            {t("allProjects")}
+          </h1>
+
+          {/* Right: controls */}
+          <div className="flex items-center gap-2">
+            {/* Search icon → expands inline */}
+            <div className="flex items-center">
+              {showSearch ? (
+                <div className="flex items-center gap-1.5 rounded-full bg-ink/[0.04] ring-1 ring-black/5 pl-3 pr-1.5 h-9 transition-all duration-200">
+                  <span className="material-symbols-outlined text-[15px] text-ink-faint shrink-0">
+                    search
+                  </span>
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder={t("searchPlaceholder")}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-36 sm:w-48 bg-transparent text-[13px] font-medium text-ink placeholder:text-ink-faint focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSearch(false);
+                      setSearch("");
+                    }}
+                    className="grid h-6 w-6 place-items-center rounded-full text-ink-faint hover:bg-ink/10 hover:text-ink transition-colors"
+                    aria-label="Close search"
+                  >
+                    <span className="material-symbols-outlined text-[13px]">close</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowSearch(true)}
+                  aria-label={t("searchPlaceholder")}
+                  className="grid h-9 w-9 place-items-center rounded-full text-ink-soft ring-1 ring-black/5 bg-ink/[0.04] transition-all duration-150 hover:bg-ink/[0.08] hover:text-ink"
+                  title={`${t("searchPlaceholder")} (⌘K)`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">search</span>
+                </button>
+              )}
             </div>
 
-            {/* Nested CTA: Button-in-Button Trailing Icon Architecture */}
+            {/* Sort dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowSortDropdown((v) => !v)}
+                className="flex h-9 items-center gap-1.5 rounded-full bg-ink/[0.04] px-3.5 text-[13px] font-medium text-ink-soft ring-1 ring-black/5 transition-all duration-150 hover:bg-ink/[0.08] hover:text-ink"
+                aria-expanded={showSortDropdown}
+                id="sort-dropdown-btn"
+              >
+                <span className="hidden sm:inline">{currentSortLabel}</span>
+                <span className="sm:hidden material-symbols-outlined text-[16px]">sort</span>
+                <span
+                  className={`material-symbols-outlined text-[15px] text-ink-faint transition-transform duration-200 ${
+                    showSortDropdown ? "rotate-180" : ""
+                  }`}
+                >
+                  expand_more
+                </span>
+              </button>
+
+              {showSortDropdown && (
+                <>
+                  <div className="fixed inset-0 z-20" onClick={() => setShowSortDropdown(false)} />
+                  <div className="absolute right-0 top-10 z-30 w-48 overflow-hidden rounded-xl bg-surface p-1 shadow-floating ring-1 ring-black/5 animate-fade-in-up-custom">
+                    <p className="px-2.5 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
+                      {t("sortLabel")}
+                    </p>
+                    {sortOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          setSortBy(opt.value);
+                          setShowSortDropdown(false);
+                        }}
+                        className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors ${
+                          sortBy === opt.value
+                            ? "bg-accent/[0.1] text-accent-deep font-bold"
+                            : "text-ink-soft hover:bg-ink/[0.04]"
+                        }`}
+                      >
+                        {opt.label}
+                        {sortBy === opt.value && (
+                          <span className="material-symbols-outlined text-[14px]">check</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* New Project CTA */}
             <Link
               href="/dashboard/templates"
-              className="group relative flex h-11 shrink-0 items-center gap-3 rounded-full bg-accent pl-5 pr-2.5 text-[13px] font-bold text-white shadow-[0_10px_28px_-8px_rgba(0,207,124,0.55)] transition-all duration-300 hover:bg-accent-deep hover:shadow-[0_14px_32px_-6px_rgba(0,207,124,0.65)] active:scale-[0.98]"
+              id="new-project-btn"
+              className="flex h-9 shrink-0 items-center gap-2 rounded-full bg-accent px-4 text-[13px] font-bold text-white transition-all duration-200 hover:bg-accent-deep active:scale-[0.98]"
             >
-              <span>{t("newWebsite")}</span>
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white transition-transform duration-300 group-hover:scale-110 group-hover:bg-white/30">
-                <span className="material-symbols-outlined text-[16px]">add</span>
-              </span>
+              <span className="material-symbols-outlined text-[16px]">add</span>
+              <span className="hidden sm:inline">{t("newWebsite")}</span>
             </Link>
           </div>
-
-          {/* Stats + Tools Toolbar */}
-          <DashboardToolbar
-            search={search}
-            onSearchChange={setSearch}
-            filterBy={filterBy}
-            onFilterChange={setFilterBy}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            viewMode={viewMode}
-            onViewModeChange={handleViewModeChange}
-            totalCount={totalCount}
-            publishedCount={publishedCount}
-            draftCount={draftCount}
-            lastUpdatedText={lastUpdatedText}
-            searchInputRef={searchInputRef}
-          />
         </div>
       </header>
 
-      {/* Main Content Area */}
+      {/* ── Main Content Area ── */}
       <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">
         {filteredWorkspaces.length > 0 ? (
-          viewMode === "grid" ? (
-            <WorkspaceGrid
-              workspaces={filteredWorkspaces}
-              locale={locale}
-              onPreview={setPreviewWorkspace}
-              onDuplicate={handleDuplicate}
-              isDuplicating={isDuplicating}
-              onUnpublish={handleUnpublish}
-              onDelete={setDeleteCandidate}
-            />
-          ) : (
-            <WorkspaceListView
-              workspaces={filteredWorkspaces}
-              locale={locale}
-              onPreview={setPreviewWorkspace}
-              onDuplicate={handleDuplicate}
-              isDuplicating={isDuplicating}
-              onUnpublish={handleUnpublish}
-              onDelete={setDeleteCandidate}
-            />
-          )
+          <WorkspaceGrid
+            workspaces={filteredWorkspaces}
+            locale={locale}
+            onPreview={setPreviewWorkspace}
+            onDuplicate={handleDuplicate}
+            isDuplicating={isDuplicating}
+            onUnpublish={handleUnpublish}
+            onDelete={setDeleteCandidate}
+          />
         ) : (
           /* Search / Filter Empty State */
           <div className="flex min-h-[340px] items-center justify-center">
@@ -265,7 +304,7 @@ export function DashboardClientView({
                 type="button"
                 onClick={() => {
                   setSearch("");
-                  setFilterBy("all");
+                  setShowSearch(false);
                 }}
                 className="mt-2 h-9 rounded-full border border-black/10 bg-surface px-5 text-[12px] font-semibold text-ink-soft transition-all duration-200 hover:bg-ink/[0.05] hover:text-ink active:scale-[0.98]"
               >

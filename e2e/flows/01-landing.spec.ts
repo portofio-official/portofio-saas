@@ -27,4 +27,17 @@ test.describe("Flow 1 — Visitor Landing Page & Template Showcase", () => {
     expect(response?.status()).toBe(200);
     await expect(page.locator("h1")).toBeVisible();
   });
+
+  test("Landing page shows the template showcase section", async ({ page }) => {
+    await page.goto("/id");
+    const templatesSection = page.locator("#templates");
+    await expect(templatesSection).toBeVisible();
+  });
+
+  test("Public template gallery page renders", async ({ page }) => {
+    const response = await page.goto("/id/templates");
+    expect(response?.status()).toBe(200);
+    const heading = page.getByRole("heading").first();
+    await expect(heading).toBeVisible();
+  });
 });

@@ -1,48 +1,72 @@
+import { createAdminClient } from "@/lib/supabase/admin";
+
+export interface RateLimitResult {
+  allowed: boolean;
+  retryAfterSeconds: number;
+}
+
 /**
- * In-memory sliding-window rate limiter helper.
- * Designed for server actions and API route protection against burst/abuse attempts.
+ * Durable fixed-window rate limiter backed by Postgres (public.rate_limits +
+ * public.rate_limit_check RPC). Safe on serverless multi-instance and survives
+ * cold starts — unlike the previous in-memory Map.
+ *
+ * Fails OPEN (allows the request) when the limiter cannot be reached, so a
+ * transient DB error never locks legitimate users out. The database is the same
+ * store the whole app depends on, so a real outage is visible anyway.
  */
-
-interface RateLimitRecord {
-  timestamps: number[];
-}
-
-const store = new Map<string, RateLimitRecord>();
-
-// Cleanup stale keys every 10 minutes to avoid memory leaks
-if (typeof setInterval !== "undefined") {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [key, record] of store.entries()) {
-      const valid = record.timestamps.filter((ts) => now - ts < 3600000);
-      if (valid.length === 0) {
-        store.delete(key);
-      } else {
-        store.set(key, { timestamps: valid });
-      }
-    }
-  }, 10 * 60 * 1000);
-}
-
-export function checkRateLimit(
+export async function checkRateLimit(
   identifier: string,
   maxRequests: number,
   windowMs: number,
-): { allowed: boolean; retryAfterSeconds: number } {
-  const now = Date.now();
-  const record = store.get(identifier) ?? { timestamps: [] };
+): Promise<RateLimitResult> {
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase.rpc("rate_limit_check", {
+      p_key: identifier,
+      p_max: maxRequests,
+      p_window_ms: windowMs,
+    });
 
-  // Filter out timestamps outside current window
-  const activeTimestamps = record.timestamps.filter((ts) => now - ts < windowMs);
+    if (error) {
+      console.error("[RateLimit] check failed, allowing request:", error);
+      return { allowed: true, retryAfterSeconds: 0 };
+    }
 
-  if (activeTimestamps.length >= maxRequests) {
-    const oldest = activeTimestamps[0];
-    const retryAfterSeconds = Math.ceil((oldest + windowMs - now) / 1000);
-    return { allowed: false, retryAfterSeconds };
+    const row = Array.isArray(data) ? data[0] : undefined;
+    if (!row || typeof row.allowed !== "boolean") {
+      return { allowed: true, retryAfterSeconds: 0 };
+    }
+
+    return {
+      allowed: row.allowed,
+      retryAfterSeconds: Number(row.retry_after_seconds) || 0,
+    };
+  } catch (err) {
+    console.error("[RateLimit] unexpected error, allowing request:", err);
+    return { allowed: true, retryAfterSeconds: 0 };
   }
+}
 
-  activeTimestamps.push(now);
-  store.set(identifier, { timestamps: activeTimestamps });
-
-  return { allowed: true, retryAfterSeconds: 0 };
+/**
+ * Best-effort cleanup of stale rate-limit rows. Called from the daily cron so
+ * identifiers that are never reused again do not accumulate forever.
+ */
+export async function cleanupRateLimits(retentionHours = 24): Promise<number> {
+  try {
+    const supabase = createAdminClient();
+    const cutoff = new Date(Date.now() - retentionHours * 60 * 60 * 1000).toISOString();
+    const { data, error } = await supabase
+      .from("rate_limits")
+      .delete({ count: "exact" })
+      .lt("updated_at", cutoff)
+      .select("key");
+    if (error) {
+      console.error("[RateLimit] cleanup failed:", error);
+      return 0;
+    }
+    return data?.length ?? 0;
+  } catch (err) {
+    console.error("[RateLimit] cleanup unexpected error:", err);
+    return 0;
+  }
 }

@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
 
 # next.js
 /.next/
@@ -39,6 +41,10 @@ yarn-error.log*
 
 # temporary local data store (dummy persistence until a real DB exists)
 /.data/
+
+# supabase local tooling + backups
+/supabase/.temp/
+/supabase/backups/
 
 # scratch debug artifacts
 /scratch/

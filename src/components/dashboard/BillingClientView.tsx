@@ -1,16 +1,31 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import type { SubscriptionStatus } from "@/lib/billing/types";
+import type { BillingCycle, PlanRecord, SubscriptionStatus } from "@/lib/billing/types";
 
 interface BillingClientViewProps {
   status: SubscriptionStatus;
   isActive: boolean;
   isGracePeriod: boolean;
   expiresAt: string | null;
+  planId?: string | null;
+  planName?: string | null;
+  billingCycle?: BillingCycle | null;
   daysRemainingInGracePeriod?: number;
   checkoutNotice?: "success" | "failed" | "stub" | null;
+  plans: PlanRecord[];
+}
+
+const TIER_ORDER: PlanRecord["tier"][] = ["basic", "premium", "enterprise"];
+
+function formatPrice(priceIdr: number): string {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(priceIdr);
 }
 
 function formatDate(isoString: string | null): string {
@@ -72,29 +87,35 @@ export function BillingClientView({
   isActive,
   isGracePeriod,
   expiresAt,
+  planId,
+  planName,
+  billingCycle,
   daysRemainingInGracePeriod,
   checkoutNotice,
+  plans,
 }: BillingClientViewProps) {
   const t = useTranslations("Billing");
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [devLoading, setDevLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [cycle, setCycle] = useState<BillingCycle>(billingCycle ?? "monthly");
 
-  async function handleCheckout() {
-    setLoading(true);
+  async function handleCheckout(selectedPlanId: string) {
+    setLoadingPlanId(selectedPlanId);
     setCheckoutError(null);
     try {
       const { createCheckoutInvoiceAction } = await import("@/lib/billing/actions");
-      const result = await createCheckoutInvoiceAction();
+      const result = await createCheckoutInvoiceAction(selectedPlanId);
       if (result.url) {
-        window.location.href = result.url;
+        window.location.assign(result.url);
       } else {
         setCheckoutError(result.error ?? "Failed to start checkout. Please try again.");
-        setLoading(false);
+        setLoadingPlanId(null);
       }
     } catch {
       setCheckoutError("An unexpected error occurred. Please try again.");
-      setLoading(false);
+      setLoadingPlanId(null);
     }
   }
 
@@ -104,7 +125,7 @@ export function BillingClientView({
       const { activateDevSubscriptionAction } = await import("@/lib/billing/actions");
       const res = await activateDevSubscriptionAction();
       if (res.ok) {
-        window.location.href = "/dashboard/billing";
+        router.refresh();
       } else {
         setCheckoutError(res.error ?? "Failed to activate dev subscription.");
         setDevLoading(false);
@@ -115,8 +136,10 @@ export function BillingClientView({
     }
   }
 
-  const showSubscribeButton = !isActive || isGracePeriod;
-  const features = t.raw("features") as string[];
+  const showSubscribeSection = !isActive || isGracePeriod;
+  const currentPlanName = planName ?? "—";
+  const priceFor = (plan: PlanRecord) => plan.price_idr;
+  const planFor = (tier: PlanRecord["tier"]) => plans.find((p) => p.tier === tier && p.billing_cycle === cycle);
 
   return (
     <div className="flex h-full flex-col overflow-y-auto bg-surface select-none">
@@ -213,9 +236,11 @@ export function BillingClientView({
                   {t("currentPlan")}
                 </p>
                 <p className="mt-1.5 font-display text-[24px] font-bold tracking-tight text-ink">
-                  {t("planName")}
+                  {currentPlanName}
                 </p>
-                <p className="mt-1 text-[13px] text-ink-soft">{t("planDesc")}</p>
+                <p className="mt-1 text-[13px] text-ink-soft">
+                  {billingCycle ? t("planCycle", { cycle: billingCycle }) : t("planDesc")}
+                </p>
               </div>
               <StatusBadge status={status} isGracePeriod={isGracePeriod} t={t} />
             </div>
@@ -236,63 +261,101 @@ export function BillingClientView({
                 <p className="mt-1 font-display text-[15px] font-bold text-ink">{formatDate(expiresAt)}</p>
               </div>
             </div>
-
-            {/* What's included */}
-            <div className="mt-6 space-y-2.5 pt-4 border-t border-black/5">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-3">FITUR TERMASUK</p>
-              {features.map((feature) => (
-                <div key={feature} className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[17px] text-accent">
-                    check_circle
-                  </span>
-                  <span className="text-[13px] font-semibold text-ink-soft">{feature}</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
 
-        {/* Subscribe / Renew CTA */}
-        {showSubscribeButton && (
-          <div className="rounded-2xl bg-accent/[0.06] p-6 ring-1 ring-accent/20">
+        {/* Plan picker */}
+        <div className="rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5">
+          <div className="rounded-[1.4rem] bg-surface p-6 shadow-sm ring-1 ring-black/5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-display text-[18px] font-bold tracking-tight text-ink">
-                  {isGracePeriod ? t("cta.renewTitle") : t("cta.subscribeTitle")}
+                  {t("picker.title")}
                 </p>
-                <p className="mt-1 text-[13px] text-ink-soft">
-                  {isGracePeriod ? t("cta.renewDesc") : t("cta.subscribeDesc")}
-                </p>
+                <p className="mt-1 text-[13px] text-ink-soft">{t("picker.subtitle")}</p>
               </div>
-
-              {/* Nested CTA: Button-in-Button Trailing Icon */}
-              <button
-                type="button"
-                onClick={handleCheckout}
-                disabled={loading}
-                className="group relative flex h-11 shrink-0 items-center gap-3 rounded-full bg-accent pl-5 pr-2.5 text-[13px] font-bold text-white shadow-[0_10px_28px_-8px_rgba(0,207,124,0.55)] transition-all duration-300 hover:bg-accent-deep hover:shadow-[0_14px_32px_-6px_rgba(0,207,124,0.65)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <>
-                    <span className="material-symbols-outlined animate-spin text-[18px]">
-                      progress_activity
-                    </span>
-                    <span>{t("cta.redirecting")}</span>
-                  </>
-                ) : (
-                  <>
-                    <span>{isGracePeriod ? t("cta.renewBtn") : t("cta.subscribeBtn")}</span>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white transition-transform duration-300 group-hover:scale-110 group-hover:bg-white/30">
-                      <span className="material-symbols-outlined text-[16px]">bolt</span>
-                    </span>
-                  </>
-                )}
-              </button>
+              {/* Monthly / Annual toggle */}
+              <div className="flex shrink-0 items-center gap-1 rounded-full bg-shell p-1 ring-1 ring-black/5">
+                {(["monthly", "annual"] as const).map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setCycle(c)}
+                    className={`rounded-full px-4 py-1.5 text-[12px] font-bold transition-colors ${
+                      cycle === c ? "bg-accent text-white shadow-sm" : "text-ink-soft hover:text-ink"
+                    }`}
+                  >
+                    {t(`picker.${c}`)}
+                  </button>
+                ))}
+              </div>
             </div>
 
+            <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+              {TIER_ORDER.map((tier) => {
+                const plan = planFor(tier);
+                if (!plan) return null;
+                const selected = plan.id === planId;
+                const isCurrentPlan = selected && isActive && !isGracePeriod;
+                return (
+                  <div
+                    key={plan.id}
+                    className={`flex flex-col rounded-2xl bg-shell p-5 ring-1 transition-shadow ${
+                      isCurrentPlan ? "ring-accent/40 shadow-[0_10px_30px_-12px_rgba(0,207,124,0.4)]" : "ring-black/5"
+                    }`}
+                  >
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">
+                      {t(`plans.${tier}.name`)}
+                    </p>
+                    <p className="mt-2 font-display text-[22px] font-bold tracking-tight text-ink">
+                      {formatPrice(priceFor(plan))}
+                    </p>
+                    <p className="mt-0.5 text-[12px] font-medium text-ink-soft">
+                      {cycle === "annual" ? t("picker.perYear") : t("picker.perMonth")}
+                    </p>
+                    <ul className="mt-4 flex-1 space-y-2">
+                      {(t.raw(`plans.${tier}.features`) as string[]).map((feature) => (
+                        <li key={feature} className="flex items-center gap-2 text-[12px] font-semibold text-ink-soft">
+                          <span className="material-symbols-outlined text-[15px] text-accent">check_circle</span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      type="button"
+                      onClick={() => handleCheckout(plan.id)}
+                      disabled={loadingPlanId !== null || isCurrentPlan}
+                      className={`mt-5 inline-flex h-10 items-center justify-center rounded-full px-4 text-[13px] font-bold transition-all ${
+                        isCurrentPlan
+                          ? "cursor-default bg-accent/10 text-accent"
+                          : "bg-accent text-white shadow-[0_10px_28px_-8px_rgba(0,207,124,0.55)] hover:bg-accent-deep active:scale-[0.98] disabled:opacity-60"
+                      }`}
+                    >
+                      {loadingPlanId === plan.id ? (
+                        <>
+                          <span className="material-symbols-outlined animate-spin text-[16px]">progress_activity</span>
+                          <span className="ml-2">{t("cta.redirecting")}</span>
+                        </>
+                      ) : isCurrentPlan ? (
+                        t("picker.currentPlan")
+                      ) : isGracePeriod ? (
+                        t("cta.renewBtn")
+                      ) : (
+                        t("picker.choose")
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {checkoutError && (
+              <p className="mt-4 text-[13px] font-medium text-danger">{checkoutError}</p>
+            )}
+
             {/* Dev Mode quick activation shortcut */}
-            {(process.env.NODE_ENV !== "production" || checkoutNotice === "stub") && (
-              <div className="mt-4 flex items-center justify-between border-t border-accent/15 pt-4">
+            {showSubscribeSection && (process.env.NODE_ENV !== "production" || checkoutNotice === "stub") && (
+              <div className="mt-6 flex items-center justify-between border-t border-black/5 pt-4">
                 <p className="text-[12px] font-medium text-ink-soft">
                   <span className="font-bold text-accent">{t("dev.label")}</span>{" "}
                   {t("dev.hint")}
@@ -307,12 +370,8 @@ export function BillingClientView({
                 </button>
               </div>
             )}
-
-            {checkoutError && (
-              <p className="mt-3 text-[13px] font-medium text-danger">{checkoutError}</p>
-            )}
           </div>
-        )}
+        </div>
 
         {/* Active subscription management */}
         {isActive && !isGracePeriod && (

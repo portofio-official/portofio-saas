@@ -18,6 +18,7 @@ function mapRow(row: Record<string, any>): Project {
     profileSyncedAt: (row.profile_synced_at as string | null) ?? null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+    draftJson: (row.draft_json ?? {}) as WebsiteDocument,
   };
 }
 
@@ -66,14 +67,22 @@ export async function getProject(projectId: string): Promise<Project | null> {
 
 export async function getProjectWithDraft(projectId: string): Promise<ProjectWithDraft | null> {
   const project = await getProject(projectId);
-  if (!project || !project.currentVersionId) return null;
+  if (!project) return null;
 
-  const draftVersion = await getProjectVersion(project.currentVersionId);
-  if (!draftVersion) return null;
-
+  // The live editable draft lives in projects.draft_json (single autosave
+  // upsert). project_versions only holds bounded history snapshots now.
   return {
     ...project,
-    draftVersion,
+    draftVersion: {
+      id: project.id,
+      projectId,
+      versionNumber: 0,
+      contentJson: project.draftJson,
+      schemaVersion: project.templateVersion,
+      isAutosave: true,
+      createdAt: project.updatedAt,
+      createdBy: null,
+    },
   };
 }
 
@@ -106,8 +115,17 @@ export async function listProjectVersions(
 
 export async function getProjectCurrentDraft(projectId: string): Promise<ProjectVersion | null> {
   const project = await getProject(projectId);
-  if (!project || !project.currentVersionId) return null;
-  return getProjectVersion(project.currentVersionId);
+  if (!project) return null;
+  return {
+    id: project.id,
+    projectId,
+    versionNumber: 0,
+    contentJson: project.draftJson,
+    schemaVersion: project.templateVersion,
+    isAutosave: true,
+    createdAt: project.updatedAt,
+    createdBy: null,
+  };
 }
 
 export async function getProjectPublishedVersion(projectId: string): Promise<ProjectVersion | null> {
@@ -150,7 +168,7 @@ export async function createProject(
   const supabase = await createClient();
   const now = new Date().toISOString();
 
-  // 1. Create project row
+  // 1. Create project row (draft_json holds the editable draft from the start)
   const { data: projectRow, error: projectError } = await supabase
     .from("projects")
     .insert({
@@ -158,6 +176,7 @@ export async function createProject(
       name,
       template_id: templateId,
       template_version: initialDocument.meta.templateVersion,
+      draft_json: initialDocument,
       profile_synced_at: now,
     })
     .select("*")
@@ -203,55 +222,37 @@ export async function saveDraftJson(
 ): Promise<boolean> {
   const supabase = await createClient();
 
-  // Fetch highest current version number for this project
-  const { data: maxVersion } = await supabase
-    .from("project_versions")
-    .select("version_number")
-    .eq("project_id", projectId)
-    .order("version_number", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  const nextVersionNumber = (maxVersion?.version_number ?? 0) + 1;
-
-  // Insert new version
-  const { data: newVersion, error: versionError } = await supabase
-    .from("project_versions")
-    .insert({
-      project_id: projectId,
-      version_number: nextVersionNumber,
-      content_json: draftJson,
-      schema_version: draftJson.meta.templateVersion,
-      is_autosave: true,
-    })
-    .select("id")
-    .single();
-
-  if (versionError || !newVersion) return false;
-
-  // Update current_version_id and template_version / updated_at
-  const { error: updateError } = await supabase
+  // Single in-place upsert on projects.draft_json — no new project_versions
+  // row per autosave, so there is no max(version_number)+1 race and no
+  // unbounded history growth.
+  const { error } = await supabase
     .from("projects")
     .update({
-      current_version_id: newVersion.id,
+      draft_json: draftJson,
       template_version: draftJson.meta.templateVersion,
       updated_at: new Date().toISOString(),
     })
     .eq("id", projectId);
 
-  return !updateError;
+  return !error;
 }
 
-export async function publishProject(
-  projectId: string,
-  subdomain: string,
-): Promise<boolean> {
+export type PublishResult = {
+  ok: boolean;
+  error?: string;
+};
+
+export async function publishProject(projectId: string, subdomain: string): Promise<PublishResult> {
   const supabase = await createClient();
   const { error } = await supabase.rpc("publish_project", {
     p_project_id: projectId,
     p_subdomain: subdomain,
   });
-  return !error;
+  if (!error) return { ok: true };
+
+  // The hardened RPC raises distinct exceptions that map 1:1 to user messages.
+  const message = typeof error.message === "string" ? error.message : "";
+  return { ok: false, error: message };
 }
 
 export async function unpublishProject(projectId: string): Promise<boolean> {

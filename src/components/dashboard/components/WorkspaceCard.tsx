@@ -48,7 +48,6 @@ export function WorkspaceCard({
 }: WorkspaceCardProps) {
   const t = useTranslations("Dashboard");
   const [openMenu, setOpenMenu] = useState(false);
-
   const siteSubdomain =
     workspace.subdomain ?? workspace.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
   const fullSiteUrl = `http://${ROOT_DOMAIN}/sites/${siteSubdomain}`;
@@ -56,193 +55,175 @@ export function WorkspaceCard({
 
   return (
     <div
-      className="group relative flex flex-col overflow-hidden rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] animate-fade-in-up-custom"
-      style={{ animationDelay: `${Math.min(index * 45, 360)}ms` }}
+      className="group relative flex flex-col gap-2.5 animate-fade-in-up-custom"
+      style={{ animationDelay: `${Math.min(index * 40, 320)}ms` }}
     >
-      <div className="flex-1 flex flex-col overflow-hidden rounded-[1.4rem] bg-surface shadow-sm ring-1 ring-black/5">
-        {/* Miniature Browser Chrome */}
-        <div className="relative flex flex-col bg-shell">
-          <div className="flex items-center justify-between gap-2 border-b border-black/5 bg-shell px-3 py-2.5">
-            <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-[#FF5F56]/80" />
-              <span className="h-2 w-2 rounded-full bg-[#FFBD2E]/80" />
-              <span className="h-2 w-2 rounded-full bg-[#27C93F]/80" />
-            </div>
-            <div className="flex min-w-0 items-center gap-1 rounded-md bg-surface px-2.5 py-1 text-[10px] font-mono text-ink-faint ring-1 ring-black/5">
-              {isPublished ? (
-                <span className="material-symbols-outlined text-[11px] text-accent-deep">lock</span>
-              ) : (
-                <span className="material-symbols-outlined text-[11px]">edit_note</span>
-              )}
-              <span className="truncate">{siteSubdomain}.portofio.app</span>
-            </div>
-            <div className="w-7" />
-          </div>
+      {/* Thumbnail Container */}
+      <div className="relative h-[220px] sm:h-[240px] w-full overflow-hidden rounded-2xl border border-black/10 bg-[#FAFAFA] shadow-xs transition-all duration-200 ease-out group-hover:border-black/20 group-hover:shadow-md">
+        {/* Floating three-dots menu — top-right overlay on thumbnail */}
+        <div className="absolute top-2.5 right-2.5 z-20">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setOpenMenu((prev) => !prev);
+            }}
+            className="grid h-7 w-7 place-items-center rounded-lg bg-white/90 text-ink-soft shadow-xs ring-1 ring-black/10 backdrop-blur-sm transition-all duration-150 hover:bg-white hover:text-ink opacity-0 group-hover:opacity-100"
+            title={t("moreActions")}
+            aria-label={t("moreActions")}
+          >
+            <span className="material-symbols-outlined text-[16px]">more_vert</span>
+          </button>
 
-          {/* Preview Canvas */}
-          <div className="relative flex h-[185px] w-full items-center justify-center overflow-hidden bg-shell">
-            {workspace.preview ? (
+          {openMenu && (
+            <>
               <div
-                className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-[1.04]"
-                style={{ transform: "scale(0.33)", width: "303%", height: "303%" }}
+                className="fixed inset-0 z-30"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenMenu(false);
+                }}
+              />
+              <div
+                className="absolute right-0 top-full mt-1 z-40 flex w-48 flex-col overflow-hidden rounded-xl bg-surface p-1 shadow-floating ring-1 ring-black/10 animate-fade-in-up-custom text-left"
+                onClick={(e) => e.stopPropagation()}
               >
-                <PreviewTemplateRenderer
-                  templateId={workspace.preview.templateId}
-                  data={workspace.preview.data}
-                />
-              </div>
-            ) : (
-              <div className="relative w-[72%] rounded-xl border border-black/5 bg-surface p-3.5 shadow-xs transition-transform duration-300 group-hover:scale-105">
-                <div className="mb-2 h-2.5 w-1/3 rounded-full bg-ink/[0.08]" />
-                <div className="mb-2 h-14 w-full rounded-md bg-shell" />
-                <div className="flex gap-2">
-                  <div className="h-8 w-1/2 rounded-md bg-shell" />
-                  <div className="h-8 w-1/2 rounded-md bg-shell" />
-                </div>
-              </div>
-            )}
-
-            {/* Hover Actions Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-[#111827]/55 backdrop-blur-[3px] opacity-0 transition-opacity duration-300 group-hover:opacity-100 p-4">
-              <Link
-                href={`/dashboard/${workspace.id}/editor`}
-                className="flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-[12px] font-bold text-white shadow-sm transition-all duration-200 hover:bg-accent-deep active:scale-[0.97]"
-              >
-                <span className="material-symbols-outlined text-[17px]">edit</span>
-                {t("edit")}
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => onPreview(workspace)}
-                className="grid h-10 w-10 place-items-center rounded-full bg-surface text-ink-soft shadow-sm transition-all duration-200 hover:bg-white hover:text-ink active:scale-[0.95]"
-                title={t("preview")}
-              >
-                <span className="material-symbols-outlined text-[18px]">visibility</span>
-              </button>
-
-              {isPublished ? (
-                <button
-                  type="button"
-                  onClick={() => onUnpublish(workspace.id)}
-                  className="grid h-10 w-10 place-items-center rounded-full bg-surface text-[#D97706] shadow-sm transition-all duration-200 hover:bg-[#FFFBEB] active:scale-[0.95]"
-                  title={t("unpublish")}
-                >
-                  <span className="material-symbols-outlined text-[18px]">cloud_off</span>
-                </button>
-              ) : (
                 <Link
                   href={`/dashboard/${workspace.id}/editor`}
-                  className="grid h-10 w-10 place-items-center rounded-full bg-surface text-accent-deep shadow-sm transition-all duration-200 hover:bg-accent/10 active:scale-[0.95]"
-                  title={t("publish")}
+                  className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
+                  onClick={() => setOpenMenu(false)}
                 >
-                  <span className="material-symbols-outlined text-[18px]">cloud_upload</span>
+                  <span className="material-symbols-outlined text-[16px]">edit</span>
+                  {t("edit")}
                 </Link>
-              )}
-            </div>
-          </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenMenu(false);
+                    onPreview(workspace);
+                  }}
+                  className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
+                >
+                  <span className="material-symbols-outlined text-[16px]">visibility</span>
+                  {t("preview")}
+                </button>
+
+                {isPublished && fullSiteUrl ? (
+                  <a
+                    href={fullSiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium text-accent-deep transition-colors hover:bg-accent/[0.08]"
+                    onClick={() => setOpenMenu(false)}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                    {t("visitLiveSite")}
+                  </a>
+                ) : null}
+
+                <Link
+                  href="/dashboard/content"
+                  className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
+                  onClick={() => setOpenMenu(false)}
+                >
+                  <span className="material-symbols-outlined text-[16px]">folder_open</span>
+                  {t("contentLibrary")}
+                </Link>
+
+                {isPublished ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpenMenu(false);
+                      onUnpublish(workspace.id);
+                    }}
+                    className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-[#D97706] transition-colors hover:bg-[#FFFBEB]"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">cloud_off</span>
+                    {t("unpublish")}
+                  </button>
+                ) : null}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenMenu(false);
+                    onDuplicate(workspace.id);
+                  }}
+                  disabled={isDuplicating}
+                  className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
+                >
+                  <span className="material-symbols-outlined text-[16px]">content_copy</span>
+                  {isDuplicating ? t("duplicating") : t("duplicate")}
+                </button>
+
+                <div className="my-1 border-t border-black/5" />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenMenu(false);
+                    onDelete(workspace);
+                  }}
+                  className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-danger transition-colors hover:bg-danger/5"
+                >
+                  <span className="material-symbols-outlined text-[16px]">delete</span>
+                  {t("delete")}
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Card Footer */}
-        <div className="flex flex-col gap-2.5 border-t border-black/5 bg-surface p-4">
-          <div className="flex items-center justify-between gap-2">
-            <p className="truncate font-display text-[15px] font-bold text-ink">{workspace.name}</p>
-
-            {isPublished ? (
-              <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent/[0.12] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-deep ring-1 ring-accent/20">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-                </span>
-                {t("live")}
-              </span>
-            ) : (
-              <span className="shrink-0 rounded-full bg-ink/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint ring-1 ring-black/5">
-                {t("filterDraft")}
-              </span>
-            )}
+        {/* Live Website Canvas */}
+        <Link
+          href={`/dashboard/${workspace.id}/editor`}
+          className="relative block h-full w-full overflow-hidden cursor-pointer"
+          title={workspace.name}
+        >
+          <div
+            className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-300 ease-out group-hover:scale-[1.015]"
+            style={{ transform: "scale(0.33)", width: "303%", height: "303%" }}
+          >
+            <PreviewTemplateRenderer
+              templateId={workspace.preview?.templateId ?? "minimal"}
+              data={workspace.preview?.data ?? {}}
+            />
           </div>
 
-          <div className="flex items-center justify-between">
-            <p className="text-[12px] font-medium text-ink-faint">
-              {t("editedLabel")} {timeAgo(workspace.createdAt, locale)}
-            </p>
-
-            {/* Card More Menu */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setOpenMenu((prev) => !prev);
-                }}
-                className="grid h-7 w-7 place-items-center rounded-lg text-ink-faint transition-colors hover:bg-ink/[0.06] hover:text-ink"
-                title={t("moreActions")}
-              >
-                <span className="material-symbols-outlined text-[16px]">more_vert</span>
-              </button>
-
-              {openMenu && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(false)} />
-                  <div className="absolute right-0 bottom-8 z-20 flex w-48 flex-col overflow-hidden rounded-xl bg-surface p-1 shadow-[var(--shadow-diffused)] ring-1 ring-black/5 animate-fade-in-up-custom">
-                    <Link
-                      href={`/dashboard/${workspace.id}/editor`}
-                      className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">edit</span>
-                      {t("edit")} Website
-                    </Link>
-
-                    <Link
-                      href="/dashboard/content"
-                      className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">folder_open</span>
-                      {t("contentLibrary")}
-                    </Link>
-
-                    {isPublished && workspace.subdomain && (
-                      <a
-                        href={fullSiteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-accent-deep transition-colors hover:bg-accent/[0.08]"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-                        {t("visitLiveSite")}
-                      </a>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => onDuplicate(workspace.id)}
-                      disabled={isDuplicating}
-                      className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">content_copy</span>
-                      {isDuplicating ? t("duplicating") : t("duplicate")}
-                    </button>
-
-                    <div className="my-1 border-t border-black/5" />
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpenMenu(false);
-                        onDelete(workspace);
-                      }}
-                      className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-danger transition-colors hover:bg-danger/5"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">delete</span>
-                      {t("delete")}
-                    </button>
-                  </div>
-                </>
-              )}
+          {/* Published live dot overlay */}
+          {isPublished && (
+            <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-accent-deep ring-1 ring-black/5 backdrop-blur-sm shadow-xs">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+              </span>
+              {t("live")}
             </div>
-          </div>
+          )}
+        </Link>
+      </div>
+
+      {/* Card Footer — name + viewed ago + FREE badge */}
+      <div className="flex items-center justify-between px-1">
+        <div className="min-w-0">
+          <Link
+            href={`/dashboard/${workspace.id}/editor`}
+            className="block truncate font-display text-[14px] font-semibold text-ink hover:text-accent-deep transition-colors"
+          >
+            {workspace.name}
+          </Link>
+          <p className="mt-0.5 text-[12px] font-medium text-ink-faint">
+            {t("viewedLabel")} {timeAgo(workspace.createdAt, locale)}
+          </p>
         </div>
+
+        {/* Plan badge */}
+        <span className="ml-3 shrink-0 rounded-md bg-ink/[0.06] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-ink-soft ring-1 ring-black/5">
+          FREE
+        </span>
       </div>
     </div>
   );

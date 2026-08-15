@@ -158,11 +158,11 @@ export function DashboardSidebar({
     const content = (
       <>
         {item.active && (
-          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent shadow-[0_0_8px_rgba(0,207,124,0.8)]" />
+          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
         )}
         <span
           className={`material-symbols-outlined text-[19px] transition-transform duration-200 group-hover:scale-105 ${
-            item.active ? "text-accent drop-shadow-[0_2px_8px_rgba(0,207,124,0.4)]" : "text-ink-faint group-hover:text-ink"
+            item.active ? "text-accent" : "text-ink-faint group-hover:text-ink"
           }`}
         >
           {item.icon}
@@ -211,7 +211,7 @@ export function DashboardSidebar({
         title={compact ? item.label : undefined}
         className={`group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-200 active:scale-[0.98] ${
           item.active
-            ? "bg-accent/[0.1] text-accent-deep font-bold shadow-xs"
+            ? "bg-accent/[0.1] text-accent-deep font-bold"
             : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink"
         } ${compact ? "justify-center px-0" : ""}`}
       >
@@ -248,16 +248,16 @@ export function DashboardSidebar({
           title={compact ? label : undefined}
           className={`group relative flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-200 active:scale-[0.98] ${
             parentActive && (!open || compact)
-              ? "bg-accent/[0.1] text-accent-deep font-bold shadow-xs"
+              ? "bg-accent/[0.1] text-accent-deep font-bold"
               : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink"
           } ${compact ? "justify-center px-0" : ""}`}
         >
           {parentActive && (
-            <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent shadow-[0_0_8px_rgba(0,207,124,0.8)]" />
+            <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
           )}
           <span
             className={`material-symbols-outlined text-[19px] transition-transform duration-200 group-hover:scale-105 ${
-              parentActive ? "text-accent drop-shadow-[0_2px_8px_rgba(0,207,124,0.4)]" : "text-ink-faint group-hover:text-ink"
+              parentActive ? "text-accent" : "text-ink-faint group-hover:text-ink"
             }`}
           >
             {icon}
@@ -301,7 +301,7 @@ export function DashboardSidebar({
       }`}
     >
       <div
-        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-accent text-white shadow-[0_8px_20px_rgba(0,207,124,0.4)] ring-1 ring-white/30 transition-transform duration-300 ${
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-accent text-white ring-1 ring-black/5 transition-transform duration-300 ${
           collapsed ? "group-hover:scale-105 active:scale-95" : ""
         }`}
       >
@@ -360,7 +360,7 @@ export function DashboardSidebar({
           title={compact ? `${t("profile")} (${email})` : undefined}
           className={`flex min-w-0 items-center gap-2.5 ${compact ? "justify-center" : ""}`}
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/15 font-display text-[13px] font-bold text-accent-deep ring-2 ring-accent/20 shadow-xs">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/15 font-display text-[13px] font-bold text-accent-deep ring-1 ring-accent/20">
             {initials}
           </span>
           <span className={`min-w-0 truncate text-[12px] font-semibold text-ink ${compact ? "hidden" : ""}`}>
@@ -406,17 +406,43 @@ export function DashboardSidebar({
 
   return (
     <>
-      {/* Mobile: floating trigger (only < md) */}
-      <button
-        type="button"
-        onClick={() => setMobileOpen(true)}
-        aria-label={t("openMenu")}
-        className="fixed top-3 left-3 z-40 flex h-10 w-10 items-center justify-center rounded-xl bg-surface text-ink shadow-[var(--shadow-diffused)] ring-1 ring-black/5 transition-transform active:scale-95 md:hidden"
-      >
-        <span className="material-symbols-outlined text-[22px]">menu</span>
-      </button>
+      {/* Mobile: Integrated Top Bar (< md) */}
+      <div className="flex md:hidden items-center justify-between gap-3 px-3.5 py-2.5 mb-2 rounded-2xl bg-surface ring-1 ring-black/5 shrink-0 select-none shadow-[var(--shadow-diffused)]">
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-label={t("openMenu")}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink/[0.05] text-ink hover:bg-ink/[0.08] active:scale-95 transition-all ring-1 ring-black/5"
+          >
+            <span className="material-symbols-outlined text-[20px]">menu</span>
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="grid h-7 w-7 place-items-center rounded-lg bg-accent text-white font-bold text-[13px] ring-1 ring-black/5">
+              <span className="material-symbols-outlined text-[16px]">workspaces</span>
+            </div>
+            <span className="font-display font-bold text-[15px] tracking-tight text-ink">Portofio</span>
+          </div>
+        </div>
 
-      {/* Mobile: drawer + backdrop */}
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/templates"
+            className="flex h-8 items-center gap-1.5 rounded-full bg-accent px-3 text-[12px] font-bold text-white hover:bg-accent-deep active:scale-95 transition-all"
+          >
+            <span className="material-symbols-outlined text-[15px]">add</span>
+            <span>{tw("create.titleFirst") || "Buat"}</span>
+          </Link>
+          <Link
+            href="/dashboard/profile"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/15 text-accent-deep font-display text-[12px] font-bold ring-1 ring-accent/20"
+          >
+            {initials}
+          </Link>
+        </div>
+      </div>
+
+      {/* Mobile: Drawer + Backdrop */}
       <AnimatePresence>
         {mobileOpen && (
           <>
@@ -434,7 +460,7 @@ export function DashboardSidebar({
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: "spring", stiffness: 380, damping: 34 }}
-              className="fixed inset-y-0 left-0 z-50 flex w-[280px] shrink-0 flex-col overflow-hidden bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5 select-none md:hidden"
+              className="fixed inset-y-0 left-0 z-50 flex w-[280px] shrink-0 flex-col overflow-hidden bg-surface shadow-floating ring-1 ring-black/5 select-none md:hidden"
             >
               <div className="flex items-center justify-between gap-2 border-b border-black/5 px-4 py-4">
                 <div className="flex items-center gap-2.5">{brand(true)}</div>
@@ -447,7 +473,7 @@ export function DashboardSidebar({
         )}
       </AnimatePresence>
 
-      {/* Desktop: inline sidebar (md+) */}
+      {/* Desktop: Inline Sidebar (md+) */}
       <motion.aside
         initial={{ x: -16, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}

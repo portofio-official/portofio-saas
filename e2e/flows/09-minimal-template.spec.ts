@@ -27,7 +27,7 @@ test.describe("Flow 9 — Minimal Template Redesign & Data Connection", () => {
     await expect(root.locator('[data-section-key="contact"]')).toHaveCount(1);
 
     // Skills + projects feed in from the form
-    await expect(root.locator('section[data-section-key="work"] h4')).toContainText(["Brand Refresh — GoTo"]);
+    await expect(root.locator('section[data-section-key="work"] h4')).toContainText(["Brand Refresh: GoTo"]);
     await expect(root.locator('section[data-section-key="capabilities"]')).toContainText("Figma");
 
     // Contact + socials from the form; editorial serif font applied

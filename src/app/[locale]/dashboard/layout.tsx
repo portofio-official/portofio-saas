@@ -1,4 +1,5 @@
 import { redirect } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { getUserRole } from "@/lib/auth/roles";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
@@ -13,6 +14,7 @@ export default async function DashboardLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Common" });
   const email = await getCurrentUserEmail();
 
   if (!email) {
@@ -35,9 +37,18 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="relative flex flex-col md:flex-row h-dvh w-full overflow-hidden bg-canvas p-2.5 sm:p-4 md:p-5 font-sans md:gap-4 select-none">
+    <div className="relative flex flex-col md:flex-row h-dvh w-full overflow-hidden bg-canvas font-sans">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-[12px] focus:font-bold focus:text-white"
+      >
+        {t("skipToContent")}
+      </a>
       <DashboardSidebar email={email} contentCounts={contentCounts} />
-      <main className="relative flex flex-1 flex-col overflow-hidden rounded-2xl bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
+      <main
+        id="main-content"
+        className="relative flex flex-1 flex-col overflow-hidden border-l border-black/5 bg-surface"
+      >
         {children}
       </main>
     </div>

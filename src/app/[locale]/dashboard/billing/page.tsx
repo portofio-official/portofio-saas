@@ -1,8 +1,15 @@
+import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { getSubscriptionState } from "@/lib/billing/subscription";
 import { listActivePlans } from "@/lib/billing/plans";
 import { BillingClientView } from "@/components/dashboard/BillingClientView";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Billing" });
+  return { title: t("title") };
+}
 
 export default async function BillingPage({
   params,

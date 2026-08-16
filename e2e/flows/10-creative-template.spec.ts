@@ -34,7 +34,7 @@ test.describe("Flow 10 — Creative Template Redesign & Data Connection", () => 
     await expect(root.locator('[data-section-key="contact"]')).toHaveCount(1);
 
     // Skills + projects feed in from the form
-    await expect(root.locator('[data-section-key="work"]')).toContainText("Brand Refresh — GoTo");
+    await expect(root.locator('[data-section-key="work"]')).toContainText("Brand Refresh: GoTo");
     await expect(root.locator('[data-section-key="skills"]')).toContainText("Figma");
 
     // Contact + socials from the form; display font applied

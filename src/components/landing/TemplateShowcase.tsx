@@ -35,8 +35,8 @@ const PREVIEW_DATA: PreviewData = {
   ],
   skills: ["Figma", "React", "Framer", "Tailwind", "Prototyping", "Motion Design"],
   projects: [
-    { title: "Brand Refresh — GoTo", description: "Complete visual identity overhaul for Indonesia's largest tech company.", link: "#" },
-    { title: "Design System — Shopee", description: "Built a scalable component library used by 200+ designers.", link: "#" },
+    { title: "Brand Refresh: GoTo", description: "Complete visual identity overhaul for Indonesia's largest tech company.", link: "#" },
+    { title: "Design System: Shopee", description: "Built a scalable component library used by 200+ designers.", link: "#" },
   ],
   contact: { email: "alex@example.com", phone: "+62 812 3456 7890" },
   socials: [

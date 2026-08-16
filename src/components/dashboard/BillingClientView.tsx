@@ -29,7 +29,7 @@ function formatPrice(priceIdr: number): string {
 }
 
 function formatDate(isoString: string | null): string {
-  if (!isoString) return "—";
+  if (!isoString) return "-";
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
     month: "long",
@@ -49,8 +49,8 @@ function StatusBadge({
 }) {
   if (isGracePeriod) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-[12px] font-bold text-amber-600 ring-1 ring-amber-200">
-        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-soft px-3 py-1 text-[12px] font-bold text-ink ring-1 ring-warning/25">
+        <span className="h-1.5 w-1.5 rounded-full bg-warning" />
         {t("badge.gracePeriod")}
       </span>
     );
@@ -58,10 +58,7 @@ function StatusBadge({
   if (status === "active") {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1 text-[12px] font-bold text-accent ring-1 ring-accent/20">
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-        </span>
+        <span className="h-1.5 w-1.5 rounded-full bg-accent" />
         {t("badge.active")}
       </span>
     );
@@ -110,11 +107,11 @@ export function BillingClientView({
       if (result.url) {
         window.location.assign(result.url);
       } else {
-        setCheckoutError(result.error ?? "Failed to start checkout. Please try again.");
+        setCheckoutError(result.error ?? t("errors.checkoutFail"));
         setLoadingPlanId(null);
       }
     } catch {
-      setCheckoutError("An unexpected error occurred. Please try again.");
+      setCheckoutError(t("errors.unexpected"));
       setLoadingPlanId(null);
     }
   }
@@ -127,31 +124,27 @@ export function BillingClientView({
       if (res.ok) {
         router.refresh();
       } else {
-        setCheckoutError(res.error ?? "Failed to activate dev subscription.");
+        setCheckoutError(res.error ?? t("errors.devActivateFail"));
         setDevLoading(false);
       }
     } catch {
-      setCheckoutError("Failed to activate dev subscription.");
+      setCheckoutError(t("errors.devActivateFail"));
       setDevLoading(false);
     }
   }
 
   const showSubscribeSection = !isActive || isGracePeriod;
-  const currentPlanName = planName ?? "—";
+  const currentPlanName = planName ?? "-";
   const priceFor = (plan: PlanRecord) => plan.price_idr;
   const planFor = (tier: PlanRecord["tier"]) => plans.find((p) => p.tier === tier && p.billing_cycle === cycle);
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto bg-surface select-none">
+    <div className="flex h-full flex-col overflow-y-auto bg-surface">
       {/* Header */}
       <header className="shrink-0 border-b border-black/5 bg-surface px-6 pt-6 pb-5 sm:px-8">
         <div className="min-w-0">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/[0.1] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent-deep ring-1 ring-accent/20">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-            </span>
-            LANGGANAN / BILLING
+            {t("eyebrow")}
           </span>
           <h1 className="mt-2.5 font-display text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[34px]">
             {t("title")}
@@ -188,26 +181,26 @@ export function BillingClientView({
         )}
 
         {checkoutNotice === "stub" && (
-          <div className="flex items-start gap-4 rounded-2xl bg-sky-50 px-5 py-4 ring-1 ring-sky-200">
-            <span className="material-symbols-outlined mt-0.5 text-[20px] text-sky-600">
+          <div className="flex items-start gap-4 rounded-2xl bg-info-soft px-5 py-4 ring-1 ring-info/30">
+            <span className="material-symbols-outlined mt-0.5 text-[20px] text-info">
               developer_mode
             </span>
             <div>
-              <p className="font-display text-[14px] font-bold text-sky-900">{t("notice.stubTitle")}</p>
-              <p className="mt-0.5 text-[13px] text-sky-800">{t("notice.stubDesc")}</p>
+              <p className="font-display text-[14px] font-bold text-ink">{t("notice.stubTitle")}</p>
+              <p className="mt-0.5 text-[13px] text-ink-soft">{t("notice.stubDesc")}</p>
             </div>
           </div>
         )}
 
         {/* Grace Period Warning Banner */}
         {isGracePeriod && (
-          <div className="flex items-start gap-4 rounded-2xl bg-amber-50 px-5 py-4 ring-1 ring-amber-200">
-            <span className="material-symbols-outlined mt-0.5 text-[20px] text-amber-500">
+          <div className="flex items-start gap-4 rounded-2xl bg-warning-soft px-5 py-4 ring-1 ring-warning/30">
+            <span className="material-symbols-outlined mt-0.5 text-[20px] text-warning">
               warning
             </span>
             <div>
-              <p className="font-display text-[14px] font-bold text-amber-800">{t("notice.graceTitle")}</p>
-              <p className="mt-0.5 text-[13px] text-amber-700">
+              <p className="font-display text-[14px] font-bold text-ink">{t("notice.graceTitle")}</p>
+              <p className="mt-0.5 text-[13px] text-ink-soft">
                 {t("notice.graceDesc", { days: daysRemainingInGracePeriod ?? 7 })}
               </p>
             </div>
@@ -301,7 +294,7 @@ export function BillingClientView({
                   <div
                     key={plan.id}
                     className={`flex flex-col rounded-2xl bg-shell p-5 ring-1 transition-shadow ${
-                      isCurrentPlan ? "ring-accent/40 shadow-[0_10px_30px_-12px_rgba(0,207,124,0.4)]" : "ring-black/5"
+                      isCurrentPlan ? "ring-accent/40 shadow-md" : "ring-black/5"
                     }`}
                   >
                     <p className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">
@@ -328,7 +321,7 @@ export function BillingClientView({
                       className={`mt-5 inline-flex h-10 items-center justify-center rounded-full px-4 text-[13px] font-bold transition-all ${
                         isCurrentPlan
                           ? "cursor-default bg-accent/10 text-accent"
-                          : "bg-accent text-white shadow-[0_10px_28px_-8px_rgba(0,207,124,0.55)] hover:bg-accent-deep active:scale-[0.98] disabled:opacity-60"
+                          : "bg-accent text-white shadow-sm hover:bg-accent-deep active:scale-[0.98] disabled:opacity-60"
                       }`}
                     >
                       {loadingPlanId === plan.id ? (

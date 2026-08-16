@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { EditorData } from "./types";
 
 export interface SectionListItem {
@@ -25,6 +26,7 @@ export interface EditorLeftPanelProps {
 }
 
 export function EditorLeftPanel(props: EditorLeftPanelProps) {
+  const t = useTranslations("Editor");
   const {
     activeLeftTab,
     setActiveLeftTab,
@@ -72,7 +74,7 @@ export function EditorLeftPanel(props: EditorLeftPanelProps) {
             type="button"
             onClick={() => setMobileLeftOpen(false)}
             className="lg:hidden ml-auto mb-2.5 -mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-soft hover:bg-black/5 hover:text-ink transition-colors"
-            aria-label="Close panel"
+            aria-label={t("closePanel")}
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
@@ -109,7 +111,7 @@ export function EditorLeftPanel(props: EditorLeftPanelProps) {
                   <div className="flex flex-col gap-3 mb-6 p-4 rounded-[1.5rem] bg-accent/[0.03] border border-accent/10 shadow-sm transition-all">
                     <div className="flex justify-between items-end">
                       <div className="flex flex-col">
-                        <h3 className="text-[13px] font-bold text-ink">Setup Progress</h3>
+                        <h3 className="text-[13px] font-bold text-ink">{t("setupProgress")}</h3>
                         <span className="text-[11px] text-ink-soft">{completed} of {tasks.length} completed</span>
                       </div>
                       <span className="text-[14px] font-black text-accent">{progress}%</span>
@@ -253,8 +255,8 @@ export function EditorLeftPanel(props: EditorLeftPanelProps) {
           ) : (
             <div className="flex flex-col h-full p-1">
               <div className="sticky top-0 z-10 bg-surface/95 backdrop-blur-md pb-4 pt-1 mb-4 border-b border-black/5 -mt-2">
-                <span className="text-[10px] font-bold text-ink-soft uppercase tracking-[0.05em]">Layout</span>
-                <h2 className="text-sm font-bold text-ink mt-0.5">Section Visibility</h2>
+                <span className="text-[10px] font-bold text-ink-soft uppercase tracking-[0.05em]">{t("layout")}</span>
+                <h2 className="text-sm font-bold text-ink mt-0.5">{t("sectionVisibility")}</h2>
               </div>
               <div className="flex flex-col gap-2">
                 {sections.map((section) => {

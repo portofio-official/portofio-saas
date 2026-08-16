@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -6,49 +5,17 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import type { Workspace } from "@/lib/workspace";
 import { useToast } from "@/components/ui/Toast";
-import { type SortOption, type FilterOption } from "./components/DashboardToolbar";
 import { WorkspaceGrid } from "./components/WorkspaceGrid";
-import { WorkspaceListView } from "./components/WorkspaceListView";
 import { QuickPreviewModal } from "./components/QuickPreviewModal";
 
-const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
-
-interface Dict {
-  eyebrow: string;
-  title: string;
-  logout: string;
-  listEyebrow: string;
-  listTitle: string;
-  createEyebrow: string;
-  createTitleFirst: string;
-  createTitle: string;
-}
-
-function timeAgo(dateInput: string, locale: string): string {
-  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
-  const diffMs = new Date(dateInput).getTime() - Date.now();
-  const secs = Math.round(diffMs / 1000);
-  const mins = Math.round(secs / 60);
-  const hours = Math.round(mins / 60);
-  const days = Math.round(hours / 24);
-  const months = Math.round(days / 30);
-  const years = Math.round(months / 12);
-  if (Math.abs(secs) < 60) return rtf.format(secs, "second");
-  if (Math.abs(mins) < 60) return rtf.format(mins, "minute");
-  if (Math.abs(hours) < 24) return rtf.format(hours, "hour");
-  if (Math.abs(days) < 30) return rtf.format(days, "day");
-  if (Math.abs(months) < 12) return rtf.format(months, "month");
-  return rtf.format(years, "year");
-}
+type SortOption = "updated" | "name" | "created";
 
 export function DashboardClientView({
   workspaces,
-  preferredTemplateId,
+  recentViews,
 }: {
-  email: string;
   workspaces: Workspace[];
-  dict: Dict;
-  preferredTemplateId?: string;
+  recentViews: Map<string, number>;
 }) {
   const t = useTranslations("Dashboard");
   const locale = useLocale();
@@ -58,7 +25,6 @@ export function DashboardClientView({
 
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("updated");
-  const [filterBy] = useState<FilterOption>("all");
   const [showSearch, setShowSearch] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
 
@@ -88,10 +54,13 @@ export function DashboardClientView({
         setShowSearch(false);
         setSearch("");
       }
+      if (e.key === "Escape" && showSortDropdown) {
+        setShowSortDropdown(false);
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showSearch]);
+  }, [showSearch, showSortDropdown]);
 
   // Sort options
   const sortOptions: { value: SortOption; label: string }[] = [
@@ -103,18 +72,14 @@ export function DashboardClientView({
 
   // Filter and sort items
   const filteredWorkspaces = workspaces
-    .filter((w) => {
-      const matchesSearch = w.name.toLowerCase().includes(search.toLowerCase());
-      const matchesFilter =
-        filterBy === "all"
-          ? true
-          : filterBy === "published"
-          ? w.publishStatus === "published"
-          : w.publishStatus !== "published";
-      return matchesSearch && matchesFilter;
-    })
+    .filter((w) => w.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sortBy === "name") return a.name.localeCompare(b.name);
+      if (sortBy === "updated") {
+        const au = a.updatedAt ?? a.createdAt;
+        const bu = b.updatedAt ?? b.createdAt;
+        return new Date(bu).getTime() - new Date(au).getTime();
+      }
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
@@ -159,21 +124,33 @@ export function DashboardClientView({
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-surface select-none">
+    <div className="flex h-full flex-col overflow-hidden bg-surface">
       {/* ── Top Header ── */}
-      <header className="shrink-0 border-b border-black/5 bg-surface px-6 sm:px-8 py-4">
-        <div className="flex items-center justify-between gap-4">
-          {/* Left: "All" heading */}
-          <h1 className="font-display text-[22px] font-bold tracking-tight text-ink">
-            {t("allProjects")}
-          </h1>
+      <header className="shrink-0 border-b border-black/5 bg-surface px-6 sm:px-8 pt-6 pb-5">
+        <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-4">
+          {/* Left: eyebrow + title + subtitle */}
+          <div className="min-w-0">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/[0.1] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent-deep ring-1 ring-accent/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              {t("eyebrow")}
+              {workspaces.length > 0 && (
+                <span className="ml-0.5 rounded-full bg-accent/15 px-1.5 py-px text-[9px] font-bold tabular-nums tracking-normal">
+                  {workspaces.length}
+                </span>
+              )}
+            </span>
+            <h1 className="mt-2.5 font-display text-[24px] font-bold tracking-tight text-ink text-balance sm:text-[28px]">
+              {t("title")}
+            </h1>
+            <p className="mt-1 text-sm font-medium text-ink-soft">{t("subtitle")}</p>
+          </div>
 
           {/* Right: controls */}
           <div className="flex items-center gap-2">
             {/* Search icon → expands inline */}
             <div className="flex items-center">
               {showSearch ? (
-                <div className="flex items-center gap-1.5 rounded-full bg-ink/[0.04] ring-1 ring-black/5 pl-3 pr-1.5 h-9 transition-all duration-200">
+                <div className="flex items-center gap-1.5 rounded-full bg-ink/[0.04] ring-1 ring-black/5 pl-3 pr-1.5 h-9 transition-all duration-200 focus-within:ring-2 focus-within:ring-accent">
                   <span className="material-symbols-outlined text-[15px] text-ink-faint shrink-0">
                     search
                   </span>
@@ -192,7 +169,7 @@ export function DashboardClientView({
                       setSearch("");
                     }}
                     className="grid h-6 w-6 place-items-center rounded-full text-ink-faint hover:bg-ink/10 hover:text-ink transition-colors"
-                    aria-label="Close search"
+                    aria-label={t("closeSearch")}
                   >
                     <span className="material-symbols-outlined text-[13px]">close</span>
                   </button>
@@ -217,6 +194,7 @@ export function DashboardClientView({
                 onClick={() => setShowSortDropdown((v) => !v)}
                 className="flex h-9 items-center gap-1.5 rounded-full bg-ink/[0.04] px-3.5 text-[13px] font-medium text-ink-soft ring-1 ring-black/5 transition-all duration-150 hover:bg-ink/[0.08] hover:text-ink"
                 aria-expanded={showSortDropdown}
+                aria-haspopup="menu"
                 id="sort-dropdown-btn"
               >
                 <span className="hidden sm:inline">{currentSortLabel}</span>
@@ -233,7 +211,10 @@ export function DashboardClientView({
               {showSortDropdown && (
                 <>
                   <div className="fixed inset-0 z-20" onClick={() => setShowSortDropdown(false)} />
-                  <div className="absolute right-0 top-10 z-30 w-48 overflow-hidden rounded-xl bg-surface p-1 shadow-floating ring-1 ring-black/5 animate-fade-in-up-custom">
+                  <div
+                    className="absolute right-0 top-10 z-30 w-48 overflow-hidden rounded-xl bg-surface p-1 shadow-floating ring-1 ring-black/5 animate-fade-in-up-custom"
+                    role="menu"
+                  >
                     <p className="px-2.5 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
                       {t("sortLabel")}
                     </p>
@@ -241,6 +222,8 @@ export function DashboardClientView({
                       <button
                         key={opt.value}
                         type="button"
+                        role="menuitemradio"
+                        aria-checked={sortBy === opt.value}
                         onClick={() => {
                           setSortBy(opt.value);
                           setShowSortDropdown(false);
@@ -281,6 +264,7 @@ export function DashboardClientView({
           <WorkspaceGrid
             workspaces={filteredWorkspaces}
             locale={locale}
+            recentViews={recentViews}
             onPreview={setPreviewWorkspace}
             onDuplicate={handleDuplicate}
             isDuplicating={isDuplicating}

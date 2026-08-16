@@ -7,6 +7,7 @@ import { CreateWorkspaceCard } from "./CreateWorkspaceCard";
 export interface WorkspaceGridProps {
   workspaces: Workspace[];
   locale: string;
+  recentViews: Map<string, number>;
   onPreview: (workspace: Workspace) => void;
   onDuplicate: (workspaceId: string) => void;
   isDuplicating: string | null;
@@ -17,6 +18,7 @@ export interface WorkspaceGridProps {
 export function WorkspaceGrid({
   workspaces,
   locale,
+  recentViews,
   onPreview,
   onDuplicate,
   isDuplicating,
@@ -31,6 +33,7 @@ export function WorkspaceGrid({
           workspace={workspace}
           locale={locale}
           index={index}
+          recentViews={recentViews}
           onPreview={onPreview}
           onDuplicate={onDuplicate}
           isDuplicating={isDuplicating === workspace.id}

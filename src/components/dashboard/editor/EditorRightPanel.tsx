@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { EditorData } from "./types";
 
 export interface VariantInfo {
@@ -23,6 +24,7 @@ export interface EditorRightPanelProps {
 }
 
 export function EditorRightPanel(props: EditorRightPanelProps) {
+  const t = useTranslations("Editor");
   const {
     activeRightTab,
     setActiveRightTab,
@@ -50,7 +52,7 @@ export function EditorRightPanel(props: EditorRightPanelProps) {
             activeRightTab === "appearance" ? "border-accent text-accent" : "border-transparent text-ink-soft hover:text-ink"
           }`}
         >
-          Appearance
+          {t("appearance")}
         </button>
         <button
           onClick={() => setActiveRightTab("settings")}
@@ -58,13 +60,13 @@ export function EditorRightPanel(props: EditorRightPanelProps) {
             activeRightTab === "settings" ? "border-accent text-accent" : "border-transparent text-ink-soft hover:text-ink"
           }`}
         >
-          Settings
+          {t("seoSettings")}
         </button>
         <button
           type="button"
           onClick={() => setMobileRightOpen(false)}
           className="lg:hidden ml-auto mb-2.5 -mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-soft hover:bg-black/5 hover:text-ink transition-colors"
-          aria-label="Close panel"
+          aria-label={t("appearance")}
         >
           <span className="material-symbols-outlined text-[18px]">close</span>
         </button>
@@ -74,7 +76,7 @@ export function EditorRightPanel(props: EditorRightPanelProps) {
           <div className="flex flex-col gap-8 pb-6">
             {/* Appearance Variants Section */}
             <div className="flex flex-col gap-4">
-              <span className="text-[12px] font-bold text-ink">Appearance</span>
+              <span className="text-[12px] font-bold text-ink">{t("appearance")}</span>
 
               <div className="flex flex-col gap-3">
                 {variants.map((variant) => {
@@ -100,7 +102,7 @@ export function EditorRightPanel(props: EditorRightPanelProps) {
                           {variant.label}
                         </span>
                         <span className="text-[11px] text-ink-soft">
-                          {isActive ? "Active Variant" : "Click to apply"}
+                          {isActive ? t("activeVariant") : t("clickToApply")}
                         </span>
                       </div>
                       {isActive && (
@@ -117,16 +119,16 @@ export function EditorRightPanel(props: EditorRightPanelProps) {
         ) : (
           <div className="flex flex-col gap-6 pb-6">
             <div>
-              <span className="text-[12px] font-bold text-ink">SEO Settings</span>
+              <span className="text-[12px] font-bold text-ink">{t("seoSettings")}</span>
               <p className="mt-0.5 text-[11px] text-ink-soft">
-                Sesuaikan bagaimana website kamu tampil di hasil pencarian. Kosongkan untuk memakai nilai otomatis dari profil.
+                {t("seoHint")}
               </p>
             </div>
 
             {/* Live search preview */}
             <div className="flex flex-col gap-2 rounded-2xl bg-white p-4 ring-1 ring-black/5 shadow-sm">
               <span className="text-[10px] font-bold uppercase tracking-[0.05em] text-ink-faint">
-                Search Preview
+                {t("searchPreview")}
               </span>
               <div className="flex flex-col gap-0.5">
                 <span className="text-[12px] text-[#0b57d0]">{siteUrl}</span>
@@ -142,7 +144,7 @@ export function EditorRightPanel(props: EditorRightPanelProps) {
             {/* Fields */}
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12px] font-bold text-ink">Site Title</label>
+                <label className="text-[12px] font-bold text-ink">{t("siteTitle")}</label>
                 <input
                   type="text"
                   value={seo.title ?? ""}
@@ -155,7 +157,7 @@ export function EditorRightPanel(props: EditorRightPanelProps) {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12px] font-bold text-ink">Description</label>
+                <label className="text-[12px] font-bold text-ink">{t("description")}</label>
                 <textarea
                   value={seo.description ?? ""}
                   onChange={(e) => setSeo({ ...seo, description: e.target.value })}
@@ -168,7 +170,7 @@ export function EditorRightPanel(props: EditorRightPanelProps) {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12px] font-bold text-ink">Social Image URL</label>
+                <label className="text-[12px] font-bold text-ink">{t("socialImageUrl")}</label>
                 <input
                   type="url"
                   value={seo.ogImage ?? ""}

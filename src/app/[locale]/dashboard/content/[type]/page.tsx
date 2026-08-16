@@ -40,7 +40,7 @@ export async function generateMetadata({
   const { locale, type } = await params;
   const t = await getTranslations({ locale, namespace: "ContentLibrary" });
   const contentType = normalizeContentType(type);
-  return { title: `${t("title")} — ${t(`types.${contentType ?? "project"}`)}` };
+  return { title: `${t("title")} - ${t(`types.${contentType ?? "project"}`)}` };
 }
 
 export default async function DashboardContentTypePage({

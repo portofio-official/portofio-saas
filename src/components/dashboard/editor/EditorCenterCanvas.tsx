@@ -1,6 +1,7 @@
 "use client";
 
 import { type RefObject } from "react";
+import { useTranslations } from "next-intl";
 import { PreviewTemplateRenderer as TemplateRenderer } from "@/templates/registry";
 import type { TemplateId } from "@/templates/types";
 import type { EditorData, PreviewDevice, PreviewZoom } from "./types";
@@ -42,6 +43,7 @@ export interface EditorCenterCanvasProps {
 }
 
 export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
+  const t = useTranslations("Editor");
   const {
     templateId,
     data,
@@ -74,7 +76,7 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
   const device = DEVICE_CONFIG[previewDevice];
 
   return (
-    <main className="relative flex flex-1 flex-col overflow-hidden bg-[#EEF2FF] items-center" ref={containerRef}>
+    <main className="relative flex flex-1 flex-col overflow-hidden bg-shell items-center" ref={containerRef}>
       {/* Device Toolbar */}
       <div className="flex w-full justify-between items-center px-3 sm:px-8 py-4 shrink-0 bg-white/50 backdrop-blur border-b border-black/5 z-10">
         {/* Mobile Drawer Toggles */}
@@ -83,7 +85,7 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
             type="button"
             onClick={() => setMobileLeftOpen(true)}
             className="w-8 h-8 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all"
-            aria-label="Open content panel"
+            aria-label={t("openContentPanel")}
           >
             <span className="material-symbols-outlined text-[17px]">edit_note</span>
           </button>
@@ -91,7 +93,7 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
             type="button"
             onClick={() => setMobileRightOpen(true)}
             className="w-8 h-8 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all"
-            aria-label="Open design panel"
+            aria-label={t("openDesignPanel")}
           >
             <span className="material-symbols-outlined text-[17px]">tune</span>
           </button>
@@ -117,13 +119,13 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center overflow-hidden">
+          <div className="bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center overflow-hidden focus-within:ring-2 focus-within:ring-accent">
             <select
               value={previewZoom}
               onChange={(e) => setPreviewZoom(e.target.value as PreviewZoom)}
               className="text-[11px] font-bold text-ink bg-transparent px-3 py-1.5 outline-none cursor-pointer appearance-none"
             >
-              <option value="fit-screen">Fit Screen</option>
+              <option value="fit-screen">{t("fitScreen")}</option>
               <option value="50">50%</option>
               <option value="100">100%</option>
             </select>
@@ -140,7 +142,7 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
       {/* Simulation Workspace */}
       <div
         id="workspace-canvas"
-        className={`flex-1 w-full relative overflow-hidden bg-[#EEF2FF] ${isPanning ? "cursor-grabbing" : "cursor-grab"}`}
+        className={`flex-1 w-full relative overflow-hidden bg-shell ${isPanning ? "cursor-grabbing" : "cursor-grab"}`}
         onWheel={onWheel}
         onMouseDown={onWorkspaceMouseDown}
         onMouseMove={onWorkspaceMouseMove}

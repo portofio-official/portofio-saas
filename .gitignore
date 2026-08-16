@@ -39,6 +39,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local tooling artifacts
+.playwright-mcp/
+
 # temporary local data store (dummy persistence until a real DB exists)
 /.data/
 

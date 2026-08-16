@@ -43,8 +43,6 @@ export default async function OnboardingPage({
         title: t("title"),
         subtitle: t("subtitle"),
         testimonial: t("testimonial"),
-        testimonialAuthor: t("testimonialAuthor"),
-        testimonialRole: t("testimonialRole"),
       }}
       settingsDict={{
         eyebrow: tSettings("eyebrow"),

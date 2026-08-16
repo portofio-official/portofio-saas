@@ -139,14 +139,44 @@ export function DashboardSidebar({
     setMobileOpen(false);
   }, [pathname]);
 
-  // Lock body scroll while mobile drawer is open.
+  // Lock body scroll while mobile drawer is open + Escape to close + focus close button.
   useEffect(() => {
     if (!mobileOpen) return;
     document.body.style.overflow = "hidden";
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+      if (e.key === "Tab") {
+        const drawer = document.querySelector<HTMLElement>('[data-drawer="mobile"]');
+        if (!drawer) return;
+        const focusables = drawer.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+
+    // Move focus to the close button so keyboard users land inside the drawer.
+    const timer = window.setTimeout(() => {
+      document.querySelector<HTMLButtonElement>('[aria-label="' + t("closeMenu") + '"]')?.focus();
+    }, 50);
+
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKeyDown);
+      window.clearTimeout(timer);
     };
-  }, [mobileOpen]);
+  }, [mobileOpen, t]);
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
@@ -407,7 +437,7 @@ export function DashboardSidebar({
   return (
     <>
       {/* Mobile: Integrated Top Bar (< md) */}
-      <div className="flex md:hidden items-center justify-between gap-3 px-3.5 py-2.5 mb-2 rounded-2xl bg-surface ring-1 ring-black/5 shrink-0 select-none shadow-[var(--shadow-diffused)]">
+      <div className="flex md:hidden items-center justify-between gap-3 px-3.5 py-2.5 border-b border-black/5 bg-surface shrink-0">
         <div className="flex items-center gap-2.5">
           <button
             type="button"
@@ -426,13 +456,6 @@ export function DashboardSidebar({
         </div>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/dashboard/templates"
-            className="flex h-8 items-center gap-1.5 rounded-full bg-accent px-3 text-[12px] font-bold text-white hover:bg-accent-deep active:scale-95 transition-all"
-          >
-            <span className="material-symbols-outlined text-[15px]">add</span>
-            <span>{tw("create.titleFirst") || "Buat"}</span>
-          </Link>
           <Link
             href="/dashboard/profile"
             className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/15 text-accent-deep font-display text-[12px] font-bold ring-1 ring-accent/20"
@@ -460,7 +483,11 @@ export function DashboardSidebar({
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: "spring", stiffness: 380, damping: 34 }}
-              className="fixed inset-y-0 left-0 z-50 flex w-[280px] shrink-0 flex-col overflow-hidden bg-surface shadow-floating ring-1 ring-black/5 select-none md:hidden"
+              className="fixed inset-y-0 left-0 z-50 flex w-[280px] shrink-0 flex-col overflow-hidden bg-surface shadow-floating ring-1 ring-black/5 md:hidden"
+              data-drawer="mobile"
+              role="dialog"
+              aria-modal="true"
+              aria-label={t("openMenu")}
             >
               <div className="flex items-center justify-between gap-2 border-b border-black/5 px-4 py-4">
                 <div className="flex items-center gap-2.5">{brand(true)}</div>
@@ -478,7 +505,7 @@ export function DashboardSidebar({
         initial={{ x: -16, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-        className={`relative hidden h-full shrink-0 flex-col overflow-hidden rounded-2xl bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5 select-none transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:flex ${
+        className={`relative hidden h-full shrink-0 flex-col overflow-hidden border-r border-black/5 bg-surface transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:flex ${
           collapsed ? "w-[72px]" : "w-[248px]"
         }`}
       >

@@ -1,9 +1,16 @@
+import { getTranslations } from "next-intl/server";
 import { getPublishedSites, getProjectAnalytics } from "@/lib/analytics/store";
 import { AnalyticsClientView } from "@/components/dashboard/AnalyticsClientView";
 import type { AnalyticsRange } from "@/lib/analytics";
 
 function oneOf(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Analytics" });
+  return { title: t("title") };
 }
 
 export default async function AnalyticsPage({

@@ -261,7 +261,7 @@
       "userExists": "Email ini sudah terdaftar.",
       "invalidCredentials": "Email atau kata sandi salah.",
       "weakPassword": "Kata sandi minimal 8 karakter.",
-      "passwordStrength": "Kata sandi belum memenuhi syarat — periksa daftar di bawah.",
+      "passwordStrength": "Kata sandi belum memenuhi syarat. Periksa daftar di bawah.",
       "passwordMismatch": "Kata sandi tidak sama.",
       "emailNotConfirmed": "Verifikasi emailmu terlebih dahulu.",
       "confirmFailed": "Tautan tidak valid atau sudah kedaluwarsa.",
@@ -353,11 +353,15 @@
     "bioLabel": "Bio Singkat",
     "bioPlaceholder": "Ceritakan sedikit tentang diri Anda...",
     "socialsLabel": "Tautan Media Sosial",
+    "socialsHint": "Pilih platform lalu isi URL profilmu.",
     "skillsLabel": "Keahlian (Skills)",
+    "skillsHint": "Tambahkan keahlian yang kamu kuasai.",
     "groupIdentity": "Identitas",
     "groupContact": "Detail kontak",
     "groupPresence": "Kehadiran online",
     "groupSkills": "Keahlian",
+    "identityHint": "Informasi utama yang menampilkan siapa kamu.",
+    "contactHint": "Cara orang menghubungi dan menemukan lokasimu.",
     "avatarLabel": "Foto profil",
     "avatarUpload": "Unggah foto",
     "avatarReplace": "Ganti foto",
@@ -374,9 +378,7 @@
     "eyebrow": "Selamat datang",
     "title": "Mari buat portofoliomu",
     "subtitle": "Beri nama untuk workspace pertamamu. Nama ini bisa diubah nanti.",
-    "testimonial": "\"Desain yang bersih dan editor yang intuitif membantu saya membangun profil profesional dalam hitungan menit.\"",
-    "testimonialAuthor": "Alex Chen",
-    "testimonialRole": "Product Designer"
+    "testimonial": "Setiap workspace bersifat privat sampai kamu publish. Buat draft, atur konten, dan tentukan sendiri kapan situsmu tayang."
   },
   "PortfolioForm": {
     "eyebrow": "Data portofolio",
@@ -515,7 +517,7 @@
       "subscribeTitle": "Mulai dengan Portofio Pro",
       "subscribeDesc": "Berlangganan untuk publish portofolio kamu ke dunia.",
       "renewBtn": "Perbarui Sekarang",
-      "subscribeBtn": "Berlangganan — Rp 49.000 / bulan",
+      "subscribeBtn": "Berlangganan, Rp 49.000 / bulan",
       "redirecting": "Mengalihkan…"
     },
     "manage": {
@@ -525,7 +527,7 @@
     "dev": {
       "label": "Dev Tools:",
       "hint": "Test aktivasi langganan tanpa payment gateway",
-      "btn": "⚡ Aktifkan Test Sub (30 hari)",
+      "btn": "Aktifkan Test Sub",
       "activating": "Mengaktifkan..."
     },
     "planCycle": "Siklus billing: {cycle}",
@@ -570,6 +572,12 @@
           "Kolaborasi tim (roadmap)"
         ]
       }
+    },
+    "eyebrow": "Billing",
+    "errors": {
+      "checkoutFail": "Gagal memulai checkout. Coba lagi.",
+      "unexpected": "Terjadi kesalahan yang tidak terduga. Coba lagi.",
+      "devActivateFail": "Gagal mengaktifkan subscription uji coba."
     }
   },
   "Dashboard": {
@@ -653,7 +661,11 @@
     "visitSite": "Kunjungi",
     "lastActive": "Terakhir aktif",
     "templateLabel": "Template",
-    "quickActions": "Aksi Cepat"
+    "quickActions": "Aksi Cepat",
+    "closeSearch": "Tutup pencarian",
+    "deviceDesktop": "Desktop",
+    "deviceTablet": "Tablet",
+    "deviceMobile": "Mobile"
   },
   "Analytics": {
     "eyebrow": "Analytics",
@@ -686,7 +698,7 @@
     "countriesEmpty": "Belum ada data lokasi.",
     "countryUnknown": "Tidak diketahui",
     "noSiteTitle": "Belum ada website live",
-    "noSiteDesc": "Publish website dan bagikan link-nya — data pengunjung akan muncul otomatis di sini.",
+    "noSiteDesc": "Publish website dan bagikan link-nya. Data pengunjung akan muncul otomatis di sini.",
     "noSiteCta": "Ke dashboard",
     "noDataTitle": "Belum ada kunjungan",
     "noDataDesc": "Bagikan link situsmu untuk mulai mengumpulkan data. Analytics mulai melacak begitu website dipublish.",
@@ -903,7 +915,7 @@
     "deleteTitle": "Hapus item ini?",
     "deleteConfirmDesc": "Item \"{title}\" akan dihapus dari Content Library Anda. Tindakan ini tidak dapat dibatalkan.",
     "emptyTitle": "Belum ada item",
-    "emptyDesc": "Tambahkan item pertamamu — nanti bisa kamu pakai di editor dari Content Library.",
+    "emptyDesc": "Tambahkan item pertamamu. Nanti bisa kamu pakai di editor dari Content Library.",
     "pickTitle": "Import dari Content Library",
     "pickHint": "Pilih satu atau lebih project untuk menambahkan ke section Projects.",
     "pickEmpty": "Content Library ini masih kosong. Tambahkan dulu dari halaman Content Library.",
@@ -968,6 +980,24 @@
     "versionHistory": "Riwayat versi",
     "publishNotReady": "Belum Siap untuk Publish",
     "publishWebsite": "Publish Website",
-    "websiteLive": "Website Live"
+    "websiteLive": "Website Live",
+    "activeVariant": "Varian Aktif",
+    "clickToApply": "Klik untuk terapkan",
+    "seoHint": "Sesuaikan bagaimana website kamu tampil di hasil pencarian. Kosongkan untuk memakai nilai otomatis dari profil.",
+    "searchPreview": "Pratinjau Pencarian",
+    "loadingVersions": "Memuat riwayat versi...",
+    "noSavedVersions": "Belum ada versi tersimpan. Terus edit dan autosave akan membuat titik pemulihan.",
+    "revertToLiveTitle": "Kembalikan ke yang live?",
+    "continueEditing": "Lanjut Mengedit",
+    "subdomain": "Subdomain",
+    "previewLabel": "Pratinjau:",
+    "publishDialogHint": "Hanya huruf kecil, angka, dan strip (-). 3-63 karakter.",
+    "closePanel": "Tutup panel",
+    "closeVersionHistory": "Tutup riwayat versi",
+    "openContentPanel": "Buka panel konten",
+    "openDesignPanel": "Buka panel desain"
+  },
+  "Common": {
+    "skipToContent": "Langsung ke konten"
   }
 }

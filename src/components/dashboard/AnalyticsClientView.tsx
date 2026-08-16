@@ -71,7 +71,7 @@ function TrendChart({ days, locale, label }: { days: DayBucket[]; locale: string
         <path d={line} fill="none" stroke="var(--color-accent)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
         {days.map((d, i) => (
           <circle key={d.date} cx={x(i)} cy={y(d.views)} r={3} fill="var(--color-accent)">
-            <title>{`${fmt.format(new Date(`${d.date}T00:00:00Z`))} — ${d.views}`}</title>
+            <title>{`${fmt.format(new Date(`${d.date}T00:00:00Z`))}: ${d.views} ${label}`}</title>
           </circle>
         ))}
         {days.map((d, i) =>
@@ -115,13 +115,9 @@ function HeaderBlock({ eyebrow, title, subtitle }: { eyebrow: string; title: str
     <header className="shrink-0 border-b border-black/5 bg-surface px-6 pt-6 pb-5 sm:px-8">
       <div className="min-w-0">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/[0.1] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent-deep ring-1 ring-accent/20">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-          </span>
           {eyebrow}
         </span>
-        <h1 className="mt-2.5 font-display text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[34px]">
+        <h1 className="mt-2.5 font-display text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[34px] text-balance">
           {title}
         </h1>
         <p className="mt-1 text-sm font-medium text-ink-soft">{subtitle}</p>
@@ -181,7 +177,7 @@ export function AnalyticsClientView({
 
   if (!selected) {
     return (
-      <div className="flex h-full flex-col overflow-hidden bg-surface select-none">
+      <div className="flex h-full flex-col overflow-hidden bg-surface">
         <HeaderBlock eyebrow={t("eyebrow")} title={t("title")} subtitle={t("subtitle")} />
         <div className="flex flex-1 items-center justify-center px-6 py-12">
           <div className="flex max-w-md flex-col items-center gap-3.5 text-center">
@@ -192,7 +188,7 @@ export function AnalyticsClientView({
             <p className="text-[13px] font-medium text-ink-soft leading-relaxed">{t("noSiteDesc")}</p>
             <Link
               href="/dashboard"
-              className="mt-2 group flex h-11 items-center gap-3 rounded-full bg-accent pl-5 pr-2.5 text-[13px] font-bold text-white shadow-[0_10px_28px_-8px_rgba(0,207,124,0.55)] transition-all duration-300 hover:bg-accent-deep hover:shadow-[0_14px_32px_-6px_rgba(0,207,124,0.65)] active:scale-[0.98]"
+              className="mt-2 group flex h-11 items-center gap-3 rounded-full bg-accent pl-5 pr-2.5 text-[13px] font-bold text-white shadow-sm transition-all duration-300 hover:bg-accent-deep active:scale-[0.98]"
             >
               <span>{t("noSiteCta")}</span>
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white transition-transform duration-300 group-hover:scale-110 group-hover:bg-white/30">
@@ -206,7 +202,7 @@ export function AnalyticsClientView({
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-surface select-none">
+    <div className="flex h-full flex-col overflow-hidden bg-surface">
       <HeaderBlock eyebrow={t("eyebrow")} title={t("title")} subtitle={t("subtitle")} />
 
       {/* Site switcher + range */}
@@ -220,7 +216,7 @@ export function AnalyticsClientView({
               onClick={() => setSite(s.projectId)}
               className={`flex h-9 items-center gap-2 rounded-full px-4 text-[12px] font-semibold transition-all duration-200 active:scale-[0.98] ${
                 s.projectId === selected.projectId
-                  ? "bg-accent text-white shadow-[0_6px_18px_-6px_rgba(0,207,124,0.55)]"
+                  ? "bg-accent text-white shadow-sm"
                   : "bg-ink/[0.05] text-ink-soft ring-1 ring-black/5 hover:bg-ink/[0.08] hover:text-ink"
               }`}
             >
@@ -274,10 +270,7 @@ export function AnalyticsClientView({
                   <div className="flex items-center justify-between">
                     <span className="material-symbols-outlined text-[20px] text-ink-faint">{card.icon}</span>
                     {card.tone ? (
-                      <span className="relative flex h-2 w-2">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-                      </span>
+                      <span className="h-2 w-2 rounded-full bg-accent" />
                     ) : null}
                   </div>
                   <p className={`mt-3 font-display text-[26px] font-bold leading-none tracking-tight tabular-nums ${card.tone ? "text-accent-deep" : "text-ink"}`}>

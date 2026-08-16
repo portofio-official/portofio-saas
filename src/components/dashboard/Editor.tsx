@@ -447,6 +447,7 @@ export function Editor({
   }, [history]);
 
   const { showToast } = useToast();
+  const tEditor = useTranslations("Editor");
   const tProfile = useTranslations("PortfolioForm.profile");
   const tExperience = useTranslations("PortfolioForm.experience");
   const tEducation = useTranslations("PortfolioForm.education");
@@ -599,10 +600,10 @@ export function Editor({
           <a
             href={`/${locale}/dashboard`}
             className="flex items-center gap-2 w-1/3 text-ink-soft hover:text-ink transition-colors cursor-pointer"
-            aria-label="Back to Dashboard"
+            aria-label={tEditor("backToDashboard")}
           >
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-            <span className="text-[13px] font-medium hidden sm:inline">Back to dashboard</span>
+            <span className="text-[13px] font-medium hidden sm:inline">{tEditor("backToDashboard")}</span>
           </a>
 
           <div className="flex items-center justify-center w-1/3">
@@ -634,24 +635,24 @@ export function Editor({
               type="button"
               onClick={handleOpenVersionHistory}
               className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-3 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
-              aria-label="Open version history"
+              aria-label={tEditor("versionHistory")}
             >
               <span className="material-symbols-outlined text-[14px]">history</span>
-              <span className="hidden xl:inline">Versions</span>
+              <span className="hidden xl:inline">{tEditor("versions")}</span>
             </button>
             <button
               onClick={() => setShowDesktopPreview(true)}
               className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
             >
               <span className="material-symbols-outlined text-[14px]">visibility</span>
-              <span className="hidden sm:inline">Preview</span>
+              <span className="hidden sm:inline">{tEditor("preview")}</span>
             </button>
             <button
               onClick={() => saveDraftAction(projectId, documentForSave())}
               className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
             >
               <span className="material-symbols-outlined text-[14px]">save</span>
-              <span className="hidden sm:inline">Save</span>
+              <span className="hidden sm:inline">{tEditor("save")}</span>
             </button>
             <button
               type="button"
@@ -675,36 +676,36 @@ export function Editor({
 
         {/* Profile Sync Banner (A-3: FLOW 4 step K–N) */}
         {showProfileBanner && (
-          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-amber-200 bg-amber-50 px-6 py-2.5">
+          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-warning/20 bg-warning-soft px-6 py-2.5">
             <div className="flex items-center gap-2.5">
-              <span className="material-symbols-outlined text-[18px] text-amber-500">sync</span>
-              <span className="text-[13px] font-medium text-amber-800">
-                Profil workspace diperbarui. Update project ini dengan data profil terbaru?
+              <span className="material-symbols-outlined text-[18px] text-warning">sync</span>
+              <span className="text-[13px] font-medium text-ink-soft">
+                {tEditor("profileSyncMsg")}
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setShowProfileBanner(false)}
-                className="rounded-full px-3 py-1 text-[12px] font-medium text-amber-700 transition-colors hover:bg-amber-100"
+                className="rounded-full px-3 py-1 text-[12px] font-medium text-ink-soft transition-colors hover:bg-warning/10"
               >
-                Abaikan
+                {tEditor("ignore")}
               </button>
               <button
                 type="button"
                 disabled={syncingProfile}
                 onClick={handleSyncProfile}
-                className="flex items-center gap-1.5 rounded-full bg-amber-500 px-4 py-1 text-[12px] font-semibold text-white transition-colors hover:bg-amber-600 disabled:opacity-60"
+                className="flex items-center gap-1.5 rounded-full bg-warning px-4 py-1 text-[12px] font-semibold text-white transition-colors hover:bg-warning/90 disabled:opacity-60"
               >
                 {syncingProfile ? (
                   <>
                     <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                    Syncing...
+                    {tEditor("syncing")}
                   </>
                 ) : (
                   <>
                     <span className="material-symbols-outlined text-[14px]">sync</span>
-                    Sync dari Profil
+                    {tEditor("syncFromProfile")}
                   </>
                 )}
               </button>
@@ -714,21 +715,21 @@ export function Editor({
 
         {/* Draft vs Published divergence banner (B-4) */}
         {draftDiverged && !showProfileBanner && (
-          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-sky-200 bg-sky-50 px-6 py-2.5">
+          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-info/20 bg-info-soft px-6 py-2.5">
             <div className="flex items-center gap-2.5">
-              <span className="material-symbols-outlined text-[18px] text-sky-600">published_with_changes</span>
-              <span className="text-[13px] font-medium text-sky-900">
-                Kamu punya perubahan yang belum live. Perubahan diterapkan ke situs hanya setelah republish.
+              <span className="material-symbols-outlined text-[18px] text-info">published_with_changes</span>
+              <span className="text-[13px] font-medium text-ink-soft">
+                {tEditor("divergenceMsg")}
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setShowRevertDialog(true)}
-                className="flex items-center gap-1.5 rounded-full bg-white px-4 py-1 text-[12px] font-semibold text-sky-700 ring-1 ring-sky-200 transition-colors hover:bg-sky-100"
+                className="flex items-center gap-1.5 rounded-full bg-white px-4 py-1 text-[12px] font-semibold text-info ring-1 ring-info/20 transition-colors hover:bg-info-soft"
               >
                 <span className="material-symbols-outlined text-[14px]">undo</span>
-                Kembalikan ke yang live
+                {tEditor("revertToLive")}
               </button>
             </div>
           </div>

@@ -60,10 +60,7 @@ export function QuickPreviewModal({ workspace, onClose }: QuickPreviewModalProps
             </h3>
             {isPublished ? (
               <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-0.5 text-[10px] font-bold text-accent-deep ring-1 ring-accent/20">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-                </span>
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
                 {t("live")}
               </span>
             ) : (
@@ -77,9 +74,9 @@ export function QuickPreviewModal({ workspace, onClose }: QuickPreviewModalProps
           <div className="flex items-center rounded-full bg-ink/[0.05] p-1 ring-1 ring-black/5">
             {(
               [
-                { id: "desktop", label: "Desktop", icon: "desktop_windows" },
-                { id: "tablet", label: "Tablet", icon: "tablet_mac" },
-                { id: "mobile", label: "Mobile", icon: "smartphone" },
+                { id: "desktop", label: t("deviceDesktop"), icon: "desktop_windows" },
+                { id: "tablet", label: t("deviceTablet"), icon: "tablet_mac" },
+                { id: "mobile", label: t("deviceMobile"), icon: "smartphone" },
               ] as const
             ).map((item) => {
               const isActive = device === item.id;

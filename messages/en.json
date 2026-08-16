@@ -261,7 +261,7 @@
       "userExists": "This email is already registered.",
       "invalidCredentials": "Incorrect email or password.",
       "weakPassword": "Password must be at least 8 characters.",
-      "passwordStrength": "Password doesn't meet the requirements — check the list below.",
+      "passwordStrength": "Password doesn't meet the requirements. Check the list below.",
       "passwordMismatch": "Passwords do not match.",
       "emailNotConfirmed": "Please verify your email first.",
       "confirmFailed": "This link is invalid or has expired.",
@@ -353,11 +353,15 @@
     "bioLabel": "Short Bio",
     "bioPlaceholder": "Tell us a bit about yourself...",
     "socialsLabel": "Social Links",
+    "socialsHint": "Pick a platform, then paste your profile URL.",
     "skillsLabel": "Skills",
+    "skillsHint": "Add the skills you're good at.",
     "groupIdentity": "Identity",
     "groupContact": "Contact details",
     "groupPresence": "Online presence",
     "groupSkills": "Skills",
+    "identityHint": "Core details that define who you are.",
+    "contactHint": "How people can reach you and find where you are.",
     "avatarLabel": "Profile photo",
     "avatarUpload": "Upload photo",
     "avatarReplace": "Change photo",
@@ -374,9 +378,7 @@
     "eyebrow": "Welcome",
     "title": "Let's create your portfolio",
     "subtitle": "Give your first workspace a name. You can change this later.",
-    "testimonial": "\"The platform's clean design and intuitive editor helped me build my professional presence in minutes.\"",
-    "testimonialAuthor": "Alex Chen",
-    "testimonialRole": "Product Designer"
+    "testimonial": "Each workspace stays private until you publish it. Draft your content and decide yourself when your site goes live."
   },
   "PortfolioForm": {
     "eyebrow": "Portfolio data",
@@ -515,7 +517,7 @@
       "subscribeTitle": "Get started with Portofio Pro",
       "subscribeDesc": "Subscribe to publish your portfolio to the world.",
       "renewBtn": "Renew Now",
-      "subscribeBtn": "Subscribe — Rp 49.000 / month",
+      "subscribeBtn": "Subscribe, Rp 49.000 / month",
       "redirecting": "Redirecting…"
     },
     "manage": {
@@ -525,7 +527,7 @@
     "dev": {
       "label": "Dev Tools:",
       "hint": "Test subscription activation without payment gateway",
-      "btn": "⚡ Activate Test Sub (30 days)",
+      "btn": "Activate Test Sub",
       "activating": "Activating..."
     },
     "planCycle": "Billing cycle: {cycle}",
@@ -570,6 +572,12 @@
           "Team collaboration (roadmap)"
         ]
       }
+    },
+    "eyebrow": "Billing",
+    "errors": {
+      "checkoutFail": "Failed to start checkout. Please try again.",
+      "unexpected": "An unexpected error occurred. Please try again.",
+      "devActivateFail": "Failed to activate dev subscription."
     }
   },
   "Dashboard": {
@@ -653,7 +661,11 @@
     "visitSite": "Visit",
     "lastActive": "Last active",
     "templateLabel": "Template",
-    "quickActions": "Quick Actions"
+    "quickActions": "Quick Actions",
+    "closeSearch": "Close search",
+    "deviceDesktop": "Desktop",
+    "deviceTablet": "Tablet",
+    "deviceMobile": "Mobile"
   },
   "Analytics": {
     "eyebrow": "Analytics",
@@ -686,7 +698,7 @@
     "countriesEmpty": "No location data yet.",
     "countryUnknown": "Unknown",
     "noSiteTitle": "No live website yet",
-    "noSiteDesc": "Publish a website and share its link — visitor data appears here automatically.",
+    "noSiteDesc": "Publish a website and share its link. Visitor data appears here automatically.",
     "noSiteCta": "Go to dashboard",
     "noDataTitle": "No visits yet",
     "noDataDesc": "Share your site link to start collecting data. Analytics begin tracking as soon as a website is published.",
@@ -968,6 +980,24 @@
     "versionHistory": "Version history",
     "publishNotReady": "Publish Not Ready Yet",
     "publishWebsite": "Publish Website",
-    "websiteLive": "Website Live"
+    "websiteLive": "Website Live",
+    "activeVariant": "Active Variant",
+    "clickToApply": "Click to apply",
+    "seoHint": "Tune how your website appears in search results. Leave blank to use values from your profile.",
+    "searchPreview": "Search Preview",
+    "loadingVersions": "Loading versions...",
+    "noSavedVersions": "No saved versions yet. Keep editing and autosave will create a recovery point.",
+    "revertToLiveTitle": "Revert to the live version?",
+    "continueEditing": "Continue Editing",
+    "subdomain": "Subdomain",
+    "previewLabel": "Preview:",
+    "publishDialogHint": "Only lowercase letters, numbers, and hyphens. 3-63 characters.",
+    "closePanel": "Close panel",
+    "closeVersionHistory": "Close version history",
+    "openContentPanel": "Open content panel",
+    "openDesignPanel": "Open design panel"
+  },
+  "Common": {
+    "skipToContent": "Skip to content"
   }
 }

@@ -9,6 +9,7 @@ import { PreviewTemplateRenderer as TemplateRenderer, TEMPLATE_CATALOG, TEMPLATE
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { TemplateCard } from "@/components/dashboard/components/TemplateCard";
 import { type BasePortfolioData, BASE_PROFILE_DEFAULTS } from "@/templates/shared/_base";
 import type { StudioData } from "@/templates/definitions/studio/schema";
 import type { PortfolioProData } from "@/templates/definitions/portfolio-pro/schema";
@@ -41,8 +42,8 @@ const PREVIEW_DATA: PreviewData = {
   ],
   skills: ["Figma", "React", "Framer", "Tailwind", "Prototyping", "Motion Design"],
   projects: [
-    { title: "Brand Refresh — GoTo", description: "Complete visual identity overhaul for Indonesia's largest tech company.", link: "#" },
-    { title: "Design System — Shopee", description: "Built a scalable component library used by 200+ designers.", link: "#" },
+    { title: "Brand Refresh: GoTo", description: "Complete visual identity overhaul for Indonesia's largest tech company.", link: "#" },
+    { title: "Design System: Shopee", description: "Built a scalable component library used by 200+ designers.", link: "#" },
   ],
   contact: { email: "alex@example.com", phone: "+62 812 3456 7890" },
   socials: [
@@ -98,7 +99,7 @@ const PREVIEW_DATA: PreviewData = {
   ],
   caseStudies: [
     {
-      title: "Brand Refresh — GoTo",
+      title: "Brand Refresh: GoTo",
       category: "Brand Identity",
       date: "Mar 2024",
       images: [],
@@ -140,7 +141,6 @@ export function TemplateGallery({
 }) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [hoveredId, setHoveredId] = useState<TemplateId | null>(null);
   const [previewId, setPreviewId] = useState<TemplateId | null>(null);
   const [viewportMode, setViewportMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [creatingForId, setCreatingForId] = useState<TemplateId | null>(null);
@@ -240,99 +240,18 @@ export function TemplateGallery({
             <p className="mt-1 text-xs text-ink-soft">{t("searchEmptyDesc")}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((meta) => {
-              const isPopular = meta.popular;
-
-              return (
-                <div
-                  key={meta.id}
-                  className="gsap-template-card group relative flex flex-col overflow-hidden rounded-[2rem] bg-shell p-2 shadow-[var(--shadow-diffused)] ring-1 ring-black/5 transition-all duration-500 ease-[var(--ease-fluid)] hover:-translate-y-1 hover:shadow-xl hover:ring-black/10"
-                  onMouseEnter={() => setHoveredId(meta.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                >
-                  {/* Outer Frame with macOS dot bar */}
-                  <div
-                    className={`relative flex flex-col h-64 w-full cursor-pointer overflow-hidden rounded-[1.5rem] shadow-[var(--shadow-inner-bezel)] ${meta.accentBg}`}
-                    onClick={() => setPreviewId(meta.id)}
-                  >
-                    {/* macOS dots bar */}
-                    <div className="z-10 flex items-center justify-between border-b border-black/10 bg-white/70 px-3 py-1.5 backdrop-blur-sm">
-                      <div className="flex items-center gap-1.5">
-                        <div className="h-2.5 w-2.5 rounded-full bg-red-400/90" />
-                        <div className="h-2.5 w-2.5 rounded-full bg-amber-400/90" />
-                        <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/90" />
-                      </div>
-                      <span className="font-mono text-[10px] font-medium text-ink-faint select-none tracking-tight">
-                        {meta.id}.portofio.app
-                      </span>
-                    </div>
-
-                    {/* Scaled-down live template preview */}
-                    <div className="relative flex-1 w-full overflow-hidden">
-                      <div className="absolute inset-0 bg-black/0 transition-colors duration-500 group-hover:bg-black/5" />
-                      <div
-                        className="pointer-events-none absolute inset-0 origin-top-left transition-transform duration-700 ease-[var(--ease-fluid)] group-hover:scale-[1.03]"
-                        style={{ transform: "scale(0.35)", width: "285%", height: "285%" }}
-                      >
-                        <TemplateRenderer templateId={meta.id} data={PREVIEW_DATA} />
-                      </div>
-
-                      {/* Hover overlay */}
-                      <div
-                        className={`absolute inset-0 flex items-center justify-center gap-3 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-[var(--ease-fluid)] ${
-                          hoveredId === meta.id ? "opacity-100" : "opacity-0"
-                        }`}
-                      >
-                        <button type="button"
-                          onClick={(e) => { e.stopPropagation(); setPreviewId(meta.id); }}
-                          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all duration-300 ease-[var(--ease-fluid)] hover:scale-110 hover:bg-white/30"
-                          title={t("previewLive")}
-                        >
-                          <span className="material-symbols-outlined text-[20px]">visibility</span>
-                        </button>
-                        <button type="button"
-                          onClick={(e) => { e.stopPropagation(); handleUseTemplate(meta.id); }}
-                          className="flex items-center gap-2 rounded-full bg-accent py-2 pl-5 pr-2 text-xs font-semibold text-white shadow-lg transition-all duration-300 ease-[var(--ease-fluid)] hover:bg-accent-deep active:scale-[0.98]"
-                        >
-                          {t("useTemplate")}
-                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 transition-transform duration-300 ease-[var(--ease-fluid)] group-hover:translate-x-0.5">
-                            <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Card footer */}
-                  <div className="flex flex-col px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <p className="font-display text-base font-bold text-ink">{meta.name}</p>
-                      {inUseTemplateIds?.includes(meta.id) ? (
-                        <span className="flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold text-accent-deep ring-1 ring-accent/20">
-                          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                          {t("inUse")}
-                        </span>
-                      ) : isPopular ? (
-                        <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold text-accent-deep ring-1 ring-accent/20">
-                          ★ {t("popular")}
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-[12px] font-medium text-ink-soft leading-relaxed">{meta.description}</p>
-                    
-                    {/* Tags */}
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {meta.tags.filter(t => t !== "All").map((tag) => (
-                        <span key={tag} className="rounded-md bg-black/[0.04] px-2 py-0.5 text-[10px] font-medium text-ink-soft">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 pb-6">
+            {filtered.map((meta, index) => (
+              <TemplateCard
+                key={meta.id}
+                meta={meta}
+                index={index}
+                previewData={PREVIEW_DATA}
+                isInUse={inUseTemplateIds?.includes(meta.id)}
+                onPreview={(id) => setPreviewId(id)}
+                onUse={(id) => handleUseTemplate(id)}
+              />
+            ))}
           </div>
         )}
       </div>

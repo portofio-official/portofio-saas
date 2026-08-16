@@ -10,8 +10,6 @@ interface Dict {
   title: string;
   subtitle: string;
   testimonial: string;
-  testimonialAuthor: string;
-  testimonialRole: string;
 }
 
 interface SettingsDict {
@@ -51,35 +49,35 @@ export function OnboardingClientView({
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-[#F0F3F9] font-sans">
+    <div className="flex min-h-dvh w-full bg-canvas font-sans">
       {/* Left Column: Form */}
       <div className="flex w-full flex-col justify-center px-8 py-12 md:w-1/2 lg:px-16 xl:px-24">
         <div className="mx-auto w-full max-w-md">
           {/* Logo / Brand */}
-          <div className="mb-12 flex items-center gap-2 text-2xl font-bold tracking-tight text-[#111827]">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#00cf7c] text-white">
+          <div className="mb-12 flex items-center gap-2 text-2xl font-bold tracking-tight text-ink">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white">
               <span className="material-symbols-outlined text-[20px]">web</span>
             </div>
             Portofio
           </div>
 
           <div className="mb-8">
-            <p className="mb-2 text-[13px] font-bold uppercase tracking-wider text-[#00cf7c]">
+            <p className="mb-2 text-[13px] font-bold uppercase tracking-wider text-accent-deep">
               {step === 1 ? settingsDict.eyebrow : dict.eyebrow}
             </p>
-            <h1 className="mb-3 text-[32px] font-bold leading-tight tracking-tight text-[#111827]">
+            <h1 className="mb-3 text-[32px] font-bold leading-tight tracking-tight text-ink">
               {step === 1 ? settingsDict.title : dict.title}
             </h1>
-            <p className="text-[15px] text-[#4B5563]">
+            <p className="text-[15px] text-ink-soft">
               {step === 1 ? settingsDict.subtitle : dict.subtitle}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-black/5 bg-surface p-6 shadow-sm">
             {step === 1 ? (
               <form onSubmit={handleProfileSubmit} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="fullName" className="text-[13px] font-bold text-[#111827]">
+                  <label htmlFor="fullName" className="text-[13px] font-bold text-ink">
                     {settingsDict.fullNameLabel}
                   </label>
                   <input
@@ -90,13 +88,13 @@ export function OnboardingClientView({
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder={settingsDict.fullNamePlaceholder}
-                    className="rounded-xl border border-[#D1D5DB] bg-white px-4 py-2.5 text-[14px] text-[#111827] placeholder:text-[#9CA3AF] focus:border-[#00cf7c] focus:outline-none focus:ring-1 focus:ring-[#00cf7c] disabled:opacity-50"
+                    className="rounded-xl ring-1 ring-black/10 bg-surface px-4 py-2.5 text-[14px] text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={isPending || !fullName.trim()}
-                  className="mt-2 flex w-full items-center justify-center rounded-xl bg-[#00cf7c] px-4 py-2.5 text-[14px] font-bold text-white transition-colors hover:bg-[#00b368] disabled:opacity-50"
+                  className="mt-2 flex w-full items-center justify-center rounded-xl bg-accent px-4 py-2.5 text-[14px] font-bold text-white transition-colors hover:bg-accent-deep disabled:opacity-50"
                 >
                   {isPending ? settingsDict.saving : settingsDict.save}
                 </button>
@@ -109,9 +107,9 @@ export function OnboardingClientView({
       </div>
 
       {/* Right Column: Visual (Hidden on mobile) */}
-      <div className="hidden w-1/2 flex-col justify-between bg-white p-12 md:flex border-l border-black/5">
+      <div className="hidden w-1/2 flex-col justify-between bg-surface p-12 md:flex border-l border-black/5">
         <div className="relative mx-auto flex w-full max-w-lg flex-1 flex-col items-center justify-center">
-          <div className="relative aspect-square w-full max-w-md overflow-hidden rounded-3xl bg-[#F0F3F9] shadow-sm ring-1 ring-black/5">
+          <div className="relative aspect-square w-full max-w-md overflow-hidden rounded-3xl bg-shell shadow-sm ring-1 ring-black/5">
             <Image
               src="/images/onboarding-hero.png"
               alt="Workspace creation illustration"
@@ -121,15 +119,11 @@ export function OnboardingClientView({
             />
           </div>
 
-          {/* Testimonial */}
-          <div className="mt-12 rounded-2xl border border-black/5 bg-[#F9FAFB] p-8 text-center shadow-sm max-w-md">
-            <p className="mb-6 text-[15px] font-medium leading-relaxed text-[#111827]">
+          {/* Value proposition */}
+          <div className="mt-12 rounded-2xl border border-black/5 bg-shell p-8 text-center shadow-sm max-w-md">
+            <p className="mb-2 text-[15px] font-medium leading-relaxed text-ink">
               {dict.testimonial}
             </p>
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-[13px] font-bold text-[#111827]">{dict.testimonialAuthor}</span>
-              <span className="text-[12px] font-medium text-[#6B7280]">{dict.testimonialRole}</span>
-            </div>
           </div>
         </div>
       </div>

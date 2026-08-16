@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { PreviewTemplateRenderer as TemplateRenderer } from "@/templates/registry";
 import type { TemplateId } from "@/templates/types";
 import type { EditorData, ReadinessIssue, VersionListItem } from "./types";
@@ -48,6 +49,7 @@ export interface EditorDialogsProps {
 }
 
 export function EditorDialogs(props: EditorDialogsProps) {
+  const t = useTranslations("Editor");
   const {
     locale,
     domain,
@@ -87,7 +89,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
       {showDesktopPreview && (
         <div className="fixed inset-0 z-50 flex flex-col bg-surface">
           <div className="flex items-center justify-between border-b border-black/5 px-6 py-4 shadow-sm">
-            <span className="font-display text-lg font-bold text-ink">Desktop Preview</span>
+            <span className="font-display text-lg font-bold text-ink">{t("desktopPreview")}</span>
             <button type="button"
               onClick={onCloseDesktopPreview}
               className="group flex items-center gap-2 rounded-full bg-black/5 px-5 py-2.5 text-sm font-medium text-ink transition-all duration-300 hover:bg-black/10 hover:scale-105"
@@ -112,14 +114,14 @@ export function EditorDialogs(props: EditorDialogsProps) {
           <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-floating ring-1 ring-black/5">
             <div className="flex items-start justify-between border-b border-black/5 px-6 py-5">
               <div>
-                <h3 className="text-lg font-bold text-ink">Version history</h3>
+                <h3 className="text-lg font-bold text-ink">{t("versionHistory")}</h3>
                 <p className="mt-1 text-sm text-ink-soft">Restore an earlier autosave without changing the live website.</p>
               </div>
               <button
                 type="button"
                 onClick={onCloseVersionHistory}
                 className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink"
-                aria-label="Close version history"
+                aria-label={t("closeVersionHistory")}
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
@@ -128,11 +130,11 @@ export function EditorDialogs(props: EditorDialogsProps) {
               {versionHistoryLoading ? (
                 <div className="flex items-center justify-center gap-2 px-4 py-12 text-sm text-ink-soft">
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink/20 border-t-accent" />
-                  Loading versions...
+                  {t("loadingVersions")}
                 </div>
               ) : versionHistory.length === 0 ? (
                 <div className="rounded-xl bg-canvas px-4 py-8 text-center text-sm text-ink-soft">
-                  No saved versions yet. Keep editing and autosave will create a recovery point.
+                  {t("noSavedVersions")}
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
@@ -181,7 +183,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-floating ring-1 ring-black/5">
             <div className="mb-4 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold text-ink">Publish Not Ready Yet</h3>
+                <h3 className="text-lg font-bold text-ink">{t("publishNotReady")}</h3>
                 <p className="mt-1 text-sm text-ink-soft">
                    Complete the following items before publishing your website. Select an item to jump to its editor section.
                 </p>
@@ -196,12 +198,12 @@ export function EditorDialogs(props: EditorDialogsProps) {
                   <button
                     type="button"
                     onClick={() => onGoToIssue(issue)}
-                    className="flex w-full items-start gap-2.5 rounded-xl bg-amber-50 px-3.5 py-2.5 text-left text-sm font-medium text-amber-800 transition-colors hover:bg-amber-100"
+                    className="flex w-full items-start gap-2.5 rounded-xl bg-warning-soft px-3.5 py-2.5 text-left text-sm font-medium text-ink transition-colors hover:bg-warning/10"
                   >
-                    <span className="material-symbols-outlined mt-0.5 text-[18px] text-amber-500">error_outline</span>
+                    <span className="material-symbols-outlined mt-0.5 text-[18px] text-warning">error_outline</span>
                     <span>
                       <span className="block">{issue.label}</span>
-                      <span className="mt-0.5 block text-xs font-normal text-amber-700">{issue.detail}</span>
+                      <span className="mt-0.5 block text-xs font-normal text-ink-soft">{issue.detail}</span>
                     </span>
                     <span className="material-symbols-outlined ml-auto mt-0.5 text-[16px]">arrow_forward</span>
                   </button>
@@ -213,7 +215,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
               onClick={onClosePublishModal}
               className="mt-5 w-full rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-deep"
             >
-              Continue Editing
+              {t("continueEditing")}
             </button>
           </div>
         </div>
@@ -225,7 +227,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-floating ring-1 ring-black/5">
             <div className="mb-4 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold text-ink">Kembalikan ke yang live?</h3>
+                <h3 className="text-lg font-bold text-ink">{t("revertToLiveTitle")}</h3>
                 <p className="mt-1 text-sm text-ink-soft">
                   Semua perubahan draft yang belum dipublikasikan akan diganti dengan versi yang saat ini live. Aksi ini tidak bisa dibatalkan.
                 </p>
@@ -301,7 +303,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
 
             {/* Subdomain input */}
             <label className="mb-1.5 block text-[12px] font-bold text-ink-soft uppercase tracking-[0.05em]">
-              Subdomain
+              {t("subdomain")}
             </label>
             <div className="flex items-center gap-2 rounded-xl bg-canvas px-4 py-3 ring-1 ring-black/10 focus-within:ring-2 focus-within:ring-accent">
               <input
@@ -315,10 +317,10 @@ export function EditorDialogs(props: EditorDialogsProps) {
               />
             </div>
             <p className="mt-2 text-xs text-ink-faint">
-              Preview: <span className="font-medium text-ink-soft">{`${domain}/sites/${subdomain || "namamu"}`}</span>
+              {t("previewLabel")} <span className="font-medium text-ink-soft">{`${domain}/sites/${subdomain || "namamu"}`}</span>
             </p>
             <p className="mt-1 text-xs text-ink-faint">
-              Only lowercase letters, numbers, and hyphens (3–63 characters).
+              {t("publishDialogHint")}
             </p>
 
             {/* Error display */}
@@ -336,7 +338,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
                   Berlangganan untuk publish website kamu.
                 </p>
                 <p className="mt-0.5 text-[12px] text-ink-soft">
-                  Rp 49.000/bulan — satu paket, tanpa tier. Publish, update, unpublish bebas selama aktif.
+                  Rp 49.000/bulan - satu paket, tanpa tier. Publish, update, unpublish bebas selama aktif.
                 </p>
                 <a
                   href={`/${locale}/dashboard/billing`}

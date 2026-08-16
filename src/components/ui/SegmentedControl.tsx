@@ -21,12 +21,13 @@ export function SegmentedControl<T extends string>({
   className?: string;
   ariaLabel?: string;
 }) {
-  const height = size === "sm" ? "h-7" : "h-8";
+  const height = size === "sm" ? "h-8" : "h-9";
+  const paddingY = size === "sm" ? "py-1" : "py-1.5";
   return (
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className={`inline-flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full bg-ink/[0.05] p-1 ${height} ${className}`}
+      className={`inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-full bg-ink/[0.04] p-1 ring-1 ring-black/5 ${height} ${className}`}
     >
       {options.map((opt) => {
         const active = opt.value === value;
@@ -45,14 +46,20 @@ export function SegmentedControl<T extends string>({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(opt.value)}
-            className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[12px] font-semibold transition-all duration-150 ${
-              active ? "bg-surface text-ink shadow-sm ring-1 ring-black/5" : "text-ink-faint hover:text-ink-soft"
-            } ${size === "sm" ? "py-1" : "py-1.5"}`}
+            className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[13px] font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
+              active
+                ? "bg-surface text-ink shadow-sm ring-1 ring-black/5"
+                : "text-ink-soft hover:text-ink"
+            } ${paddingY}`}
           >
             {opt.dot && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotColor}`} />}
-            {opt.label}
+            <span className={active ? "font-semibold" : ""}>{opt.label}</span>
             {opt.count !== undefined && (
-              <span className={`text-[11px] font-bold ${active ? "text-accent" : "text-ink-faint"}`}>
+              <span
+                className={`font-mono text-[11px] font-semibold tabular-nums ${
+                  active ? "text-accent-deep" : "text-ink-faint"
+                }`}
+              >
                 {opt.count}
               </span>
             )}

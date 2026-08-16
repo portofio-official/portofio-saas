@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Workspace } from "@/lib/workspace/types";
+import type { Workspace } from "@/lib/workspace";
 import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
 import type { BasePortfolioData } from "@/templates/shared/_base";
 
@@ -38,13 +38,13 @@ async function getFirstProjectPreviews(workspaceIds: string[]): Promise<
   const supabase = await createClient();
   const { data: projectRows, error: projectError } = await supabase
     .from("projects")
-    .select("workspace_id, template_id, current_version_id, status, subdomain")
+    .select("workspace_id, template_id, current_version_id, draft_json, status, subdomain")
     .in("workspace_id", workspaceIds)
     .order("created_at", { ascending: true });
 
   if (projectError || !projectRows) return previews;
 
-  // Collect version IDs
+  // Collect version IDs for fallback
   const versionIds = projectRows
     .map((r) => r.current_version_id)
     .filter((id): id is string => Boolean(id));
@@ -80,13 +80,14 @@ async function getFirstProjectPreviews(workspaceIds: string[]): Promise<
     if (previews.has(row.workspace_id)) continue;
     if (!TEMPLATE_IDS.includes(row.template_id as TemplateId)) continue;
 
-    const entry = row.current_version_id ? contentMap.get(row.current_version_id) : undefined;
+    const draftDoc = row.draft_json as { data?: Record<string, unknown> } | null;
+    const dataObj = draftDoc?.data ?? (row.current_version_id ? contentMap.get(row.current_version_id) : undefined);
+
     previews.set(row.workspace_id, {
       templateId: row.template_id as TemplateId,
-      data: (entry?.data ?? {}) as BasePortfolioData,
+      data: (dataObj ?? {}) as BasePortfolioData,
       status: (row.status as "draft" | "published") ?? "draft",
       subdomain: (row.subdomain as string | null) ?? null,
-      updatedAt: lastEdited.get(row.workspace_id),
     });
   }
 

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { updateTemplateIntegrationAction } from "@/lib/admin/actions";
+import { updateTemplateIntegrationAction } from "@/lib/admin";
 
 type IntegrationStatus = "not_started" | "in_review" | "merged" | "failed";
 

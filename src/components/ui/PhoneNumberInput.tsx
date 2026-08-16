@@ -7,7 +7,7 @@ import {
   countryByIso,
   flagEmoji,
   matchCountryByLeadingDigits,
-} from "@/lib/phone/countries";
+} from "@/lib/phone";
 
 interface PhoneNumberInputProps {
   /** Canonical international number, e.g. "+62 812 3456 7890" or raw digits. */

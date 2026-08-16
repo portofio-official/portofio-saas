@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { requestPasswordResetAction, type ActionState } from "@/lib/auth/actions";
+import { requestPasswordResetAction, type ActionState } from "@/lib/auth";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";

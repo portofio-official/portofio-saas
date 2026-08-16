@@ -5,12 +5,20 @@ import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { checkPasswordStrength } from "@/lib/auth/password";
+import { checkPasswordStrength } from "@/lib/auth";
 export type ActionState = { error: string | null; success?: string | null };
 
 async function getClientIp(): Promise<string> {
   const h = await headers();
-  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown-ip";
+  // x-vercel-forwarded-for is set by the Vercel edge and is the trusted client
+  // IP. The raw x-forwarded-for can be spoofed by a client sending its own
+  // header, so it is only a last-resort fallback.
+  return (
+    h.get("x-vercel-forwarded-for")?.trim() ||
+    h.get("x-real-ip")?.trim() ||
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown-ip"
+  );
 }
 
 async function getAppUrl() {
@@ -37,7 +45,7 @@ export async function signUpAction(
   formData: FormData,
 ): Promise<ActionState> {
   const ip = await getClientIp();
-  const rate = checkRateLimit(`signup:${ip}`, 5, 15 * 60 * 1000);
+  const rate = await checkRateLimit(`signup:${ip}`, 5, 15 * 60 * 1000);
   if (!rate.allowed) {
     return { error: "rateLimited" };
   }
@@ -107,7 +115,7 @@ export type GoogleOAuthState = { error: string | null; url: string | null };
  */
 export async function googleSignInAction(templateId?: string): Promise<GoogleOAuthState> {
   const ip = await getClientIp();
-  const rate = checkRateLimit(`oauth:${ip}`, 5, 15 * 60 * 1000);
+  const rate = await checkRateLimit(`oauth:${ip}`, 5, 15 * 60 * 1000);
   if (!rate.allowed) {
     return { error: "rateLimited", url: null };
   }
@@ -133,7 +141,7 @@ export async function requestPasswordResetAction(
   formData: FormData,
 ): Promise<ActionState> {
   const ip = await getClientIp();
-  const rate = checkRateLimit(`reset:${ip}`, 3, 15 * 60 * 1000);
+  const rate = await checkRateLimit(`reset:${ip}`, 3, 15 * 60 * 1000);
   if (!rate.allowed) {
     return { error: "rateLimited" };
   }

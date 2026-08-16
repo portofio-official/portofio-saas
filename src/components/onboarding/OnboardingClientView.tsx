@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { CreateWorkspaceForm } from "@/components/workspace/CreateWorkspaceForm";
-import { updateUserProfile } from "@/lib/profile/actions";
+import { updateUserProfile } from "@/lib/profile";
 
 interface Dict {
   eyebrow: string;

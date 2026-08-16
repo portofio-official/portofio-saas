@@ -15,10 +15,10 @@ import { getUserProfile } from "@/lib/profile/queries";
 import { checkSubscription } from "@/lib/billing/subscription";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { sanitizeObjectData } from "@/lib/utils/sanitize";
+import { sanitizeObjectData } from "@/lib/utils";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { listContentItems } from "@/lib/content/store";
-import { resolveLibraryData } from "@/lib/content/resolve";
+import { resolveLibraryData } from "@/lib/content";
 import { requireRole } from "@/lib/auth/roles";
 
 export async function createProjectAction(
@@ -146,27 +146,27 @@ export async function publishProjectAction(
   subdomain: string,
 ): Promise<{ ok: boolean; error?: string; requiresSubscription?: boolean }> {
   await requireRole(["user", "designer"]);
-  // Validate format
+  // Fast, user-friendly format validation (the RPC enforces the rest).
   const formatError = validateSubdomain(subdomain);
   if (formatError) return { ok: false, error: formatError };
 
-  // Subscription gate
+  // Rate limit: 10 publish attempts per hour per user
   const email = await getCurrentUserEmail();
   if (!email) return { ok: false, error: "Not authenticated." };
 
-  // Rate limit: 10 publish attempts per hour per user
-  const rate = checkRateLimit(`publish:${email}`, 10, 60 * 60 * 1000);
+  const rate = await checkRateLimit(`publish:${email}`, 10, 60 * 60 * 1000);
   if (!rate.allowed) {
     return { ok: false, error: `Batas percobaan publish terlampaui. Coba lagi dalam ${rate.retryAfterSeconds} detik.` };
   }
 
+  // Early billing gate so the UI can route to checkout without heavy work.
+  // The RPC re-enforces this atomically (defense in depth).
   const hasSubscription = await checkSubscription(email);
   if (!hasSubscription) return { ok: false, error: "subscription_required", requiresSubscription: true };
 
-  const supabase = await createClient();
-
   const projectWithDraft = await getProjectWithDraft(projectId);
   if (!projectWithDraft) return { ok: false, error: "Project not found." };
+
   const libraryItems = await listContentItems();
   const resolvedDraft: WebsiteDocument = {
     ...projectWithDraft.draftVersion.contentJson,
@@ -176,45 +176,27 @@ export async function publishProjectAction(
     return { ok: false, error: "Failed to sync Content Library." };
   }
 
-  // Check DB blocklist
-  const { data: blocked } = await supabase
-    .from("subdomain_blocklist")
-    .select("slug")
-    .eq("slug", subdomain)
-    .maybeSingle();
-  if (blocked) return { ok: false, error: "This subdomain name is reserved." };
-
-  // Check subdomain uniqueness (skip own project)
-  const { data: existing } = await supabase
-    .from("projects")
-    .select("id")
-    .eq("subdomain", subdomain)
-    .neq("id", projectId)
-    .maybeSingle();
-  if (existing) return { ok: false, error: "This subdomain is already taken. Please choose another." };
-
-  // Check single published website per user account limit
-  const { data: userWorkspaces } = await supabase.from("workspaces").select("id");
-  if (userWorkspaces && userWorkspaces.length > 0) {
-    const workspaceIds = userWorkspaces.map((w) => w.id);
-    const { data: otherPublished } = await supabase
-      .from("projects")
-      .select("id, name")
-      .in("workspace_id", workspaceIds)
-      .eq("status", "published")
-      .neq("id", projectId)
-      .maybeSingle();
-
-    if (otherPublished) {
-      return {
-        ok: false,
-        error: "Anda hanya dapat mempublikasikan 1 website per akun. Mohon unpublish website Anda yang lain terlebih dahulu.",
-      };
+  // Atomic enforcement lives in the publish_project RPC: ownership, blocklist,
+  // subdomain uniqueness, one-live-site quota, and the subscription gate are
+  // checked inside a single transaction.
+  const result = await publishProject(projectId, subdomain);
+  if (!result.ok) {
+    switch (result.error) {
+      case "subscription_required":
+        return { ok: false, error: "subscription_required", requiresSubscription: true };
+      case "subdomain_blocked":
+        return { ok: false, error: "This subdomain name is reserved." };
+      case "subdomain_taken":
+        return { ok: false, error: "This subdomain is already taken. Please choose another." };
+      case "one_live_site_per_account":
+        return {
+          ok: false,
+          error: "Anda hanya dapat mempublikasikan 1 website per akun. Mohon unpublish website Anda yang lain terlebih dahulu.",
+        };
+      default:
+        return { ok: false, error: "Failed to publish. Please try again." };
     }
   }
-
-  const ok = await publishProject(projectId, subdomain);
-  if (!ok) return { ok: false, error: "Failed to publish. Please try again." };
   return { ok: true };
 }
 

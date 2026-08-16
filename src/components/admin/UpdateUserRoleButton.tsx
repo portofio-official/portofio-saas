@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { updateUserRoleAction } from "@/lib/admin/actions";
+import { updateUserRoleAction } from "@/lib/admin";
 import type { AppRole } from "@/lib/auth/roles";
 
 export function UpdateUserRoleButton({

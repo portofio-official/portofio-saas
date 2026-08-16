@@ -9,8 +9,8 @@ import {
   updateContentItemAction,
   deleteContentItemAction,
   updateContentItemStateAction,
-} from "@/lib/content/actions";
-import type { ContentItem, ContentType } from "@/lib/content/types";
+} from "@/lib/content";
+import type { ContentItem, ContentType } from "@/lib/content";
 import { LibraryImageUploadField } from "@/components/content/LibraryImageUploadField";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";

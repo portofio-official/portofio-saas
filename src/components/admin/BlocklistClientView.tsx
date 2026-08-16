@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { addBlocklistWordAction, removeBlocklistWordAction } from "@/lib/admin/actions";
+import { addBlocklistWordAction, removeBlocklistWordAction } from "@/lib/admin";
 import { useToast } from "@/components/ui/Toast";
 
 interface BlocklistClientViewProps {

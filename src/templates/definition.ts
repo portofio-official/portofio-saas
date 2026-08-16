@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type React from "react";
-import type { UserProfile } from "@/lib/profile/types";
+import type { UserProfile } from "@/lib/profile";
 
 // WorkspaceProfile — data induk bisnis dari workspace_profile table
 export interface WorkspaceProfile {

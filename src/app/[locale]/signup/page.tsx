@@ -3,8 +3,7 @@
 import { useActionState, use, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { signUpAction, type ActionState } from "@/lib/auth/actions";
-import { checkPasswordStrength } from "@/lib/auth/password";
+import { signUpAction, type ActionState, checkPasswordStrength } from "@/lib/auth";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";

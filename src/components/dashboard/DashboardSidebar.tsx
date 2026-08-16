@@ -1,52 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
-import { signOutAction } from "@/lib/auth/actions";
+import { signOutAction } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
-import type { ContentType } from "@/lib/content/types";
-import {
-  Award,
-  BookOpen,
-  Briefcase,
-  ChartLine,
-  ChevronDown,
-  CreditCard,
-  FolderKanban,
-  FolderOpen,
-  Globe,
-  GraduationCap,
-  Image as ImageIcon,
-  LayoutTemplate,
-  LogOut,
-  MessageSquareQuote,
-  Settings,
-  Sparkles,
-  User,
-} from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarRail,
-} from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
+import type { ContentType } from "@/lib/content";
 
 interface NavItem {
   href: string;
-  icon: ReactNode;
+  icon: string;
   label: string;
   active: boolean;
   badge?: string;
@@ -59,15 +24,14 @@ interface ContentChild extends NavItem {
 }
 
 // The seven primary Content Library types surfaced in the sidebar.
-// (caseStudy/gallery stay selectable in the manager but are not linked here.)
-const CONTENT_GROUPS: { type: ContentType; icon: ReactNode }[] = [
-  { type: "project", icon: <FolderKanban className="size-4" /> },
-  { type: "testimonial", icon: <MessageSquareQuote className="size-4" /> },
-  { type: "certificate", icon: <Award className="size-4" /> },
-  { type: "experience", icon: <Briefcase className="size-4" /> },
-  { type: "education", icon: <GraduationCap className="size-4" /> },
-  { type: "publication", icon: <BookOpen className="size-4" /> },
-  { type: "media", icon: <ImageIcon className="size-4" /> },
+const CONTENT_GROUPS: { type: ContentType; icon: string }[] = [
+  { type: "project", icon: "workspaces" },
+  { type: "testimonial", icon: "rate_review" },
+  { type: "certificate", icon: "workspace_premium" },
+  { type: "experience", icon: "work_history" },
+  { type: "education", icon: "school" },
+  { type: "publication", icon: "menu_book" },
+  { type: "media", icon: "photo_library" },
 ];
 
 const KNOWN_BASES = [
@@ -81,11 +45,9 @@ const KNOWN_BASES = [
 export function DashboardSidebar({
   email,
   contentCounts = {},
-  isPremium = false,
 }: {
   email: string;
   contentCounts?: Record<string, number>;
-  isPremium?: boolean;
 }) {
   const pathname = usePathname();
   const t = useTranslations("Sidebar");
@@ -105,8 +67,8 @@ export function DashboardSidebar({
   const isWebsites = !isKnown;
 
   const primaryItems: NavItem[] = [
-    { href: "/dashboard", icon: <Globe className="size-4" />, label: t("websites"), active: isWebsites },
-    { href: "/dashboard/templates", icon: <LayoutTemplate className="size-4" />, label: t("templates"), active: isTemplates },
+    { href: "/dashboard", icon: "web", label: t("websites"), active: isWebsites },
+    { href: "/dashboard/templates", icon: "dashboard_customize", label: t("templates"), active: isTemplates },
   ];
 
   const contentItems: ContentChild[] = CONTENT_GROUPS.map((c) => ({
@@ -120,269 +82,417 @@ export function DashboardSidebar({
 
   const analyticsItem: NavItem = {
     href: "/dashboard/analytics",
-    icon: <ChartLine className="size-4" />,
+    icon: "analytics",
     label: t("analytics"),
     active: isAnalytics,
     badge: t("pro"),
   };
 
   const settingsItems: NavItem[] = [
-    { href: "/dashboard/profile", icon: <User className="size-4" />, label: t("profile"), active: isProfile },
-    { href: "#", icon: <Globe className="size-4" />, label: t("domains"), active: false, disabled: true },
-    { href: "/dashboard/billing", icon: <CreditCard className="size-4" />, label: t("billing"), active: isBilling },
+    { href: "/dashboard/profile", icon: "person", label: t("profile"), active: isProfile },
+    { href: "#", icon: "domain", label: t("domains"), active: false, disabled: true },
+    { href: "/dashboard/billing", icon: "credit_card", label: t("billing"), active: isBilling },
   ];
   const settingsParentActive = settingsItems.some((c) => c.active);
 
+  // Desktop: sidebar can collapse to an icon rail. Default = expanded (false).
+  const [collapsed, setCollapsed] = useState(false);
+  // Mobile: sidebar opens as a slide-in drawer.
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Sub-menus auto-open when active route matches.
   const [contentOpen, setContentOpen] = useState(contentParentActive);
   const [settingsOpen, setSettingsOpen] = useState(settingsParentActive);
+
+  // Hydrate collapsed preference from localStorage on mount.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("portofio_sidebar_collapsed");
+      if (saved !== null) {
+        setCollapsed(saved === "true");
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  }, []);
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("portofio_sidebar_collapsed", String(next));
+      } catch {
+        // Ignore storage errors
+      }
+      return next;
+    });
+  }, []);
+
+  // Keep sub-menus in sync with active route.
+  useEffect(() => {
+    if (contentParentActive) setContentOpen(true);
+    if (settingsParentActive) setSettingsOpen(true);
+  }, [contentParentActive, settingsParentActive]);
+
+  // Close mobile drawer on navigation.
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll while mobile drawer is open.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
 
   if (isEditorPath) return null;
 
   const initials = email.charAt(0).toUpperCase();
 
-  const renderItem = (item: NavItem, indented = false) => {
+  const renderItem = (item: NavItem, indented = false, compact = collapsed) => {
+    const content = (
+      <>
+        {item.active && (
+          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
+        )}
+        <span
+          className={`material-symbols-outlined text-[19px] transition-transform duration-200 group-hover:scale-105 ${
+            item.active ? "text-accent" : "text-ink-faint group-hover:text-ink"
+          }`}
+        >
+          {item.icon}
+        </span>
+        <span className={`flex-1 truncate ${indented ? "pl-4" : ""} ${compact ? "hidden" : ""}`}>
+          {item.label}
+        </span>
+        {!compact && item.count !== undefined && (
+          <span className="font-mono text-[10.5px] font-semibold tabular-nums text-ink-faint">{item.count}</span>
+        )}
+        {!compact && item.badge && (
+          <span className="rounded-full bg-accent/[0.12] px-2.5 py-0.5 text-[9.5px] font-bold tracking-wider text-accent-deep uppercase ring-1 ring-accent/20">
+            {item.badge}
+          </span>
+        )}
+      </>
+    );
+
     if (item.disabled) {
       return (
-        <SidebarMenuItem key={item.label}>
-          <div className="flex w-full cursor-not-allowed items-center gap-2 rounded-md px-2 py-2 text-[13px] font-medium text-ink-faint">
-            <div className={cn("flex min-w-0 flex-1 items-center gap-2", indented && "pl-3")}>
-              {item.icon}
-              <span className="truncate">{item.label}</span>
-            </div>
-            <span className="shrink-0 rounded-full bg-ink/[0.06] px-2 py-0.5 text-[9px] font-semibold tracking-wider text-ink-faint uppercase">
+        <div
+          key={item.label}
+          title={compact ? `${item.label} (${t("comingSoon")})` : "Coming soon"}
+          className={`flex items-center justify-between rounded-xl px-2.5 py-2 text-[13px] font-medium text-ink-faint/70 cursor-not-allowed ${
+            compact ? "justify-center px-0" : ""
+          }`}
+        >
+          <div className={`flex items-center gap-2.5 ${indented && !compact ? "pl-6" : ""}`}>
+            <span className="material-symbols-outlined text-[19px] text-ink-faint/50">{item.icon}</span>
+            <span className={compact ? "hidden" : ""}>{item.label}</span>
+          </div>
+          {!compact && (
+            <span className="rounded-full bg-ink/[0.06] px-2 py-0.5 text-[9px] font-semibold tracking-wider text-ink-faint uppercase">
               {t("comingSoon")}
             </span>
-          </div>
-        </SidebarMenuItem>
+          )}
+        </div>
       );
     }
 
     return (
-      <SidebarMenuItem key={item.href}>
-        <SidebarMenuButton
-          asChild
-          isActive={item.active}
-          tooltip={item.label}
-          className={cn(
-            "group/menu-button relative rounded-lg text-[13px] transition-colors duration-150",
-            item.active
-              ? "bg-accent/[0.09] text-accent-deep font-bold"
-              : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink",
-          )}
-        >
-          <Link href={item.href}>
-            {item.active && (
-              <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
-            )}
-            <span
-              className={cn(
-                "flex min-w-0 flex-1 items-center gap-2",
-                indented && "pl-3",
-              )}
-            >
-              {item.icon}
-              <span className="truncate">{item.label}</span>
-              {item.count !== undefined && (
-                <span className="ml-auto font-mono text-[10.5px] font-semibold tabular-nums text-ink-faint">
-                  {item.count}
-                </span>
-              )}
-            </span>
-          </Link>
-        </SidebarMenuButton>
-        {item.badge && (
-          <SidebarMenuBadge className="rounded-full bg-accent/[0.12] text-[9px] font-bold tracking-wider text-accent-deep uppercase">
-            {item.badge}
-          </SidebarMenuBadge>
-        )}
-      </SidebarMenuItem>
+      <Link
+        key={item.href}
+        href={item.href}
+        aria-current={item.active ? "page" : undefined}
+        title={compact ? item.label : undefined}
+        className={`group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-200 active:scale-[0.98] ${
+          item.active
+            ? "bg-accent/[0.1] text-accent-deep font-bold"
+            : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink"
+        } ${compact ? "justify-center px-0" : ""}`}
+      >
+        {content}
+      </Link>
     );
   };
 
   const renderGroup = (
     key: string,
     label: string,
-    icon: ReactNode,
+    icon: string,
     open: boolean,
     onToggle: () => void,
     children: ReactNode,
     parentActive: boolean,
-  ) => (
-    <SidebarMenuItem key={key}>
-      <SidebarMenuButton
-        onClick={onToggle}
-        tooltip={label}
-        className={cn(
-          "rounded-lg text-[13px] transition-colors duration-150",
-          parentActive && !open
-            ? "bg-accent/[0.09] text-accent-deep font-bold"
-            : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink",
-        )}
-      >
-        <span
-          className={cn(
-            "flex min-w-0 flex-1 items-center gap-2",
-            parentActive && !open ? "text-accent" : "text-ink-faint",
-          )}
+    compact = collapsed,
+  ) => {
+    const handleGroupClick = () => {
+      if (compact) {
+        setCollapsed(false);
+        if (!open) onToggle();
+      } else {
+        onToggle();
+      }
+    };
+
+    return (
+      <div key={key}>
+        <button
+          type="button"
+          onClick={handleGroupClick}
+          aria-expanded={open}
+          title={compact ? label : undefined}
+          className={`group relative flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-200 active:scale-[0.98] ${
+            parentActive && (!open || compact)
+              ? "bg-accent/[0.1] text-accent-deep font-bold"
+              : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink"
+          } ${compact ? "justify-center px-0" : ""}`}
         >
-          {icon}
-          <span className="truncate">{label}</span>
-        </span>
-        <ChevronDown
-          className={cn(
-            "ml-auto size-4 shrink-0 text-ink-faint transition-transform duration-200",
-            open && "rotate-180",
+          {parentActive && (
+            <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
           )}
-        />
-      </SidebarMenuButton>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden"
+          <span
+            className={`material-symbols-outlined text-[19px] transition-transform duration-200 group-hover:scale-105 ${
+              parentActive ? "text-accent" : "text-ink-faint group-hover:text-ink"
+            }`}
           >
-            <SidebarMenuSub>{children}</SidebarMenuSub>
-          </motion.div>
+            {icon}
+          </span>
+          <span className={`flex-1 truncate text-left ${compact ? "hidden" : ""}`}>{label}</span>
+          <span
+            className={`material-symbols-outlined text-[16px] text-ink-faint transition-transform duration-300 ${
+              open ? "rotate-180 text-ink" : ""
+            } ${compact ? "hidden" : ""}`}
+          >
+            expand_more
+          </span>
+        </button>
+        {!compact && (
+          <AnimatePresence initial={false}>
+            {open && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="flex flex-col gap-0.5 pt-1 pl-1 border-l border-black/5 ml-4 my-1">{children}</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         )}
-      </AnimatePresence>
-    </SidebarMenuItem>
+      </div>
+    );
+  };
+
+  const divider = <div className="mx-2.5 my-2 border-t border-black/5" />;
+
+  const brand = (showLabel = !collapsed) => (
+    <div
+      onClick={collapsed ? toggleCollapsed : undefined}
+      title={collapsed ? t("expandSidebar") : undefined}
+      className={`flex items-center gap-3 min-w-0 ${
+        collapsed ? "cursor-pointer group" : ""
+      }`}
+    >
+      <div
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-accent text-white ring-1 ring-black/5 transition-transform duration-300 ${
+          collapsed ? "group-hover:scale-105 active:scale-95" : ""
+        }`}
+      >
+        <span className="material-symbols-outlined text-[20px]">workspaces</span>
+      </div>
+      {showLabel && (
+        <div className="min-w-0">
+          <p className="truncate font-display text-[15px] font-bold leading-none tracking-tight text-ink">Portofio</p>
+          <p className="mt-1 truncate text-[11px] font-medium text-ink-faint">{tw("brandTagline")}</p>
+        </div>
+      )}
+    </div>
   );
 
-  const renderSubItem = (item: NavItem) => (
-    <SidebarMenuSubItem key={item.href}>
-      <SidebarMenuSubButton
-        asChild
-        isActive={item.active}
-        className={cn(
-          "rounded-lg text-[13px] transition-colors duration-150",
-          item.active
-            ? "bg-accent/[0.09] text-accent-deep font-bold"
-            : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink",
-        )}
+  const nav = (compact = collapsed) => (
+    <nav className="flex flex-1 flex-col overflow-y-auto px-2.5 py-3">
+      {primaryItems.map((item) => renderItem(item, false, compact))}
+      {divider}
+
+      {renderGroup(
+        "content",
+        t("contentLibrary"),
+        "folder_open",
+        contentOpen,
+        () => setContentOpen((v) => !v),
+        contentItems.map((item) => renderItem(item, true, compact)),
+        contentParentActive,
+        compact,
+      )}
+
+      {renderItem(analyticsItem, false, compact)}
+      {divider}
+
+      {renderGroup(
+        "settings",
+        t("settings"),
+        "settings",
+        settingsOpen,
+        () => setSettingsOpen((v) => !v),
+        settingsItems.map((item) => renderItem(item, true, compact)),
+        settingsParentActive,
+        compact,
+      )}
+    </nav>
+  );
+
+  const profile = (compact = collapsed) => (
+    <div className="border-t border-black/5 p-2.5 bg-surface">
+      <div
+        className={`flex items-center rounded-xl p-1.5 transition-colors ${
+          compact ? "flex-col gap-2 justify-center" : "justify-between gap-2 hover:bg-ink/[0.04]"
+        }`}
       >
-        <Link href={item.href}>
-          <span className="truncate">{item.label}</span>
-          {item.count !== undefined && (
-            <span className="ml-auto font-mono text-[10.5px] font-semibold tabular-nums text-ink-faint">
-              {item.count}
-            </span>
-          )}
+        <Link
+          href="/dashboard/profile"
+          title={compact ? `${t("profile")} (${email})` : undefined}
+          className={`flex min-w-0 items-center gap-2.5 ${compact ? "justify-center" : ""}`}
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/15 font-display text-[13px] font-bold text-accent-deep ring-1 ring-accent/20">
+            {initials}
+          </span>
+          <span className={`min-w-0 truncate text-[12px] font-semibold text-ink ${compact ? "hidden" : ""}`}>
+            {email}
+          </span>
         </Link>
-      </SidebarMenuSubButton>
-    </SidebarMenuSubItem>
+        <form action={signOutAction} className={compact ? "w-full flex justify-center" : ""}>
+          <button
+            type="submit"
+            title={tw("logout")}
+            aria-label={tw("logout")}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-danger/10 hover:text-danger active:scale-95"
+          >
+            <span className="material-symbols-outlined text-[17px]">logout</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+
+  const collapseToggleButton = (
+    <button
+      type="button"
+      onClick={toggleCollapsed}
+      title={t("collapseSidebar")}
+      aria-label={t("collapseSidebar")}
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-ink/[0.06] hover:text-ink active:scale-95"
+    >
+      <span className="material-symbols-outlined text-[18px]">left_panel_close</span>
+    </button>
+  );
+
+  const closeButton = (
+    <button
+      type="button"
+      onClick={closeMobile}
+      aria-label={t("closeMenu")}
+      className="flex h-9 w-9 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink active:scale-95"
+    >
+      <span className="material-symbols-outlined text-[20px]">close</span>
+    </button>
   );
 
   return (
-    <Sidebar
-      collapsible="icon"
-      variant="inset"
-      className="group-data-[collapsible=icon]:justify-center"
-    >
-      {/* Brand */}
-      <SidebarHeader>
-        <SidebarMenuButton
-          size="lg"
-          className="data-[active=true]:bg-transparent"
-        >
-          <div className="flex items-center gap-2.5 px-1">
-            <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-accent text-white shadow-[0_8px_20px_rgba(0,207,124,0.35)]">
-              <Sparkles className="size-[20px]" />
+    <>
+      {/* Mobile: Integrated Top Bar (< md) */}
+      <div className="flex md:hidden items-center justify-between gap-3 px-3.5 py-2.5 mb-2 rounded-2xl bg-surface ring-1 ring-black/5 shrink-0 select-none shadow-[var(--shadow-diffused)]">
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-label={t("openMenu")}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink/[0.05] text-ink hover:bg-ink/[0.08] active:scale-95 transition-all ring-1 ring-black/5"
+          >
+            <span className="material-symbols-outlined text-[20px]">menu</span>
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="grid h-7 w-7 place-items-center rounded-lg bg-accent text-white font-bold text-[13px] ring-1 ring-black/5">
+              <span className="material-symbols-outlined text-[16px]">workspaces</span>
             </div>
-            <div className="min-w-0">
-              <p className="truncate font-display text-[15px] font-bold leading-none tracking-tight text-ink">
-                Portofio
-              </p>
-              <p className="mt-1 truncate text-[11px] font-medium text-ink-faint">
-                {tw("brandTagline")}
-              </p>
-            </div>
+            <span className="font-display font-bold text-[15px] tracking-tight text-ink">Portofio</span>
           </div>
-        </SidebarMenuButton>
-      </SidebarHeader>
+        </div>
 
-      {/* Navigation */}
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenu>
-            {primaryItems.map((item) => renderItem(item))}
-          </SidebarMenu>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarMenu>
-            {renderGroup(
-              "content",
-              t("contentLibrary"),
-              <FolderOpen className="size-4" />,
-              contentOpen,
-              () => setContentOpen((v) => !v),
-              contentItems.map((item) => renderSubItem(item)),
-              contentParentActive,
-            )}
-            {renderItem(analyticsItem)}
-          </SidebarMenu>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarMenu>
-            {renderGroup(
-              "settings",
-              t("settings"),
-              <Settings className="size-4" />,
-              settingsOpen,
-              () => setSettingsOpen((v) => !v),
-              settingsItems.map((item) => renderSubItem(item)),
-              settingsParentActive,
-            )}
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/templates"
+            className="flex h-8 items-center gap-1.5 rounded-full bg-accent px-3 text-[12px] font-bold text-white hover:bg-accent-deep active:scale-95 transition-all"
+          >
+            <span className="material-symbols-outlined text-[15px]">add</span>
+            <span>{tw("create.titleFirst") || "Buat"}</span>
+          </Link>
+          <Link
+            href="/dashboard/profile"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/15 text-accent-deep font-display text-[12px] font-bold ring-1 ring-accent/20"
+          >
+            {initials}
+          </Link>
+        </div>
+      </div>
 
-      {/* Profile */}
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <div className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-ink/[0.04] data-[active=true]:bg-transparent">
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent/15 font-display text-[12px] font-bold text-accent-deep ring-1 ring-accent/20">
-                {initials}
-              </span>
-              <div className="flex min-w-0 flex-col">
-                <span className="min-w-0 truncate text-[12px] font-medium text-ink-soft">
-                  {email}
-                </span>
-                {isPremium ? (
-                  <span className="mt-0.5 inline-flex w-max items-center gap-1 rounded-full bg-accent/12 px-1.5 py-px text-[9px] font-bold uppercase tracking-wider text-accent-deep">
-                    <span className="h-1 w-1 rounded-full bg-accent" />
-                    {tw("planPro")}
-                  </span>
-                ) : (
-                  <Link
-                    href="/dashboard/billing"
-                    className="mt-0.5 inline-flex w-max items-center gap-1 rounded-full bg-ink/[0.05] px-1.5 py-px text-[9px] font-bold uppercase tracking-wider text-ink-faint transition-colors hover:bg-accent/12 hover:text-accent-deep"
-                  >
-                    {tw("planFree")}
-                  </Link>
-                )}
+      {/* Mobile: Drawer + Backdrop */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={closeMobile}
+              className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-sm md:hidden"
+              aria-hidden
+            />
+            <motion.aside
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              transition={{ type: "spring", stiffness: 380, damping: 34 }}
+              className="fixed inset-y-0 left-0 z-50 flex w-[280px] shrink-0 flex-col overflow-hidden bg-surface shadow-floating ring-1 ring-black/5 select-none md:hidden"
+            >
+              <div className="flex items-center justify-between gap-2 border-b border-black/5 px-4 py-4">
+                <div className="flex items-center gap-2.5">{brand(true)}</div>
+                {closeButton}
               </div>
-            </div>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <form action={signOutAction}>
-              <SidebarMenuButton
-                type="submit"
-                className="gap-2 text-ink-faint hover:bg-ink/[0.05] hover:text-danger"
-              >
-                <span className="flex size-4 items-center justify-center">
-                  <LogOut className="size-4" />
-                </span>
-                <span className="truncate">{tw("logout")}</span>
-              </SidebarMenuButton>
-            </form>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+              {nav(false)}
+              {profile(false)}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop: Inline Sidebar (md+) */}
+      <motion.aside
+        initial={{ x: -16, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+        className={`relative hidden h-full shrink-0 flex-col overflow-hidden rounded-2xl bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5 select-none transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:flex ${
+          collapsed ? "w-[72px]" : "w-[248px]"
+        }`}
+      >
+        <div
+          className={`flex border-b border-black/5 transition-all duration-300 ${
+            collapsed ? "justify-center px-2 py-3.5" : "items-center justify-between px-4 py-3.5"
+          }`}
+        >
+          {brand(!collapsed)}
+          {!collapsed && collapseToggleButton}
+        </div>
+        {nav()}
+        {profile()}
+      </motion.aside>
+    </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createTemplateSourceDownloadUrlAction } from "@/lib/admin/actions";
+import { createTemplateSourceDownloadUrlAction } from "@/lib/admin";
 
 export function TemplateSourceDownloadButton({
   submissionId,

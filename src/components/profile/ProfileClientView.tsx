@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { UserProfile } from "@/lib/profile/types";
-import { updateUserProfile } from "@/lib/profile/actions";
+import type { UserProfile } from "@/lib/profile";
+import { updateUserProfile } from "@/lib/profile";
 import { PhoneNumberInput } from "@/components/ui/PhoneNumberInput";
 import { PhotoUploadField } from "@/components/portfolio/PhotoUploadField";
 import { PageHeader } from "@/components/ui/PageHeader";

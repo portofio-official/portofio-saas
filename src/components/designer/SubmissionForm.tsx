@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import type { TemplateSubmission, TemplateSubmissionInput } from "@/lib/designer/types";
+import type { TemplateSubmission, TemplateSubmissionInput } from "@/lib/designer";
 import {
   createTemplateSubmissionAction,
   submitTemplateSubmissionAction,
   updateTemplateSubmissionAction,
   uploadTemplateSourceAction,
-} from "@/lib/designer/actions";
+} from "@/lib/designer";
 
 type Props = { submission?: TemplateSubmission | null };
 

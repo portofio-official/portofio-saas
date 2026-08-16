@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { getAdminAuditLogsAction } from "@/lib/admin/actions";
+import { getAdminAuditLogsAction } from "@/lib/admin";
 
 function formatMetadata(metadata: Record<string, unknown>): string {
   const entries = Object.entries(metadata).filter(([key]) => key !== "outcome");

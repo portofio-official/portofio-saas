@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toggleUserSuspensionAction } from "@/lib/admin/actions";
+import { toggleUserSuspensionAction } from "@/lib/admin";
 
 interface Props {
   userId: string;

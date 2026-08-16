@@ -35,7 +35,7 @@ export async function getSubscriptionState(targetUserId?: string): Promise<Subsc
   const supabase = await createClient();
   const { data } = await supabase
     .from("subscriptions")
-    .select("status, expires_at, current_period_end")
+    .select("status, plan_id, billing_cycle, expires_at, current_period_end")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -50,9 +50,25 @@ export async function getSubscriptionState(targetUserId?: string): Promise<Subsc
     };
   }
 
+  let planName: string | null = null;
+  if (record.plan_id) {
+    const { data: plan } = await supabase
+      .from("plans")
+      .select("name")
+      .eq("id", record.plan_id)
+      .maybeSingle();
+    planName = plan?.name ?? null;
+  }
+
   const now = new Date();
   const rawExpires = record.expires_at || record.current_period_end;
   const expiresAt = rawExpires ? new Date(rawExpires) : null;
+
+  const base = {
+    planId: record.plan_id,
+    planName,
+    billingCycle: record.billing_cycle ?? null,
+  };
 
   // Active status check
   if (record.status === "active") {
@@ -62,6 +78,7 @@ export async function getSubscriptionState(targetUserId?: string): Promise<Subsc
         status: "active",
         isGracePeriod: false,
         expiresAt,
+        ...base,
       };
     }
   }
@@ -79,6 +96,7 @@ export async function getSubscriptionState(targetUserId?: string): Promise<Subsc
           isGracePeriod: true,
           expiresAt,
           daysRemainingInGracePeriod: daysRemaining,
+          ...base,
         };
       }
     }
@@ -90,5 +108,6 @@ export async function getSubscriptionState(targetUserId?: string): Promise<Subsc
     status: record.status as SubscriptionRecord["status"],
     isGracePeriod: false,
     expiresAt,
+    ...base,
   };
 }

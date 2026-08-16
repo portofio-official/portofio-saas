@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { createWorkspaceAction, type CreateWorkspaceState } from "@/lib/workspace/actions";
+import { createWorkspaceAction, type CreateWorkspaceState } from "@/lib/workspace";
 import { FormField } from "@/components/ui/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 

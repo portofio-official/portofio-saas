@@ -1,6 +1,6 @@
 import { getPublishedSites, getProjectAnalytics } from "@/lib/analytics/store";
 import { AnalyticsClientView } from "@/components/dashboard/AnalyticsClientView";
-import type { AnalyticsRange } from "@/lib/analytics/types";
+import type { AnalyticsRange } from "@/lib/analytics";
 
 function oneOf(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;

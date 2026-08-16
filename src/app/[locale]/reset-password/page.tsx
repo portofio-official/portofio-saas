@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { updatePasswordAction, type ActionState } from "@/lib/auth/actions";
+import { updatePasswordAction, type ActionState } from "@/lib/auth";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { FormField } from "@/components/ui/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";

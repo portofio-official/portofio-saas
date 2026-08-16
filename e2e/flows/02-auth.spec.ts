@@ -15,6 +15,17 @@ test.describe("Flow 2 — Authentication & Onboarding Protection", () => {
 
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[name="password"]')).toBeVisible();
+
+    // Strong-password checklist renders with all 5 rules
+    const rules = page.locator('[aria-label="Password requirements"]');
+    await expect(rules).toBeVisible();
+    await expect(rules.locator("div")).toHaveCount(5);
+  });
+
+  test("Forgot password page renders with email input", async ({ page }) => {
+    const response = await page.goto("/id/forgot-password");
+    expect(response?.status()).toBe(200);
+    await expect(page.locator('input[type="email"]')).toBeVisible();
   });
 
   test("Login page shows Google OAuth button", async ({ page }) => {

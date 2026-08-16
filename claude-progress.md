@@ -1,35 +1,160 @@
-# Session 068: Premium Dashboard Polish — Phase 2 (per-page) + Phase 3 (Editor)
-**Status:** Verified / Passing locally
-- Continued the Premium Dashboard plan: executed **Phase 2 (per-page premium polish)** and **Phase 3 (Editor localization + token cleanup)**. Phase 0+1 (Session 067) already landed shared primitives + consistency.
-- **Phase 2 — per-page:**
-  - **Home** (`DashboardClientView`): stat chips (Total/Live/Draft) are now clickable filters wired to the existing All/Live/Draft filter; live website cards render a 7-day views mini-insight chip; a launch-checklist banner appears when nothing is live yet. Added `getRecentViewsByWorkspace` in `src/lib/analytics/store.ts` (RLS-scoped) + `recentViews` prop fed from the dashboard page. New `Dashboard` i18n keys (viewsLabel/views7d/launchTitle/launchCta/launchSkippedDesc).
-  - **Analytics** (`AnalyticsClientView` + `store.ts`/`types.ts`): KPI cards now show ▲/▼ % deltas vs the previous equal-length window (`prevViews`/`prevVisitors` added to `AnalyticsSummary`, computed in `getProjectAnalytics`); `TrendChart` gained Y-axis value labels + an interactive crosshair tooltip (React hover state). New `Analytics.deltaTitle` key.
-  - **Billing**: active subscription plan card gets an accent top-bar + ring highlight.
-  - **Profile**: added avatar upload via the existing `PhotoUploadField` (writes `profile.avatar_url` through `updateUserProfile`); new Profile i18n keys (avatarLabel/avatarUpload/avatarReplace).
-  - **Sidebar** (`DashboardSidebar` + `layout.tsx`): layout fetches subscription state (`getSubscriptionState`) and passes `isPremium`; the account footer now shows a Pro badge or a Free/upgrade pill (Workspace.planPro/planFree).
-  - **Templates**: gallery badges templates already in use via `getInUseTemplateIds` (workspace/queries) + `inUseTemplateIds` prop + `TemplateGallery.inUse`.
-- **Phase 3 — Editor (`Editor.tsx`):** added an `Editor` i18n namespace (en+id) and localized the header cluster (back-to-dashboard, Live/Draft only, Versions, Preview, Save, Publish), the profile-sync and draft-divergence banners, the Content/Sections tabs, the sticky context header (Editing/Select to Edit/Content Overview), the Setup Progress card (completedOf/next), the Layout/Section Visibility + Appearance/SEO/Site Title/Description/Social Image URL labels, "Manage projects in Content Library", Fit Screen, and the desktop-preview / version-history / publish dialog titles. Amber/sky banner classes → `warning`/`info` semantic tokens; preview canvas `bg-[#EEF2FF]` → `bg-shell`.
-- **Deferred (documented):** Editor modal structural migration to the shared `Modal` (kept hand-rolled for stability — risky to refactor the 1700-line component under this scope); tiered billing price display deferred to `billing-002`.
-- Verification: `npx tsc --noEmit` clean; full `npm run lint` only pre-existing scratch + Billing warning; `npm run build` clean; full `npx playwright test` **30 passed / 3 skipped / 0 failed** (editor "Publish"/"Publish Website" en values kept identical so E2E selectors stay green).
-- Recorded as `dashboard-ux-004` in `feature_list.json`.
-- **Note for next session:** Premium Dashboard is functionally complete through Phase 3. Follow-ups if desired: Editor modal refactor to shared Modal, further Editor string cleanup, billing tiered-price card (post `billing-002`). The dirty pre-existing `docs/backlog/010.*.csv` file remains untouched.
+# Session 080: Framer-Style Minimalist Website Project Cards Redesign
+**Status:** Done + verified in code
+- **Full-Bleed Direct Site Preview:** Eliminated mockups, laptop-on-desk frames, and skeuomorphic ornaments. Website preview is rendered full-bleed, showcasing the site's true colors and visual identity.
+- **Super Minimal Browser Chrome:** Ultra-clean 28px hairline bar (`bg-shell/80`, 1px border) with favicon globe + subdomain and template identifier.
+- **Floating Status Pill:** Positioned as a floating pill in the top-left corner of the screenshot (`Live` green indicator dot or `Draft`).
+- **Hover Quick-Action 3-Dots Menu (•••):** Positioned in the top-right corner over the screenshot, appearing smoothly on hover (and visible on mobile), providing instant access to Edit, Preview Modal, Visit Live Site, Content Library, Unpublish, Duplicate, and Delete.
+- **Direct Card Navigation:** The entire screenshot canvas links directly to `/dashboard/${workspace.id}/editor`.
+- **Clean Typography Hierarchy:** Below the thumbnail, clean website title (`font-semibold text-[14px] text-ink`) and subtle metadata (`text-[12px] text-ink-faint`: "Diedit X waktu lalu • Minimal").
+- **Subtle Micro-Interaction:** Gentle `scale-[1.015]` on thumbnail hover and `shadow-md` card lift without distracting animations.
+- **Create Workspace Card Polish:** Refactored `CreateWorkspaceCard.tsx` to match the exact Framer minimalist card container style.
+- **Verification:** `./init.sh` clean, `npx tsc --noEmit` clean (0 errors), `npm run build` clean (34 routes), `npx playwright test` 33 passed / 3 skipped / 0 failed.
 
-# Session 067: Premium Dashboard Polish — Phase 0+1 (Primitives, Consistency, Localization, UX Fixes)
+# Session 079: Dashboard User UI/UX Redesign — Solid Color Style, Mini Preview Cards & Clean Header
+**Status:** Done + verified in code
+- **Solid Style (No Gradients):** Refactored all user dashboard components to use crisp, clean solid colors (`bg-canvas`, `bg-surface`, `bg-shell`, `bg-accent`, `bg-accent-deep`, `ring-1 ring-black/5` / `ring-black/10`), eliminating blur gradients and glow artifacts.
+- **Clean Focused Header (`DashboardClientView.tsx`):**
+  - Removed the multi-card metric banner per user feedback, leaving a spacious, elegant header focusing directly on workspaces, search (`⌘K`), filter pills, sort controls, and view switcher.
+- **High-Definition Mini Website Previews (`WorkspaceCard.tsx`, `WorkspaceListItem.tsx`, `queries.ts`):**
+  - Updated `getFirstProjectPreviews` to query `draft_json` so live user portfolio edits appear accurately inside preview cards.
+  - Implemented crisp miniature browser chrome with Mac dots (`#FF5F56`, `#FFBD2E`, `#27C93F`), template pill, and subdomain address bar.
+  - Upgraded preview viewport (`scale(0.33)`) with automatic template default fallback (`templateId ?? 'minimal'`) so every single workspace card immediately presents a real, stunning mini website preview.
+- **Mobile-First App Shell & Integrated Header (`DashboardLayout.tsx` & `DashboardSidebar.tsx`):**
+  - Replaced the detached floating mobile button with an integrated mobile header bar featuring brand logo, "+ Buat Website" quick action, and user avatar.
+- **Always-Accessible Touch Action Bar (`WorkspaceCard.tsx`):**
+  - Touch-friendly action buttons (Edit, Preview, Live Link, More Menu) on mobile & desktop.
+- **Adaptive Dual-Mode List View (`WorkspaceListView.tsx` & `WorkspaceListItem.tsx`):**
+  - Desktop: High-density structured table view.
+  - Mobile: Stacked interactive cards with mini website thumbnails.
+- **Verification:** `./init.sh` clean, `npx tsc --noEmit` clean (0 errors), `npm run build` clean (34 routes), `npx playwright test` 33 passed / 3 skipped / 0 failed.
+
+# Session 078: Redesign Skill — Full UI Audit & Fix List (no code changes)
+**Status:** Audit written; code untouched
+- Applied the redesign skill to the existing project: scanned all UI surfaces, produced `docs/REDESIGN_AUDIT.md`.
+- Already good (recently redesigned): landing (`src/components/landing/*`), dashboard (Framer-style), reset-password (`AuthCard`).
+- Highest-priority findings: (1) login/signup/forgot-password still on the dated dark `AuthSplitLayout` — random `#111827` panel + stock Unsplash photo + inline styles + `100vh` + hardcoded hexes in a light-only app; migrate onto the existing `AuthCard`/`FormField` pattern (keeps server actions + password checklist). (2) Onboarding hardcoded hexes. (3) Footer `href="#"` ×9 dead links. (4) Landing pricing copy contradicts PRD v1.9 ("5 Portfolio Websites"/"Unlimited"/Free-Pro refs vs one-live-site-per-account). (5) Missing platform basics: no custom 404, no skip-to-content link, marketing pages lack og:image/twitter, `window.alert()` in FAQ + admin dropdown. (6) `100dvh` + focus rings + pressed states + icon-system unification.
+- User chose "audit + fix list only" — no code was changed. `docs/REDESIGN_AUDIT.md` is the durable artifact; no feature in `feature_list.json` was modified.
+- Baseline re-run this session: `./init.sh` clean (lint 0 errors, 1 pre-existing BillingClientView warning).
+
+# Session 077: Repo Housekeeping — Clean Directory & Easier Maintenance
+**Status:** Done + verified in code
+- **Gitignore hygiene:** added `/test-results/`, `/playwright-report/`, `/supabase/.temp/`, `/supabase/backups/`. Removed from git tracking: `supabase/.temp/*` (8 Supabase CLI temp files) and `test-results/.last-run.json`. `supabase/backups/` (schema backup snapshot) stays local-only.
+- **Moved one-off script:** `backfill-profiles.mjs` → `scripts/backfill-profiles.mjs` (root no longer holds loose maintenance scripts).
+- **Deleted redundant/dead files:** `e2e/flows.spec.ts` (old consolidated suite superseded by `e2e/flows/*`), `e2e/dbg.spec.ts` (console-log debug spec), `docs/IMPLEMENTATION_PLAN.md` (outdated, referenced non-existent `FLOW.md`). Deleted local root `.DS_Store`.
+- **Coverage preserved (not weakened):** before deleting `flows.spec.ts`, its unique assertions were moved into the numbered specs — template showcase + public template gallery → `e2e/flows/01-landing.spec.ts`; password-requirements checklist + forgot-password page → `e2e/flows/02-auth.spec.ts`. Verified the `[aria-label="Password requirements"]` element (5 rules) still exists at `src/app/[locale]/signup/page.tsx:141`.
+- **README updated:** project-structure tree now matches reality (`src/templates/`, `src/api/`, `scripts/`, `e2e/`), removing stale `src/lib/templates/schemas/` reference.
+- **Verification:** `npm run lint` clean (0 errors, 1 pre-existing `BillingClientView` warning), `npx tsc --noEmit` clean, `npx playwright test --list` = 36 tests / 13 files parse cleanly.
+
+# Session 073: Execute Launch Blockers Batch 1 — Cron Fail-Closed + Atomic Publish
+**Status:** Implemented + verified in code AND applied+tested against real Supabase
+- **#1 Cron fail-closed** (`src/app/api/cron/check-subscriptions/route.ts`): production now REQUIRES `CRON_SECRET` — missing secret → 503, wrong secret → 401 (constant-time compare), dev keeps manual testing without secret. Also completed the subscription state machine the cron owns: `active` past `expires_at` → `grace_period` (site stays live), then grace lapsed (7d) → `expired` + reversible soft-unpublish. Processing is now naturally idempotent (rows move out of the grace query once expired) and no longer re-scans already-expired/canceled rows.
+- **#2 Publish atomic** (`supabase/migrations/20260815000000_harden_publish_project_rpc.sql` + `src/lib/projects/store.ts` + `src/lib/projects/actions.ts`): `publish_project()` now enforces everything inside one SECURITY DEFINER transaction: caller-ownership (`auth.uid()`), per-account advisory lock, subscription gate (active/grace), subdomain blocklist, subdomain uniqueness (self excluded → republish works), and one-live-site quota. `publishProject` returns the RPC error code; `publishProjectAction` maps them to user messages and keeps pre-checks only for fast UX (the RPC is the authority). Anon and PUBLIC execute are revoked (authenticated keeps its explicit grant).
+- **Remote application + tests (project yvjwqammizdipwalvets):** migration applied; function definition verified; `aclexplode` confirms only authenticated/service_role/postgres can execute. Behavioral tests: (1) no-subscription publish → `subscription_required`; (2) 2nd live site for subbed user → `one_live_site_per_account`; (3) cross-user publish → `not authorized`; (4) blocklist subdomain → `subdomain_blocked`; (5) positive publish → `published_version_id = current_version_id`, status=published, subdomain set. All passed; throwaway account fully cleaned up (0 leftovers), existing published site `maaulln` untouched.
+- **Verification:** `npx tsc --noEmit` clean, `npx eslint` on changed files clean, `npm run build` clean (36 routes), `npx playwright test` 35 passed / 3 skipped. NOTE: no cron E2E was added because `CRON_SECRET` is unset in local dev and hitting the route would mutate the real DB; fail-closed path requires production-env verification.
+- **Remaining launch blockers (not yet done):** durable rate limiter, autosave 1-upsert + bounded history, webhook atomic idempotency + amount validation, URL scheme/sanitize validation, image magic-byte + Storage URL, public render without service-role, SMTP/email templates, observability/backup, template switching, UX single data-entry flow.
+
+# Session 074: Launch Blocker — Durable Rate Limiter (Postgres-backed)
+**Status:** Implemented + verified in code AND applied+tested against real Supabase
+- **#3 Durable rate limiter** replaces the in-memory Map (`src/lib/rate-limit.ts`) that was bypassable across Vercel instances and lost on cold start.
+  - New `public.rate_limits` table + `public.rate_limit_check(p_key, p_max, p_window_ms)` RPC (fixed-window atomic `INSERT ... ON CONFLICT`; resets on expiry; caps the counter when over-limit; fails open on invalid input/errors). Migration `supabase/migrations/20260815000001_add_rate_limit_table.sql`.
+  - `checkRateLimit` is now async and service-role-backed; fail-open path returns allowed with an error log. Added `cleanupRateLimits()` (best-effort daily purge of stale rows).
+  - `src/lib/auth/actions.ts`: all three limiter call sites awaited; `getClientIp()` now prefers the trusted `x-vercel-forwarded-for` header before falling back to `x-real-ip`/`x-forwarded-for` (raw client-supplied x-forwarded-for can be spoofed).
+  - `src/lib/projects/actions.ts`: publish limiter call awaited.
+  - `src/app/api/cron/check-subscriptions/route.ts`: runs `cleanupRateLimits(24)` as a best-effort step (isolated try/catch) and reports `cleanedRateLimitRows`.
+- **Remote application + tests (yvjwqammizdipwalvets):** migration applied. Behavior: increments per call (max=3 → 4th call rejected with retry_after≈60s); expired window resets to allowed + count=1; `set role authenticated` shows the RPC is NOT invocable by authenticated (denied) and table reads are RLS-filtered; only service_role/postgres retain EXECUTE. All `rl-*` test rows cleaned (0 rows left).
+- **Verification:** `npx tsc --noEmit` clean, targeted eslint clean, `npm run build` clean (36 routes), `npx playwright test` 35 passed / 3 skipped.
+- **Remaining launch blockers (not yet done):** autosave 1-upsert + bounded history, webhook atomic idempotency + amount validation, URL scheme/sanitize validation, image magic-byte + Storage URL, public render without service-role, SMTP/email templates, observability/backup, template switching, UX single data-entry flow.
+
+# Session 075: Launch Blocker — Autosave 1-Upsert + Bounded History
+**Status:** Implemented + verified in code AND applied+tested against real Supabase
+- **#4 Autosave rewrite.** `projects.draft_json` (jsonb) is now the single source of truth for the live editable draft; `project_versions` only holds bounded history snapshots.
+  - Migration `supabase/migrations/20260815000002_autosave_draft_json.sql`: adds `projects.draft_json`, backfills existing rows from their current version, and rewrites `publish_project()` to snapshot `draft_json` into a new immutable version row (max+1 under the existing per-account advisory lock) and to prune history to the latest 20 rows.
+  - `src/lib/projects/store.ts`: `saveDraftJson` is now a single in-place `update projects set draft_json` (was: read max version → insert row → update pointer, 3 queries with a race). `getProjectWithDraft`/`getProjectCurrentDraft` read `draft_json` directly. `createProject` writes `draft_json` at insert. `Project` type gains `draftJson`.
+  - No editor/action changes needed: all consumers already used `draftVersion.contentJson`, which is now served from `draft_json`.
+- **Remote application + tests (yvjwqammizdipwalvets):** migration applied. Backfill verified (`maaulln` now has draft_json set, published snapshot still reads "Maaulln"). Throwaway round-trip: 3 consecutive autosaves → still exactly 1 version row (no write amplification); publish snapshots the latest draft (`published_version_id` content = latest draft, versions=2); edit-after-publish then republish → new snapshot with new content (versions=3); all rows cleaned up (0 leftovers), live site untouched.
+- **Verification:** `npx tsc --noEmit` clean, targeted eslint clean, `npm run build` clean (36 routes), `npx playwright test` 35 passed / 3 skipped.
+- **Remaining launch blockers (not yet done):** webhook atomic idempotency + amount validation, URL scheme/sanitize validation, image magic-byte + Storage URL, public render without service-role, SMTP/email templates, observability/backup, template switching, UX single data-entry flow.
+
+# Session 076: Launch Blocker — Midtrans Webhook Atomic Idempotency + Amount Validation
+**Status:** Implemented + verified in code AND applied+tested against real Supabase
+- **#5 Webhook hardening** (`src/app/api/webhooks/midtrans/route.ts`):
+  - Atomic idempotency: the `billing_events` row (unique `provider_event_id = order_id:transaction_status`) is the lock — insert first; a 23505 unique violation means "already logged". If that row has `processed=true` → return Duplicate; if `processed=false` → reprocess (recovers from a mid-way failure). New migration `20260815000003_billing_events_processed.sql` adds the `processed` column + index.
+  - Every DB write is now error-checked; failures return 500 so Midtrans retries with `processed=false` intact.
+  - Amount/currency validation: for catalog plans, `gross_amount` must equal `plan.price_idr` and currency must be `IDR`, otherwise the event is logged as rejected (no activation). Fallback plans (legacy/unknown order) skip amount validation since the price cannot be trusted.
+  - All state branches check their own writes (activation, grace, cancel) and mark `processed=true` only after success. Soft-unpublish failure on cancel/deny is logged loudly (state is already persisted; safe to reconcile).
+- **Remote application + tests (yvjwqammizdipwalvets):** migration applied. Verified end-to-end through a real HTTP dev-server POST with a self-computed SHA-512 signature (placeholder key `testkey123`; real key to be supplied by the user later): (1) settlement → `{"status":"ok"}` + subscription active, period extended from current end (30d from Sep 14 → Oct 14); (2) duplicate replay → `{"status":"ok","message":"Duplicate event"}` and no re-processing; (3) fresh-order amount mismatch → `{"status":"ok","message":"Amount mismatch, event rejected"}`; (4) bad signature → 401; (5) expire → grace_period; (6) re-activation → active. `billing_events` rows all `processed=true`. Test user + rows fully cleaned up.
+- **Verification:** `npx tsc --noEmit` clean, targeted eslint clean, `npm run build` clean (36 routes), `npx playwright test` 35 passed / 3 skipped, `git diff --check` clean.
+- **Note:** a real Midtrans sandbox E2E (using the actual gateway + user-provided `MIDTRANS_SERVER_KEY`) is still pending and will exercise the same handler against real notifications.
+- **Remaining launch blockers (not yet done):** URL scheme/sanitize validation, image magic-byte + Storage URL, public render without service-role, SMTP/email templates, observability/backup, template switching, UX single data-entry flow.
+
+# Session 072: Structured 19-Section Product & Engineering Audit
+**Status:** Verified / Audit artifact written
+- Wrote `docs/DEEP_PRODUCT_ENGINEERING_AUDIT.md` following the requested 19-section structure: exec summary (10 points), current assessment scores (1–10), what is already good, prioritized critical/high/medium/low problems, missing MVP requirements, things NOT to build, UX audit, security audit, architecture audit, database audit, publishing & billing audit, template engine audit, performance audit (NOW/LATER), production readiness checklist, minimal MVP scope, sprint plan (Sprint 0–5), product backlog (MUST/SHOULD/COULD/LATER), ADRs (8), and final recommendation.
+- Re-verified repo state: HEAD unchanged since Session 071; only worktree billing/tiered changes + audit artifacts. Confirmed key claims against code: Midtrans already replaces Xendit (Xendit remains only in legacy `payment_transactions.xendit_invoice_id` and docs); section selection scrolls preview (`Editor.tsx:301`) but has no visual highlight; template switching is still absent (SP2-020/SP2-022 remain deferred); entitlement enforcement is incomplete (`publishProjectAction` still uses boolean `checkSubscription`).
+- Baseline verification re-run 2026-08-15: `./init.sh` pass (lint 0 errors, 1 existing BillingClientView warning), `npx tsc --noEmit` pass, `npm run build` pass (36 routes), `npx playwright test` 35 passed / 3 skipped, `npm audit` reports 3 high transitive vulnerabilities.
+- Top launch blockers recorded: cron fail-open, non-atomic publish quota, in-memory rate limiting, webhook check-then-insert race + unchecked writes, weak URL/sanitize validation, autosave version race/write amplification, service-role on public paths, missing SMTP/email-template production config, no live observability/backup evidence, no template switching.
+
+# Session 071: Deep Product & Engineering Research Audit
+**Status:** Verified / Audit artifact written
+- Audited README, PRD v1.9, DESIGN, implementation plan, backlog CSVs, feature state, migrations, schema reference, RLS, server actions, routes, middleware/proxy, auth, templates, editor, publishing, billing, storage, analytics, cron, tests, env, and Vercel config.
+- Cross-checked documentation against implementation and recorded contradictions, undocumented production surfaces, MVP scope cuts, security findings, performance assumptions, simplified architecture/data model, backlog, phased roadmap, and red-team review in `docs/DEEP_RESEARCH_BUILD_PLAN.md`.
+- External primary sources reviewed: Framer Features, Webflow Features, Wix Templates, Squarespace Templates, Carrd Documentation, and Notion Sites publishing documentation. URLs and conclusions are recorded in the audit artifact.
+- Baseline verification on 2026-08-15: `./init.sh` pass (lint 0 errors, 1 existing BillingClientView warning); `npx tsc --noEmit` pass; `npm run build` pass (36 routes); `npx playwright test` 35 passed / 3 skipped; `npm audit --json` reports 3 high transitive vulnerabilities.
+- Highest-risk findings: cron fail-open when `CRON_SECRET` is missing, non-atomic one-live-site enforcement, in-memory rate limiting on serverless, webhook check-then-insert race/unchecked writes, weak URL/file validation, autosave version race/unbounded growth, and incomplete tiered billing enforcement.
+
+# Session 070: Framer-Style Dashboard UI/UX Redesign
 **Status:** Verified / Passing locally
-- Audit + plan completed (scope: dashboard shell + 6 pages + editor, editorial-premium direction, canvas stays `#E6EAF4`). This session executed **Phase 0 (foundation) + Phase 1 (consistency & UX fixes)**. Editor polish is Phase 3 (untouched).
-- **Phase 0 — Foundation:**
-  - Synced `docs/DESIGN.md` to the live canvas token `#E6EAF4`, documented `shell`/`accent-tint`, and added semantic `warning`/`info` (+ `*-soft`) tokens to `globals.css` + DESIGN.md; banned hardcoded brand hexes.
-  - Added shared primitives: `src/components/ui/PageHeader.tsx`, `Modal.tsx` (ESC, backdrop-click, focus trap, `role=dialog`, focus restore, size md/lg/xl), `SegmentedControl.tsx`, `EmptyState.tsx`.
-- **Phase 1 — Consistency & UX fixes:**
-  - **Template Gallery**: full localization via new `TemplateGallery` i18n namespace (en+id); replaced hardcoded id strings ("Galeri Template", "Gunakan Template", "Cari template...", "Beri Nama Project Anda", device labels, etc.), the `bg-ink` active category pill → `bg-accent`, and hardcoded `#00cf7c`/`#00b368` → tokens. Aligned the en tooltip to "Preview Live" so existing E2E selectors keep passing.
-  - **Billing**: header → `PageHeader`, content constrained to `max-w-4xl`, amber/sky banners + grace badge → `warning`/`info` tokens, arbitrary radii (`rounded-[14/16/20px]`) → token radii.
-  - **Content Library**: header → `PageHeader` + `SegmentedControl`; add/edit modal → shared `Modal`; delete now requires a confirmation dialog (new `deleteTitle`/`deleteConfirmDesc` i18n); root bg-white → bg-surface.
-  - **Profile**: header → `PageHeader` (wrapper padding removed so header sits flush), fields grouped into labeled sections (Identity / Contact / Online presence / Skills) with new i18n keys, save feedback via the existing Toast system instead of inline text.
-  - **Dashboard home**: workspace cards + default sort now use a real last-edited time (`updatedAt`) surfaced from the current draft version's `meta.updatedAt` in `src/lib/workspace/queries.ts` (added `Workspace.updatedAt`, fallback to createdAt); hover overlay reachable via keyboard/touch (`group-focus-within`) + more-menu gained Preview; preview modal + delete dialog → shared `Modal`; search/filter empty state → `EmptyState`; overlay hex `bg-[#111827]/50` → `bg-ink/50`.
-  - **Analytics**: `HeaderBlock` → `PageHeader`; range pill rail → `SegmentedControl`.
-- Verification: `npx tsc --noEmit` clean; full `npm run lint` has only pre-existing errors (`scratch/pp-shots/*.js` `require()`) + pre-existing BillingClientView warning; `npm run build` clean; full `npx playwright test` **30 passed / 3 skipped / 0 failed** (installed the Playwright chromium browser first — was missing).
-- Recorded as `dashboard-ux-003` in `feature_list.json`.
-- **Note for next session:** Phase 2 (clickable stat chips, card mini-insights from analytics, analytics KPI deltas + chart crosshair, plan-card pricing, avatar/skills chips, sidebar plan badge) and Phase 3 (Editor localization + standardized panels/modals) are the remaining Premium Dashboard phases. Full lint baseline is unchanged — scratch errors are pre-existing and left untouched.
+- Completed modular Framer-style Dashboard UI/UX redesign delivering a high-end SaaS workspace experience:
+  - **Framer-Grade Toolbar (`DashboardToolbar.tsx`):** Stat chips with live pulse indicator, keyboard shortcut search (⌘K), segmented filter controls (All / Live / Draft), sort popover dropdown, and Grid vs List view mode switcher with localStorage persistence (`portofio_dashboard_view_mode`).
+  - **Workspace Cards & Grid (`WorkspaceCard.tsx`, `WorkspaceGrid.tsx`, `CreateWorkspaceCard.tsx`):** Double-bezel (Doppelrand) container, miniature browser chrome with subdomain display, interactive hover overlay with smooth glassmorphism actions, and localized status badges.
+  - **High-Density List View (`WorkspaceListView.tsx`, `WorkspaceListItem.tsx`):** High-efficiency tabular/row layout with compact mini-previews, template pills, formatted relative timestamps, quick actions (Edit, Preview, Live Site, More Menu), and confirmation modals.
+  - **Multi-Device Quick Preview Modal (`QuickPreviewModal.tsx`):** Centered viewport modal with interactive device switcher (Desktop 100%, Tablet 768px, Mobile 375px), iframe template preview, live site link, and direct "Buka di Editor" action button.
+  - **E2E Test Coverage (`e2e/flows/16-dashboard-framer-ui.spec.ts`):** Verified unauthenticated `/id/dashboard` redirect to `/id/login`, localStorage persistence for `portofio_dashboard_view_mode` across grid and list modes, and state initialization.
+- Verification: `./init.sh` clean, `npx tsc --noEmit` clean (0 errors), `npm run lint` clean (0 errors, 1 pre-existing warning), `npm run build` clean (34 static/dynamic routes compiled), `npx playwright test` passed (35 passed / 3 skipped / 0 failed).
+
+# Session 068: Dashboard Premium UI/UX Redesign (Taste Skill High-End Visual Design)
+**Status:** Verified / Passing locally
+- Redesigned the User Dashboard UI/UX across all primary surfaces (`DashboardClientView.tsx`, `DashboardSidebar.tsx`, `AnalyticsClientView.tsx`, `BillingClientView.tsx`) to deliver an ultra-premium $150k+ agency experience in full compliance with `DESIGN.md` light-mode rules:
+  - **Double-Bezel Architecture (Doppelrand):** Implemented nested card structure (outer shell `bg-black/[0.02] p-1.5 ring-1 ring-black/5` with inner core `rounded-[1.4rem] bg-surface shadow-sm ring-1 ring-black/5`) across workspace cards, dashboard widgets, and billing/analytics panels.
+  - **Nested CTA "Button-in-Button" Architecture:** Upgraded primary action buttons ("+ Website Baru", "Langganan Sekarang") with a trailing rounded icon container (`w-7 h-7 rounded-full bg-white/20 flex items-center justify-center`) that expands and scales smoothly on hover (`group-hover:scale-110`).
+  - **Spatial Rhythm & Micro-Eyebrow Badges:** Preceded display headers with pill-shaped eyebrow badges (`rounded-full bg-accent/[0.1] px-3 py-1 text-[10px] uppercase tracking-[0.15em] font-semibold text-accent-deep ring-1 ring-accent/20`) featuring live pulsating accent dots (`animate-ping`).
+  - **Fluid Motion & Haptic Hover Dynamics:** Applied spring physics transitions (`cubic-bezier(0.32, 0.72, 0, 1)`), magnetic hover lift (`hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)]`), and press responses (`active:scale-[0.98]`).
+  - **Miniature Browser Chrome & Overlays:** Polished website previews with miniature browser address bars (`subdomain.portofio.app`), status badges, and backdrop-blur glass action overlays (`bg-[#111827]/55 backdrop-blur-[3px]`).
+  - **Toolbar & Search Polish:** Enhanced search input with `⌘K` keyboard shortcut badge, instant clear button, segmented filter control (`All / Live / Draft`) with smooth active pills, and custom sort popover dropdowns.
+  - **Sidebar & Layout Harmony:** Polished `DashboardSidebar.tsx` brand logo tile, active left-accent indicator with glow (`shadow-[0_0_8px_rgba(0,207,124,0.8)]`), accordion animations, and avatar status ring.
+- Verification: `./init.sh` clean, `npx tsc --noEmit` clean (0 errors), `npm run lint` clean (0 errors, 1 pre-existing warning), `npm run build` clean (34 static/dynamic routes compiled), `npx playwright test` passed (32 passed / 3 skipped / 0 failed).
+
+# Session 069: billing-002 — Tiered Billing Migration + Midtrans Plan-Aware Connection
+**Status:** Migration applied to real Supabase; code verified (tsc/lint/build); entitlement enforcement UI pending
+- Created and applied `supabase/migrations/20260814000000_tiered_billing.sql` to the real project (`yvjwqammizdipwalvets`):
+  - `plans` catalog: 6 rows (Basic/Premium/Enterprise × monthly/annual) with `price_idr` snapshots and `midtrans_product_id` (portofio-<tier>-<cycle>). Prices are PRD §10 placeholders (Basic 49k, Premium 99k, Enterprise 199k; annual = 10× monthly).
+  - `subscriptions` gained `plan_id` (FK→plans), `billing_cycle`, `plan_snapshot` (jsonb), `current_period_start`, `cancel_at_period_end`, `provider_order_id`, `provider_transaction_id`; existing active row backfilled to basic-monthly.
+  - `templates.minimum_plan` (default `basic`, all 8 current templates backfilled basic).
+  - `entitlements` table (tier PK: max_live_websites, publish_subdomain, custom_domain, watermark, advanced_analytics, priority_support, premium_templates) seeded for 3 tiers.
+  - Server-side resolver `public.get_user_entitlements(target_user_id)` (security invoker) joins subscriptions→plans→entitlements for active/grace rows; zero rows = free (no publish).
+  - RLS: plans readable by anon+authenticated (public pricing), entitlements readable by authenticated; writes service-role only.
+- Midtrans connection made tier-aware:
+  - `src/lib/billing/plans.ts`: DB-backed `listActivePlans`/`getActivePlan` (request client) + `getActivePlanByAdmin` (webhook), `DEFAULT_PLAN_ID`, `PERIOD_DAYS` (30/365).
+  - `src/lib/billing/midtrans.ts`: `createMidtransTransaction({ plan })` — order id `sub_<userId>_<planId>_<ts>`, item_details from DB plan; dev fallback URL now carries `&plan=<id>`.
+  - `src/lib/billing/actions.ts`: `createCheckoutInvoiceAction(planId?)` re-validates the plan server-side (price/product never trusted from client); dev subscription upserts plan fields.
+  - `src/app/api/webhooks/midtrans/route.ts`: parses plan from order id (legacy `sub_<userId>_<ts>` orders default to basic-monthly), persists plan_id/cycle/snapshot/period/provider ids, renewal extends from current period end, keeps (order,status) idempotency.
+  - `src/lib/billing/subscription.ts`: `getSubscriptionState` now surfaces `planId`/`planName`/`billingCycle`.
+  - `BillingClientView.tsx` + `/dashboard/billing` page: plan picker (monthly/annual toggle, per-tier price + features), current plan shown by name/cycle, checkout passes plan id. i18n `Billing.planCycle`, `Billing.picker.*`, `Billing.plans.*` in id+en.
+- Remaining for `billing-002` (kept `in_progress`, not done): watermark on Basic published sites, custom domain (Premium), template minimum_plan gating, upgrade/downgrade flow, and E2E checkout/webhook verification against Midtrans sandbox.
+- Verification: `npx tsc --noEmit` clean, `npm run lint` 0 errors (1 pre-existing BillingClientView warning), `npm run build` clean (36 routes). SQL verified live: 6 plans, subscriptions columns, templates.minimum_plan, `get_user_entitlements` returns the basic entitlement for the backfilled subscriber.
+
+# Session 067: Dashboard Sidebar Collapsible & Expandable UX Fix
+**Status:** Verified / Passing locally
+- Improved `DashboardSidebar.tsx` to support smooth collapse (minimize) and expand behavior:
+  - Default state set to expanded (`collapsed = false`), preserving initial full visibility of navigation items, counts, and submenus.
+  - Added `localStorage` persistence (`portofio_sidebar_collapsed`) so the user's preferred sidebar state survives page reloads.
+  - Removed arrow icon toggle button when sidebar is minimized; clicking the brand logo tile directly expands the sidebar cleanly.
+  - Re-positioned the toggle collapse button in the desktop sidebar header top right in expanded mode (`left_panel_close`).
+  - Enhanced compact mode: active indicator green accent pill (`bg-accent`) is visible on compact rail icons, sub-group parent icons display green glow when active, and clicking any group parent icon ("Content Library", "Settings") automatically expands the sidebar and opens the accordion.
+  - Profile footer in compact mode displays centered initials avatar and compact logout button with full hover tooltips.
+- Added `e2e/flows/15-sidebar-toggle.spec.ts` covering dashboard route auth gating and localStorage persistence.
+- Fixed `eslint.config.mjs` to ignore `scratch/**` so `./init.sh` baseline verification passes clean.
+- Verification: `./init.sh` clean, `npx tsc --noEmit` clean, `npm run lint` clean (0 errors), `npm run build` clean (34 static/dynamic routes compiled), `npx playwright test` passed (32 passed / 3 skipped / 0 failed).
 
 # Session 066: Admin Control Plane — Remote Migration Applied + Authenticated E2E Verified
 **Status:** Verified / Passing against real Supabase

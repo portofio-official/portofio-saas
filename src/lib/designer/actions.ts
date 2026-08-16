@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth/roles";
-import { sanitizeString } from "@/lib/utils/sanitize";
+import { sanitizeString } from "@/lib/utils";
 import {
   createTemplateSubmission,
   getTemplateSubmission,

@@ -7,6 +7,12 @@ import { getSubscriptionState } from "./subscription";
 import { getActivePlan, DEFAULT_PLAN_ID } from "./plans";
 import { requireRole } from "@/lib/auth/roles";
 
+function getAppOrigin(): string {
+  const configuredDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() || "localhost:3000";
+  if (/^https?:\/\//i.test(configuredDomain)) return configuredDomain.replace(/\/+$/, "");
+  return `${process.env.NODE_ENV === "production" ? "https" : "http"}://${configuredDomain}`;
+}
+
 export async function createCheckoutInvoiceAction(planId?: string): Promise<{ url?: string; error?: string }> {
   try {
     await requireRole(["user", "designer"]);
@@ -25,8 +31,7 @@ export async function createCheckoutInvoiceAction(planId?: string): Promise<{ ur
       return { error: "Invalid or inactive subscription plan" };
     }
 
-    const domain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "http://localhost:3000";
-    const finishRedirectUrl = `${domain}/dashboard/billing?checkout=success`;
+    const finishRedirectUrl = `${getAppOrigin()}/dashboard/billing?checkout=success`;
     const { redirectUrl } = await createMidtransTransaction({
       userId: user.id,
       email: user.email,

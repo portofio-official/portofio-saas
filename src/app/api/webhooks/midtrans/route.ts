@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { verifyMidtransNotificationSignature } from "@/lib/billing/midtrans";
+import {
+  MIDTRANS_ORDER_PLAN_IDS,
+  verifyMidtransNotificationSignature,
+} from "@/lib/billing/midtrans";
 import { softUnpublishUserProjects } from "@/lib/billing/unpublish";
 import { getActivePlanByAdmin, DEFAULT_PLAN_ID, PERIOD_DAYS, toPlanSnapshot } from "@/lib/billing/plans";
 import type { MidtransNotificationPayload, PlanRecord } from "@/lib/billing";
 
 const ORDER_ID_PATTERN = /^sub_([0-9a-f-]{36})_([a-z-]+)_\d+$/i;
 const LEGACY_ORDER_PATTERN = /^sub_([0-9a-f-]{36})_\d+$/i;
+const COMPACT_ORDER_ID_PATTERN = /^sub_([0-9a-f]{32})_([a-z]{2})_[0-9a-z]+$/i;
 const EVENT_UNIQUE_VIOLATION = "23505";
 
 interface OrderParts {
@@ -17,6 +21,21 @@ interface OrderParts {
 
 function parseOrderId(orderId: string | undefined): OrderParts {
   if (!orderId) return { userId: null, planId: null };
+
+  const compact = orderId.match(COMPACT_ORDER_ID_PATTERN);
+  if (compact) {
+    const hex = compact[1];
+    const userId = [
+      hex.slice(0, 8),
+      hex.slice(8, 12),
+      hex.slice(12, 16),
+      hex.slice(16, 20),
+      hex.slice(20),
+    ].join("-");
+    const planCode = compact[2].toLowerCase() as keyof typeof MIDTRANS_ORDER_PLAN_IDS;
+    return { userId, planId: MIDTRANS_ORDER_PLAN_IDS[planCode] ?? null };
+  }
+
   const match = orderId.match(ORDER_ID_PATTERN);
   if (match) return { userId: match[1], planId: match[2] };
   const legacy = orderId.match(LEGACY_ORDER_PATTERN);

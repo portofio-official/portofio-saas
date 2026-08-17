@@ -1,6 +1,24 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import type { PlanRecord } from "./types";
 
+export const MIDTRANS_ORDER_PLAN_CODES = {
+  "basic-monthly": "bm",
+  "basic-annual": "ba",
+  "premium-monthly": "pm",
+  "premium-annual": "pa",
+  "enterprise-monthly": "em",
+  "enterprise-annual": "ea",
+} as const;
+
+export const MIDTRANS_ORDER_PLAN_IDS = {
+  bm: "basic-monthly",
+  ba: "basic-annual",
+  pm: "premium-monthly",
+  pa: "premium-annual",
+  em: "enterprise-monthly",
+  ea: "enterprise-annual",
+} as const;
+
 function midtransApiBase(): string {
   return process.env.MIDTRANS_IS_PRODUCTION === "true"
     ? "https://app.midtrans.com"
@@ -34,7 +52,12 @@ export async function createMidtransTransaction(params: {
   plan: PlanRecord;
 }): Promise<{ redirectUrl: string; orderId: string }> {
   const serverKey = process.env.MIDTRANS_SERVER_KEY;
-  const orderId = `sub_${params.userId}_${params.plan.id}_${Date.now()}`;
+  const planCode = MIDTRANS_ORDER_PLAN_CODES[params.plan.id as keyof typeof MIDTRANS_ORDER_PLAN_CODES];
+  if (!planCode) throw new Error(`Unsupported Midtrans plan: ${params.plan.id}`);
+
+  // Midtrans limits order_id to 50 characters. Compact the UUID and plan id
+  // while retaining enough information for webhook subscription resolution.
+  const orderId = `sub_${params.userId.replaceAll("-", "")}_${planCode}_${Date.now().toString(36)}`;
 
   if (!serverKey) {
     console.warn("[Midtrans] MIDTRANS_SERVER_KEY is not configured; returning the development checkout URL.");

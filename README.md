@@ -40,6 +40,8 @@ Open [http://localhost:3000](http://localhost:3000).
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key (browser-safe) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service-role key — server-side only, bypasses RLS |
 | `MIDTRANS_SERVER_KEY` | Midtrans Server Key (use sandbox keys in development) |
+| `MIDTRANS_CLIENT_KEY` | Midtrans Client Key (needed only for embedded Snap.js checkout) |
+| `MIDTRANS_MERCHANT_ID` | Midtrans Merchant ID (reference/configuration metadata) |
 | `MIDTRANS_IS_PRODUCTION` | Set `true` only for the Midtrans production environment |
 | `NEXT_PUBLIC_ROOT_DOMAIN` | Root domain the app is served on (`localhost:3000` locally). Lets middleware tell the app apart from a published site's subdomain. |
 

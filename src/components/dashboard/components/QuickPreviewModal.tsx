@@ -146,7 +146,7 @@ export function QuickPreviewModal({ workspace, onClose }: QuickPreviewModalProps
           >
             {workspace.preview ? (
               <div
-                className={`overflow-hidden bg-surface transition-all duration-300 ${
+                className={`preview-frame overflow-hidden bg-surface transition-all duration-300 ${
                   device === "desktop"
                     ? "rounded-2xl ring-1 ring-black/5"
                     : device === "tablet"

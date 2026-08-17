@@ -140,6 +140,18 @@ html.landing-scroll main > section[id] {
 }
 .animate-fade-in-up-custom { animation: fadeInUpCustom 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
+/*
+ * Preview frames that render portfolio templates inside the app (preview
+ * modals, device frames). Portfolio templates contain position:fixed
+ * decorations (scroll-progress bar, section indicator). Without a transform
+ * ancestor those escape overflow:hidden and pin to the real viewport, leaking
+ * out of the frame. translateZ(0) makes the frame the containing block so they
+ * stay inside and get clipped.
+ */
+.preview-frame {
+  transform: translateZ(0);
+}
+
 @theme inline {
   --color-sidebar:      var(--sidebar);
   --color-sidebar-foreground:      var(--sidebar-foreground);

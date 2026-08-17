@@ -31,20 +31,32 @@ export function Navbar({ userEmail, userRole = "user" }: { userEmail: string | n
     };
   }, [dropdownOpen]);
 
+  // Robust in-page anchor navigation. Native hash links can lose the scroll on
+  // pages with smooth-scroll + scroll-snap (Safari in particular), so we drive
+  // the scroll ourselves and only mirror the hash into the URL.
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    history.replaceState(null, "", `#${id}`);
+  };
+
   return (
     <nav className={styles.navbar}>
       <div className={`${shared.container} ${styles.navContainer}`}>
-        <a href="#home" className={styles.logoLink}>
+        <a href="#home" onClick={(e) => scrollToSection(e, "home")} className={styles.logoLink}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Portofio Logo" className={styles.logoImg} />
         </a>
         <div className={styles.navLinks}>
-          <a href="#home" data-text={t("home")} className={activeSection === "home" ? styles.active : ""}>
+          <a href="#home" data-text={t("home")} onClick={(e) => scrollToSection(e, "home")} className={activeSection === "home" ? styles.active : ""}>
             {t("home")}
           </a>
           <a
             href="#templates"
             data-text={t("templates")}
+            onClick={(e) => scrollToSection(e, "templates")}
             className={activeSection === "templates" ? styles.active : ""}
           >
             {t("templates")}
@@ -52,6 +64,7 @@ export function Navbar({ userEmail, userRole = "user" }: { userEmail: string | n
           <a
             href="#pricing"
             data-text={t("pricing")}
+            onClick={(e) => scrollToSection(e, "pricing")}
             className={activeSection === "pricing" ? styles.active : ""}
           >
             {t("pricing")}
@@ -59,6 +72,7 @@ export function Navbar({ userEmail, userRole = "user" }: { userEmail: string | n
           <a
             href="#faq"
             data-text={t("faq")}
+            onClick={(e) => scrollToSection(e, "faq")}
             className={activeSection === "faq" ? styles.active : ""}
           >
             {t("faq")}

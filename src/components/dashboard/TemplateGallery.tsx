@@ -355,7 +355,7 @@ export function TemplateGallery({
             {viewportMode === "desktop" ? (
               /* Desktop View: Full width scrollable document */
               <div
-                className="w-full max-w-[1240px] rounded-t-2xl bg-white shadow-2xl ring-1 ring-black/10 overflow-hidden my-2"
+                className="preview-frame w-full max-w-[1240px] rounded-t-2xl bg-white shadow-2xl ring-1 ring-black/10 overflow-hidden my-2"
                 onClick={(e) => e.stopPropagation()}
               >
                 <TemplateRenderer templateId={previewId} data={PREVIEW_DATA} />
@@ -363,7 +363,7 @@ export function TemplateGallery({
             ) : viewportMode === "tablet" ? (
               /* Tablet Device Frame with internal screen scrolling */
               <div
-                className="my-auto flex h-[820px] max-h-[84vh] w-[768px] flex-col overflow-hidden rounded-[2.5rem] border-[12px] border-gray-900 bg-white shadow-2xl ring-1 ring-black/20"
+                className="preview-frame my-auto flex h-[820px] max-h-[84vh] w-[768px] flex-col overflow-hidden rounded-[2.5rem] border-[12px] border-gray-900 bg-white shadow-2xl ring-1 ring-black/20"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex h-5 shrink-0 items-center justify-center bg-gray-900">
@@ -376,7 +376,7 @@ export function TemplateGallery({
             ) : (
               /* Mobile Smartphone Frame with internal screen scrolling */
               <div
-                className="my-auto flex h-[740px] max-h-[84vh] w-[375px] flex-col overflow-hidden rounded-[3rem] border-[14px] border-gray-900 bg-white shadow-2xl ring-1 ring-black/20"
+                className="preview-frame my-auto flex h-[740px] max-h-[84vh] w-[375px] flex-col overflow-hidden rounded-[3rem] border-[14px] border-gray-900 bg-white shadow-2xl ring-1 ring-black/20"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex h-7 shrink-0 items-center justify-center bg-gray-900">

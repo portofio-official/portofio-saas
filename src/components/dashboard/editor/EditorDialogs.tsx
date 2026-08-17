@@ -101,7 +101,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto bg-canvas p-8">
-            <div className="mx-auto w-full max-w-[1440px] overflow-hidden rounded-2xl bg-white shadow-floating ring-1 ring-black/5">
+            <div className="preview-frame mx-auto w-full max-w-[1440px] overflow-hidden rounded-2xl bg-white shadow-floating ring-1 ring-black/5">
               <TemplateRenderer templateId={templateId} data={data as never} />
             </div>
           </div>

@@ -13,9 +13,9 @@ export default function AdminLoading() {
         <div className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-6 py-3">
-                <div className="h-4 w-40 animate-pulse rounded-full bg-ink/[0.06]" />
-                <div className="h-4 w-24 animate-pulse rounded-full bg-ink/[0.05]" />
+              <div key={i} className="flex flex-wrap items-center gap-3 py-3 sm:gap-6">
+                <div className="h-4 w-full sm:w-40 animate-pulse rounded-full bg-ink/[0.06]" />
+                <div className="h-4 w-32 sm:w-24 animate-pulse rounded-full bg-ink/[0.05]" />
                 <div className="ml-auto h-7 w-28 animate-pulse rounded-full bg-accent/15" />
               </div>
             ))}

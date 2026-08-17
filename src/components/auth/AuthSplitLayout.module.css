@@ -262,7 +262,20 @@
 }
 
 @media (min-width: 1024px) {
-  .mobileNavbar {
+.formTitleBack {
+  color: inherit;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.mobileNavbar {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .formTitleBack {
     display: none;
   }
 }
@@ -271,8 +284,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   background-color: transparent;
   color: var(--text-primary);
   text-decoration: none;

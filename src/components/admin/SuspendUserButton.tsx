@@ -46,7 +46,7 @@ export function SuspendUserButton({ userId, isSuspended }: Props) {
             type="button"
             onClick={handleToggle}
             disabled={isPending}
-            className={`flex items-center rounded-full px-3.5 py-1.5 text-[11px] font-bold transition-colors disabled:opacity-50 ${
+            className={`flex items-center rounded-full px-3.5 py-1.5 text-[11px] font-bold transition-colors active:scale-[0.97] disabled:opacity-50 ${
               isSuspended
                 ? "bg-accent/10 text-accent-deep hover:bg-accent/20"
                 : "bg-danger/10 text-danger hover:bg-danger/20"
@@ -57,7 +57,7 @@ export function SuspendUserButton({ userId, isSuspended }: Props) {
           <button
             type="button"
             onClick={() => setShowConfirm(false)}
-            className="flex items-center rounded-full bg-black/5 px-3.5 py-1.5 text-[11px] font-bold text-ink hover:bg-black/10 transition-colors"
+            className="flex items-center rounded-full bg-black/5 px-3.5 py-1.5 text-[11px] font-bold text-ink hover:bg-black/10 active:scale-[0.97] transition-colors"
           >
             {t("users.cancel")}
           </button>
@@ -66,7 +66,7 @@ export function SuspendUserButton({ userId, isSuspended }: Props) {
         <button
           onClick={() => setShowConfirm(true)}
           disabled={isPending}
-          className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] font-semibold transition-colors disabled:opacity-50 ${
+          className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] font-semibold transition-colors active:scale-[0.97] disabled:opacity-50 ${
             isSuspended
               ? "bg-ink/[0.05] text-ink hover:bg-ink/[0.08]"
               : "bg-danger/10 text-danger hover:bg-danger/20"

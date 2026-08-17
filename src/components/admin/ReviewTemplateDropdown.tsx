@@ -96,21 +96,21 @@ export function ReviewTemplateDropdown({ submissionId }: Props) {
           <button
             onClick={() => handleAction("approved")}
             role="menuitem"
-            className="block w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium text-ink hover:bg-ink/[0.04]"
+            className="block w-full rounded-lg px-3 py-2.5 text-left text-[13px] font-medium text-ink hover:bg-ink/[0.04] active:bg-ink/[0.06]"
           >
             {t("review.approve")}
           </button>
           <button
             onClick={() => handleAction("revision_requested")}
             role="menuitem"
-            className="block w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium text-ink hover:bg-ink/[0.04]"
+            className="block w-full rounded-lg px-3 py-2.5 text-left text-[13px] font-medium text-ink hover:bg-ink/[0.04] active:bg-ink/[0.06]"
           >
             {t("review.revision")}
           </button>
           <button
             onClick={() => handleAction("rejected")}
             role="menuitem"
-            className="block w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium text-danger hover:bg-danger/10"
+            className="block w-full rounded-lg px-3 py-2.5 text-left text-[13px] font-medium text-danger hover:bg-danger/10 active:bg-danger/[0.12]"
           >
             {t("review.reject")}
           </button>

@@ -14,7 +14,7 @@ export function AuthCard({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center px-6 py-24 bg-canvas">
+    <div className="flex min-h-[100dvh] items-center justify-center px-6 py-10 sm:py-24 bg-canvas">
       <div className="w-full max-w-md">
         <div className="flex flex-col gap-6 rounded-2xl bg-surface p-8 shadow-md ring-1 ring-black/5 md:p-10">
           <div className="flex flex-col items-start gap-3">

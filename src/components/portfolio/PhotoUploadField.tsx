@@ -32,7 +32,7 @@ export function PhotoUploadField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-[13px] font-medium text-ink-soft">{label}</span>
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-black/[0.04] ring-1 ring-black/[0.07]">
           {value ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -53,7 +53,7 @@ export function PhotoUploadField({
           <button
             type="button"
             onClick={() => onChange(undefined)}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft hover:bg-black/[0.04]"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/[0.04] active:bg-black/[0.08]"
           >
             <span className="material-symbols-outlined text-[16px]">close</span>
           </button>

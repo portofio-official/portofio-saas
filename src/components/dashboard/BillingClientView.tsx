@@ -223,7 +223,7 @@ export function BillingClientView({
         {/* Subscription Card: Double Bezel */}
         <div className="rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5">
           <div className="rounded-[1.4rem] bg-surface p-6 shadow-sm ring-1 ring-black/5">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">
                   {t("currentPlan")}

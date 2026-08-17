@@ -411,6 +411,9 @@ export function Editor({
 
         if (validSection) {
           setExpandedSection(validSection.id);
+          // On mobile the left panel is an off-screen drawer; open it so the
+          // tapped section's accordion is actually reachable.
+          setMobileLeftOpen(true);
           // Scroll left panel to the expanded accordion after a short delay
           setTimeout(() => {
             const accordionEl = document.getElementById(`accordion-${validSection.id}`);
@@ -680,7 +683,7 @@ export function Editor({
             <button
               type="button"
               onClick={handleOpenVersionHistory}
-              className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-3 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
+              className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-3 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5 active:bg-black/10"
               aria-label={tEditor("versionHistory")}
             >
               <span className="material-symbols-outlined text-[14px]">history</span>
@@ -688,14 +691,14 @@ export function Editor({
             </button>
             <button
               onClick={() => setShowDesktopPreview(true)}
-              className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-3 sm:px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
+              className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-3 sm:px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5 active:bg-black/10"
             >
               <span className="material-symbols-outlined text-[14px]">visibility</span>
               <span className="hidden sm:inline">{tEditor("preview")}</span>
             </button>
             <button
               onClick={() => saveDraftAction(projectId, documentForSave())}
-              className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-3 sm:px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
+              className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-3 sm:px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5 active:bg-black/10"
             >
               <span className="material-symbols-outlined text-[14px]">save</span>
               <span className="hidden sm:inline">{tEditor("save")}</span>
@@ -712,7 +715,7 @@ export function Editor({
                   setShowPublishDialog(true);
                 }
               }}
-              className="flex items-center gap-1.5 rounded-full bg-accent px-3.5 sm:px-5 py-1.5 text-[12px] font-medium text-white shadow-sm transition-all hover:scale-105"
+              className="flex items-center gap-1.5 rounded-full bg-accent px-3.5 sm:px-5 py-1.5 text-[12px] font-medium text-white shadow-sm transition-all hover:scale-105 active:scale-95"
             >
               <span className="material-symbols-outlined text-[14px]">rocket_launch</span>
               <span className="hidden sm:inline">Publish</span>
@@ -722,8 +725,8 @@ export function Editor({
 
         {/* Profile Sync Banner (A-3: FLOW 4 step K–N) */}
         {showProfileBanner && (
-          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-warning/20 bg-warning-soft px-6 py-2.5">
-            <div className="flex items-center gap-2.5">
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-warning/20 bg-warning-soft px-4 sm:px-6 py-2.5">
+            <div className="flex min-w-0 flex-1 items-center gap-2.5">
               <span className="material-symbols-outlined text-[18px] text-warning">sync</span>
               <span className="text-[13px] font-medium text-ink-soft">
                 {tEditor("profileSyncMsg")}
@@ -761,8 +764,8 @@ export function Editor({
 
         {/* Draft vs Published divergence banner (B-4) */}
         {draftDiverged && !showProfileBanner && (
-          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-info/20 bg-info-soft px-6 py-2.5">
-            <div className="flex items-center gap-2.5">
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-info/20 bg-info-soft px-4 sm:px-6 py-2.5">
+            <div className="flex min-w-0 flex-1 items-center gap-2.5">
               <span className="material-symbols-outlined text-[18px] text-info">published_with_changes</span>
               <span className="text-[13px] font-medium text-ink-soft">
                 {tEditor("divergenceMsg")}

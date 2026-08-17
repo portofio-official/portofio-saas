@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
       leftSubtitle="Enter your email address and we'll send you a link to get back into your account safely."
       mobileTitle="Recover Account"
       formTitle={
-        <Link href="/login" style={{ color: "inherit", display: "flex", alignItems: "center", textDecoration: "none" }}>
+        <Link href="/login" className={styles.formTitleBack}>
           <span className="material-symbols-outlined" style={{ marginRight: "0.5rem" }}>arrow_back</span>
           Lost access?
         </Link>

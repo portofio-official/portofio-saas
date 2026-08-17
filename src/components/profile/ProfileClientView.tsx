@@ -183,7 +183,7 @@ export function ProfileClientView({ profile, locale = "en", dict }: {
   return (
     <div className="flex h-full flex-col overflow-y-auto bg-surface">
       <PageHeader eyebrow={dict.eyebrow} title={dict.title} subtitle={dict.subtitle} />
-      <div className="w-full py-6 sm:py-8">
+      <div className="w-full px-4 py-6 sm:px-6 sm:py-8">
         <div className="rounded-2xl bg-surface shadow-sm ring-1 ring-black/5">
           <form onSubmit={handleSubmit} className="flex flex-col gap-10 px-6 pt-6 sm:px-8">
             <section>

@@ -1,3 +1,15 @@
+# Session 089c: Mobile Layout Audit — Batch LOW (nomor 42-59) Diperbaiki
+**Status:** Done + verified (tsc/lint/build clean, full e2e 31 passed / 3 skipped / 0 failed, 2 probe mobile pass)
+- **Lanjutan Session 089/089b.** Batch HIGH (1-12) → commit `1cdbf5c`, MEDIUM (13-41) → commit `ee39aa9`. Batch LOW 42-59 di commit terpisah.
+- **Landing LOW (42-45):** hero title `clamp(2rem,5vw,4.5rem)` (32px di 375px); footer social 44px + `:active`; pricing CTA padding 13px; FAQ title clamp + view-all hit area ~40px.
+- **Auth LOW (46-48):** forgot-password back ganda dihilangkan di mobile via `.formTitleBack{display:none}` <1024px. **Bug ditemukan probe: media query tersarang di dalam `@media (min-width:1024px)` → invalid CSS → rule diabaikan browser.** Diperbaiki dengan menutup blok desktop sebelum blok mobile. AuthCard `py-10 sm:py-24`; mobile back 44px.
+- **Form LOW (49-51):** skills remove/add, RepeatableSection remove/add, PhotoUploadField remove 36px + row `flex-wrap`.
+- **Dashboard LOW (52-56):** profile wrapper `px-4 sm:px-6`; delete-confirm modal `max-h-[90vh] overflow-y-auto`; billing header `flex-wrap`; editor banners `flex-wrap` + tap section membuka left drawer.
+- **Admin LOW (57-58):** loading skeleton `flex-wrap` + `w-full sm:w-40`; ReviewTemplateDropdown item `py-2.5` + `active:bg`. `window.prompt/alert` DIPERTAHANKAN (native dialog fungsional di mobile).
+- **Feedback tap (59):** `active:bg`/`active:scale` di header editor (history/preview/save/publish) + SuspendUserButton.
+- **Verifikasi:** tsc clean, lint 0 warnings, build clean, playwright 31 passed / 3 skipped / 0 failed. Probe mobile (Pixel 5 touch) 2/2: hero h1 ≤34px + no overflow; forgot-password satu back saja (probe menangkap bug media query 46). Probe dihapus.
+- **Status akhir audit-001:** seluruh 59 temuan diproses. Dipertahankan dengan alasan: 37 (tabel admin contained scroll, R-31) + 58 sebagian (window.prompt/alert). Artefak: `anti-slop/audit-001-2026-08-17.md`.
+
 # Session 089b: Mobile Layout Audit — Batch MEDIUM (nomor 13-41) Diperbaiki
 **Status:** Done + verified (tsc/lint/build clean, full e2e 31 passed / 3 skipped / 0 failed, 3 probe mobile pass)
 - **Lanjutan Session 089** (HIGH 1-12 sudah selesai + di-commit `1cdbf5c` + di-push `origin/frontend`). Batch MEDIUM 13-41 diperbaiki di commit terpisah setelah sesi 089b.

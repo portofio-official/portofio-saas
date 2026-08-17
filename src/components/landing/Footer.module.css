@@ -33,8 +33,8 @@
 }
 
 .socialIcon {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   display: flex;
@@ -42,7 +42,7 @@
   justify-content: center;
   color: white;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   transition: all var(--transition-fast);
   text-decoration: none;
 }

@@ -78,7 +78,7 @@ export function RepeatableSection<T>({
             <button
               type="button"
               onClick={addRow}
-              className="inline-flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-[12px] font-bold text-white shadow-sm hover:bg-accent/90 transition-all hover:-translate-y-0.5 hover:shadow-md"
+              className="inline-flex items-center gap-1.5 rounded-full bg-accent px-5 py-2.5 text-[12px] font-bold text-white shadow-sm hover:bg-accent/90 active:scale-[0.98] transition-all hover:-translate-y-0.5 hover:shadow-md"
             >
               <span className="material-symbols-outlined text-[14px]">add</span>
               {addLabel}
@@ -106,7 +106,7 @@ export function RepeatableSection<T>({
                   <button
                     type="button"
                     onClick={() => removeRow(index)}
-                    className="inline-flex w-max items-center gap-1.5 text-[12px] font-semibold text-danger/70 hover:text-danger transition-colors mt-1"
+                    className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 -ml-1 text-[12px] font-semibold text-danger/70 transition-colors hover:bg-danger/5 hover:text-danger active:bg-danger/10 mt-1"
                   >
                     <span className="material-symbols-outlined text-[14px]">delete</span>
                     {removeLabel}

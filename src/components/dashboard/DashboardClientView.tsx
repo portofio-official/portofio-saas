@@ -310,7 +310,7 @@ export function DashboardClientView({
       {/* Delete Confirmation Modal */}
       {deleteCandidate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-md animate-fade-in-up-custom">
-          <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-floating ring-1 ring-black/5">
+          <div className="max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-2xl bg-surface p-6 shadow-floating ring-1 ring-black/5">
             <div className="mb-5 flex items-start gap-3.5">
               <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-danger/10 text-danger ring-1 ring-danger/20">
                 <span className="material-symbols-outlined text-[22px]">delete</span>

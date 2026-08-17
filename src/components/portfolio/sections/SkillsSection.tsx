@@ -46,7 +46,7 @@ export function SkillsSection({
                   type="button"
                   aria-label={removeLabel}
                   onClick={() => onChange(skills.filter((s) => s !== skill))}
-                  className="text-ink-soft hover:text-danger flex items-center justify-center rounded-full transition-colors ml-1"
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/[0.06] hover:text-danger active:bg-black/10 ml-0.5"
                 >
                   <span className="material-symbols-outlined text-[14px]">close</span>
                 </button>
@@ -76,7 +76,7 @@ export function SkillsSection({
           <button
             onClick={addSkill}
             disabled={!draft.trim()}
-            className="absolute right-1.5 top-1.5 bottom-1.5 aspect-square flex items-center justify-center bg-accent text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/90 transition-colors"
+            className="absolute right-1 top-1 bottom-1 flex w-9 items-center justify-center bg-accent text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/90 active:scale-95 transition-colors"
           >
             <span className="material-symbols-outlined text-[16px]">add</span>
           </button>

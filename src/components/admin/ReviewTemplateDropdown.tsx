@@ -80,7 +80,7 @@ export function ReviewTemplateDropdown({ submissionId }: Props) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isPending}
-        className="flex items-center gap-1.5 rounded-full bg-ink/[0.05] px-3 py-1.5 text-[12px] font-semibold text-ink ring-1 ring-black/5 transition-colors hover:bg-ink/[0.08] disabled:opacity-50"
+        className="flex items-center gap-1.5 rounded-full bg-ink/[0.05] px-3.5 py-2 text-[12px] font-semibold text-ink ring-1 ring-black/5 transition-colors hover:bg-ink/[0.08] disabled:opacity-50"
         aria-haspopup="menu"
         aria-expanded={isOpen}
       >

@@ -216,10 +216,24 @@
   .testimonialsTextSide {
     max-width: 100%;
   }
+  .testimonialsImageSide {
+    min-height: 260px;
+  }
+  .collageImageReal {
+    left: 0;
+    object-position: center bottom;
+  }
+  .testimonialsTextSide .sectionHeader {
+    margin-left: 0;
+    text-align: left;
+  }
 }
 
 @media (max-width: 768px) {
   .testimonialsSection {
     padding: 60px 0;
+  }
+  .testimonialsImageSide {
+    min-height: 200px;
   }
 }

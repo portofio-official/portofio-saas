@@ -236,7 +236,7 @@ export function AdminSidebar({ email }: { email: string }) {
             type="submit"
             title={t("logout")}
             aria-label={t("logout")}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-danger/10 hover:text-danger active:scale-95"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-danger/10 hover:text-danger active:scale-95"
           >
             <span className="material-symbols-outlined text-[17px]">logout</span>
           </button>
@@ -283,7 +283,7 @@ export function AdminSidebar({ email }: { email: string }) {
       onClick={toggleCollapsed}
       title={t("collapseSidebar")}
       aria-label={t("collapseSidebar")}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-ink/[0.06] hover:text-ink active:scale-95"
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-ink/[0.06] hover:text-ink active:scale-95"
     >
       <span className="material-symbols-outlined text-[18px]">left_panel_close</span>
     </button>
@@ -294,7 +294,7 @@ export function AdminSidebar({ email }: { email: string }) {
       type="button"
       onClick={closeMobile}
       aria-label={t("closeMenu")}
-      className="flex h-9 w-9 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink active:scale-95"
+      className="flex h-10 w-10 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink active:scale-95"
     >
       <span className="material-symbols-outlined text-[20px]">close</span>
     </button>
@@ -309,7 +309,7 @@ export function AdminSidebar({ email }: { email: string }) {
             type="button"
             onClick={() => setMobileOpen(true)}
             aria-label={t("openMenu")}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink/[0.05] text-ink hover:bg-ink/[0.08] active:scale-95 transition-all ring-1 ring-black/5"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink/[0.05] text-ink hover:bg-ink/[0.08] active:scale-95 transition-all ring-1 ring-black/5"
           >
             <span className="material-symbols-outlined text-[20px]">menu</span>
           </button>

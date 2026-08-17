@@ -43,7 +43,7 @@ export function TemplateIntegrationStatusButton({
       value={status}
       disabled={isPending}
       onChange={(event) => update(event.target.value as IntegrationStatus)}
-      className="rounded-lg bg-shell px-2 py-1.5 text-[11px] font-semibold text-ink-soft ring-1 ring-black/10 outline-none transition focus:ring-2 focus:ring-accent disabled:opacity-50"
+      className="rounded-lg bg-shell px-2.5 py-2 text-[11px] font-semibold text-ink-soft ring-1 ring-black/10 outline-none transition focus:ring-2 focus:ring-accent disabled:opacity-50"
       aria-label={t("integration.label")}
     >
       <option value="not_started">{t("integration.notStarted")}</option>

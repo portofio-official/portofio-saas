@@ -1,3 +1,17 @@
+# Session 089b: Mobile Layout Audit — Batch MEDIUM (nomor 13-41) Diperbaiki
+**Status:** Done + verified (tsc/lint/build clean, full e2e 31 passed / 3 skipped / 0 failed, 3 probe mobile pass)
+- **Lanjutan Session 089** (HIGH 1-12 sudah selesai + di-commit `1cdbf5c` + di-push `origin/frontend`). Batch MEDIUM 13-41 diperbaiki di commit terpisah setelah sesi 089b.
+- **Landing CSS (13-16):** Hero padding mobile 160→96px + container 120→16px, `left:80px` di-reset ke 0; Testimonials `margin-left:-120px`/`left:-100px` di-reset, tinggi kolom gambar 480→260/200px.
+- **Showcase/Gallery (17-21):** dots carousel 10px → tombol 32px (`::before`); header modal preview `min-w-0`/`truncate` + CTA `shrink-0`; frame tablet/mobile `w-full max-w-[768px]/[375px]` (hilangkan overflow horizontal).
+- **TemplateCard (22-23):** overlay quick actions `pointer-coarse:opacity-100` (terlihat di touch), tombol `h-9`→`h-11`.
+- **Navbar (24):** locale/login/dropdown item padding dinaikkan menuju 44px.
+- **Auth (25-27):** input 14px→16px (cegah iOS zoom), eye toggle 48px, country dropdown `max-w-[calc(100vw-2rem)]`.
+- **Dashboard (28-32):** kebab 28→40px, ContentLibrary aksi 24-28→32-36px, safe-area insets (top bar, drawer, sticky save bar), QuickPreviewModal `92vh`→`92dvh`, analytics grid `grid-cols-1 sm:grid-cols-3`, social row `flex-wrap` + URL `min-w-[160px]`.
+- **Editor (33-36):** toolbar muat 375px (gap/padding kecil), tap target drawer/close/refresh/quick-actions →36px, frame padding `min(64,max(12,10%))` (skala ~0.77 di phone), publish dialog `max-h-[90vh] overflow-y-auto`.
+- **Admin/Designer (37-41):** kontrol row admin + confirm + select + trigger dinaikkan; ikon hamburger/close 40px; header designer dashboard/submissions `flex-wrap`; profile remove 36px. Temuan 37 (tabel admin contained scroll) DIPERTAHANKAN sebagai pola standar tabel padat dengan alasan R-31.
+- **Verifikasi:** tsc clean, lint 0 warnings, build clean, playwright 31 passed / 3 skipped / 0 failed. Probe mobile (Pixel 5 touch) 3/3: landing no-overflow + heading testimoni utuh + hero <400px; /templates overlay terlihat + modal no horizontal scroll; showcase overlay di touch + header muat. Probe dihapus.
+- **Sisa:** LOW (42-59) menunggu keputusan pemilik. Audit artifact: `anti-slop/audit-001-2026-08-17.md`.
+
 # Session 089: Mobile Layout Audit (antislop-layoutmobile AFTER) — 12 Temuan HIGH Diperbaiki
 **Status:** Done + verified (tsc/lint/build clean, full e2e 31 passed / 3 skipped / 0 failed, 5 probe mobile pass)
 - **Audit artifact:** `anti-slop/audit-001-2026-08-17.md` — 59 temuan mobile layout (semua permukaan), modus AFTER. User memilih "high dulu": memperbaiki temuan 1-12.

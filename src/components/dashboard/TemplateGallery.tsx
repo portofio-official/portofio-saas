@@ -278,21 +278,21 @@ export function TemplateGallery({
         >
           {/* Header Bar */}
           <div
-            className="flex h-16 shrink-0 items-center justify-between border-b border-black/10 bg-surface px-6 shadow-sm"
+            className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-black/10 bg-surface px-3 sm:px-6 shadow-sm"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-4">
+            <div className="flex min-w-0 items-center gap-3">
               <button type="button"
                 onClick={() => setPreviewId(null)}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-canvas hover:text-ink"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-canvas hover:text-ink"
               >
                 <span className="material-symbols-outlined text-[22px]">close</span>
               </button>
-              <div>
-                <span className="font-display text-base font-bold text-ink">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="truncate font-display text-base font-bold text-ink">
                   {TEMPLATE_META.find((m) => m.id === previewId)?.name}
                 </span>
-                <span className="ml-2.5 rounded-full bg-black/[0.05] px-2.5 py-0.5 text-[11px] font-medium text-ink-soft">
+                <span className="shrink-0 rounded-full bg-black/[0.05] px-2.5 py-0.5 text-[11px] font-medium text-ink-soft">
                   {t("livePreview")}
                 </span>
               </div>
@@ -336,7 +336,7 @@ export function TemplateGallery({
               <button
                 type="button"
                 onClick={() => { handleUseTemplate(previewId); setPreviewId(null); }}
-                className="flex items-center gap-2 rounded-full bg-accent px-6 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-accent-deep active:scale-95"
+                className="flex shrink-0 items-center gap-2 rounded-full bg-accent px-4 sm:px-6 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-accent-deep active:scale-95"
               >
                 {t("useThisTemplate")}
                 <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
@@ -363,7 +363,7 @@ export function TemplateGallery({
             ) : viewportMode === "tablet" ? (
               /* Tablet Device Frame with internal screen scrolling */
               <div
-                className="preview-frame my-auto flex h-[820px] max-h-[84vh] w-[768px] flex-col overflow-hidden rounded-[2.5rem] border-[12px] border-gray-900 bg-white shadow-2xl ring-1 ring-black/20"
+                className="preview-frame my-auto flex h-[820px] max-h-[84vh] w-full max-w-[768px] flex-col overflow-hidden rounded-[2.5rem] border-[12px] border-gray-900 bg-white shadow-2xl ring-1 ring-black/20"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex h-5 shrink-0 items-center justify-center bg-gray-900">
@@ -376,7 +376,7 @@ export function TemplateGallery({
             ) : (
               /* Mobile Smartphone Frame with internal screen scrolling */
               <div
-                className="preview-frame my-auto flex h-[740px] max-h-[84vh] w-[375px] flex-col overflow-hidden rounded-[3rem] border-[14px] border-gray-900 bg-white shadow-2xl ring-1 ring-black/20"
+                className="preview-frame my-auto flex h-[740px] max-h-[84vh] w-full max-w-[375px] flex-col overflow-hidden rounded-[3rem] border-[14px] border-gray-900 bg-white shadow-2xl ring-1 ring-black/20"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex h-7 shrink-0 items-center justify-center bg-gray-900">

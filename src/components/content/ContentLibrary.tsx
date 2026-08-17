@@ -335,7 +335,7 @@ export function ContentLibrary({
                       type="button"
                       aria-label={item.isActive ? t("madeActive") : t("madeInactive")}
                       onClick={() => updateState(item, !item.isActive, item.sortOrder)}
-                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors ${
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
                         item.isActive ? "bg-accent-tint text-accent-deep" : "bg-shell text-ink-faint hover:text-ink-soft"
                       }`}
                     >
@@ -370,14 +370,14 @@ export function ContentLibrary({
                       {item.isActive ? t("active") : t("inactive")}
                     </span>
 
-                    <div className="flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-                      <button type="button" aria-label={t("moveUp")} onClick={() => move(item, -1)} className="flex h-7 w-7 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-shell hover:text-ink">
+                    <div className="flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+                      <button type="button" aria-label={t("moveUp")} onClick={() => move(item, -1)} className="flex h-9 w-9 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-shell hover:text-ink">
                         <span className="material-symbols-outlined text-[15px]">arrow_upward</span>
                       </button>
-                      <button type="button" aria-label={t("moveDown")} onClick={() => move(item, 1)} className="flex h-7 w-7 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-shell hover:text-ink">
+                      <button type="button" aria-label={t("moveDown")} onClick={() => move(item, 1)} className="flex h-9 w-9 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-shell hover:text-ink">
                         <span className="material-symbols-outlined text-[15px]">arrow_downward</span>
                       </button>
-                      <button type="button" aria-label={t("edit")} onClick={() => openEdit(item)} className="flex h-7 w-7 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-shell hover:text-ink">
+                      <button type="button" aria-label={t("edit")} onClick={() => openEdit(item)} className="flex h-9 w-9 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-shell hover:text-ink">
                         <span className="material-symbols-outlined text-[15px]">edit</span>
                       </button>
                       <button
@@ -385,7 +385,7 @@ export function ContentLibrary({
                         aria-label={t("delete")}
                         disabled={deletingId === item.id}
                         onClick={() => setDeleteCandidate(item)}
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-danger/10 hover:text-danger disabled:opacity-40"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-danger/10 hover:text-danger disabled:opacity-40"
                       >
                         <span className="material-symbols-outlined text-[15px]">delete</span>
                       </button>

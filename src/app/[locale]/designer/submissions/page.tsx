@@ -7,8 +7,8 @@ export default async function DesignerSubmissionsPage() {
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
-      <header className="flex items-start justify-between gap-4 border-b border-black/5 px-6 py-7 sm:px-10">
-        <div>
+      <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-4 border-b border-black/5 px-6 py-7 sm:px-10">
+        <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">{t("eyebrow")}</p>
           <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink">{t("submissionsTitle")}</h1>
         </div>

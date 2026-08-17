@@ -88,7 +88,7 @@ export function OnboardingClientView({
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder={settingsDict.fullNamePlaceholder}
-                    className="rounded-xl ring-1 ring-black/10 bg-surface px-4 py-2.5 text-[14px] text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
+                    className="rounded-xl ring-1 ring-black/10 bg-surface px-4 py-2.5 text-[16px] text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
                   />
                 </div>
                 <button

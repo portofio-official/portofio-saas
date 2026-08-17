@@ -437,7 +437,7 @@ export function DashboardSidebar({
   return (
     <>
       {/* Mobile: Integrated Top Bar (< md) */}
-      <div className="flex md:hidden items-center justify-between gap-3 px-3.5 py-2.5 border-b border-black/5 bg-surface shrink-0">
+      <div className="flex md:hidden items-center justify-between gap-3 px-3.5 pt-[calc(env(safe-area-inset-top)+0.625rem)] pb-2.5 border-b border-black/5 bg-surface shrink-0">
         <div className="flex items-center gap-2.5">
           <button
             type="button"
@@ -489,7 +489,7 @@ export function DashboardSidebar({
               aria-modal="true"
               aria-label={t("openMenu")}
             >
-              <div className="flex items-center justify-between gap-2 border-b border-black/5 px-4 py-4">
+              <div className="flex items-center justify-between gap-2 border-b border-black/5 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4">
                 <div className="flex items-center gap-2.5">{brand(true)}</div>
                 {closeButton}
               </div>

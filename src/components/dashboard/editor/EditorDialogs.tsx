@@ -120,7 +120,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
               <button
                 type="button"
                 onClick={onCloseVersionHistory}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink"
                 aria-label={t("closeVersionHistory")}
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
@@ -188,7 +188,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
                    Complete the following items before publishing your website. Select an item to jump to its editor section.
                 </p>
               </div>
-              <button type="button" onClick={onClosePublishModal} className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink">
+              <button type="button" onClick={onClosePublishModal} className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink">
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
             </div>
@@ -232,7 +232,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
                   Semua perubahan draft yang belum dipublikasikan akan diganti dengan versi yang saat ini live. Aksi ini tidak bisa dibatalkan.
                 </p>
               </div>
-              <button type="button" onClick={onCloseRevertDialog} className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink">
+              <button type="button" onClick={onCloseRevertDialog} className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink">
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
             </div>
@@ -270,7 +270,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
       {/* Publish Dialog (subdomain + gate) */}
       {showPublishDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-floating ring-1 ring-black/5">
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-floating ring-1 ring-black/5">
             <div className="mb-5 flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-bold text-ink">
@@ -283,7 +283,7 @@ export function EditorDialogs(props: EditorDialogsProps) {
               <button
                 type="button"
                 onClick={onClosePublishDialog}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-black/5 hover:text-ink"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>

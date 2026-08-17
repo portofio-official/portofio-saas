@@ -105,7 +105,7 @@ export function WorkspaceCard({
               e.stopPropagation();
               toggleMenu();
             }}
-            className="grid h-7 w-7 place-items-center rounded-lg bg-white/90 text-ink-soft shadow-xs ring-1 ring-black/10 backdrop-blur-sm transition-all duration-150 hover:bg-white hover:text-ink opacity-100 md:opacity-0 md:group-hover:opacity-100"
+            className="grid h-10 w-10 place-items-center rounded-lg bg-white/90 text-ink-soft shadow-xs ring-1 ring-black/10 backdrop-blur-sm transition-all duration-150 hover:bg-white hover:text-ink opacity-100 md:opacity-0 md:group-hover:opacity-100"
             title={t("moreActions")}
             aria-label={t("moreActions")}
             aria-haspopup="menu"

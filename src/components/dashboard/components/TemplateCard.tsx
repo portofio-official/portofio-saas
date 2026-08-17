@@ -38,7 +38,7 @@ export function TemplateCard({ meta, index, previewData, isInUse = false, onPrev
         {/* Hover quick actions */}
         <div
           className={`absolute inset-0 z-10 flex items-center justify-center gap-2.5 bg-ink/20 backdrop-blur-[2px] transition-opacity duration-200 ${
-            isHovered ? "opacity-100" : "opacity-0"
+            isHovered ? "opacity-100" : "opacity-0 pointer-coarse:opacity-100"
           }`}
         >
           <button
@@ -47,7 +47,7 @@ export function TemplateCard({ meta, index, previewData, isInUse = false, onPrev
               e.stopPropagation();
               onPreview(meta.id);
             }}
-            className="flex h-9 items-center gap-1.5 rounded-full bg-white/90 px-3.5 text-[12px] font-semibold text-ink shadow-xs ring-1 ring-black/10 transition-all duration-150 hover:bg-white hover:text-accent-deep"
+            className="flex h-11 items-center gap-1.5 rounded-full bg-white/90 px-3.5 text-[12px] font-semibold text-ink shadow-xs ring-1 ring-black/10 transition-all duration-150 hover:bg-white hover:text-accent-deep active:scale-[0.98]"
             title={t("previewLive")}
           >
             <span className="material-symbols-outlined text-[15px]">visibility</span>
@@ -59,7 +59,7 @@ export function TemplateCard({ meta, index, previewData, isInUse = false, onPrev
               e.stopPropagation();
               onUse(meta.id);
             }}
-            className="flex h-9 items-center gap-1.5 rounded-full bg-accent px-3.5 text-[12px] font-bold text-white transition-all duration-150 hover:bg-accent-deep active:scale-[0.98]"
+            className="flex h-11 items-center gap-1.5 rounded-full bg-accent px-3.5 text-[12px] font-bold text-white transition-all duration-150 hover:bg-accent-deep active:scale-[0.98]"
           >
             <span className="material-symbols-outlined text-[15px]">add</span>
             {t("useTemplate")}

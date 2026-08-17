@@ -48,7 +48,7 @@ export function QuickPreviewModal({ workspace, onClose }: QuickPreviewModalProps
       onClick={onClose}
     >
       <div
-        className="relative flex h-[92vh] sm:h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-surface ring-1 ring-black/10 shadow-floating"
+        className="relative flex h-[92dvh] sm:h-[90dvh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-surface ring-1 ring-black/10 shadow-floating"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}

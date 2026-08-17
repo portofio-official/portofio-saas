@@ -308,7 +308,7 @@ export function AnalyticsClientView({
                   </div>
                 </div>
 
-                <div className="mb-5 grid grid-cols-3 gap-3.5">
+                <div className="mb-5 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
                   <div className="rounded-xl bg-shell/70 p-4 ring-1 ring-black/5">
                     <p className="font-display text-[24px] font-bold leading-none tabular-nums text-accent-deep">
                       {summary.sectionEngagement.avgSections.toLocaleString(locale)}

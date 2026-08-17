@@ -158,9 +158,13 @@
 }
 
 @media (max-width: 1024px) {
+  .hero {
+    padding-top: 96px;
+    padding-bottom: 48px;
+  }
   .heroContainer {
     flex-direction: column;
-    padding-top: 120px;
+    padding-top: 16px;
   }
   .heroContent {
     max-width: 100%;
@@ -169,11 +173,21 @@
   .heroActions {
     align-items: center;
   }
+  .heroVisual {
+    height: 380px;
+  }
   .tiltedGridContainer {
     -webkit-mask-image: none;
     mask-image: none;
+    left: 0;
     right: 0;
     width: 100%;
     top: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .heroVisual {
+    height: 320px;
   }
 }

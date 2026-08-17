@@ -124,7 +124,9 @@ export function Editor({
 
   // Calculate fit scales
   const isDesktopOrLaptop = ["desktop", "laptop"].includes(previewDevice);
-  const padding = isDesktopOrLaptop ? 0 : 64;
+  // Scale the frame padding down on narrow canvases (mobile) so the device
+  // preview isn't squashed to ~63% on a phone.
+  const padding = isDesktopOrLaptop ? 0 : Math.min(64, Math.max(12, containerSize.width * 0.1));
   const availableW = Math.max(containerSize.width - padding * 2, 100);
   const scaleFitWidth = availableW / device.width;
 

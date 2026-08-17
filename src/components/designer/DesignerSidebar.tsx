@@ -82,7 +82,7 @@ export function DesignerSidebar({ email }: { email: string }) {
         <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-ink-soft">{email}</span>
       </div>
       <form action={signOutAction}>
-        <button type="submit" title={t("logout")} aria-label={t("logout")} className="flex h-9 w-9 items-center justify-center rounded-[10px] text-ink-faint transition-colors hover:bg-danger/10 hover:text-danger active:scale-95">
+        <button type="submit" title={t("logout")} aria-label={t("logout")} className="flex h-10 w-10 items-center justify-center rounded-[10px] text-ink-faint transition-colors hover:bg-danger/10 hover:text-danger active:scale-95">
           <span className="material-symbols-outlined text-[18px]">logout</span>
         </button>
       </form>
@@ -92,13 +92,13 @@ export function DesignerSidebar({ email }: { email: string }) {
   return (
     <>
       {/* Mobile: Integrated Top Bar (< md) */}
-      <div className="flex md:hidden shrink-0 items-center justify-between gap-3 border-b border-black/5 bg-surface px-3.5 py-2.5">
+      <div className="flex md:hidden shrink-0 items-center justify-between gap-3 border-b border-black/5 bg-surface px-3.5 pt-[calc(env(safe-area-inset-top)+0.625rem)] pb-2.5">
         <div className="flex min-w-0 items-center gap-2.5">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
             aria-label={t("openMenu")}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink/[0.05] text-ink ring-1 ring-black/5 transition-all hover:bg-ink/[0.08] active:scale-95"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink/[0.05] text-ink ring-1 ring-black/5 transition-all hover:bg-ink/[0.08] active:scale-95"
           >
             <span className="material-symbols-outlined text-[20px]">menu</span>
           </button>
@@ -134,14 +134,14 @@ export function DesignerSidebar({ email }: { email: string }) {
               aria-modal="true"
               aria-label={t("portal")}
             >
-              <div className="flex items-center justify-between gap-2 border-b border-black/5 px-4 py-4">
+              <div className="flex items-center justify-between gap-2 border-b border-black/5 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4">
                 {brand}
                 <button
                   type="button"
                   onClick={closeMobile}
                   data-designer-drawer-close
                   aria-label={t("closeMenu")}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink active:scale-95"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink active:scale-95"
                 >
                   <span className="material-symbols-outlined text-[20px]">close</span>
                 </button>

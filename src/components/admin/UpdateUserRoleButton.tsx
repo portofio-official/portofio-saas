@@ -41,7 +41,7 @@ export function UpdateUserRoleButton({
         disabled={isPending}
         onChange={(event) => change(event.target.value as AppRole)}
         aria-label={t("role.label")}
-        className="rounded-lg bg-shell px-2.5 py-1.5 text-[12px] font-semibold capitalize text-ink-soft ring-1 ring-black/10 outline-none transition focus:ring-2 focus:ring-accent disabled:opacity-50"
+        className="rounded-lg bg-shell px-3 py-2 text-[12px] font-semibold capitalize text-ink-soft ring-1 ring-black/10 outline-none transition focus:ring-2 focus:ring-accent disabled:opacity-50"
       >
         <option value="user">{t("role.user")}</option>
         <option value="designer">{t("role.designer")}</option>

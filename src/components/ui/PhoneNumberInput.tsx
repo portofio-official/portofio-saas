@@ -159,7 +159,7 @@ export function PhoneNumberInput({
         </button>
 
         {open && (
-          <div className="absolute left-0 top-full z-30 mt-2 flex max-h-80 w-72 flex-col overflow-hidden rounded-xl bg-surface shadow-floating ring-1 ring-black/10">
+          <div className="absolute left-0 top-full z-30 mt-2 flex max-h-80 w-72 max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl bg-surface shadow-floating ring-1 ring-black/10">
             <div className="flex items-center gap-2 border-b border-black/5 px-3 py-2.5">
               <span className="material-symbols-outlined text-[16px] text-ink-faint">
                 search
@@ -215,7 +215,7 @@ export function PhoneNumberInput({
         value={field}
         onChange={(e) => handleFieldChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full min-w-0 flex-1 rounded-lg bg-surface px-4 py-3 text-[14px] text-ink placeholder:text-ink-faint ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-accent transition-shadow disabled:opacity-50"
+        className="w-full min-w-0 flex-1 rounded-lg bg-surface px-4 py-3 text-[16px] text-ink placeholder:text-ink-faint ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-accent transition-shadow disabled:opacity-50"
       />
     </div>
   );

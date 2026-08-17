@@ -73,7 +73,7 @@ export function EditorLeftPanel(props: EditorLeftPanelProps) {
           <button
             type="button"
             onClick={() => setMobileLeftOpen(false)}
-            className="lg:hidden ml-auto mb-2.5 -mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-soft hover:bg-black/5 hover:text-ink transition-colors"
+            className="lg:hidden ml-auto mb-2.5 -mr-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-soft hover:bg-black/5 hover:text-ink transition-colors"
             aria-label={t("closePanel")}
           >
             <span className="material-symbols-outlined text-[18px]">close</span>

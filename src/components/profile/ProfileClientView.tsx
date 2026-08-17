@@ -114,7 +114,7 @@ function GroupTitle({
 }
 
 const removeBtnCls =
-  "grid h-8 w-8 shrink-0 place-items-center rounded-lg text-ink-faint transition-colors hover:bg-danger/10 hover:text-danger active:scale-95";
+  "grid h-9 w-9 shrink-0 place-items-center rounded-lg text-ink-faint transition-colors hover:bg-danger/10 hover:text-danger active:scale-95";
 
 export function ProfileClientView({ profile, locale = "en", dict }: {
   profile: UserProfile | null;
@@ -280,7 +280,7 @@ export function ProfileClientView({ profile, locale = "en", dict }: {
                   {socials.map((s, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center gap-2.5 rounded-xl bg-shell px-3 py-2 ring-1 ring-black/5"
+                      className="flex flex-wrap items-center gap-2.5 rounded-xl bg-shell px-3 py-2 ring-1 ring-black/5"
                     >
                       <PlatformMark id={s.platform} size="md" />
                       <input
@@ -299,7 +299,7 @@ export function ProfileClientView({ profile, locale = "en", dict }: {
                         value={s.url}
                         onChange={(e) => updateSocial(idx, "url", e.target.value)}
                         disabled={isPending}
-                        className="h-8 flex-1 min-w-0 rounded-lg bg-transparent px-2.5 text-[13px] text-ink ring-1 ring-black/5 placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent transition-shadow disabled:opacity-50"
+                        className="h-8 flex-1 min-w-[160px] rounded-lg bg-transparent px-2.5 text-[13px] text-ink ring-1 ring-black/5 placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent transition-shadow disabled:opacity-50"
                       />
                       <button
                         type="button"
@@ -357,7 +357,7 @@ export function ProfileClientView({ profile, locale = "en", dict }: {
             </section>
 
             {/* Sticky save bar */}
-            <div className="sticky bottom-0 z-10 -mx-6 flex items-center gap-4 rounded-b-2xl border-t border-black/5 bg-surface/95 px-6 py-4 backdrop-blur-sm sm:-mx-8 sm:px-8">
+            <div className="sticky bottom-0 z-10 -mx-6 flex items-center gap-4 rounded-b-2xl border-t border-black/5 bg-surface/95 px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] backdrop-blur-sm sm:-mx-8 sm:px-8">
               <button
                 type="submit"
                 disabled={isPending || !formData.full_name.trim()}

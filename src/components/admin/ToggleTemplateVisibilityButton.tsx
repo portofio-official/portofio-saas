@@ -22,10 +22,10 @@ export function ToggleTemplateVisibilityButton({
         });
       }}
       disabled={isPending}
-      className={`flex items-center justify-center rounded-full p-2 transition-colors disabled:opacity-50 ${
+      className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors disabled:opacity-50 ${
         isActive
-          ? "text-positive hover:bg-positive/10"
-          : "text-ink-faint hover:bg-ink/[0.05]"
+          ? "text-positive hover:bg-positive/10 active:bg-positive/10"
+          : "text-ink-faint hover:bg-ink/[0.05] active:bg-ink/[0.08]"
       }`}
       aria-label={isActive ? t("visibility.hide") : t("visibility.show")}
       title={isActive ? t("visibility.hide") : t("visibility.show")}

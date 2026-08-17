@@ -84,13 +84,13 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
   return (
     <main className="relative flex flex-1 flex-col overflow-hidden bg-shell items-center" ref={containerRef}>
       {/* Device Toolbar */}
-      <div className="flex w-full justify-between items-center px-3 sm:px-8 py-4 shrink-0 bg-white/50 backdrop-blur border-b border-black/5 z-10">
+      <div className="flex w-full justify-between items-center px-2 sm:px-8 py-3 sm:py-4 shrink-0 bg-white/50 backdrop-blur border-b border-black/5 z-10">
         {/* Mobile Drawer Toggles */}
-        <div className="flex items-center gap-2 lg:hidden">
+        <div className="flex items-center gap-1.5 sm:gap-2 lg:hidden">
           <button
             type="button"
             onClick={() => setMobileLeftOpen(true)}
-            className="w-8 h-8 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all"
+            className="w-9 h-9 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all active:scale-95"
             aria-label={t("openContentPanel")}
           >
             <span className="material-symbols-outlined text-[17px]">edit_note</span>
@@ -98,7 +98,7 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
           <button
             type="button"
             onClick={() => setMobileRightOpen(true)}
-            className="w-8 h-8 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all"
+            className="w-9 h-9 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all active:scale-95"
             aria-label={t("openDesignPanel")}
           >
             <span className="material-symbols-outlined text-[17px]">tune</span>
@@ -113,7 +113,7 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
               onClick={() => setPreviewDevice(d)}
               className={`${
                 d === "desktop" || d === "laptop" ? "hidden sm:flex" : ""
-              } px-3 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all ${
+              } px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all ${
                 previewDevice === d
                   ? "bg-white text-ink shadow-sm ring-1 ring-black/5"
                   : "text-ink-soft hover:text-ink hover:bg-black/5"
@@ -124,22 +124,22 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <div className="bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center overflow-hidden focus-within:ring-2 focus-within:ring-accent">
             <select
               value={previewZoom}
               onChange={(e) => setPreviewZoom(e.target.value as PreviewZoom)}
-              className="text-[11px] font-bold text-ink bg-transparent px-3 py-1.5 outline-none cursor-pointer appearance-none"
+              className="text-[11px] font-bold text-ink bg-transparent px-2 sm:px-3 py-1.5 outline-none cursor-pointer appearance-none"
             >
               <option value="fit-screen">{t("fitScreen")}</option>
               <option value="50">50%</option>
               <option value="100">100%</option>
             </select>
-            <div className="pr-3 pointer-events-none text-ink-soft flex items-center">
+            <div className="pr-2 sm:pr-3 pointer-events-none text-ink-soft flex items-center">
               <span className="material-symbols-outlined text-[14px]">expand_more</span>
             </div>
           </div>
-          <button onClick={() => window.location.reload()} className="w-8 h-8 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all">
+          <button onClick={() => window.location.reload()} className="w-9 h-9 bg-white rounded-full shadow-sm ring-1 ring-black/5 flex items-center justify-center text-ink-soft hover:text-ink transition-all active:scale-95">
             <span className="material-symbols-outlined text-[16px]">refresh</span>
           </button>
         </div>
@@ -231,7 +231,7 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
                 >
                   <button
                     onClick={() => setExpandedSection(hoveredActionCard.sectionType)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+                    className="w-9 h-9 flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/20 active:bg-white/20 transition-colors"
                   >
                     <span className="material-symbols-outlined text-[16px]">edit</span>
                   </button>
@@ -248,7 +248,7 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
                         setData({ ...data, [arrName]: newArr });
                       }
                     }}
-                    className="w-8 h-8 flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+                    className="w-9 h-9 flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/20 active:bg-white/20 transition-colors"
                   >
                     <span className="material-symbols-outlined text-[16px]">arrow_upward</span>
                   </button>
@@ -265,7 +265,7 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
                         setData({ ...data, [arrName]: newArr });
                       }
                     }}
-                    className="w-8 h-8 flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+                    className="w-9 h-9 flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/20 active:bg-white/20 transition-colors"
                   >
                     <span className="material-symbols-outlined text-[16px]">arrow_downward</span>
                   </button>
@@ -280,7 +280,7 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
                         setHoveredActionCard(null);
                       }
                     }}
-                    className="w-8 h-8 flex items-center justify-center rounded-full text-danger/80 hover:text-danger hover:bg-danger/20 transition-colors"
+                    className="w-9 h-9 flex items-center justify-center rounded-full text-danger/80 hover:text-danger hover:bg-danger/20 active:bg-danger/20 transition-colors"
                   >
                     <span className="material-symbols-outlined text-[16px]">delete</span>
                   </button>

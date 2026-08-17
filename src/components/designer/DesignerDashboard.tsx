@@ -19,8 +19,8 @@ export function DesignerDashboard({ submissions }: { submissions: TemplateSubmis
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
-      <header className="flex shrink-0 items-start justify-between gap-4 border-b border-black/5 px-6 py-7 sm:px-10">
-        <div>
+      <header className="flex shrink-0 flex-wrap items-start justify-between gap-x-4 gap-y-4 border-b border-black/5 px-6 py-7 sm:px-10">
+        <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">{t("eyebrow")}</p>
           <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink">{t("title")}</h1>
           <p className="mt-1 max-w-xl text-sm text-ink-soft">{t("subtitle")}</p>

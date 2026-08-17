@@ -36,7 +36,7 @@ export function PricingPlans({ userEmail }: { userEmail: string | null }) {
   const [isAnnual, setIsAnnual] = useState(false);
 
   return (
-    <section className={styles.pricingSection} id="pricing">
+    <section className={styles.pricingSection} id="pricing" data-landing-section>
       <div className={`${shared.container} ${shared.revealOnScroll}`}>
         <div className={styles.pricingHeader}>
           <h2>

@@ -103,8 +103,8 @@ export function SubmissionForm({ submission }: Props) {
 
   return (
     <form onSubmit={handleSave} className="flex h-full flex-col overflow-hidden">
-      <header className="flex shrink-0 items-start justify-between gap-4 border-b border-black/5 px-6 py-6 sm:px-10">
-        <div>
+      <header className="flex shrink-0 flex-wrap items-start justify-between gap-x-4 gap-y-4 border-b border-black/5 px-6 py-6 sm:px-10">
+        <div className="min-w-0">
           <Link href="/designer/submissions" className="mb-3 inline-flex items-center gap-1 text-xs font-semibold text-ink-soft hover:text-ink"><span className="material-symbols-outlined text-[16px]">arrow_back</span>{t("backToSubmissions")}</Link>
           <h1 className="font-display text-2xl font-bold tracking-tight text-ink">{submission ? t("editSubmission") : t("newSubmission")}</h1>
           {submission && <p className="mt-1 text-sm text-ink-soft">{t(`statuses.${submission.status}`)}</p>}

@@ -4,13 +4,24 @@ import { useEffect, useState } from "react";
 
 export const LANDING_SECTION_IDS = ["home", "templates", "pricing", "testimonials", "faq"];
 
+// Landing sections are tagged with data-landing-section. Template preview
+// thumbnails are rendered inline in the same document (each in its own <main>)
+// and reuse section ids like `pricing`, so a global getElementById() can
+// resolve to the wrong element and break the spy.
+function getLandingSection(id: string): HTMLElement | null {
+  const sections = Array.from(
+    document.querySelectorAll<HTMLElement>("main > section[data-landing-section]"),
+  );
+  return sections.find((s) => s.id === id) ?? document.getElementById(id);
+}
+
 export function useScrollSpy(ids: string[], offset = 250) {
   const [active, setActive] = useState(ids[0] ?? "");
 
   useEffect(() => {
     if (ids.length === 0) return;
 
-    const handleScroll = () => {
+    const compute = () => {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
@@ -21,9 +32,11 @@ export function useScrollSpy(ids: string[], offset = 250) {
         current = ids[ids.length - 1];
       } else {
         for (const id of ids) {
-          const el = document.getElementById(id);
+          const el = getLandingSection(id);
           if (!el) continue;
-          const sectionTop = el.offsetTop;
+          // getBoundingClientRect().top + scrollY = document-absolute section top,
+          // robust to nested positioned/transformed ancestors that offsetTop misses.
+          const sectionTop = el.getBoundingClientRect().top + scrollY;
           if (scrollY >= sectionTop - offset) {
             current = id;
           }
@@ -33,11 +46,13 @@ export function useScrollSpy(ids: string[], offset = 250) {
       setActive(current);
     };
 
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    compute();
+    window.addEventListener("scroll", compute, { passive: true });
+    window.addEventListener("resize", compute);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", compute);
+      window.removeEventListener("resize", compute);
     };
   }, [ids, offset]);
 

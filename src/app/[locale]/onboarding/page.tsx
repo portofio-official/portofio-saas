@@ -24,7 +24,7 @@ export default async function OnboardingPage({
     listWorkspaces(), 
     getUserProfile(),
     getTranslations("Onboarding"),
-    getTranslations("Settings")
+    getTranslations("Profile")
   ]);
 
   if (workspaces.length > 0) {

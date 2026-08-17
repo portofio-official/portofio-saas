@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { getAdminAuditLogsAction } from "@/lib/admin";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 
 function formatMetadata(metadata: Record<string, unknown>): string {
   const entries = Object.entries(metadata).filter(([key]) => key !== "outcome");
@@ -26,15 +27,14 @@ export default async function AdminAuditLogPage({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <header className="sticky top-0 z-50 flex h-20 shrink-0 items-center border-b border-black/5 bg-surface/80 px-8 backdrop-blur-md">
-        <div>
-          <h1 className="font-display text-[24px] font-bold tracking-tight text-ink">{t("audit.title")}</h1>
-          <p className="text-[14px] text-ink-soft">{t("audit.subtitle")}</p>
-        </div>
-      </header>
+      <AdminHeader
+        eyebrow={t("eyebrow")}
+        title={t("audit.title")}
+        subtitle={t("audit.subtitle")}
+      />
 
-      <div className="flex-1 overflow-y-auto p-8">
-        <div className="overflow-x-auto rounded-[1.6rem] bg-white p-6 shadow-sm ring-1 ring-black/5">
+      <div className="flex-1 overflow-y-auto p-6 sm:p-8">
+        <div className="overflow-x-auto rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
           <table className="w-full min-w-[860px] text-left text-[13px]">
             <thead>
               <tr className="border-b border-black/5 text-ink-faint">

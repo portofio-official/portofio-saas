@@ -131,6 +131,12 @@
   opacity: 1;
 }
 
+@media (hover: none) {
+  .coverflowCard.active .cardOverlay {
+    opacity: 1;
+  }
+}
+
 .cardFooter {
   padding: 14px 12px 10px;
   display: flex;

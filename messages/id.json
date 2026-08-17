@@ -37,7 +37,8 @@
       "myWorkspace": "My Workspace",
       "adminDashboard": "Dashboard Admin",
       "designerDashboard": "Dashboard Designer",
-      "logout": "Keluar"
+      "logout": "Keluar",
+      "menu": "Menu"
     },
     "Hero": {
       "titleLine1": "Portofolio yang",
@@ -719,6 +720,8 @@
     "overview": "Ringkasan",
     "submissions": "Submission Saya",
     "logout": "Keluar",
+    "openMenu": "Buka menu",
+    "closeMenu": "Tutup menu",
     "eyebrow": "Template Studio",
     "title": "Bangun template untuk komunitas",
     "subtitle": "Kirim karya template kamu untuk direview dan berpotensi tampil di gallery Portofio.",
@@ -799,12 +802,21 @@
   },
   "Admin": {
     "portalLabel": "Admin Portal",
+    "portalTagline": "Moderasi platform",
+    "eyebrow": "Admin",
     "navLabel": "Navigasi",
     "navUsers": "Pengguna",
     "navTemplates": "Template",
     "navBlocklist": "Blocklist",
     "navAuditLog": "Audit Log",
     "logout": "Keluar",
+    "profileLabel": "Profil",
+    "adminDashboard": "Dashboard Admin",
+    "collapseSidebar": "Ciutkan sidebar",
+    "expandSidebar": "Perluas sidebar",
+    "openMenu": "Buka menu",
+    "closeMenu": "Tutup menu",
+    "comingSoon": "Segera",
     "users": {
       "title": "Pengguna",
       "subtitle": "Kelola pengguna dan moderasi platform",
@@ -823,13 +835,50 @@
       "reactivate": "Aktifkan Kembali",
       "loading": "Memuat...",
       "yes": "Ya",
-      "cancel": "Batal"
+      "cancel": "Batal",
+      "error": "Terjadi kesalahan"
     },
     "blocklist": {
-      "title": "Subdomain Blocklist"
+      "title": "Subdomain Blocklist",
+      "subtitle": "Kelola daftar subdomain yang dicadangkan dan tidak boleh diklaim pengguna",
+      "addTitle": "Tambah subdomain cadangan",
+      "addSubtitle": "Subdomain dalam daftar ini tidak dapat diklaim pengguna saat menerbitkan website.",
+      "addPlaceholder": "mis. billing, status, static",
+      "addButton": "Tambah Kata",
+      "adding": "Menambahkan...",
+      "listTitle": "Subdomain Diblokir",
+      "searchPlaceholder": "Cari blocklist...",
+      "emptySearch": "Tidak ada subdomain yang cocok dengan \"{search}\".",
+      "addedToast": "'{slug}' ditambahkan ke blocklist.",
+      "removedToast": "'{slug}' dihapus dari blocklist.",
+      "addFailed": "Gagal menambah kata.",
+      "removeFailed": "Gagal menghapus kata.",
+      "remove": "Hapus"
     },
     "templates": {
-      "title": "Template"
+      "title": "Template",
+      "subtitle": "Kelola visibilitas template bawaan dan tinjau kiriman desainer",
+      "activeTitle": "Template Bawaan Aktif",
+      "activeSubtitle": "Atur template bawaan mana yang tampil di galeri pengguna.",
+      "colName": "Nama Template",
+      "colRegistry": "ID Registry",
+      "colStatus": "Status",
+      "colVisibility": "Visibilitas",
+      "statusVisible": "Tampil",
+      "statusHidden": "Sembunyi",
+      "emptyActive": "Tidak ada template bawaan ditemukan. Jalankan migrasi database.",
+      "submissionsTitle": "Kiriman Komunitas",
+      "submissionsSubtitle": "Tinjau template yang dikirim desainer sebelum integrasi kode.",
+      "colDesigner": "Desainer",
+      "colPreview": "Pratinjau / sumber",
+      "colSubmitted": "Tanggal Dikirim",
+      "colIntegration": "Integrasi",
+      "colAction": "Aksi",
+      "desktopPreview": "Pratinjau desktop",
+      "mobilePreview": "Pratinjau mobile",
+      "unknownDesigner": "Tidak Dikenal",
+      "statusDraft": "Draf",
+      "emptySubmissions": "Tidak ada kiriman ditemukan."
     },
     "audit": {
       "title": "Audit Log",
@@ -840,6 +889,45 @@
       "details": "Detail",
       "actor": "Admin",
       "empty": "Belum ada aktivitas administratif."
+    },
+    "role": {
+      "label": "Peran pengguna",
+      "user": "User",
+      "designer": "Designer",
+      "admin": "Admin",
+      "updateFailed": "Pembaruan peran gagal"
+    },
+    "source": {
+      "downloading": "Menyiapkan...",
+      "download": "Unduh sumber",
+      "noSource": "Tanpa sumber",
+      "failed": "Unduh gagal"
+    },
+    "integration": {
+      "label": "Status integrasi template",
+      "mergedHint": "Masukkan ID registry setelah template di-merge:",
+      "notStarted": "Belum mulai",
+      "inReview": "Dalam review",
+      "merged": "Digabung",
+      "failed": "Gagal"
+    },
+    "visibility": {
+      "hide": "Sembunyikan template",
+      "show": "Tampilkan template"
+    },
+    "review": {
+      "trigger": "Review",
+      "updating": "Memperbarui...",
+      "approve": "Setujui",
+      "registrationHint": "ID registry setelah integrasi kode (opsional):",
+      "approvalHint": "(Opsional) Catatan persetujuan untuk desainer:",
+      "rejectionHint": "Masukkan alasan penolakan (wajib):",
+      "rejectionRequired": "Alasan penolakan wajib diisi.",
+      "revisionHint": "Masukkan instruksi revisi (wajib):",
+      "revisionRequired": "Instruksi revisi wajib diisi.",
+      "revision": "Minta Revisi",
+      "reject": "Tolak",
+      "errorGeneric": "Terjadi kesalahan"
     }
   },
   "ContentLibrary": {

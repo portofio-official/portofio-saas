@@ -318,26 +318,61 @@ export function Editor({
     setIsPanning(false);
   };
 
-  const handlePreviewMouseMove = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const itemEl = target.closest("[data-section-type][data-item-index]") as HTMLElement;
+  const touchPanRef = useRef<{ id: number; lastX: number; lastY: number } | null>(null);
 
-    if (itemEl && previewScrollRef.current) {
-      const rect = itemEl.getBoundingClientRect();
-      const containerRect = previewScrollRef.current.getBoundingClientRect();
+  // Touch panning for the workspace. Vertical drags over the device frame scroll
+  // the preview instead of panning (below-fold content stays reachable); horizontal
+  // drags always pan the workspace because the frame never scrolls horizontally.
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    touchPanRef.current = { id: touch.identifier, lastX: touch.clientX, lastY: touch.clientY };
+  };
 
-      setHoveredActionCard({
-        sectionType: itemEl.getAttribute("data-section-type")!,
-        index: parseInt(itemEl.getAttribute("data-item-index")!, 10),
-        rect: {
-          ...rect,
-          top: (rect.top - containerRect.top) / scale,
-          left: (rect.left - containerRect.left) / scale,
-          width: rect.width / scale,
-          height: rect.height / scale,
-        } as DOMRect,
-      });
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const t = touchPanRef.current;
+    if (!t) return;
+    const touch = Array.from(e.touches).find((x) => x.identifier === t.id);
+    if (!touch) return;
+    const dx = touch.clientX - t.lastX;
+    const dy = touch.clientY - t.lastY;
+    t.lastX = touch.clientX;
+    t.lastY = touch.clientY;
+    if (dx === 0 && dy === 0) return;
+
+    const overFrame = previewScrollRef.current?.contains(e.target as Node);
+    if (overFrame && previewScrollRef.current) {
+      previewScrollRef.current.scrollTop -= dy / scale;
+      setPan((p) => ({ x: p.x + dx, y: p.y }));
+    } else {
+      setPan((p) => ({ x: p.x + dx, y: p.y + dy }));
     }
+  };
+
+  const handleTouchEnd = () => {
+    touchPanRef.current = null;
+  };
+
+  const setHoveredFromItem = (itemEl: HTMLElement) => {
+    if (!previewScrollRef.current) return;
+    const rect = itemEl.getBoundingClientRect();
+    const containerRect = previewScrollRef.current.getBoundingClientRect();
+    setHoveredActionCard({
+      sectionType: itemEl.getAttribute("data-section-type")!,
+      index: parseInt(itemEl.getAttribute("data-item-index")!, 10),
+      rect: {
+        ...rect,
+        top: (rect.top - containerRect.top) / scale,
+        left: (rect.left - containerRect.left) / scale,
+        width: rect.width / scale,
+        height: rect.height / scale,
+      } as DOMRect,
+    });
+  };
+
+  const handlePreviewMouseMove = (e: React.MouseEvent) => {
+    const itemEl = (e.target as HTMLElement).closest("[data-section-type][data-item-index]") as HTMLElement;
+    if (itemEl) setHoveredFromItem(itemEl);
   };
 
   const handlePreviewMouseLeave = () => {
@@ -349,6 +384,12 @@ export function Editor({
 
     if (target.closest("a") || target.closest("button")) {
       return;
+    }
+
+    // Touch equivalent of hover: tapping a section item reveals its quick-action toolbar.
+    const itemEl = target.closest("[data-section-type][data-item-index]") as HTMLElement;
+    if (itemEl) {
+      setHoveredFromItem(itemEl);
     }
 
     const sectionElement = target.closest("section, header, footer, [data-section-key]");
@@ -377,6 +418,9 @@ export function Editor({
           }, 100);
         }
       }
+    } else {
+      // Tapping empty preview area dismisses the quick-action toolbar.
+      setHoveredActionCard(null);
     }
   };
 
@@ -596,37 +640,37 @@ export function Editor({
       {/* Main Right Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Top Header */}
-        <header className="gsap-header relative z-10 flex h-14 shrink-0 items-center justify-between border-b border-black/5 bg-surface px-3 sm:px-6 shadow-sm">
+        <header className="gsap-header relative z-10 flex h-14 shrink-0 items-center justify-between gap-2 border-b border-black/5 bg-surface px-2 sm:px-6 shadow-sm">
           <a
             href={`/${locale}/dashboard`}
-            className="flex items-center gap-2 w-1/3 text-ink-soft hover:text-ink transition-colors cursor-pointer"
+            className="flex min-w-0 items-center gap-2 text-ink-soft hover:text-ink transition-colors cursor-pointer"
             aria-label={tEditor("backToDashboard")}
           >
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             <span className="text-[13px] font-medium hidden sm:inline">{tEditor("backToDashboard")}</span>
           </a>
 
-          <div className="flex items-center justify-center w-1/3">
+          <div className="flex items-center justify-center sm:flex-1">
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px] text-positive">check</span>
               <span className="text-[12px] font-medium text-positive">{customSaveStatus}</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 w-1/3">
+          <div className="flex min-w-0 items-center justify-end gap-1.5 sm:gap-3">
             {/* Explicit draft/live state so users know what is currently public. */}
             {publishStatus === "published" && subdomain ? (
               <a
                 href={`http://${siteUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-full bg-positive/10 px-3 py-1 text-[11px] font-bold text-positive hover:bg-positive/20 transition-colors"
+                className="hidden lg:flex items-center gap-1.5 rounded-full bg-positive/10 px-3 py-1 text-[11px] font-bold text-positive hover:bg-positive/20 transition-colors"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-positive" />
                 Live
               </a>
             ) : (
-              <span className="flex items-center gap-1.5 rounded-full bg-ink/[0.06] px-3 py-1 text-[11px] font-bold text-ink-soft">
+              <span className="hidden lg:flex items-center gap-1.5 rounded-full bg-ink/[0.06] px-3 py-1 text-[11px] font-bold text-ink-soft">
                 <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" />
                 Draft only
               </span>
@@ -642,14 +686,14 @@ export function Editor({
             </button>
             <button
               onClick={() => setShowDesktopPreview(true)}
-              className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
+              className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-3 sm:px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
             >
               <span className="material-symbols-outlined text-[14px]">visibility</span>
               <span className="hidden sm:inline">{tEditor("preview")}</span>
             </button>
             <button
               onClick={() => saveDraftAction(projectId, documentForSave())}
-              className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
+              className="flex items-center gap-1.5 rounded-full bg-white ring-1 ring-black/5 px-3 sm:px-4 py-1.5 text-[12px] font-medium text-ink shadow-sm transition-all hover:bg-black/5"
             >
               <span className="material-symbols-outlined text-[14px]">save</span>
               <span className="hidden sm:inline">{tEditor("save")}</span>
@@ -666,10 +710,10 @@ export function Editor({
                   setShowPublishDialog(true);
                 }
               }}
-              className="flex items-center gap-1.5 rounded-full bg-accent px-5 py-1.5 text-[12px] font-medium text-white shadow-sm transition-all hover:scale-105"
+              className="flex items-center gap-1.5 rounded-full bg-accent px-3.5 sm:px-5 py-1.5 text-[12px] font-medium text-white shadow-sm transition-all hover:scale-105"
             >
               <span className="material-symbols-outlined text-[14px]">rocket_launch</span>
-              Publish
+              <span className="hidden sm:inline">Publish</span>
             </button>
           </div>
         </header>
@@ -778,6 +822,9 @@ export function Editor({
             onWorkspaceMouseDown={handleWorkspaceMouseDown}
             onWorkspaceMouseMove={handleWorkspaceMouseMove}
             onWorkspaceMouseUp={handleWorkspaceMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
             onPreviewMouseMove={handlePreviewMouseMove}
             onPreviewMouseLeave={handlePreviewMouseLeave}
             onPreviewClick={handlePreviewClick}

@@ -50,7 +50,7 @@ export function Testimonials() {
   const row2Half = [...row2, ...row2];
 
   return (
-    <section id="testimonials" className={styles.testimonialsSection}>
+    <section id="testimonials" className={styles.testimonialsSection} data-landing-section>
       <div className={`${styles.testimonialsContentWrapper} ${shared.container}`}>
         <div className={styles.testimonialsSplitLayout}>
           <div className={`${styles.testimonialsImageSide} ${shared.revealOnScroll}`}>

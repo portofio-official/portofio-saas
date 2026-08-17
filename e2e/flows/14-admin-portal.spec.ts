@@ -49,11 +49,11 @@ async function createUser(admin: SupabaseClient, role: "admin" | "user") {
 }
 
 async function login(page: Page, email: string, password: string) {
-  await page.goto("/id/login");
+  await page.goto("/en/login");
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
   await page.click('button[type="submit"]');
-  await page.waitForURL(/\/id\/(dashboard|designer|admin)/, { timeout: 15000 });
+  await page.waitForURL(/\/en\/(dashboard|designer|admin)/, { timeout: 15000 });
 }
 
 test.describe("Flow 14 — Admin control plane", () => {
@@ -77,7 +77,7 @@ test.describe("Flow 14 — Admin control plane", () => {
       originalTemplateVisibility = template?.is_active ?? true;
 
       await login(page, adminUser.email, adminUser.password);
-      await page.goto("/id/admin");
+      await page.goto("/en/admin");
       const userRow = page.locator("tr", { hasText: targetUser.email });
       await expect(userRow).toBeVisible();
 
@@ -103,7 +103,7 @@ test.describe("Flow 14 — Admin control plane", () => {
         return Boolean(data.user?.banned_until);
       }).toBe(false);
 
-      await page.goto("/id/admin/blocklist");
+      await page.goto("/en/admin/blocklist");
       await page.getByPlaceholder("e.g. billing, status, static").fill(blocklistSlug);
       await page.getByRole("button", { name: "Add Word" }).click();
       await expect.poll(async () => {
@@ -119,7 +119,7 @@ test.describe("Flow 14 — Admin control plane", () => {
         return data?.slug ?? null;
       }).toBeNull();
 
-      await page.goto("/id/admin/templates");
+      await page.goto("/en/admin/templates");
       const templateRow = page.locator("tr", { hasText: "minimal" }).first();
       const visibilityButton = templateRow.getByRole("button");
       await visibilityButton.click();
@@ -130,7 +130,7 @@ test.describe("Flow 14 — Admin control plane", () => {
       await page.reload();
       await page.locator("tr", { hasText: "minimal" }).first().getByRole("button").click();
 
-      await page.goto("/id/admin/audit-log");
+      await page.goto("/en/admin/audit-log");
       await expect(page.getByRole("heading", { name: /audit/i })).toBeVisible();
       await expect(page.getByText("user.role_change", { exact: true }).first()).toBeVisible();
       await expect(page.getByText("user.suspension", { exact: true }).first()).toBeVisible();
@@ -138,7 +138,7 @@ test.describe("Flow 14 — Admin control plane", () => {
       await expect(page.getByText("template.visibility", { exact: true }).first()).toBeVisible();
 
       await login(targetPage, targetUser.email, targetUser.password);
-      await targetPage.goto("/id/admin", { waitUntil: "domcontentloaded" });
+      await targetPage.goto("/en/admin", { waitUntil: "domcontentloaded" });
       await targetPage.waitForURL((url) => !url.pathname.includes("/admin"), { timeout: 15000 });
       expect(targetPage.url()).not.toContain("/admin");
     } finally {

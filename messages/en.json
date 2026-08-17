@@ -37,7 +37,8 @@
       "myWorkspace": "My Workspace",
       "adminDashboard": "Admin Dashboard",
       "designerDashboard": "Designer Dashboard",
-      "logout": "Logout"
+      "logout": "Logout",
+      "menu": "Menu"
     },
     "Hero": {
       "titleLine1": "Portfolios that",
@@ -719,6 +720,8 @@
     "overview": "Overview",
     "submissions": "My Submissions",
     "logout": "Log out",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "eyebrow": "Template Studio",
     "title": "Build templates for the community",
     "subtitle": "Submit your template work for review and a chance to appear in the Portofio gallery.",
@@ -799,12 +802,21 @@
   },
   "Admin": {
     "portalLabel": "Admin Portal",
+    "portalTagline": "Platform moderation",
+    "eyebrow": "Admin",
     "navLabel": "Navigation",
     "navUsers": "Users",
     "navTemplates": "Templates",
     "navBlocklist": "Blocklist",
     "navAuditLog": "Audit log",
     "logout": "Logout",
+    "profileLabel": "Profile",
+    "adminDashboard": "Admin Dashboard",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "comingSoon": "Coming soon",
     "users": {
       "title": "Users",
       "subtitle": "Manage platform users and moderation",
@@ -823,13 +835,50 @@
       "reactivate": "Reactivate",
       "loading": "Loading...",
       "yes": "Yes",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "error": "An error occurred"
     },
     "blocklist": {
-      "title": "Subdomain Blocklist"
+      "title": "Subdomain Blocklist",
+      "subtitle": "Manage reserved subdomains that users cannot claim",
+      "addTitle": "Add Reserved Subdomain",
+      "addSubtitle": "Subdomains in this list cannot be claimed by users during website publishing.",
+      "addPlaceholder": "e.g. billing, status, static",
+      "addButton": "Add Word",
+      "adding": "Adding...",
+      "listTitle": "Blocked Subdomains",
+      "searchPlaceholder": "Search blocklist...",
+      "emptySearch": "No subdomains found matching \"{search}\".",
+      "addedToast": "'{slug}' added to blocklist.",
+      "removedToast": "'{slug}' removed from blocklist.",
+      "addFailed": "Failed to add word.",
+      "removeFailed": "Failed to remove word.",
+      "remove": "Remove"
     },
     "templates": {
-      "title": "Templates"
+      "title": "Templates",
+      "subtitle": "Manage built-in template visibility and review designer submissions",
+      "activeTitle": "Active Built-in Templates",
+      "activeSubtitle": "Manage which built-in templates are visible to users in the galleries.",
+      "colName": "Template Name",
+      "colRegistry": "Registry ID",
+      "colStatus": "Status",
+      "colVisibility": "Visibility",
+      "statusVisible": "Visible",
+      "statusHidden": "Hidden",
+      "emptyActive": "No built-in templates found. Run the database migration.",
+      "submissionsTitle": "Community Submissions",
+      "submissionsSubtitle": "Review submitted templates from designers before code integration.",
+      "colDesigner": "Designer",
+      "colPreview": "Preview / source",
+      "colSubmitted": "Submitted Date",
+      "colIntegration": "Integration",
+      "colAction": "Action",
+      "desktopPreview": "Desktop preview",
+      "mobilePreview": "Mobile preview",
+      "unknownDesigner": "Unknown",
+      "statusDraft": "Draft",
+      "emptySubmissions": "No submissions found."
     },
     "audit": {
       "title": "Audit log",
@@ -840,6 +889,45 @@
       "details": "Details",
       "actor": "Admin",
       "empty": "No administrative activity yet."
+    },
+    "role": {
+      "label": "User role",
+      "user": "User",
+      "designer": "Designer",
+      "admin": "Admin",
+      "updateFailed": "Role update failed"
+    },
+    "source": {
+      "downloading": "Preparing...",
+      "download": "Download source",
+      "noSource": "No source",
+      "failed": "Download failed"
+    },
+    "integration": {
+      "label": "Template integration status",
+      "mergedHint": "Enter the registry ID after the template is merged:",
+      "notStarted": "Not started",
+      "inReview": "In review",
+      "merged": "Merged",
+      "failed": "Failed"
+    },
+    "visibility": {
+      "hide": "Hide Template",
+      "show": "Show Template"
+    },
+    "review": {
+      "trigger": "Review",
+      "updating": "Updating...",
+      "approve": "Approve",
+      "registrationHint": "Registry ID after code integration (optional):",
+      "approvalHint": "(Optional) Enter approval notes for the designer:",
+      "rejectionHint": "Enter rejection reason (required):",
+      "rejectionRequired": "Rejection reason is required.",
+      "revisionHint": "Enter revision instructions (required):",
+      "revisionRequired": "Revision instructions are required.",
+      "revision": "Request Revision",
+      "reject": "Reject",
+      "errorGeneric": "An error occurred"
     }
   },
   "ContentLibrary": {

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { createTemplateSourceDownloadUrlAction } from "@/lib/admin";
+import { useTranslations } from "next-intl";
 
 export function TemplateSourceDownloadButton({
   submissionId,
@@ -10,6 +11,7 @@ export function TemplateSourceDownloadButton({
   submissionId: string;
   filename: string | null;
 }) {
+  const t = useTranslations("Admin");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState(false);
 
@@ -31,12 +33,12 @@ export function TemplateSourceDownloadButton({
         type="button"
         onClick={download}
         disabled={isPending || !filename}
-        className="inline-flex items-center gap-1.5 rounded-full bg-canvas px-3 py-1.5 text-[11px] font-semibold text-ink-soft ring-1 ring-black/10 transition-colors hover:bg-ink/[0.06] disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-full bg-shell px-3 py-1.5 text-[11px] font-semibold text-ink-soft ring-1 ring-black/10 transition-colors hover:bg-ink/[0.06] disabled:cursor-not-allowed disabled:opacity-50"
       >
         <span className="material-symbols-outlined text-[15px]">download</span>
-        {isPending ? "Preparing..." : filename ? "Download source" : "No source"}
+        {isPending ? t("source.downloading") : filename ? t("source.download") : t("source.noSource")}
       </button>
-      {error && <span className="text-[10px] font-medium text-danger">Download failed</span>}
+      {error && <span className="text-[10px] font-medium text-danger">{t("source.failed")}</span>}
     </div>
   );
 }

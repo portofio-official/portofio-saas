@@ -37,6 +37,9 @@ export interface EditorCenterCanvasProps {
   onWorkspaceMouseDown: (e: React.MouseEvent) => void;
   onWorkspaceMouseMove: (e: React.MouseEvent) => void;
   onWorkspaceMouseUp: () => void;
+  onTouchStart: (e: React.TouchEvent) => void;
+  onTouchMove: (e: React.TouchEvent) => void;
+  onTouchEnd: () => void;
   onPreviewMouseMove: (e: React.MouseEvent) => void;
   onPreviewMouseLeave: () => void;
   onPreviewClick: (e: React.MouseEvent) => void;
@@ -68,6 +71,9 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
     onWorkspaceMouseDown,
     onWorkspaceMouseMove,
     onWorkspaceMouseUp,
+    onTouchStart,
+    onTouchMove,
+    onTouchEnd,
     onPreviewMouseMove,
     onPreviewMouseLeave,
     onPreviewClick,
@@ -142,12 +148,15 @@ export function EditorCenterCanvas(props: EditorCenterCanvasProps) {
       {/* Simulation Workspace */}
       <div
         id="workspace-canvas"
-        className={`flex-1 w-full relative overflow-hidden bg-shell ${isPanning ? "cursor-grabbing" : "cursor-grab"}`}
+        className={`flex-1 w-full relative overflow-hidden bg-shell touch-none ${isPanning ? "cursor-grabbing" : "cursor-grab"}`}
         onWheel={onWheel}
         onMouseDown={onWorkspaceMouseDown}
         onMouseMove={onWorkspaceMouseMove}
         onMouseUp={onWorkspaceMouseUp}
         onMouseLeave={onWorkspaceMouseUp}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
       >
         {/* Scale Wrapper */}
         <div

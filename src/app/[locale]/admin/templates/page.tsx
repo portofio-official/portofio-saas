@@ -1,13 +1,16 @@
+import { getTranslations } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getTemplateSubmissionsAction } from "@/lib/admin";
 import { ReviewTemplateDropdown } from "@/components/admin/ReviewTemplateDropdown";
 import { ToggleTemplateVisibilityButton } from "@/components/admin/ToggleTemplateVisibilityButton";
 import { TemplateIntegrationStatusButton } from "@/components/admin/TemplateIntegrationStatusButton";
 import { TemplateSourceDownloadButton } from "@/components/admin/TemplateSourceDownloadButton";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 
 export default async function TemplatesPage() {
+  const t = await getTranslations("Admin");
   const adminClient = createAdminClient();
-  
+
   // Fetch built-in active templates
   const { data: templates } = await adminClient
     .from("templates")
@@ -18,29 +21,29 @@ export default async function TemplatesPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <header className="sticky top-0 z-50 flex h-20 shrink-0 items-center border-b border-black/5 bg-surface/80 px-8 backdrop-blur-md">
-        <h1 className="font-display text-[24px] font-bold tracking-tight text-ink">
-          Template Management
-        </h1>
-      </header>
+      <AdminHeader
+        eyebrow={t("eyebrow")}
+        title={t("templates.title")}
+        subtitle={t("templates.subtitle")}
+      />
 
-      <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-8">
+      <div className="flex-1 overflow-y-auto p-6 sm:p-8 flex flex-col gap-6">
         {/* Active Templates Section */}
-        <div className="rounded-[1.6rem] bg-white p-6 shadow-sm ring-1 ring-black/5">
+        <div className="overflow-x-auto rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
           <div className="mb-4">
-            <h2 className="text-[16px] font-bold text-ink">Active Built-in Templates</h2>
-            <p className="text-[14px] text-ink-soft">
-              Manage which built-in templates are visible to users in the galleries.
+            <h2 className="font-display text-[16px] font-bold text-ink">{t("templates.activeTitle")}</h2>
+            <p className="mt-1 text-[13px] font-medium text-ink-soft">
+              {t("templates.activeSubtitle")}
             </p>
           </div>
 
           <table className="w-full text-left text-[14px]">
             <thead>
               <tr className="border-b border-black/5 text-ink-faint">
-                <th className="pb-3 font-semibold w-1/2">Template Name</th>
-                <th className="pb-3 font-semibold">Registry ID</th>
-                <th className="pb-3 font-semibold">Status</th>
-                <th className="pb-3 text-right font-semibold">Visibility</th>
+                <th className="pb-3 font-semibold w-1/2">{t("templates.colName")}</th>
+                <th className="pb-3 font-semibold">{t("templates.colRegistry")}</th>
+                <th className="pb-3 font-semibold">{t("templates.colStatus")}</th>
+                <th className="pb-3 text-right font-semibold">{t("templates.colVisibility")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
@@ -49,12 +52,15 @@ export default async function TemplatesPage() {
                   <td className="py-4 font-semibold text-ink">{tpl.name}</td>
                   <td className="py-4 font-mono text-[12px] text-ink-soft">{tpl.id}</td>
                   <td className="py-4">
-                    <span className={`rounded-md px-2.5 py-1 text-[12px] font-medium ${
-                      tpl.is_active 
-                        ? "bg-positive/10 text-positive" 
-                        : "bg-black/5 text-ink-soft"
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold ${
+                      tpl.is_active
+                        ? "bg-positive/10 text-positive"
+                        : "bg-ink/[0.05] text-ink-soft"
                     }`}>
-                      {tpl.is_active ? "Visible" : "Hidden"}
+                      <span className={`h-1.5 w-1.5 rounded-full ${
+                        tpl.is_active ? "bg-positive" : "bg-ink-faint"
+                      }`}></span>
+                      {tpl.is_active ? t("templates.statusVisible") : t("templates.statusHidden")}
                     </span>
                   </td>
                   <td className="py-4 text-right">
@@ -67,7 +73,7 @@ export default async function TemplatesPage() {
               {(!templates || templates.length === 0) && (
                 <tr>
                   <td colSpan={4} className="py-8 text-center text-ink-soft">
-                    No built-in templates found. Run the database migration.
+                    {t("templates.emptyActive")}
                   </td>
                 </tr>
               )}
@@ -76,24 +82,24 @@ export default async function TemplatesPage() {
         </div>
 
         {/* Submissions Section */}
-        <div className="rounded-[1.6rem] bg-white p-6 shadow-sm ring-1 ring-black/5">
+        <div className="overflow-x-auto rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
           <div className="mb-4">
-            <h2 className="text-[16px] font-bold text-ink">Community Submissions</h2>
-            <p className="text-[14px] text-ink-soft">
-              Review submitted templates from designers before code integration.
+            <h2 className="font-display text-[16px] font-bold text-ink">{t("templates.submissionsTitle")}</h2>
+            <p className="mt-1 text-[13px] font-medium text-ink-soft">
+              {t("templates.submissionsSubtitle")}
             </p>
           </div>
 
           <table className="w-full text-left text-[14px]">
             <thead>
               <tr className="border-b border-black/5 text-ink-faint">
-                <th className="pb-3 font-semibold">Template Name</th>
-                <th className="pb-3 font-semibold">Designer</th>
-                <th className="pb-3 font-semibold">Preview / source</th>
-                <th className="pb-3 font-semibold">Status</th>
-                <th className="pb-3 font-semibold">Integration</th>
-                <th className="pb-3 font-semibold">Submitted Date</th>
-                <th className="pb-3 text-right font-semibold">Action</th>
+                <th className="pb-3 font-semibold">{t("templates.colName")}</th>
+                <th className="pb-3 font-semibold">{t("templates.colDesigner")}</th>
+                <th className="pb-3 font-semibold">{t("templates.colPreview")}</th>
+                <th className="pb-3 font-semibold">{t("templates.colStatus")}</th>
+                <th className="pb-3 font-semibold">{t("templates.colIntegration")}</th>
+                <th className="pb-3 font-semibold">{t("templates.colSubmitted")}</th>
+                <th className="pb-3 text-right font-semibold">{t("templates.colAction")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
@@ -102,21 +108,29 @@ export default async function TemplatesPage() {
                   <td className="py-4 font-semibold text-ink">{sub.name}</td>
                   <td className="py-4">
                     <div className="flex flex-col">
-                      <span className="font-medium text-ink">{sub.designerName || "Unknown"}</span>
+                      <span className="font-medium text-ink">{sub.designerName || t("templates.unknownDesigner")}</span>
                       <span className="text-xs text-ink-soft">{sub.designerEmail}</span>
                     </div>
                   </td>
                   <td className="py-4">
                     <div className="flex min-w-[170px] flex-col items-start gap-2">
                       <div className="flex flex-wrap gap-2">
-                        {sub.previewUrl && <a href={sub.previewUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-accent-deep hover:underline">Desktop preview</a>}
-                        {sub.previewMobileUrl && <a href={sub.previewMobileUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-accent-deep hover:underline">Mobile preview</a>}
+                        {sub.previewUrl && (
+                          <a href={sub.previewUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-accent-deep hover:underline">
+                            {t("templates.desktopPreview")}
+                          </a>
+                        )}
+                        {sub.previewMobileUrl && (
+                          <a href={sub.previewMobileUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-accent-deep hover:underline">
+                            {t("templates.mobilePreview")}
+                          </a>
+                        )}
                       </div>
                       <TemplateSourceDownloadButton submissionId={sub.id} filename={sub.sourceFilename} />
                     </div>
                   </td>
                   <td className="py-4">
-                    <span className="rounded-md bg-black/[0.04] px-2.5 py-1 text-[12px] font-medium capitalize text-ink">
+                    <span className="inline-flex items-center rounded-full bg-ink/[0.05] px-2.5 py-1 text-[12px] font-medium capitalize text-ink">
                       {sub.status}
                     </span>
                   </td>
@@ -124,7 +138,7 @@ export default async function TemplatesPage() {
                     <TemplateIntegrationStatusButton submissionId={sub.id} initialStatus={sub.integrationStatus as "not_started" | "in_review" | "merged" | "failed"} />
                   </td>
                   <td className="py-4 text-ink-soft">
-                    {sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString("id-ID") : "Draft"}
+                    {sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString("id-ID") : t("templates.statusDraft")}
                   </td>
                   <td className="py-4 text-right">
                     <ReviewTemplateDropdown submissionId={sub.id} />
@@ -134,7 +148,7 @@ export default async function TemplatesPage() {
               {(!submissions || submissions.length === 0) && (
                 <tr>
                     <td colSpan={7} className="py-8 text-center text-ink-soft">
-                    No submissions found.
+                    {t("templates.emptySubmissions")}
                   </td>
                 </tr>
               )}

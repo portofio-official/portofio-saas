@@ -14,7 +14,7 @@ export function Hero({ userEmail }: { userEmail: string | null }) {
   const t = useTranslations("Landing.Hero");
 
   return (
-    <section className={styles.hero} id="home">
+    <section className={styles.hero} id="home" data-landing-section>
       <div className={styles.heroContainer}>
         <div className={`${styles.heroContent} ${shared.animateFadeInUp}`}>
           <h1 className={styles.heroTitle}>

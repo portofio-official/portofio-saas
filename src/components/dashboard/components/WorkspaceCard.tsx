@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import type { CSSProperties } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import type { Workspace } from "@/lib/workspace";
@@ -52,6 +54,20 @@ export function WorkspaceCard({
   const t = useTranslations("Dashboard");
   const router = useRouter();
   const [openMenu, setOpenMenu] = useState(false);
+  const kebabRef = useRef<HTMLButtonElement>(null);
+  const [menuStyle, setMenuStyle] = useState<CSSProperties | undefined>(undefined);
+  const toggleMenu = () => {
+    if (openMenu) {
+      setOpenMenu(false);
+      return;
+    }
+    const rect = kebabRef.current?.getBoundingClientRect();
+    setMenuStyle({
+      top: (rect?.bottom ?? 0) + 8,
+      right: Math.max(8, (window?.innerWidth ?? 0) - (rect?.right ?? 0)),
+    });
+    setOpenMenu(true);
+  };
   const { ref: thumbnailRef, inView } = useInView<HTMLDivElement>();
   const siteSubdomain =
     workspace.subdomain ?? workspace.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
@@ -83,10 +99,11 @@ export function WorkspaceCard({
         <div className="absolute top-2.5 right-2.5 z-20">
           <button
             type="button"
+            ref={kebabRef}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setOpenMenu((prev) => !prev);
+              toggleMenu();
             }}
             className="grid h-7 w-7 place-items-center rounded-lg bg-white/90 text-ink-soft shadow-xs ring-1 ring-black/10 backdrop-blur-sm transition-all duration-150 hover:bg-white hover:text-ink opacity-100 md:opacity-0 md:group-hover:opacity-100"
             title={t("moreActions")}
@@ -97,20 +114,22 @@ export function WorkspaceCard({
             <span className="material-symbols-outlined text-[16px]">more_vert</span>
           </button>
 
-          {openMenu && (
-            <>
-              <div
-                className="fixed inset-0 z-30"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenMenu(false);
-                }}
-              />
-              <div
-                className="absolute right-0 top-full mt-1 z-40 flex w-48 flex-col overflow-hidden rounded-xl bg-surface p-1 shadow-floating ring-1 ring-black/10 animate-fade-in-up-custom text-left"
-                role="menu"
-                onClick={(e) => e.stopPropagation()}
-              >
+          {openMenu &&
+            createPortal(
+              <>
+                <div
+                  className="fixed inset-0 z-30"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenMenu(false);
+                  }}
+                />
+                <div
+                  className="fixed z-40 flex w-48 flex-col overflow-hidden rounded-xl bg-surface p-1 shadow-floating ring-1 ring-black/10 animate-fade-in-up-custom text-left"
+                  style={menuStyle}
+                  role="menu"
+                  onClick={(e) => e.stopPropagation()}
+                >
                 <Link
                   href={`/dashboard/${workspace.id}/editor`}
                   role="menuitem"
@@ -202,8 +221,9 @@ export function WorkspaceCard({
                   {t("delete")}
                 </button>
               </div>
-            </>
-          )}
+              </>,
+              document.body
+            )}
         </div>
 
         {/* Live Website Canvas — a real <a> can't wrap the preview's own anchors, so this is a keyboard-accessible div */}

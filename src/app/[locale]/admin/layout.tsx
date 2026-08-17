@@ -1,4 +1,5 @@
 import { redirect } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { requireRole } from "@/lib/auth/roles";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -11,7 +12,10 @@ export default async function AdminLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const email = await getCurrentUserEmail();
+  const [t, email] = await Promise.all([
+    getTranslations({ locale, namespace: "Common" }),
+    getCurrentUserEmail(),
+  ]);
 
   if (!email) {
     return redirect({ href: "/login", locale });
@@ -24,9 +28,18 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-surface p-6 gap-6 font-sans">
+    <div className="relative flex flex-col md:flex-row h-dvh w-full overflow-hidden bg-canvas font-sans">
+      <a
+        href="#admin-main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-[12px] focus:font-bold focus:text-white"
+      >
+        {t("skipToContent")}
+      </a>
       <AdminSidebar email={email} />
-      <main className="flex flex-1 flex-col overflow-hidden rounded-[2rem] bg-surface shadow-[var(--shadow-diffused)] ring-1 ring-black/5">
+      <main
+        id="admin-main-content"
+        className="relative flex flex-1 flex-col overflow-hidden border-l border-black/5 bg-surface"
+      >
         {children}
       </main>
     </div>

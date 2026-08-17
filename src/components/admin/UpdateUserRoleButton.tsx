@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { updateUserRoleAction } from "@/lib/admin";
 import type { AppRole } from "@/lib/auth/roles";
+import { useTranslations } from "next-intl";
 
 export function UpdateUserRoleButton({
   userId,
@@ -12,6 +13,7 @@ export function UpdateUserRoleButton({
   userId: string;
   role: string;
 }) {
+  const t = useTranslations("Admin");
   const [value, setValue] = useState<AppRole>(role as AppRole);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -25,7 +27,7 @@ export function UpdateUserRoleButton({
       const result = await updateUserRoleAction(userId, nextRole);
       if (!result.ok) {
         setValue(previous);
-        setError(result.error ?? "Role update failed");
+        setError(result.error ?? t("role.updateFailed"));
         return;
       }
       router.refresh();
@@ -38,12 +40,12 @@ export function UpdateUserRoleButton({
         value={value}
         disabled={isPending}
         onChange={(event) => change(event.target.value as AppRole)}
-        aria-label="User role"
-        className="rounded-lg bg-canvas px-2.5 py-1.5 text-[12px] font-semibold capitalize text-ink-soft ring-1 ring-black/10 outline-none transition focus:ring-2 focus:ring-accent disabled:opacity-50"
+        aria-label={t("role.label")}
+        className="rounded-lg bg-shell px-2.5 py-1.5 text-[12px] font-semibold capitalize text-ink-soft ring-1 ring-black/10 outline-none transition focus:ring-2 focus:ring-accent disabled:opacity-50"
       >
-        <option value="user">User</option>
-        <option value="designer">Designer</option>
-        <option value="admin">Admin</option>
+        <option value="user">{t("role.user")}</option>
+        <option value="designer">{t("role.designer")}</option>
+        <option value="admin">{t("role.admin")}</option>
       </select>
       {error && <span className="max-w-[150px] text-[10px] font-medium text-danger">{error}</span>}
     </div>

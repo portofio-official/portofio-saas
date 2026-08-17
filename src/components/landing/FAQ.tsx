@@ -12,7 +12,7 @@ export function FAQ() {
   const faqData = t.raw("items") as FaqItem[];
 
   return (
-    <section id="faq" className={styles.faqSection}>
+    <section id="faq" className={styles.faqSection} data-landing-section>
       <div className={`${styles.faqContentWrapper} ${shared.container}`}>
         <div className={`${styles.faqHeaderRow} ${shared.revealOnScroll}`}>
           <div className={styles.faqHeaderText}>

@@ -73,6 +73,126 @@
   }
 }
 
+.mobileMenuToggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-full);
+  background: rgba(17, 24, 39, 0.05);
+  color: var(--text-primary);
+  cursor: pointer;
+  margin-left: 4px;
+  transition: all var(--transition-fast);
+}
+
+.mobileMenuToggle:hover {
+  background: rgba(17, 24, 39, 0.1);
+}
+
+.mobileMenuToggle .material-symbols-outlined {
+  font-size: 24px;
+}
+
+.mobileMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 16px;
+  right: 16px;
+  background: var(--bg-window);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  padding: 8px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1050;
+}
+
+.mobileMenu.mobileMenuOpen {
+  display: flex;
+}
+
+.mobileMenuLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobileMenuLinks a {
+  padding: 14px 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all var(--transition-fast);
+}
+
+.mobileMenuLinks a:hover {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-primary);
+}
+
+.mobileMenuLinks a.active {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.mobileMenuDivider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.05);
+  margin: 4px 0;
+}
+
+.mobileMenuCta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 12px;
+  border-radius: 8px;
+  background: var(--accent-color);
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.mobileMenuCta:hover {
+  background: var(--accent-hover);
+}
+
+@media (max-width: 768px) {
+  .mobileMenuToggle {
+    display: flex;
+  }
+
+  .navContainer {
+    gap: 8px;
+    justify-content: space-between;
+  }
+
+  .logoImg {
+    height: 26px;
+  }
+
+  .loginLink {
+    margin-left: 0;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+
+  .profileIconLink {
+    margin-left: 0;
+    width: 40px;
+    height: 40px;
+  }
+}
+
 .localeSwitcher {
   margin-left: auto;
   display: flex;

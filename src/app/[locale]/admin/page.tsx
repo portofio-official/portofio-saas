@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { getUsersAction } from "@/lib/admin";
 import { SuspendUserButton } from "@/components/admin/SuspendUserButton";
 import { UpdateUserRoleButton } from "@/components/admin/UpdateUserRoleButton";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 
 export default async function AdminDashboardPage() {
   const t = await getTranslations("Admin");
@@ -9,21 +10,15 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      {/* Header */}
-      <header className="sticky top-0 z-50 flex h-20 shrink-0 items-center justify-between border-b border-black/5 bg-surface/80 px-8 backdrop-blur-md">
-        <div>
-          <h1 className="font-display text-[24px] font-bold tracking-tight text-ink">
-            {t("users.title")}
-          </h1>
-          <p className="text-[14px] text-ink-soft">
-            {t("users.subtitle")}
-          </p>
-        </div>
-      </header>
+      <AdminHeader
+        eyebrow={t("eyebrow")}
+        title={t("users.title")}
+        subtitle={t("users.subtitle")}
+      />
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-8">
-        <div className="overflow-x-auto rounded-[1.6rem] bg-white p-6 shadow-sm ring-1 ring-black/5">
+      <div className="flex-1 overflow-y-auto p-6 sm:p-8">
+        <div className="overflow-x-auto rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
           <table className="w-full min-w-[760px] text-left text-[14px]">
             <thead>
               <tr className="border-b border-black/5 text-ink-faint">

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateTemplateIntegrationAction } from "@/lib/admin";
+import { useTranslations } from "next-intl";
 
 type IntegrationStatus = "not_started" | "in_review" | "merged" | "failed";
 
@@ -13,6 +14,7 @@ export function TemplateIntegrationStatusButton({
   submissionId: string;
   initialStatus: IntegrationStatus;
 }) {
+  const t = useTranslations("Admin");
   const [status, setStatus] = useState(initialStatus);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -20,7 +22,7 @@ export function TemplateIntegrationStatusButton({
   function update(next: IntegrationStatus) {
     let registryId: string | undefined;
     if (next === "merged") {
-      const input = window.prompt("Enter the registry ID after the template is merged:");
+      const input = window.prompt(t("integration.mergedHint"));
       if (input === null || !input.trim()) return;
       registryId = input.trim();
     }
@@ -41,13 +43,13 @@ export function TemplateIntegrationStatusButton({
       value={status}
       disabled={isPending}
       onChange={(event) => update(event.target.value as IntegrationStatus)}
-      className="rounded-lg bg-canvas px-2 py-1.5 text-[11px] font-semibold text-ink-soft ring-1 ring-black/10 outline-none focus:ring-accent disabled:opacity-50"
-      aria-label="Template integration status"
+      className="rounded-lg bg-shell px-2 py-1.5 text-[11px] font-semibold text-ink-soft ring-1 ring-black/10 outline-none transition focus:ring-2 focus:ring-accent disabled:opacity-50"
+      aria-label={t("integration.label")}
     >
-      <option value="not_started">Not started</option>
-      <option value="in_review">In review</option>
-      <option value="merged">Merged</option>
-      <option value="failed">Failed</option>
+      <option value="not_started">{t("integration.notStarted")}</option>
+      <option value="in_review">{t("integration.inReview")}</option>
+      <option value="merged">{t("integration.merged")}</option>
+      <option value="failed">{t("integration.failed")}</option>
     </select>
   );
 }

@@ -154,7 +154,7 @@ export function TemplateShowcase() {
   };
 
   return (
-    <section className={styles.templateShowcase} id="templates">
+    <section className={styles.templateShowcase} id="templates" data-landing-section>
       <div className={`${shared.container} ${shared.revealOnScroll}`}>
         {/* Header */}
         <div className={styles.showcaseHeader}>

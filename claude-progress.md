@@ -1,3 +1,11 @@
+# Session 100: Superuser Navbar all-dashboard access
+**Status:** Done + verified (tsc/lint/build clean)
+- Moved `SUPERUSER_TEST_EMAIL`/`isSuperuserTestEmail` into the client-safe `src/lib/auth/superuser.ts`; `roles.ts` re-exports it so proxy.ts keeps working.
+- `getUserRole()` now returns `user` for the superuser email so the `/dashboard` gate no longer bounces it to `/admin`; designer/admin access is granted via the `requireRole()` override + middleware bypass.
+- Landing Navbar dropdown now shows Profile + My Workspace + Designer Dashboard + Admin Dashboard for the superuser email only; normal admin/designer/user behavior unchanged.
+- Created the account in Supabase: `superuser@test.com` / `Superuser123!` with `profiles.role='admin'`.
+- Verification: `npx tsc --noEmit`, `npm run lint`, `npm run build` all clean.
+
 # Session 099: Hardcoded Superuser Test Email (All Roles)
 **Status:** Done + verified (tsc/lint/build clean)
 - Added `SUPERUSER_TEST_EMAIL = "superuser@test.com"` and `isSuperuserTestEmail()` in `src/lib/auth/roles.ts`. The email bypasses every `requireRole()` check and `getUserRole()` returns `admin`, so it can access user, designer, and admin areas.

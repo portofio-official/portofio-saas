@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { signOutAction } from "@/lib/auth";
+import { isSuperuserTestEmail } from "@/lib/auth/superuser";
 import { Link, usePathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import shared from "./shared.module.css";
@@ -14,6 +15,7 @@ export function Navbar({ userEmail, userRole = "user" }: { userEmail: string | n
   const locale = useLocale();
   const pathname = usePathname();
   const t = useTranslations("Landing.Navbar");
+  const isSuperuser = isSuperuserTestEmail(userEmail);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -124,7 +126,7 @@ export function Navbar({ userEmail, userRole = "user" }: { userEmail: string | n
             {dropdownOpen && (
               <div className={styles.profileDropdownMenu}>
                 <Link
-                  href={userRole === "admin" ? "/admin/profile" : "/dashboard/profile"}
+                  href={userRole === "admin" || isSuperuser ? "/admin/profile" : "/dashboard/profile"}
                   onClick={() => setDropdownOpen(false)}
                   className={styles.profileDropdownItem}
                 >
@@ -132,21 +134,21 @@ export function Navbar({ userEmail, userRole = "user" }: { userEmail: string | n
                   {t("profile")}
                 </Link>
 
-                {userRole !== "admin" && (
+                {(userRole !== "admin" || isSuperuser) && (
                   <Link href="/dashboard" className={styles.profileDropdownItem} onClick={() => setDropdownOpen(false)}>
                     <span className={`material-symbols-outlined ${styles.dropdownIcon}`}>grid_view</span>
                     {t("myWorkspace")}
                   </Link>
                 )}
 
-                {userRole === "admin" && (
+                {(userRole === "admin" || isSuperuser) && (
                   <Link href="/admin" className={styles.profileDropdownItem} onClick={() => setDropdownOpen(false)}>
                     <span className={`material-symbols-outlined ${styles.dropdownIcon}`}>admin_panel_settings</span>
                     {t("adminDashboard")}
                   </Link>
                 )}
 
-                {userRole === "designer" && (
+                {(userRole === "designer" || isSuperuser) && (
                   <Link href="/designer" className={styles.profileDropdownItem} onClick={() => setDropdownOpen(false)}>
                     <span className={`material-symbols-outlined ${styles.dropdownIcon}`}>palette</span>
                     {t("designerDashboard")}

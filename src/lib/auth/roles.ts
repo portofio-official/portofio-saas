@@ -1,16 +1,12 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { isSuperuserTestEmail } from "@/lib/auth/superuser";
 
 export type AppRole = "user" | "designer" | "admin";
 
-// Testing-only hardcoded email that bypasses role checks and is granted every
-// role ("user", "designer", "admin"). Intended for local/staging development.
-// Remove or change this value before production launch.
-export const SUPERUSER_TEST_EMAIL = "superuser@test.com";
-
-export function isSuperuserTestEmail(email: string | null | undefined): boolean {
-  return email === SUPERUSER_TEST_EMAIL;
-}
+// Re-exported so the middleware and server code can use the single source of
+// truth without importing a client-safe module themselves.
+export { SUPERUSER_TEST_EMAIL, isSuperuserTestEmail } from "@/lib/auth/superuser";
 
 export async function getUserRole(): Promise<string> {
   const cookieStore = await cookies();
@@ -27,8 +23,10 @@ export async function getUserRole(): Promise<string> {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return 'user'; // default fallback
-  // Testing override: grant the highest role so the email can reach every area.
-  if (isSuperuserTestEmail(user.email)) return 'admin';
+  // Testing override: treat the hardcoded email as an ordinary authenticated
+  // user so the /dashboard gate lets it through. Designer/admin access comes
+  // from the requireRole() override below plus the middleware bypass.
+  if (isSuperuserTestEmail(user.email)) return 'user';
   return user.app_metadata?.role || 'user';
 }
 

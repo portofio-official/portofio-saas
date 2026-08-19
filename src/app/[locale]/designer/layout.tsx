@@ -21,9 +21,9 @@ export default async function DesignerLayout({
   }
 
   return (
-    <div className="flex h-dvh w-full flex-col overflow-hidden bg-canvas font-sans md:flex-row md:gap-4 md:p-3 lg:gap-6 lg:p-6">
+    <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-canvas font-sans md:flex-row">
       <DesignerSidebar email={email} />
-      <main className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-none bg-surface ring-1 ring-black/5 md:rounded-[2rem] md:shadow-[var(--shadow-diffused)]">
+      <main id="main-content" className="relative flex min-w-0 flex-1 flex-col overflow-hidden border-l border-black/5 bg-surface">
         {children}
       </main>
     </div>

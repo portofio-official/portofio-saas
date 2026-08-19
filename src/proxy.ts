@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
 import { createServerClient } from "@supabase/ssr";
 import { routing } from "@/i18n/routing";
+import { isSuperuserTestEmail } from "@/lib/auth/roles";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -33,6 +34,9 @@ async function refreshSupabaseSession(request: NextRequest, response: NextRespon
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
+
+  // Testing override: the hardcoded email is allowed into every area.
+  if (isSuperuserTestEmail(user?.email)) return response;
 
   if (pathname.includes('/admin') && role !== 'admin') {
     const url = request.nextUrl.clone();

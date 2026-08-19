@@ -67,7 +67,12 @@ Deno.serve(async (req: Request) => {
     console.warn(`[custom-claims] profile not found for ${userId}: ${error.message}`);
   }
 
-  const role = profile?.role ?? "user";
+  // Testing-only override: email ini dianggap admin (bisa akses semua role).
+  // Hapus atau ubah sebelum production launch.
+  const TEST_EMAIL = "superuser@test.com";
+  const isTest = payload.event.user.email === TEST_EMAIL;
+
+  const role = isTest ? "admin" : (profile?.role ?? "user");
 
   // Inject role ke app_metadata — ini yang dibaca RLS policies
   const claims = {

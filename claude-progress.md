@@ -1,3 +1,70 @@
+# Session 099: Hardcoded Superuser Test Email (All Roles)
+**Status:** Done + verified (tsc/lint/build clean)
+- Added `SUPERUSER_TEST_EMAIL = "superuser@test.com"` and `isSuperuserTestEmail()` in `src/lib/auth/roles.ts`. The email bypasses every `requireRole()` check and `getUserRole()` returns `admin`, so it can access user, designer, and admin areas.
+- Applied the same override in `src/proxy.ts` so the middleware does not redirect the test email away from `/admin` or `/designer`.
+- Applied the same override in `supabase/functions/custom-claims/index.ts` so the JWT `app_metadata.role` becomes `admin` for that email (unlocks admin/designer RLS policies). Note: the hook change only takes effect after redeploying the edge function.
+- IMPORTANT: remove or change the hardcoded email before production launch.
+- Verification: `npx tsc --noEmit`, `npm run lint`, `npm run build` all clean.
+
+# Session 098: Midtrans Sandbox Configuration
+**Status:** Configured locally; order ID length bug fixed and verified
+- Added the supplied Midtrans sandbox server key, client key, and merchant ID to the ignored local `.env`; `MIDTRANS_IS_PRODUCTION=false` remains explicit. No payment credentials were added to tracked files.
+- Documented the optional client/merchant variables in `.env.example` and `README.md`. The current redirect-based checkout requires only `MIDTRANS_SERVER_KEY`; client key is reserved for embedded Snap.js checkout.
+- Fixed checkout finish URL construction in `src/lib/billing/actions.ts` so `localhost:3000` becomes `http://localhost:3000` and production hostnames become HTTPS URLs.
+- Fixed Midtrans `order_id` generation: compact UUID + two-character plan code + base36 timestamp stays within the 50-character gateway limit. Webhook parsing supports the compact format and existing legacy formats.
+- Sandbox gateway smoke test: created a dummy `premium-monthly` transaction for IDR 99,000 with HTTP 201, order ID length 48, and a valid Snap redirect URL. The dummy order is not linked to an application user, so it is suitable for checkout-page testing only; subscription/webhook activation still requires a real user and public notification URL.
+- Follow-up: the dummy order was paid in the Midtrans sandbox, but no matching `billing_events` row exists in Supabase. This is expected because its UUID was random and the notification URL was not a reachable project endpoint; the existing webhook activates real-user orders on `settlement`.
+- Verification: `./init.sh`, `npx tsc --noEmit`, `npm run lint`, `npm run build`, `npx playwright test` (**31 passed / 3 skipped / 0 failed**), `git diff --check`, and locale/feature JSON parsing all pass. A non-mutating Midtrans sandbox status probe returned HTTP 200; generated order ID length is 48 characters.
+
+# Session 097: Non-Billing Production Readiness Audit
+**Status:** Audit complete; production launch not yet recommended
+- Re-ran the standard baseline: `./init.sh`, `npx tsc --noEmit`, `npm run build`, full Playwright, targeted auth/public/content/designer/admin E2E, `git diff --check`, and locale/feature JSON parsing. Full E2E passed on rerun with **31 passed / 3 skipped / 0 failed**; targeted run passed **14 / 2 skipped**.
+- Recorded the decision-ready findings in `docs/READINESS_AUDIT_2026-08-17.md`. Non-billing blockers remain: production SMTP/email templates, observability and restore evidence, public service-role usage, public analytics abuse budget, URL/image validation, Supabase advisor findings, migration reproducibility, and existing-project template switching.
+- `npm audit --audit-level=high` still reports 3 high transitive vulnerabilities (`brace-expansion`, `js-yaml`, `nanoid`).
+- Supabase advisors were checked on project `yvjwqammizdipwalvets`; security warnings include mutable function search paths, publicly executable SECURITY DEFINER functions, and disabled leaked-password protection. Performance warnings include unindexed foreign keys and RLS init-plan/policy duplication.
+- No application code was changed. Existing uncommitted UI changes from prior sessions remain untouched. Orca read-only workers could not complete because the agent router returned `401 Unauthorized` for an expired token.
+
+# Session 096: Designer Submission Form Professional Polish
+**Status:** Done + verified (tsc/lint/build clean)
+- Improved the full-width submission form hierarchy with intentional section-level padding, divider rhythm, grouped field layouts, inline state banners, and a focused sticky action bar.
+- Preserved save, submit, upload, locked, error, and success behavior.
+- Verification: `npx tsc --noEmit`, `npm run lint`, `npm run build`, and `git diff --check` clean.
+
+# Session 095: Submission Form Padding Adjustment
+**Status:** Done + verified (tsc/lint clean)
+- Removed the selected inner form wrapper padding from `SubmissionForm` and normalized the sticky action bar spacing without changing form behavior.
+- Verification: `npx tsc --noEmit`, `npm run lint`, and `git diff --check` clean.
+
+# Session 094: Designer Submission Form Profile Parity
+**Status:** Done + verified (tsc/lint/build clean)
+- Redesigned `SubmissionForm` to match `ProfileClientView`: one primary rounded card, icon-led section headings, profile-style labels and inputs, grouped fields, semantic notices, and a sticky bottom action bar.
+- Preserved save draft, submit for review, ZIP upload, locked state, success notice, and error behavior.
+- Verification: `npx tsc --noEmit`, `npm run lint`, `npm run build`, and `git diff --check` clean.
+
+# Session 093: Anti-Slop Designer Audit Findings 1-5
+**Status:** Done + verified (tsc/lint/build clean)
+- Resolved all owner-selected findings from `anti-slop/audit-002-2026-08-17.md`: Designer route loading/error boundaries, sidebar tap targets, metadata contrast, semantic info tokens, and repeated overview arrow treatment.
+- Verification: `npx tsc --noEmit`, `npm run lint`, `npm run build`, `git diff --check`, and locale JSON parsing clean.
+
+# Session 092: Designer Shell Parity
+**Status:** Done + verified (tsc/lint/build clean)
+- Matched Designer shell to the main dashboard: flat `bg-canvas` app frame, `248px` collapsible desktop sidebar / `72px` rail, integrated mobile drawer, dashboard-style profile footer, and `border-l` content surface.
+- Matched Designer overview and submissions headers to the dashboard eyebrow/title/CTA hierarchy while preserving all submission actions.
+- Verification: `npx tsc --noEmit`, `npm run lint`, `npm run build`, and `git diff --check` clean.
+
+# Session 091: Designer Dashboard Visual Polish
+**Status:** Done + verified (tsc/lint/build clean)
+- Refined the existing Designer overview using a Soft Structuralism + Asymmetrical Bento direction while preserving the light-only app design system.
+- Added a stronger portal hero, nested status metric cards, clearer recent-submission panel, semantic status tokens, and responsive mobile stacking.
+- Added custom-curve hover/press motion and nested CTA affordances without changing Designer data or submission behavior.
+- Verification: `npx tsc --noEmit` clean, `npm run lint` clean, `npm run build` clean, `git diff --check` clean. Designer routes are included in the production build.
+
+# Session 090: Admin User Search
+**Status:** Done + verified (tsc/lint clean)
+- Added a localized client-side search field to `/[locale]/admin` for filtering users by full name, email, or role.
+- Added clear-search and no-match states while preserving existing role and suspend/reactivate actions.
+- Verification: `./init.sh`, `npx tsc --noEmit`, `npm run lint`, and `git diff --check` clean.
+
 # Session 089c: Mobile Layout Audit — Batch LOW (nomor 42-59) Diperbaiki
 **Status:** Done + verified (tsc/lint/build clean, full e2e 31 passed / 3 skipped / 0 failed, 2 probe mobile pass)
 - **Lanjutan Session 089/089b.** Batch HIGH (1-12) → commit `1cdbf5c`, MEDIUM (13-41) → commit `ee39aa9`. Batch LOW 42-59 di commit terpisah.

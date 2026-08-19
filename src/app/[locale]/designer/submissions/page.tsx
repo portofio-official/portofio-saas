@@ -7,14 +7,14 @@ export default async function DesignerSubmissionsPage() {
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
-      <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-4 border-b border-black/5 px-6 py-7 sm:px-10">
+      <header className="shrink-0 border-b border-black/5 bg-surface px-6 pb-5 pt-6 sm:px-8">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">{t("eyebrow")}</p>
-          <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink">{t("submissionsTitle")}</h1>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/[0.1] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent-deep ring-1 ring-accent/20"><span className="h-1.5 w-1.5 rounded-full bg-accent" />{t("eyebrow")}</span>
+          <h1 className="mt-2.5 font-display text-[24px] font-bold tracking-tight text-ink sm:text-[28px]">{t("submissionsTitle")}</h1>
         </div>
-        <Link href="/designer/submissions/new" className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-bold text-white hover:bg-accent-deep"><span className="material-symbols-outlined text-[18px]">add</span>{t("newSubmission")}</Link>
+        <Link href="/designer/submissions/new" className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-[13px] font-bold text-white transition-colors duration-200 hover:bg-accent-deep active:scale-[0.98]"><span className="material-symbols-outlined text-[17px]">add</span>{t("newSubmission")}</Link>
       </header>
-      <div className="flex-1 p-6 sm:p-10">
+      <div className="flex-1 overflow-y-auto p-6 sm:p-8">
         {submissions.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-black/10 bg-canvas px-6 py-14 text-center text-sm text-ink-soft">{t("emptyDescription")}</div>
         ) : (

@@ -915,6 +915,28 @@
         "2026-08-15: Migration applied to real Supabase project yvjwqammizdipwalvets; full behavior verified via real HTTP POSTs; test data cleaned up."
       ],
       "notes": "Real Midtrans sandbox E2E pending the user-provided MIDTRANS_SERVER_KEY. Next blockers: URL/file validation, public render without service-role, SMTP/email templates, observability, template switching, UX single-entry flow."
+    },
+    {
+      "id": "hardening-005",
+      "priority": 0,
+      "area": "security",
+      "title": "Launch blocker (PRD v2 N6): allowlist post-auth redirect params",
+      "user_visible_behavior": "After clicking an email confirmation/recovery link or completing OAuth, a user is only ever redirected to a page within the app itself, never to an attacker-supplied external site, even if the confirm/callback URL's redirect query param has been tampered with.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npm run lint clean (0 errors).",
+        "npm run build clean (34 routes).",
+        "npx playwright test: 31 passed / 3 skipped / 0 failed.",
+        "git diff --check clean.",
+        "Standalone self-check (11 cases: absolute http(s):// URLs, protocol-relative //host, backslash \\host, host-suffix .evil.com/x, javascript: scheme, null/empty/missing, and legit relative paths with query strings) — all pass; run inline during this session, not committed as a repo file (trivial pure-function check, no framework needed)."
+      ],
+      "evidence": [
+        "2026-08-21: PRD v2 (docs/PRD.md) Section 8/11 N6 flagged src/app/auth/confirm/route.ts's `next` and src/app/auth/callback/route.ts's `redirect` query params as unvalidated open-redirect vectors — both built the Location header via direct string concatenation (`${appUrl}${param}`), which is exploitable via a leading-dot host-suffix trick (e.g. `next=.attacker.com/x` turns `https://portofio.app` into `https://portofio.app.attacker.com/x`, a fully attacker-controlled host) even though naive absolute-URL/`//host` payloads happen to fail to parse.",
+        "2026-08-21: Added `sanitizeRedirectPath(path, fallback)` to src/lib/utils/sanitize.ts (single shared helper, both call sites route through it per root-cause-fix convention) — accepts only strings starting with exactly one `/` (rejects missing/empty, `//`, `\\\\`, absolute URLs, and any string without a leading slash, which blocks the host-suffix trick since a bare relative path can never extend the origin's host).",
+        "2026-08-21: Wired into src/app/auth/confirm/route.ts (`next` param, fallback `/`) and src/app/auth/callback/route.ts (`redirect` param, fallback `/dashboard`). Grepped the repo for any other `searchParams.get(\"next\"|\"redirect\")` sites — none found outside these two."
+      ],
+      "notes": "N1 (cron fail-open), N2 (atomic publish quota), N3 (durable rate limiter), and N4 (public paths off service-role) were already shipped and passing prior to this PRD v2 pass — see hardening-001/hardening-002 and src/lib/supabase/public.ts. N5 (image upload magic-byte/dimension validation) remains genuinely open: src/lib/content/actions.ts's uploadContentImageAction only checks the client-declared data: URL MIME label via regex, not the actual decoded byte signature — next P0 candidate."
     }
   ]
 }

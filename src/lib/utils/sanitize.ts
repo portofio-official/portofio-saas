@@ -14,6 +14,18 @@ export function sanitizeString(input: unknown): string {
 }
 
 /**
+ * Guards a post-auth redirect target so it can only be a same-origin relative
+ * path — rejects absolute URLs and protocol-relative ("//host") or
+ * backslash ("\host", browsers treat it like "/") tricks that let an
+ * attacker-controlled `next`/`redirect` query param send a signed-in user
+ * off-site (open redirect).
+ */
+export function sanitizeRedirectPath(path: string | null | undefined, fallback: string): string {
+  if (!path || !/^\/(?!\/|\\)/.test(path)) return fallback;
+  return path;
+}
+
+/**
  * Recursively sanitizes object values before dynamic rendering.
  */
 export function sanitizeObjectData<T>(obj: T): T {

@@ -1,10 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeRedirectPath } from "@/lib/utils/sanitize";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const redirectParam = searchParams.get("redirect") ?? "/dashboard";
+  const redirectParam = sanitizeRedirectPath(searchParams.get("redirect"), "/dashboard");
   const templateId = searchParams.get("templateId");
 
   let appUrl = origin;

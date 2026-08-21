@@ -175,7 +175,7 @@ Prinsip yang dipertahankan dari v1.9 (masih benar, tidak berubah): RLS berbasis 
 
 Satu plan: **Basic** — publish 1 website ke subdomain Portofio, watermark kecil, akses ke template yang sudah `is_active`, basic analytics. Billing monthly & annual via Midtrans (skema `plans`/`entitlements` yang sudah ada dipakai apa adanya, cukup satu baris aktif).
 
-Harga final belum diisi di sini secara sengaja — lihat Section 17. Rekomendasi proses: uji willingness-to-pay pada kohort 10–20 user pertama sebelum mengunci angka, bukan menebak dari awal seperti placeholder `Rp[X_B]` di v1.9 yang sampai versi 1.9 pun belum terisi.
+**Harga (dikunci 2026-08-21, atas keputusan pemilik produk)**: **Rp49.000/bulan**, **Rp490.000/tahun** (setara 2 bulan gratis, diskon ~17%). Ini hipotesis harga awal untuk kohort 10–20 user pertama, bukan angka final permanen — tetap divalidasi lewat willingness-to-pay kohort tersebut dan boleh disesuaikan sebelum dibuka ke publik luas. Rasional pemilihan: (a) di bawah ambang psikologis Rp50rb tapi cukup tinggi untuk tidak terbaca sebagai produk asal-asalan, (b) sepadan dengan anchor SaaS lokal lain (mis. Canva Pro), jauh di bawah website builder umum (Wix/Squarespace) — cocok untuk scope produk yang sempit (portofolio, bukan website builder umum), (c) menyisakan headroom harga untuk tier Premium/Enterprise saat Fase 1.5 dibuka (Premium biasanya 2–3x Basic).
 
 Saat langganan berakhir/gagal bayar: grace period 7 hari lalu auto-unpublish (dipertahankan dari v1.9 — ini keputusan yang sudah masuk akal, tinggal dikonfirmasi angkanya, lihat Section 17).
 
@@ -226,15 +226,16 @@ Tidak ada item di sini yang boleh dicentang tanpa artefak (screenshot, log, hasi
 - Multi-portofolio dan tier Premium/Enterprise dipindah ke Fase 1.5 sebagai paid add-on (bukan dihapus dari visi).
 - Terminologi user-facing wajib non-teknis (Portofolio/Publish/Isi Data).
 - Kriteria go-live wajib berbukti, bukan checkbox aspirasional.
+- Harga plan Basic: Rp49.000/bulan, Rp490.000/tahun (dikunci 2026-08-21 — detail & rasional di Section 12). Tanggal launch tetap belum ditentukan (lihat 17.2) — angka harga ini dikunci duluan supaya tidak memblokir kerja lain, bukan berarti launch sudah dijadwalkan.
+- **2026-08-21**: atas instruksi eksplisit pemilik produk, kerja **designer-001 (Designer Portal / template submission workflow)** dibuka dan dikerjakan sekarang, **mendahului** penyelesaian P1 hardening (N7–N11, Section 11) yang sebelumnya jadi prioritas berikutnya. Ini pivot urutan prioritas dari yang dikunci sesi 101 — dicatat di sini supaya sesi berikutnya tidak menganggap ini kesalahan urutan. N7–N11 tetap wajib tuntas sebelum go-live publik luas (lihat Section 16), hanya urutan pengerjaannya yang berubah.
 
 ### 17.2 Masih perlu keputusan pemilik produk
 
-- Harga plan Basic (monthly & annual) — direkomendasikan divalidasi lewat kohort 10–20 user, bukan ditebak dulu.
 - Target waktu launch dan target jumlah user 3 bulan pertama.
 - Nama domain produksi (pengganti placeholder `appku.com`).
 - Konfirmasi grace period 7 hari saat langganan berakhir.
 - Siapa yang mengerjakan closure N1–N11 di Section 8 dan target tanggalnya.
-- Kriteria eksplisit untuk "kapan Fase 1.5 dibuka" (mis. jumlah publish, feedback demand multi-portofolio dari kohort).
+- Kriteria eksplisit untuk "kapan Fase 1.5 dibuka" (mis. jumlah publish, feedback demand multi-portofolio dari kohort) — catatan: designer-001 kini sudah mulai dikerjakan lebih awal (lihat 17.1), jadi kriteria ini mungkin perlu direvisi supaya konsisten dengan status riil.
 
 ## 18. Lampiran — Sumber Riset Kompetitor (21 Agustus 2026)
 

@@ -41,8 +41,7 @@ export const FREELANCER_VARIANTS: TemplateVariant[] = [
 ];
 
 import { freelancerDefaults } from "./defaults";
-import { mapProfileToFreelancer } from "./mapper";
-import { freelancerMigrations } from "./migrations";
+import { mapProfileBase } from "@/templates/shared/_base";
 import { FreelancerRenderer } from "./renderer";
 
 export const freelancerDefinition: TemplateDefinition<typeof freelancerSchema> = {
@@ -67,8 +66,8 @@ export const freelancerDefinition: TemplateDefinition<typeof freelancerSchema> =
   sections: FREELANCER_SECTIONS,
   schema: freelancerSchema,
   defaults: freelancerDefaults,
-  migrations: freelancerMigrations,
-  mapper: mapProfileToFreelancer,
+  migrations: [],
+  mapper: (p) => mapProfileBase(freelancerDefaults, p),
   renderer: FreelancerRenderer,
 };
 

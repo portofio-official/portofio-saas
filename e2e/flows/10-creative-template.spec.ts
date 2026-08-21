@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 const creativeCard = (page: import("@playwright/test").Page) =>
   page
-    .locator(".gsap-template-card")
+    .locator(".template-card")
     .filter({ has: page.locator("p.font-display").getByText("Creative", { exact: true }) })
     .first();
 

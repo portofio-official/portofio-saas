@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicClient } from "@/lib/supabase/public";
 import { getDefinition } from "@/templates/registry";
 import { parseDocumentData, type WebsiteDocument, type WorkspaceProfile } from "@/templates/definition";
 import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
@@ -10,7 +10,7 @@ import { sanitizeObjectData } from "@/lib/utils";
 export const revalidate = 60;
 
 async function getPublishedProject(subdomain: string) {
-  const supabase = createAdminClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("projects")
     .select("template_id, template_version, published_version_id, workspace_id")

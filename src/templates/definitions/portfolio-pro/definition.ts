@@ -44,8 +44,7 @@ export const PORTFOLIO_PRO_VARIANTS: TemplateVariant[] = [
 ];
 
 import { PORTFOLIO_PRO_DEFAULTS } from "./defaults";
-import { mapProfileToPortfolioPro } from "./mapper";
-import { portfolioProMigrations } from "./migrations";
+import { mapProfileBase } from "@/templates/shared/_base";
 import { PortfolioProRenderer } from "./renderer";
 
 export const portfolioProDefinition: TemplateDefinition<
@@ -83,8 +82,8 @@ export const portfolioProDefinition: TemplateDefinition<
   sections: PORTFOLIO_PRO_SECTIONS,
   schema: portfolioProSchema,
   defaults: PORTFOLIO_PRO_DEFAULTS,
-  migrations: portfolioProMigrations,
-  mapper: mapProfileToPortfolioPro,
+  migrations: [],
+  mapper: (p) => mapProfileBase(PORTFOLIO_PRO_DEFAULTS, p),
   renderer: PortfolioProRenderer,
 };
 

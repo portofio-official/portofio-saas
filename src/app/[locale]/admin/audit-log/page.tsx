@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { getAdminAuditLogsAction } from "@/lib/admin";
-import { AdminHeader } from "@/components/admin/AdminHeader";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 function formatMetadata(metadata: Record<string, unknown>): string {
   const entries = Object.entries(metadata).filter(([key]) => key !== "outcome");
@@ -27,7 +27,7 @@ export default async function AdminAuditLogPage({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <AdminHeader
+      <PageHeader
         eyebrow={t("eyebrow")}
         title={t("audit.title")}
         subtitle={t("audit.subtitle")}

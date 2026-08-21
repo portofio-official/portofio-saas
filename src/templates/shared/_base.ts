@@ -1,6 +1,16 @@
 // Shared Zod schemas reused across built-in templates.
 import { z } from "zod";
 
+// Accepts https:// and http:// URLs only (or empty string).
+// z.string().url() alone allows javascript: and data: URIs — this does not.
+const safeUrl = z.union([
+  z.literal(""),
+  z.string().refine(
+    (v) => /^https?:\/\/.+/.test(v),
+    { message: "URL harus dimulai dengan https:// atau http://" },
+  ),
+]);
+
 export const profileSchema = z.object({
   fullName: z.string().default(""),
   headline: z.string().default(""),
@@ -28,8 +38,8 @@ export const educationSchema = z.object({
 export const projectItemSchema = z.object({
   title: z.string(),
   description: z.string(),
-  imageUrl: z.string().url().or(z.literal("")).optional(),
-  link: z.string().url().or(z.literal("")).optional(),
+  imageUrl: safeUrl.optional(),
+  link: safeUrl.optional(),
 });
 
 export const contactSchema = z.object({
@@ -40,7 +50,7 @@ export const contactSchema = z.object({
 
 export const socialSchema = z.object({
   platform: z.enum(["linkedin", "github", "instagram", "x", "youtube", "tiktok", "website"]),
-  url: z.string().url().or(z.literal("")),
+  url: safeUrl,
 });
 
 export const themeSchema = z.object({
@@ -134,6 +144,35 @@ export const BASE_SECTIONS = [
   { id: "projects",   label: "Projects" },
   { id: "contact",    label: "Contact & Socials" },
 ];
+
+// Shared mapper: maps a WorkspaceProfile onto any template's defaults.
+// Handles the profile/contact/socials fields that every template shares.
+// Templates with extra fields (e.g. Studio's hero) spread this result and
+// override what they need.
+export function mapProfileBase<T extends BaseProfileData>(
+  defaults: T,
+  profile: import("@/templates/definition").WorkspaceProfile,
+): T {
+  const validSocials = (profile.extendedData.socials ?? []).filter(
+    (s): s is { platform: SocialPlatform; url: string } =>
+      SOCIAL_PLATFORMS.includes(s.platform as SocialPlatform),
+  );
+  return {
+    ...defaults,
+    profile: {
+      ...defaults.profile,
+      fullName: profile.name ?? "",
+      headline: profile.extendedData.tagline ?? "",
+      bio: profile.extendedData.description ?? "",
+    },
+    contact: {
+      ...defaults.contact,
+      email: profile.email ?? "",
+      phone: profile.phone ?? "",
+    },
+    socials: validSocials,
+  };
+}
 
 export const SOCIAL_PLATFORMS = [
   "linkedin",

@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { getUsersAction } from "@/lib/admin";
-import { AdminHeader } from "@/components/admin/AdminHeader";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { AdminUsersTable } from "@/components/admin/AdminUsersTable";
 
 export default async function AdminDashboardPage() {
@@ -9,7 +9,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <AdminHeader
+      <PageHeader
         eyebrow={t("eyebrow")}
         title={t("users.title")}
         subtitle={t("users.subtitle")}

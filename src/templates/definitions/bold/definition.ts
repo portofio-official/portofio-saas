@@ -40,8 +40,7 @@ export const BOLD_VARIANTS: TemplateVariant[] = [
   }
 ];
 import { BOLD_DEFAULTS } from "./defaults";
-import { mapProfileToBold } from "./mapper";
-import { boldMigrations } from "./migrations";
+import { mapProfileBase } from "@/templates/shared/_base";
 import { BoldRenderer } from "./renderer";
 
 export const boldDefinition: TemplateDefinition<typeof boldSchema> = {
@@ -65,8 +64,8 @@ export const boldDefinition: TemplateDefinition<typeof boldSchema> = {
   sections: BOLD_SECTIONS,
   schema: boldSchema,
   defaults: BOLD_DEFAULTS,
-  migrations: boldMigrations,
-  mapper: mapProfileToBold,
+  migrations: [],
+  mapper: (p) => mapProfileBase(BOLD_DEFAULTS, p),
   renderer: BoldRenderer,
 };
 

@@ -41,8 +41,7 @@ export const STUDIO_VARIANTS: TemplateVariant[] = [
 ];
 
 import { STUDIO_DEFAULTS } from "./defaults";
-import { mapProfileToStudio } from "./mapper";
-import { studioMigrations } from "./migrations";
+import { mapProfileBase } from "@/templates/shared/_base";
 import { StudioRenderer } from "./renderer";
 
 export const studioDefinition: TemplateDefinition<typeof studioSchema> = {
@@ -67,8 +66,15 @@ export const studioDefinition: TemplateDefinition<typeof studioSchema> = {
   sections: STUDIO_SECTIONS,
   schema: studioSchema,
   defaults: STUDIO_DEFAULTS,
-  migrations: studioMigrations,
-  mapper: mapProfileToStudio,
+  migrations: [],
+  mapper: (p) => ({
+    ...mapProfileBase(STUDIO_DEFAULTS, p),
+    hero: {
+      ...STUDIO_DEFAULTS.hero,
+      headline: p.extendedData.tagline || STUDIO_DEFAULTS.hero.headline,
+      subheadline: p.extendedData.description || STUDIO_DEFAULTS.hero.subheadline,
+    },
+  }),
   renderer: StudioRenderer,
 };
 

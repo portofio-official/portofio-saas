@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicClient } from "@/lib/supabase/public";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { classifyDevice, classifyBrowser } from "@/lib/analytics";
 
 export const dynamic = "force-dynamic";
@@ -63,7 +64,15 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const supabase = createAdminClient();
+  // Rate limit: 60 beacon events per subdomain per minute to cap DB write cost.
+  const ip = req.headers.get("x-vercel-forwarded-for") ??
+    req.headers.get("x-real-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
+  const rl = await checkRateLimit(`track:${subdomain}:${ip}`, 60, 60_000);
+  if (!rl.allowed) return new Response(null, { status: 204 });
+
+  const supabase = createPublicClient();
   const { data: project, error } = await supabase
     .from("projects")
     .select("id")

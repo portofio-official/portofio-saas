@@ -6,7 +6,7 @@ test.describe("Flow 9 — Minimal Template Redesign & Data Connection", () => {
     page.on("pageerror", (err) => pageErrors.push(String(err)));
 
     await page.goto("/templates");
-    const card = page.locator(".gsap-template-card").filter({ hasText: "Minimal" }).first();
+    const card = page.locator(".template-card").filter({ hasText: "Minimal" }).first();
     await card.scrollIntoViewIfNeeded();
     await card.hover();
     await card.locator('button[title="Preview Live"]').click();
@@ -41,7 +41,7 @@ test.describe("Flow 9 — Minimal Template Redesign & Data Connection", () => {
     // Regression: schema used to require strict URLs, so a "#" placeholder link
     // failed validation and reset the whole page to empty defaults.
     await page.goto("/templates");
-    const card = page.locator(".gsap-template-card").filter({ hasText: "Minimal" }).first();
+    const card = page.locator(".template-card").filter({ hasText: "Minimal" }).first();
     await card.scrollIntoViewIfNeeded();
     await card.hover();
     await card.locator('button[title="Preview Live"]').click();

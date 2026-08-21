@@ -5,7 +5,7 @@ import { ReviewTemplateDropdown } from "@/components/admin/ReviewTemplateDropdow
 import { ToggleTemplateVisibilityButton } from "@/components/admin/ToggleTemplateVisibilityButton";
 import { TemplateIntegrationStatusButton } from "@/components/admin/TemplateIntegrationStatusButton";
 import { TemplateSourceDownloadButton } from "@/components/admin/TemplateSourceDownloadButton";
-import { AdminHeader } from "@/components/admin/AdminHeader";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function TemplatesPage() {
   const t = await getTranslations("Admin");
@@ -21,7 +21,7 @@ export default async function TemplatesPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <AdminHeader
+      <PageHeader
         eyebrow={t("eyebrow")}
         title={t("templates.title")}
         subtitle={t("templates.subtitle")}

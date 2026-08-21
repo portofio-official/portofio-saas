@@ -41,8 +41,7 @@ export const CORPORATE_VARIANTS: TemplateVariant[] = [
 ];
 
 import { CORPORATE_DEFAULTS } from "./defaults";
-import { mapProfileToCorporate } from "./mapper";
-import { corporateMigrations } from "./migrations";
+import { mapProfileBase } from "@/templates/shared/_base";
 import { CorporateRenderer } from "./renderer";
 
 export const corporateDefinition: TemplateDefinition<typeof corporateSchema> = {
@@ -66,8 +65,8 @@ export const corporateDefinition: TemplateDefinition<typeof corporateSchema> = {
   sections: CORPORATE_SECTIONS,
   schema: corporateSchema,
   defaults: CORPORATE_DEFAULTS,
-  migrations: corporateMigrations,
-  mapper: mapProfileToCorporate,
+  migrations: [],
+  mapper: (p) => mapProfileBase(CORPORATE_DEFAULTS, p),
   renderer: CorporateRenderer,
 };
 

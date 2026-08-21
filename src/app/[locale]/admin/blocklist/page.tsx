@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { requireRole } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BlocklistClientView } from "@/components/admin/BlocklistClientView";
-import { AdminHeader } from "@/components/admin/AdminHeader";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function BlocklistPage() {
   await requireRole(["admin"]);
@@ -18,7 +18,7 @@ export default async function BlocklistPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <AdminHeader
+      <PageHeader
         eyebrow={t("eyebrow")}
         title={t("blocklist.title")}
         subtitle={t("blocklist.subtitle")}

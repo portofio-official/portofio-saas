@@ -44,8 +44,7 @@ export const CREATIVE_VARIANTS: TemplateVariant[] = [
 ];
 
 import { CREATIVE_DEFAULTS } from "./defaults";
-import { mapProfileToCreative } from "./mapper";
-import { creativeMigrations } from "./migrations";
+import { mapProfileBase } from "@/templates/shared/_base";
 import { CreativeRenderer } from "./renderer";
 
 export const creativeDefinition: TemplateDefinition<typeof creativeSchema> = {
@@ -69,8 +68,8 @@ export const creativeDefinition: TemplateDefinition<typeof creativeSchema> = {
   sections: CREATIVE_SECTIONS,
   schema: creativeSchema,
   defaults: CREATIVE_DEFAULTS,
-  migrations: creativeMigrations,
-  mapper: mapProfileToCreative,
+  migrations: [],
+  mapper: (p) => mapProfileBase(CREATIVE_DEFAULTS, p),
   renderer: CreativeRenderer,
 };
 

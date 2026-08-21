@@ -41,8 +41,7 @@ export const DARK_VARIANTS: TemplateVariant[] = [
 ];
 
 import { DARK_DEFAULTS } from "./defaults";
-import { mapProfileToDark } from "./mapper";
-import { darkMigrations } from "./migrations";
+import { mapProfileBase } from "@/templates/shared/_base";
 import { DarkRenderer } from "./renderer";
 
 export const darkDefinition: TemplateDefinition<typeof darkSchema> = {
@@ -66,8 +65,8 @@ export const darkDefinition: TemplateDefinition<typeof darkSchema> = {
   sections: DARK_SECTIONS,
   schema: darkSchema,
   defaults: DARK_DEFAULTS,
-  migrations: darkMigrations,
-  mapper: mapProfileToDark,
+  migrations: [],
+  mapper: (p) => mapProfileBase(DARK_DEFAULTS, p),
   renderer: DarkRenderer,
 };
 

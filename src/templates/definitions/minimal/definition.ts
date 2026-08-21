@@ -43,8 +43,7 @@ export const MINIMAL_VARIANTS: TemplateVariant[] = [
   }
 ];
 import { MINIMAL_DEFAULTS } from "./defaults";
-import { mapProfileToMinimal } from "./mapper";
-import { minimalMigrations } from "./migrations";
+import { mapProfileBase } from "@/templates/shared/_base";
 import { MinimalRenderer } from "./renderer";
 
 export const minimalDefinition: TemplateDefinition<typeof minimalSchema> = {
@@ -68,8 +67,8 @@ export const minimalDefinition: TemplateDefinition<typeof minimalSchema> = {
   sections: MINIMAL_SECTIONS,
   schema: minimalSchema,
   defaults: MINIMAL_DEFAULTS,
-  migrations: minimalMigrations,
-  mapper: mapProfileToMinimal,
+  migrations: [],
+  mapper: (p) => mapProfileBase(MINIMAL_DEFAULTS, p),
   renderer: MinimalRenderer,
 };
 

@@ -21,7 +21,7 @@ export function TemplateCard({ meta, index, previewData, isInUse = false, onPrev
 
   return (
     <div
-      className="gsap-template-card group relative flex flex-col gap-2.5 animate-fade-in-up-custom"
+      className="template-card group relative flex flex-col gap-2.5 animate-fade-in-up-custom"
       style={{ animationDelay: `${Math.min(index * 40, 320)}ms` }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

@@ -6,7 +6,7 @@ export type AppRole = "user" | "designer" | "admin";
 
 // Re-exported so the middleware and server code can use the single source of
 // truth without importing a client-safe module themselves.
-export { SUPERUSER_TEST_EMAIL, isSuperuserTestEmail } from "@/lib/auth/superuser";
+export { isSuperuserTestEmail } from "@/lib/auth/superuser";
 
 export async function getUserRole(): Promise<string> {
   const cookieStore = await cookies();

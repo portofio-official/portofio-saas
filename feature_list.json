@@ -937,6 +937,28 @@
         "2026-08-21: Wired into src/app/auth/confirm/route.ts (`next` param, fallback `/`) and src/app/auth/callback/route.ts (`redirect` param, fallback `/dashboard`). Grepped the repo for any other `searchParams.get(\"next\"|\"redirect\")` sites — none found outside these two."
       ],
       "notes": "N1 (cron fail-open), N2 (atomic publish quota), N3 (durable rate limiter), and N4 (public paths off service-role) were already shipped and passing prior to this PRD v2 pass — see hardening-001/hardening-002 and src/lib/supabase/public.ts. N5 (image upload magic-byte/dimension validation) remains genuinely open: src/lib/content/actions.ts's uploadContentImageAction only checks the client-declared data: URL MIME label via regex, not the actual decoded byte signature — next P0 candidate."
+    },
+    {
+      "id": "hardening-006",
+      "priority": 0,
+      "area": "security",
+      "title": "Launch blocker (PRD v2 N5): magic-byte + dimension validation for uploaded images",
+      "user_visible_behavior": "Uploading a project/content image only succeeds if the file's actual bytes are a well-formed png/jpeg/gif/webp image matching the declared type, with sane dimensions — a non-image file renamed with an image MIME label is rejected instead of being stored and served back to visitors.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npm run lint clean (0 errors).",
+        "npm run build clean (34 routes).",
+        "npx playwright test: 31 passed / 3 skipped / 0 failed.",
+        "git diff --check clean.",
+        "Standalone self-check on the compiled sniffImage() (real png/jpeg/gif/webp headers accepted with correct dimensions incl. WebP VP8X; HTML payload, plain text, empty buffer, zero/absurd dimensions, corrupt IHDR tag, and truncated JPEG all rejected without throwing) — all pass; run inline during this session, not committed as a repo file (pure-function check, no framework needed)."
+      ],
+      "evidence": [
+        "2026-08-21: PRD v2 (docs/PRD.md) Section 8/11 N5 flagged src/lib/content/actions.ts's uploadContentImageAction — it only regex-matched the client-declared `data:image/...;base64,` MIME label, never inspecting the decoded bytes, so a non-image payload with a spoofed data: URL prefix would upload and be served back through Supabase Storage's public URL.",
+        "2026-08-21: Added src/lib/utils/image-validate.ts — dependency-free sniffImage(bytes) that reads real magic bytes + header dimensions for png/jpeg/gif/webp (incl. VP8/VP8L/VP8X WebP subformats) and rejects zero/oversized (>6000px) dimensions. Grepped the repo for other data:image/base64 upload sites (src/lib/billing/midtrans.ts's hit was an unrelated Basic-auth header encode) — uploadContentImageAction is the only image upload path, so this is the single root-cause fix point.",
+        "2026-08-21: Wired into uploadContentImageAction: after decoding the base64 payload, sniffImage(bytes) must return a non-null result whose type matches the client-declared MIME subtype, or the upload is rejected before it reaches Supabase Storage."
+      ],
+      "notes": "This closes the last open P0 from PRD v2 Section 11 (N1–N6 all now passing). Next recommended work per PRD v2 priority order is P1 (N7–N11): re-verify npm audit, prove production email end-to-end, wire monitoring/alerting, run a backup/restore drill, and clear Supabase advisor findings."
     }
   ]
 }

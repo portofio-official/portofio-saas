@@ -6,3 +6,4 @@ export function cn(...inputs: ClassNameValue[]) {
 
 export * from "./sanitize";
 export * from "./compressImage";
+export * from "./image-validate";

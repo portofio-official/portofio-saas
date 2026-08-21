@@ -10,7 +10,7 @@ import {
   deleteContentItem,
   updateContentItemState,
 } from "./store";
-import { sanitizeString } from "@/lib/utils";
+import { sanitizeString, sniffImage } from "@/lib/utils";
 import type { ContentItem, ContentItemInput } from "./types";
 import { requireRole } from "@/lib/auth/roles";
 
@@ -52,6 +52,14 @@ export async function uploadContentImageAction(
   const bytes = Buffer.from(match[2], "base64");
   if (bytes.byteLength === 0) return { ok: false, error: "Empty file" };
   if (bytes.byteLength > 8 * 1024 * 1024) return { ok: false, error: "tooLarge" };
+
+  // Trust the actual bytes, not the client-declared MIME label: reject
+  // anything whose magic bytes / header dimensions don't match a real
+  // image of the claimed type (e.g. an HTML/SVG payload renamed to .png).
+  const sniffed = sniffImage(bytes);
+  if (!sniffed || sniffed.type !== mime.split("/")[1]) {
+    return { ok: false, error: "Invalid image data." };
+  }
 
   const supabase = await createClient();
   const {

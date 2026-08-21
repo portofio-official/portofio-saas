@@ -1,519 +1,247 @@
 # Product Requirements Document (PRD)
-## Portofio - SaaS Portfolio Website Builder
+## Portofio — SaaS Portfolio Website Builder
 
-**Versi**: 1.9
-**Tanggal**: 11 Agustus 2026
-**Disusun oleh**: Maulana Chandra Irawan
-**Status**: Baseline produk; MVP role model sudah ditetapkan
+**Versi:** 2.0 (MVP Rewrite)
+**Tanggal:** 21 Agustus 2026
+**Disusun oleh:** Maulana Chandra Irawan (pemilik produk) — rewrite dibantu Claude atas permintaan pemilik produk
+**Status:** Draft untuk keputusan pemilik produk sebelum jadi baseline resmi
+**Menggantikan:** `docs/PRD.md` v1.9 (11 Agustus 2026) sebagai acuan **launch pertama**. v1.9 tidak dibuang — visinya dipindahkan ke Section 14 (Roadmap) sebagai arah jangka panjang yang tetap valid.
 
-> Perubahan v1.1: model monetisasi diubah dari freemium menjadi **gratis membuat & preview, berbayar untuk publish** (satu paket langganan); auth MVP dipersempit ke email/password; UI aplikasi dua bahasa (id/en); skema data portofolio dikonkretkan; spesifikasi 5 template ditambahkan.
->
-> Perubahan v1.2: alur utama diubah mengikuti pola Framer/Canva — galeri 5 template kini juga tampil **publik di landing page** (sebelum daftar), diisi data contoh/demo per template supaya calon pengguna bisa lihat hasil jadi sebelum commit. Memilih template di galeri publik lalu mendaftar akan membawa pilihan itu otomatis ke akun baru; template tetap bisa diganti kapan saja dari dashboard seperti sebelumnya. Lihat section 6 dan 7.3.
->
-> Perubahan v1.3: ditambahkan konsep **Workspace** — satu akun dapat memiliki lebih dari satu workspace (brand profile), masing-masing dengan data portofolio, pilihan template, dan subdomain publish sendiri-sendiri (sebelumnya diasumsikan 1 akun = 1 portofolio). Alur pengguna dirinci: setelah daftar, pengguna membuat workspace pertama lalu mengisi Data General; di dalam workspace, memilih template menampilkan preview dengan **data dummy** dulu, baru setelah "Gunakan template" pengguna masuk ke form khusus yang auto-fill dari Data General dan hanya minta field yang belum terisi (bukan field unik per template — kontrak data tetap satu untuk semua template, lihat 7.3/9.4). Ditambahkan langkah Review eksplisit sebelum Deploy (=Publish). Skema data (9.4) dan model billing (7.6) disesuaikan; harga per-workspace vs per-akun dicatat sebagai open question (16) karena belum diputuskan.
->
-> Perubahan v1.4: Menyederhanakan alur pengguna (Ponytail mode). Menghapus langkah isi "Data General" di awal. Pengguna langsung masuk ke Dashboard setelah login untuk memilih template, lalu mengisi data spesifik di dalam Editor (mirip Framer).
->
-> Perubahan v1.5 (2026-07-16, doc-sync pass): §9.3/9.4 ditulis ulang untuk mencocokkan arsitektur yang sudah dibangun ("Workspace Profile + Project Architecture", `arch-001` di `feature_list.json`) dan menggantikan `portfolio_data`+`sites` yang sudah di-drop dari database. Skema baru: `workspace_profile` (data umum 1:1 per workspace) + `projects` (banyak per workspace, `draft_json`/`published_json`, publish via RPC `publish_project()`) + template didefinisikan lewat Zod `TemplateDefinition` di kode (`src/lib/templates/schemas/`), bukan satu interface `PortfolioData` tunggal. Tidak ada perubahan pada alur pengguna (section 6) atau scope (section 5) — murni penyelarasan skema data dengan kode yang sudah berjalan.
->
-> Perubahan v1.6 (2026-07-17, maintenance pass): v1.5's changelog note klaim §9.3/9.4 sudah ditulis ulang, tapi isinya ternyata masih versi lama (tabel `portfolio_data`/`sites`, interface `PortfolioData` tunggal, `src/templates/`) — janji changelog yang tidak benar-benar dieksekusi. Kali ini benar-benar diperbaiki: §9.3 (tidak ada tabel `templates` di DB, semua lewat `TEMPLATE_REGISTRY` di kode, path folder per-template yang benar) dan §9.4 (skema real: `workspace_profile`/`workspace_assets`/`projects`/`subscriptions`, `WebsiteDocument`+per-template Zod schema, bukan `PortfolioData` global). §7.3 diperbarui dari 5 jadi 7 template terdaftar (`Vanguard Studio`, `Portfolio Pro` ditambahkan tanpa update PRD sebelumnya).
->
-> Perubahan v1.7 (2026-08-01, policy enforcement pass): Menetapkan aturan ketat batasan kuota publikasi: **1 user hanya bisa mempublikasikan (deploy) 1 website aktif di 1 akun**. Pengguna bebas membuat draft project lain atau mengganti template pada website tersebut, namun sistem secara tegas memblokir publikasi website kedua kecuali website pertama di-unpublish terlebih dahulu. Lihat section 7.4 & 16.
->
-> Perubahan v1.8 (2026-08-11, role model clarification): menetapkan tiga role akun (`user`, `designer`, `admin`), permission matrix, batas isolasi data, serta lifecycle submission template. `user` adalah pemilik portofolio, `designer` adalah kontributor template yang tetap dapat membuat portofolio sendiri, dan `admin` adalah operator platform. Admin operations masuk MVP; portal submission designer masuk Fase 2. Arsitektur template diperjelas menjadi hybrid: schema/renderer/metadata desain di codebase, visibility katalog di database. Jumlah template terdaftar saat ini menjadi 8 termasuk Freelancer.
->
-> Perubahan v1.9 (2026-08-11, tiered billing clarification): mengganti model satu paket menjadi tiga tier berbayar: Basic, Premium, dan Enterprise. Semua tier untuk sementara memiliki maksimal satu website live per akun. Basic memakai subdomain Portofio dan watermark kecil; Premium menambahkan custom domain dan menghapus watermark; Enterprise tersedia self-service tetapi fitur team collaboration dan governance menjadi roadmap setelah tiered billing stabil. Billing mendukung monthly dan annual melalui Midtrans. Akses template ditentukan oleh status katalog Admin dan minimum plan template. Designer dapat memperoleh revenue sharing berdasarkan penggunaan template yang disetujui.
+### Kenapa dokumen ini ada
+
+v1.9 adalah PRD yang matang dan sangat detail, tapi scope di section 5-nya (RBAC 3 role, 3 tier billing × 2 siklus, revenue sharing designer, 8 template, workspace multi-tenant per akun, admin ops penuh) sudah lebih besar dari definisi wajar sebuah MVP. Dua audit teknik internal memverifikasi ini lewat inspeksi kode langsung, bukan opini:
+
+- `docs/DEEP_PRODUCT_ENGINEERING_AUDIT.md` (15 Agustus 2026) — skor kesiapan rata-rata **~6/10**, verdict: jangan tambah fitur, tutup dulu blocker keamanan/data-consistency.
+- `docs/READINESS_AUDIT_2026-08-17.md` (17 Agustus 2026) — verdict eksplisit: **belum siap production/public launch**.
+
+Dokumen ini melakukan tiga hal: (1) mempersempit scope launch pertama menjadi benar-benar minimal dengan cara **gating**, bukan membongkar apa yang sudah dibangun — 38 dari 41 fitur di `feature_list.json` sudah berstatus *passing*, jadi memotong scope di sini artinya menyembunyikan/menunda expose ke publik, bukan menghapus kerja; (2) menyilangkan satu keputusan produk yang belum tervalidasi (multi-portfolio per akun) dengan riset kompetitor singkat; (3) mengubah kriteria go-live dari kalimat aspirasional ("sudah terpasang") menjadi checklist yang butuh bukti konkret.
 
 ---
 
 ## 1. Ringkasan Produk
 
-Portofio adalah platform SaaS untuk membuat dan menerbitkan website portofolio profesional tanpa coding maupun desain. Pengguna mengisi data melalui form terstruktur, memilih template, melihat preview real-time, lalu mempublikasikan satu website aktif ke subdomain atau custom domain sesuai plan. Membuat dan mem-preview portofolio gratis; publish adalah fitur berbayar melalui tier Basic, Premium, atau Enterprise.
+Portofio adalah platform SaaS untuk membuat dan menerbitkan website portofolio profesional tanpa coding maupun desain: isi data lewat form terstruktur, pilih template, lihat live preview, publish ke subdomain. Membuat dan preview gratis; publish berbayar.
 
-Produk memiliki tiga role produk: `user` sebagai pemilik portofolio, `designer` sebagai pembuat atau kontributor template, dan `admin` sebagai operator platform. Semua akun memiliki kemampuan dasar User. Status Designer adalah capability tambahan yang dapat diberikan kepada akun User terverifikasi; Admin adalah capability administratif terpisah. Ketiganya menggunakan autentikasi yang sama, tetapi memiliki area aplikasi dan izin yang berbeda.
+**Perubahan paling penting dari v1.9:** launch pertama hanya menjual **satu plan** dan hanya mengizinkan **satu portofolio per akun**. Model tiga-role (user/designer/admin), tiga-tier billing, dan multi-workspace tetap ada sebagai fondasi kode dan sebagai arah roadmap — tapi tidak diekspos ke publik sampai ada bukti demand dan sampai lapisan keamanan/entitlement-nya benar-benar tuntas diuji.
 
-Model ini terinspirasi dari platform seperti Framer, namun disederhanakan dengan pendekatan form + template (bukan drag-and-drop canvas bebas) agar proses pembuatan lebih cepat dan ramah untuk pengguna non-teknis.
+## 2. Problem Statement & Persona
 
-## 2. Latar Belakang dan Problem Statement
+Tidak berubah signifikan dari v1.9 section 2/4: fresh graduate, freelancer, job seeker, content creator butuh portofolio online yang terlihat profesional tanpa keahlian teknis. Framer/Webflow terlalu kompleks dan mahal; Canva menghasilkan gambar/PDF bukan website; coding sendiri butuh skill yang tidak dimiliki mayoritas.
 
-Banyak profesional umum (fresh graduate, freelancer, job seeker, content creator) membutuhkan portofolio online yang terlihat profesional, tetapi tidak memiliki waktu maupun keahlian teknis untuk membangunnya dari nol. Alternatif yang ada saat ini punya kelemahan masing-masing:
+**Satu penambahan wajib:** seluruh UI aplikasi (bukan hanya landing page) harus memakai istilah yang dipahami persona ini — *Portofolio*, *Publish*, *Isi Data* — bukan istilah developer-centric seperti *Workspace*, *Project*, *Version*, *Content Library*. Ini bukan saran kosmetik; audit teknik (temuan M1) sudah menandai istilah-istilah ini sebagai beban kognitif nyata untuk persona non-teknis. Nama tabel/kolom di database boleh tetap `workspace`/`project` (biaya migrasi nama kolom tidak sepadan), tapi **tidak ada satupun istilah itu yang boleh muncul di copy yang dilihat user**.
 
-- Website builder seperti Framer/Webflow terlalu kompleks dan mahal untuk kebutuhan sederhana
-- Template desain statis (Canva, dsb) menghasilkan file gambar/PDF, bukan website yang bisa diakses lewat link
-- Membangun sendiri dengan coding butuh skill dan waktu yang tidak dimiliki mayoritas target pengguna
+## 3. Riset Kompetitor & Insight Kunci
 
-Portofio mengisi celah ini dengan alur super sederhana: isi data, pilih template, publish.
+Riset singkat (21 Agustus 2026) untuk menjawab satu pertanyaan spesifik: apakah "user butuh lebih dari satu portofolio per akun" adalah kebutuhan yang tervalidasi atau asumsi?
 
-## 3. Tujuan Produk dan Success Metrics
-
-**Tujuan Bisnis**
-- Meluncurkan MVP dalam [X bulan] dengan minimal 5 template siap pakai (8 sudah terdaftar per 2026-08-11, lihat 7.3)
-- Mendapatkan [Z] pengguna terdaftar dalam 3 bulan pertama pasca-launch
-- Konversi minimal 5-10% dari pembuat portofolio (akun gratis) menjadi pelanggan berbayar yang publish
-
-**Metrik Keberhasilan (KPI)**
-- Jumlah website yang berhasil dipublikasikan
-- Time-to-publish rata-rata (target di bawah 15 menit dari signup sampai publish)
-- Retention rate bulanan
-- Conversion rate free ke paid subscription
-- Conversion rate Free ke Basic dan Basic ke Premium
-- Revenue mix, ARPU, dan churn per plan
-- Churn rate subscription bulanan
-- Jumlah template submission designer dan persentase submission yang lolos review
-- Waktu rata-rata admin menyelesaikan review submission
-- Jumlah insiden abuse yang berhasil ditangani sebelum atau segera setelah publish
-
-## 4. Target Pengguna (Persona)
-
-Persona utama: profesional umum non-teknis (fresh graduate, freelancer, job seeker, konsultan individu, content creator) yang butuh portofolio online cepat tanpa belajar coding atau desain.
-
-Karakteristik:
-- Melek digital dasar, bukan developer maupun desainer
-- Mengutamakan kecepatan dan hasil yang terlihat profesional
-- Sensitif terhadap harga, terutama segmen fresh graduate
-- Mengakses baik dari desktop maupun mobile
-
-### 4.1 Role Akun dan Batas Tanggung Jawab
-
-Signup biasa selalu menghasilkan akun `user`. Status `designer` hanya dapat diberikan melalui proses internal yang dikendalikan Admin; pengguna tidak dapat menaikkan statusnya sendiri dari client. Akun Designer mewarisi seluruh kemampuan User. Status `admin` juga hanya diberikan melalui operasi internal terproteksi. Enterprise membership roles seperti owner, editor, billing, dan viewer bukan bagian dari role platform MVP dan menjadi roadmap Enterprise.
-
-| Role | Tujuan utama | Area yang boleh diakses | Batasan utama |
+| Kompetitor | Kategori | Multi-situs per akun? | Model monetisasi multi-situs |
 |---|---|---|---|
-| **User** | Membuat dan menerbitkan portofolio miliknya | Dashboard, workspace, project/editor, Content Library milik akun, billing, analytics situs sendiri | Tidak dapat mengirim submission template, melihat data akun lain, atau mengakses `/admin` |
-| **Designer** | Membuat portofolio sendiri dan mengusulkan template untuk katalog | Seluruh kemampuan User, ditambah Designer Portal dan submission miliknya sendiri | Tidak dapat melihat data customer lain, menyetujui submission sendiri, mengubah registry, atau mengakses `/admin` |
-| **Admin** | Mengoperasikan, menjaga keamanan, dan memoderasi platform | Admin Dashboard, manajemen user, blocklist, visibility template, review submission, metadata billing dan moderation | Tidak boleh mengedit isi portofolio user atau mengambil alih akun secara normal; tindakan support sensitif wajib terkontrol dan tercatat |
+| Framer | Website builder umum | Ya, proyek tidak dibatasi | Per-situs — tiap situs yang publish ke custom domain butuh paket sendiri |
+| Adobe Portfolio | Portfolio builder (langsung sebanding) | Ya, sampai 5 situs, semua boleh live bersamaan | Gratis dalam satu subscription Creative Cloud — dipasarkan khusus untuk kreator multidisiplin |
+| Journo Portfolio | Portfolio builder (langsung sebanding) | Ya | Diskon 50% per langganan tambahan — tetap dijual per situs, bukan gratis tak terbatas |
+| Pixpa | Portfolio + client gallery + store | Fokus satu situs per subscription, upsell ke paket lebih tinggi untuk kapasitas | Per-tier |
 
-Prinsip isolasi data:
+**Insight kunci:**
 
-- User dan Designer hanya dapat membaca atau mengubah workspace, project, Content Library, dan analytics yang menjadi milik akunnya.
-- Submission Designer hanya terlihat oleh designer pemilik dan Admin yang melakukan review.
-- Admin dapat melihat metadata operasional yang diperlukan untuk support dan moderation. Akses ke konten portofolio customer bukan bagian dari alur normal dan, bila kelak diperlukan untuk support, harus memakai audit log serta alasan akses.
-- Perubahan role, suspend akun, keputusan review, perubahan blocklist, dan perubahan visibility template adalah tindakan administratif yang harus dapat diaudit.
+1. Kebutuhan multi-portofolio itu **nyata**, bukan fitur yang "kelihatan berguna" tanpa dasar — Adobe secara eksplisit membangun ini untuk kreator yang mengerjakan lebih dari satu bidang, dan testimoni pengguna Journo mengonfirmasi pola yang sama.
+2. Tapi **tidak ada satupun kompetitor yang menggratiskan banyak situs live tanpa batas**. Semua memonetisasi situs tambahan — baik lewat harga per-situs, atau lewat batas jumlah situs yang dibundel ke satu subscription.
+3. Desain v1.9 (banyak workspace gratis per akun, tapi dibatasi hanya 1 yang boleh `published`) tidak mencerminkan pola manapun di atas. Ia memberi ongkos rekayasa (skema multi-tenant, switcher UI, isolasi kepemilikan) tanpa upside monetisasi yang jelas, dan justru **mengecilkan nilai** untuk persona yang paling butuh fitur ini (kreator multidisiplin) karena tetap dibatasi satu output live.
 
-### 4.2 Matriks Izin MVP dan Fase 2
+**Keputusan yang diambil:** launch v1 = satu portofolio per akun (skema `workspace_id` di database tidak diubah, hanya tidak diekspos sebagai fitur tambah-workspace di UI). Multi-portofolio dipindah ke roadmap sebagai **paid add-on** (lihat Section 14), mengikuti pola Adobe/Journo — bukan dihapus dari visi produk, hanya ditunda sampai ada bukti permintaan dari kohort pertama.
 
-| Kemampuan | User | Designer | Admin |
-|---|---:|---:|---:|
-| Membuat workspace/project dan mengedit portofolio sendiri | Ya | Ya | Tidak sebagai alur utama |
-| Preview dan draft tanpa subscription | Ya | Ya | N/A |
-| Publish maksimal satu website aktif per akun | Ya, berbayar | Ya, berbayar | N/A |
-| Mengelola Content Library sendiri | Ya | Ya | Tidak |
-| Mengirim template submission | Tidak | Fase 2 | Ya untuk kebutuhan internal |
-| Melihat status dan catatan submission sendiri | Tidak | Fase 2 | Ya, semua submission |
-| Approve/reject/request revision submission | Tidak | Tidak | Fase 2, Ya |
-| Mengatur visibility template katalog | Tidak | Tidak | Ya |
-| Suspend/unsuspend akun | Tidak | Tidak | Ya |
-| Mengelola subdomain blocklist | Tidak | Tidak | Ya |
+## 4. Tujuan Produk & Success Metrics (v1)
 
-Role `designer` dan alur submission didukung oleh fondasi RBAC pada MVP, tetapi Designer Portal bukan syarat launch MVP. Sampai portal tersedia, submission dilakukan melalui proses internal atau ditunda ke Fase 2.
+**Tujuan bisnis launch pertama:**
+- Validasi dengan kohort kecil (10–20 pengguna) sebelum buka publik luas — mengikuti rekomendasi eksplisit audit teknik, bukan target pengguna massal di awal.
+- Time-to-publish di bawah 15 menit dari signup sampai publish (dipertahankan dari v1.9, target ini realistis dan terukur).
+- Validasi willingness-to-pay untuk satu plan sebelum mendesain tier kedua/ketiga.
 
-## 5. Ruang Lingkup (Scope)
+**KPI v1 (dipersempit dari v1.9, item yang butuh 3 tier/designer/revenue-sharing dihapus dulu):**
+- Jumlah website berhasil dipublikasikan.
+- Time-to-publish rata-rata.
+- Conversion rate akun gratis → publish berbayar.
+- Retention rate bulanan.
+- Churn rate bulanan.
+- Jumlah insiden abuse yang tertangani sebelum/segera setelah publish.
 
-### MVP (Fase 1)
-- Registrasi dan autentikasi pengguna via email/password.
-- RBAC tiga role (`user`, `designer`, `admin`) dengan default signup sebagai `user`.
-- Admin operations: daftar user, suspend/unsuspend, moderasi blocklist subdomain, dan mengatur visibility template.
-- **Workspace**: satu akun dapat memiliki lebih dari satu workspace/brand profile. Workspace tambahan dapat dibuat dari dashboard.
-- Landing page untuk marketing.
-- Editor form per workspace (biodata, pengalaman, skill, project/karya, kontak, sosial media) yang diisi langsung di dalam halaman Editor Template.
-- 8 template siap pakai (Minimal, Bold, Creative, Corporate, Dark, Vanguard Studio, Portfolio Pro, dan Freelancer), struktur tetap, tanpa kustomisasi bebas. Setiap template memiliki kontrak data sendiri; sebagian meng-*extend* `basePortfolioSchema` (lihat 9.4).
-- Kustomisasi dasar melalui predefined theme variants per template; tidak ada color picker atau font picker bebas pada MVP.
-- Live preview real-time saat mengisi data — preview galeri (sebelum pilih) memakai data dummy, preview setelah "Gunakan template" memakai Data General workspace yang aktif
-- Publish (Deploy) ke subdomain (contoh: nama.appku.com) untuk Basic atau custom domain mulai Premium — khusus pelanggan berbayar; satu akun hanya boleh memiliki 1 website aktif yang published pada satu waktu
-- Dashboard pengguna (kelola workspace, kelola data, ganti template, unpublish/republish)
-- Visitor analytics dasar untuk website yang sudah published; analytics lanjutan tetap di luar MVP
-- Model akses: gratis membuat portofolio dan melihat live preview; publish hanya untuk pelanggan Basic, Premium, atau Enterprise. Semua tier sementara berlaku per akun dan maksimal satu website dapat berstatus `published` pada satu waktu.
-- Integrasi payment gateway untuk subscription
-- Tier billing monthly dan annual melalui Midtrans
-- UI aplikasi dua bahasa: Bahasa Indonesia dan English
+**Target angka** (jumlah bulan ke launch, jumlah pengguna, harga) sengaja tidak diisi di sini — lihat Section 17, ini keputusan bisnis pemilik produk, bukan sesuatu yang pantas ditebak dalam dokumen teknis.
 
-### Di Luar Scope MVP (Fase 2+)
-- OAuth Google (login sosial)
-- Drag-and-drop editor bebas
-- Analytics lanjutan, export data analytics, dan integrasi analytics pihak ketiga
-- Multi-bahasa untuk website yang dihasilkan
-- Marketplace template dari kreator pihak ketiga
-- Integrasi CMS/blog
-- Onboarding B2B (kampus, organisasi)
-- Designer Portal untuk submission template pihak ketiga, termasuk upload source, status review, revision loop, dan revenue sharing (Fase 2)
-- Marketplace template berbayar atau revenue sharing untuk designer (setelah lifecycle submission stabil)
-- Enterprise team collaboration, organization roles, approval workflow, dan governance (roadmap setelah tiered billing stabil)
+## 5. Target Pengguna
 
-## 6. Alur Pengguna Utama
+Sama dengan v1.9 Section 4: profesional non-teknis, sensitif harga, akses desktop & mobile.
+
+**Role v1**: hanya `user` yang aktif secara publik. Kolom role dan RBAC middleware untuk `designer`/`admin` **tetap ada di kode** (biaya sudah dikeluarkan, tidak perlu dibongkar) — tapi Designer Portal dan admin UI publik-facing tidak di-launch. Admin operations dasar (suspend akun, blocklist subdomain) tetap dipakai secara internal oleh tim, bukan sebagai fitur yang dipromosikan.
+
+## 6. Scope
+
+### 6.1 Launch v1 (yang benar-benar dibangun & diuji untuk go-live)
+
+- Registrasi & autentikasi email/password, verifikasi email, reset password.
+- Satu portofolio per akun (workspace dibuat otomatis saat signup, tanpa switcher/tambah-workspace di UI).
+- Editor form terintegrasi dengan live preview (form + preview berdampingan, auto-save draft).
+- **Minimum 5 dari 8 template** lulus QA visual responsif sebelum launch, sisanya menyusul lewat rolling activation (`templates.is_active` dinyalakan begitu satu template lulus checklist, tidak menunggu kedelapannya selesai bersamaan).
+- Publish ke subdomain Portofio (satu plan, satu website live per akun — quota ini **wajib atomic**, lihat Section 8).
+- Unpublish/republish.
+- Dashboard: kelola data, ganti template, status publish, statistik dasar (views).
+- Analytics dasar untuk website published, dengan rate-limit dan retention (lihat Section 8 — ini P1 audit yang belum ada sama sekali di kode saat ini).
+- Satu plan berbayar (lihat Section 11).
+- UI dua bahasa (id/en), default Indonesia.
+
+### 6.2 Di luar Section v1, masuk Fase 1.5 (dibuka begitu v1 tervalidasi + blocker keamanan tuntas)
+
+- Portofolio kedua per akun sebagai **paid add-on** (bukan gratis tak terbatas — lihat Section 3 & 14).
+- Tier Premium (custom domain, watermark removal) dan Enterprise.
+- Sisa template dari 8 yang belum lulus QA di v1.
+- Template switching pada project existing (dijanjikan di v1.9 tapi belum ada implementasinya — sekarang eksplisit jadi janji Fase 1.5, bukan janji v1).
+
+### 6.3 Roadmap jangka panjang (Fase 2/3, tidak berubah dari visi v1.9)
+
+- Designer Portal, submission/revision workflow, revenue sharing.
+- OAuth Google.
+- Analytics lanjutan.
+- Enterprise team collaboration, organization roles, governance.
+- Marketplace template pihak ketiga, multi-bahasa untuk website hasil.
+
+## 7. Alur Pengguna Utama (v1)
 
 ```mermaid
 flowchart TD
     Z[Landing Page] --> A[Daftar / Login]
-    A --> Dash[Dashboard / Templates]
-    Dash --> C[Pilih Template]
-    C --> C4[Editor Template: Isi Data Spesifik & Live Preview]
+    A --> Dash[Dashboard: pilih template]
+    Dash --> C4[Editor: isi data + live preview]
     C4 --> R[Review]
-    R -- Edit data / Ganti template --> C4
-    R -- Siap deploy --> P{Langganan aktif?}
-    P -- Belum --> Q[Pilih plan dan siklus billing]
-    Q --> Q2[Checkout Basic/Premium/Enterprise via Midtrans]
-    Q2 --> F[Deploy]
+    R -- Edit --> C4
+    R -- Siap publish --> P{Sudah bayar plan?}
+    P -- Belum --> Q[Checkout via Midtrans]
+    Q --> F[Publish]
     P -- Ya --> F
-    F --> G[Sistem generate subdomain unik]
-    G --> H[Website live, dapat diakses publik]
-    H --> I[Kelola lewat Dashboard]
-    I -- Tambah workspace baru --> Dash
-    I -- Unpublish sementara --> J[Website offline]
-    J -- Republish --> H
+    F --> G[Subdomain live]
+    G --> I[Kelola dari Dashboard]
+    I -- Unpublish --> J[Offline]
+    J -- Republish --> G
 ```
 
-Poin penting dari alur di atas (Ponytail simplified flow):
-1. Pengguna daftar/login.
-2. Langsung diarahkan ke Dashboard untuk memilih template.
-3. Setelah klik template, pengguna masuk ke **Editor**. Di sini mereka mengisi biodata dan data portofolio melalui panel form, sembari melihat live preview. Tidak ada langkah "Isi Biodata" yang terpisah (YAGNI).
-4. Gerbang berbayar hanya ada di langkah Deploy (=Publish): tanpa plan aktif, tombol Deploy mengarahkan ke pemilihan plan dan checkout.
-5. Sistem menolak Deploy jika akun sudah memiliki website lain dengan status `published`; website pertama harus di-unpublish terlebih dahulu. Batas ini berlaku untuk Basic, Premium, dan Enterprise sampai ada keputusan baru.
-6. Basic publish ke subdomain Portofio dan menampilkan watermark kecil. Premium dan Enterprise dapat menggunakan custom domain; Premium menghapus watermark.
+Tidak ada lagi percabangan pilih-plan (cuma satu plan) atau pilih-workspace (cuma satu portofolio) — alur ini sengaja jadi jauh lebih pendek dari diagram v1.9.
 
-### 6.1 Alur Role Designer
+## 8. Non-Functional Requirements (v1 — ditulis supaya bisa diverifikasi, bukan aspirasional)
 
-Alur ini disiapkan untuk Fase 2 dan tidak mengganggu alur User MVP.
+Setiap baris di bawah ini punya bentuk "syarat" + "bukti yang harus ada sebelum dicentang", diambil langsung dari temuan P0/P1 di `DEEP_PRODUCT_ENGINEERING_AUDIT.md` dan `READINESS_AUDIT_2026-08-17.md`.
 
-```mermaid
-flowchart TD
-    A[Designer login] --> B[Designer Portal]
-    B --> C[Buat submission template]
-    C --> D[Isi metadata + upload preview/source]
-    D --> E[Submit untuk review]
-    E --> F{Keputusan Admin}
-    F -- Revision requested --> G[Designer memperbaiki submission]
-    G --> E
-    F -- Rejected --> H[Submission ditutup + alasan]
-    F -- Approved --> I[Admin validasi kode dan merge ke codebase]
-    I --> J[Admin aktifkan visibility template]
-    J --> K[Template tampil di galeri]
-```
-
-Designer tidak mengunggah atau mengeksekusi kode template langsung dari database. Submission yang approved tetap melewati validasi keamanan, QA responsif, dan integrasi manual ke registry codebase.
-
-### 6.2 Alur Role Admin
-
-```mermaid
-flowchart TD
-    A[Admin login] --> B[Admin Dashboard]
-    B --> C[Monitor user dan status akun]
-    B --> D[Moderasi blocklist dan template visibility]
-    B --> E[Review template submission]
-    B --> F[Suspend/unsuspend akun bila ada abuse]
-    E --> G[Approve / Reject / Request revision]
-```
-
-Admin tidak masuk ke editor customer untuk mengubah konten. Jika ada laporan abuse, Admin dapat menonaktifkan akun atau website melalui kontrol moderation; isi data tetap dimiliki user dan tidak diubah oleh Admin.
-
-## 7. Functional Requirements
-
-### 7.1 Autentikasi, Akun, dan Workspace
-- Registrasi via email/password (OAuth Google = Fase 2)
-- Verifikasi email
-- Reset password
-- Manajemen profil akun
-- Role disimpan pada profil akun dengan nilai `user`, `designer`, atau `admin`; default signup adalah `user`.
-- User tidak dapat mengubah role sendiri. Assignment atau perubahan role hanya dilakukan melalui operasi internal yang terproteksi.
-- Route dan server action wajib memeriksa role di server; menyembunyikan menu di client saja bukan kontrol akses.
-- **Workspace**: satu akun bisa memiliki banyak workspace, dibuat kapan saja dari dashboard. Setiap workspace memiliki data, pilihan template, dan status publish sendiri-sendiri.
-
-### 7.2 Editor dan Input Data Portofolio
-- Form input terintegrasi langsung di halaman **Editor Template** (seperti Framer). Panel form berdampingan dengan Live Preview.
-- Data yang diisi (identitas diri, bio, pengalaman, dll) secara otomatis tersimpan di workspace tersebut.
-- Validasi input dan upload gambar dengan kompresi otomatis.
-- Auto-save draft.
-
-### 7.3 Template dan Kustomisasi
-- **Dashboard Galeri**: setelah login, user disuguhkan pilihan template.
-- Setiap template punya `TemplateDefinition` + skema Zod sendiri (lihat 9.4). Minimal, Bold, Creative, Corporate, dan Dark memakai base schema; Vanguard Studio, Portfolio Pro, dan Freelancer dapat memiliki extension section masing-masing.
-- Kustomisasi terbatas berupa predefined theme variants yang didefinisikan oleh template; user tidak mengubah CSS atau layout secara bebas.
-- Live Preview real-time: perubahan input data dan kustomisasi langsung terlihat.
-
-Delapan template tersedia saat ini (nama kerja, masing-masing satu karakter desain yang jelas — renderer/schema adalah source of truth di `src/templates/registry.tsx`; visibility katalog dikontrol oleh tabel `templates`):
-
-| Template | Karakter |
-|---|---|
-| Minimal | Putih bersih, tipografi serif, satu kolom, fokus ke teks |
-| Bold | Warna aksen kuat, heading besar, cocok untuk creative/marketer |
-| Creative | Grid project menonjol di atas, cocok untuk desainer/fotografer |
-| Corporate | Rapi dan formal, timeline pengalaman kerja menonjol, cocok job seeker |
-| Dark | Tema gelap, aksen neon, cocok untuk developer/tech |
-| Vanguard Studio | Agency-tier, bento grid asimetris, glass texture, motion halus, cocok agency/premium |
-| Portfolio Pro | Portofolio profesional lengkap (skills, case study, sertifikat, gallery) + color/dark-mode switcher yang bisa diganti pengunjung |
-| Freelancer | Warm independent-practice portfolio dengan services, testimonial, pricing, dan CTA hire |
-
-Data contoh/demo untuk galeri publik: satu dokumen demo per template, sesuai skema Zod milik template itu (nama, headline, bio, 1–2 pengalaman, beberapa skill, 1–2 project, ditambah section unik seperti case study/sertifikat untuk Studio/Portfolio Pro — cukup untuk menunjukkan karakter template, tidak perlu realistis sempurna), disimpan sebagai fixture statis di kode, bukan di database (tidak terhubung ke akun manapun).
-
-### 7.4 Preview dan Publish
-- Preview mode identik dengan tampilan akhir sebelum publish
-- Basic menggunakan subdomain otomatis dengan validasi nama unik dan filter kata terlarang; Premium dan Enterprise dapat mengatur custom domain sesuai entitlement.
-- Proses publish idealnya di bawah beberapa detik karena render dinamis, bukan build statis per pengguna
-- Opsi unpublish sementara
-- Satu akun hanya boleh memiliki satu project dengan status `published` pada satu waktu, lintas semua workspace.
-- Project draft lain tetap boleh dibuat dan diedit. Untuk mengganti website aktif, user harus unpublish website lama sebelum publish project baru.
-- Unpublish karena user atau subscription berakhir tidak menghapus `draft_json` maupun `published_json`; user dapat republish setelah syarat terpenuhi.
-
-### 7.5 Dashboard Pengguna
-- Daftar workspace milik akun, tombol tambah workspace baru (v1.3)
-- Per workspace: daftar project, ringkasan status website (published/draft), kelola data dan template
-- Content Library bersifat account-global agar konten reusable di semua workspace milik akun.
-- Statistik dasar website published (jumlah views dan engagement section)
-- Kelola langganan dan billing
-
-### 7.6 Billing dan Subscription
-- Akun tanpa subscription tetap bisa mengisi data, memilih template, dan melihat preview, tetapi tidak bisa publish/deploy.
-- Tersedia tiga paid plan: Basic, Premium, dan Enterprise.
-- Basic: maksimal satu website live, subdomain Portofio, watermark kecil, template yang ditandai Basic oleh Admin, dan basic analytics.
-- Premium: maksimal satu website live, custom domain, tanpa watermark, template Premium, advanced analytics, dan priority support.
-- Enterprise: maksimal satu website live pada tahap awal, self-service checkout, seluruh entitlement Premium yang tersedia, dan roadmap team collaboration/governance setelah tiered billing stabil.
-- Satu subscription aktif berlaku per akun. Policy kuota sementara membatasi satu website aktif yang published pada satu waktu untuk semua tier.
-- Billing tersedia dalam siklus monthly dan annual. Setiap kombinasi plan dan siklus billing memiliki product/order identifier tersendiri di Midtrans.
-- Payment provider yang digunakan adalah Midtrans. Domain model billing tetap menyimpan provider identifiers dan plan snapshot agar webhook, audit, dan perubahan harga dapat dilacak.
-- Notifikasi jatuh tempo dan invoice; pembatalan langganan
-- Upgrade dan downgrade harus mengubah entitlement pada periode yang ditentukan, tanpa menghapus data.
-- Perilaku saat langganan berakhir/gagal bayar: grace period 7 hari, lalu website auto-unpublish. Data portofolio tetap tersimpan; berlangganan lagi mengaktifkan kembali kemampuan republish.
-- Enterprise team collaboration, organization billing, dan governance bukan scope billing tier awal; fitur tersebut berada di roadmap Enterprise.
-
-### 7.7 Internasionalisasi UI
-- UI aplikasi (dashboard, form, halaman marketing) tersedia dalam Bahasa Indonesia dan English, mis. via `next-intl`, dengan bahasa default Indonesia
-- Website portofolio yang dihasilkan pengguna satu bahasa saja (mengikuti konten yang diisi pengguna) — multi-bahasa untuk website hasil tetap di luar scope MVP
-
-### 7.8 Role-Based Access Control dan Moderasi
-- Middleware melindungi `/admin` untuk role `admin` dan Designer Portal untuk role `designer` atau `admin`.
-- Server action dan query tetap melakukan authorization check walaupun route sudah dilindungi middleware.
-- `user` dan `designer` tidak boleh membaca atau menulis resource milik akun lain; RLS mengikuti `auth.uid()` dan relasi kepemilikan.
-- Admin dapat membaca data operasional yang diperlukan untuk support, melihat status subscription, mengelola template visibility, review submission, mengelola blocklist, dan suspend/unsuspend akun.
-- Suspend akun harus menghentikan login atau akses aplikasi sesuai kebijakan Auth serta menonaktifkan kemampuan publish. Data draft tidak dihapus.
-- Admin tidak dapat mengubah `draft_json`, `published_json`, atau konten Content Library user melalui alur admin standar.
-- Setiap keputusan review submission menyimpan reviewer, waktu review, status, dan catatan.
-- Template katalog memiliki attribution Designer dan minimum plan yang dapat menggunakannya. Admin mengontrol visibility dan minimum plan; Designer tidak dapat mengaktifkan template sendiri.
-- Designer yang submission-nya approved dan template-nya digunakan oleh website live dapat menerima revenue sharing sesuai kebijakan payout platform.
-- Revenue sharing dihitung dari net subscription revenue setelah biaya payment, refund, chargeback, dan kewajiban pajak yang berlaku. Detail persentase, threshold, KYC, dan jadwal payout ditetapkan sebelum marketplace submission dibuka.
-- Semua input dari Designer diperlakukan sebagai untrusted content. Source code template tidak boleh dieksekusi dari database atau upload user.
-
-## 8. Non-Functional Requirements
-
-- Performa: waktu render halaman publik di bawah 2 detik
-- Skalabilitas: arsitektur multi-tenant harus mendukung ribuan subdomain aktif tanpa proses build terpisah per pengguna
-- Keamanan: enkripsi data pengguna, proteksi terhadap subdomain hijacking, rate limiting pada form submission
-- Ketersediaan: target uptime 99.5% untuk website publik yang sudah live
-- Seluruh template harus responsif di perangkat mobile
-
-## 9. Tech Stack dan Arsitektur Teknis
-
-### 9.1 Ringkasan Arsitektur
-
-Sistem ini adalah aplikasi multi-tenant, satu aplikasi melayani banyak pengguna, dan setiap pengguna memiliki representasi website publik sendiri yang diakses lewat subdomain unik. Alih-alih melakukan build/deploy statis per pengguna yang mahal secara komputasi dan lambat, pendekatan yang direkomendasikan adalah dynamic rendering: data pengguna disimpan di database, dan halaman publik dirender secara dinamis berdasarkan subdomain yang diakses.
-
-### 9.2 Rekomendasi Tech Stack
-
-Mengingat sudah familiar dengan ekosistem Next.js/React dan Supabase, berikut rekomendasi yang mempercepat development tanpa mengorbankan skalabilitas:
-
-**Frontend (dashboard editor dan rendering website publik)**
-- Next.js (App Router) dengan TypeScript
-- Tailwind CSS untuk styling dan sistem template
-- React Hook Form + Zod untuk validasi form input data
-
-**Backend**
-- Next.js API Routes / Server Actions untuk MVP, fullstack dalam satu codebase agar iterasi lebih cepat
-- Backend terpisah (NestJS atau Laravel) baru dipertimbangkan bila kompleksitas bisnis logic seperti billing dan moderasi tumbuh signifikan pasca-MVP
-
-**Database dan Auth**
-- Supabase (PostgreSQL) untuk database relasional, autentikasi pengguna, dan storage file (foto profil, gambar project)
-- Alasan pemilihan: mengurangi effort setup infrastruktur auth dan storage dari nol, cocok untuk kecepatan MVP
-
-**Payment Gateway**
-- Keputusan: Midtrans digunakan untuk checkout monthly dan annual Basic, Premium, dan Enterprise.
-- Setiap checkout harus membawa plan dan billing cycle yang divalidasi server-side.
-- Modul billing menyimpan provider identifiers, order history, dan plan snapshot agar perubahan harga atau entitlement tidak mengubah histori transaksi.
-
-**Hosting dan Infrastruktur**
-- Vercel direkomendasikan untuk MVP karena dukungan native terhadap wildcard subdomain routing, SSL otomatis, dan overhead DevOps minim
-- Alternatif jika ingin kontrol penuh dan biaya lebih rendah di skala besar: VPS + Docker + Traefik/Nginx untuk wildcard SSL, dengan kompleksitas operasional yang lebih tinggi
-
-### 9.3 Arsitektur Multi-Tenant dan Penyimpanan Template
-
-Sistem menggunakan pendekatan **Hybrid Template Storage**. Kode tetap menjadi sumber kebenaran untuk perilaku template, sedangkan database menyimpan status operasional katalog dan workflow moderation:
-
-- **Registry Template (di Codebase)**: `TEMPLATE_REGISTRY` di `src/templates/registry.tsx` berisi `TemplateDefinition`, schema Zod, defaults, migrations, metadata desain, dan renderer. Registry menentukan template mana yang dapat dirender oleh aplikasi.
-- **Template catalog (Database)**: tabel `templates` menyimpan `id`, nama, `is_active`, `minimum_plan`, dan attribution Designer bila relevan untuk mengontrol visibility template built-in di galeri publik dan dashboard. Database tidak menyimpan renderer atau arbitrary UI code.
-- **Template submission (Database + Codebase)**: tabel `template_submissions` menyimpan metadata submission, source/preview URL, status review, catatan admin, dan `registry_id`. Submission approved belum otomatis menjadi executable template; Admin/engineering tetap melakukan security review, QA, dan merge manual ke codebase sebelum template ditambahkan ke registry.
-- **Kode UI Template (di Codebase)**: satu folder per template di `src/templates/definitions/<id>/` berisi definition, schema, defaults, mapper, migrations, dan renderer. Pendekatan ini mencegah XSS/eksekusi kode dari DB dan menghindari engine JSON-to-UI yang tidak diperlukan.
-
-Alur rendering teknis:
-
-1. DNS wildcard (*.appku.com) diarahkan ke aplikasi
-2. Next.js Middleware (`src/proxy.ts`) membaca header host dari setiap request masuk
-3. Middleware mengekstrak subdomain dan melakukan rewrite ke route dinamis `/sites/[subdomain]`
-4. Route tersebut query tabel `projects` berdasarkan `subdomain` + `status='published'` untuk mengambil `published_json` dan `template_id`
-5. `TemplateRenderer` (`src/templates/registry.tsx`) mengambil `TemplateDefinition` dari `template_id`, memvalidasi `published_json` terhadap skema Zod milik template itu (§9.4), lalu merender komponen template yang sesuai — setiap template punya bentuk data sendiri (base atau extended), bukan satu struktur seragam untuk semua
-6. Gunakan ISR (Incremental Static Regeneration) atau caching di edge untuk menjaga performa tanpa perlu build ulang setiap kali data berubah
-
-`templates.is_active = false` menyembunyikan template dari pemilihan template baru, tetapi tidak boleh mematikan website user yang sudah published. Website existing tetap dapat dirender selama renderer dan schema versi yang dibutuhkan masih tersedia; penghapusan renderer memerlukan migration atau deprecation plan.
-
-### 9.4 Skema Data
-
-> Ditulis ulang 2026-07-17 mengikuti migrasi Workspace Profile + Project System (Fase 1-4, lihat `claude-progress.md`). Versi sebelumnya mendeskripsikan tabel `portfolio_data`/`sites` dan interface `PortfolioData` tunggal — keduanya sudah di-drop (`supabase/migrations/20260716000005_drop_legacy_tables.sql`) dan digantikan struktur di bawah. Riwayat lama ada di `docs/progress-archive.md` kalau perlu konteks kenapa berubah.
-
-Entitas utama (lihat `supabase/migrations/2026071600000{1,2,3,6}_*.sql` untuk DDL persis):
-
-- **profiles**: profil akun dan role (`user`/`designer`/`admin`), locale, dan metadata profil. Role tidak boleh diubah oleh user biasa.
-- **workspaces**: satu workspace = satu brand/portofolio. `id`, `user_id` (satu user → banyak workspace), `name`, `created_at`.
-- **workspace_profile** (1:1 dengan workspace): data induk brand yang dipakai untuk auto-fill project baru — `workspace_id` (PK), `name`, `logo_url`, `email`, `phone`, `address`, `website_url`, `extended_data` (jsonb: tagline, description, socials).
-- **workspace_assets**: pustaka aset per workspace (belum ada UI upload khusus, stub) — `id`, `workspace_id`, `name`, `url`, `mime_type`, `size_bytes`.
-- **content_library**: Content Library reusable milik akun, bukan workspace tertentu. Menyimpan item seperti project, testimonial, certificate, experience, education, publication, dan media yang dapat dipakai oleh beberapa workspace.
-- **projects**: satu workspace bisa punya beberapa project/situs, relasi one-to-many — `id`, `workspace_id`, `name`, `template_id`, `template_version`, `draft_json`, `published_json`, `subdomain` (unique, nullable sampai publish), `status` (`draft`/`published`), `published_at`. `publish_project()` RPC (SECURITY DEFINER) menyalin `draft_json` → `published_json` secara atomik.
-- **templates**: katalog operasional untuk built-in template (`id`, `name`, `is_active`). Schema, renderer, defaults, dan metadata desain tetap berada di codebase registry. Delapan template terdaftar saat ini (lihat 7.3).
-- **template_submissions**: submission template milik Designer dengan `designer_id`, metadata, desktop/mobile preview URL, `license_name`, private `source_path`, source filename/size, `status` (`draft`/`pending`/`revision_requested`/`approved`/`rejected`), reviewer, catatan review, `registry_id`, `submitted_at`, dan integration lifecycle (`integration_status`, `integration_notes`, `integrated_at`). Source ZIP disimpan di private Storage bucket dan tidak dieksekusi langsung dari row ini. Submission approved tetap menunggu security review dan merge manual ke registry codebase.
-- **plans**: katalog plan billing dengan key Basic/Premium/Enterprise, billing cycle, price snapshot, dan product identifier Midtrans.
-- **subscriptions**: `user_id` (unique, satu subscription aktif per akun), `plan_id`, provider identifiers, `status`, `current_period_start`, `current_period_end`, `cancel_at_period_end`, dan price snapshot. Tetap per-`user_id` bukan per-`workspace_id`.
-- **entitlements**: resolver berbasis plan untuk publish quota, custom domain, watermark, analytics, dan template access. Entitlement tidak boleh ditentukan dari harga di client.
-
-Kontrak data portofolio — setiap template punya `TemplateDefinition<TSchema>` sendiri (`src/templates/definition.ts`), bukan satu interface global lagi:
-
-- **`WebsiteDocument`** — bentuk yang disimpan di `projects.draft_json`/`published_json`: `{ meta: { templateId, templateVersion, createdAt, updatedAt, locale }, data: Record<string, unknown> }`. `data` divalidasi terhadap skema Zod milik template itu sendiri (`parseDocumentData`), dengan migrasi versi-ke-versi kalau skema berubah (`runMigrations`).
-- **`basePortfolioSchema`** (`src/templates/shared/_base.ts`) — skema dasar (profile, experiences, educations, skills, projects, contact, socials, theme) yang dipakai oleh template yang kompatibel. Template lain dapat meng-*extend* skema ini dengan section tambahan sendiri (mis. `caseStudies`, `certificates`, `gallery`) — lihat file `schema.ts` masing-masing template di `src/templates/definitions/<id>/`.
-- **`WorkspaceProfile`** — dibaca dari tabel `workspace_profile`, dipakai untuk auto-fill project baru (`buildInitialDocument`) dan diteruskan ke setiap renderer template sebagai prop kedua.
-
-Semua teks adalah plain text (tanpa HTML) dan wajib di-escape saat render untuk mencegah XSS (lihat 9.5).
-
-### 9.5 Pertimbangan Keamanan
-
-- Validasi dan sanitasi ketat pada seluruh input form untuk mencegah XSS di halaman publik yang menampilkan data pengguna
-- Rate limiting pada proses signup, publish, dan pemilihan nama subdomain
-- Daftar kata terlarang untuk validasi nama subdomain
-- Row Level Security (RLS) di Supabase agar pengguna hanya bisa mengakses workspace miliknya sendiri (dan data/site di bawahnya) — bukan hanya per-user seperti sebelum v1.3, karena kepemilikan data kini lewat `workspace_id`
-- RBAC berbasis server dan JWT claim untuk membedakan `user`, `designer`, dan `admin`; client-side route hiding bukan security boundary
-- Admin service-role key hanya boleh dipakai di server action/route yang sudah melakukan `requireRole('admin')`; tidak pernah dikirim ke browser
-- Source template dari Designer diperlakukan sebagai artefak tidak tepercaya, melalui review dan build pipeline sebelum masuk registry
-- Suspend, perubahan role, keputusan moderation, dan akses support sensitif harus memiliki audit trail
-
-### 9.6 Pertimbangan Skalabilitas
-
-- Dengan pendekatan dynamic rendering (bukan static build per pengguna), penambahan jumlah pengguna tidak menambah beban build/deploy
-- Caching di edge (Vercel Edge Cache atau CDN) untuk halaman publik yang jarang berubah
-- Pisahkan proses upload dan optimasi gambar, misalnya lewat image CDN seperti Cloudflare Images atau Supabase Storage transformation, agar tidak membebani server aplikasi utama
-
-### 9.7 Lingkungan Development
-
-- **Subdomain lokal**: gunakan `http://nama.localhost:3000` (browser modern me-resolve `*.localhost` ke loopback tanpa konfigurasi) atau `nama.lvh.me:3000` sebagai fallback. Middleware harus memperlakukan host lokal ini sama dengan wildcard produksi.
-- **Domain produksi**: belum ditentukan — `appku.com` di dokumen ini adalah placeholder. Simpan sebagai env var (`NEXT_PUBLIC_ROOT_DOMAIN`) sejak awal agar penggantian domain hanya soal konfigurasi.
-- **Env vars minimum**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `MIDTRANS_SERVER_KEY` (sandbox), `MIDTRANS_IS_PRODUCTION`, `NEXT_PUBLIC_ROOT_DOMAIN`. Sediakan `.env.example` saat scaffold.
-- **Billing di lokal**: gunakan Midtrans sandbox; webhook diuji via tunnel (mis. `ngrok`) atau simulasi request manual.
-
-### 9.8 Estimasi Kompleksitas Development
-
-| Modul | Kompleksitas | Catatan |
+| # | Syarat | Bukti minimum sebelum go-live |
 |---|---|---|
-| Auth dan onboarding | Rendah | Supabase Auth mempercepat signifikan |
-| Form input data + wizard | Sedang | Perlu UX matang untuk multi-step form |
-| Template system (8 template) | Sedang-Tinggi | Setiap template adalah desain + kode terpisah, beberapa template memiliki skema data extension |
-| Subdomain routing dan rendering | Sedang | Middleware Next.js sudah menyediakan primitif yang dibutuhkan |
-| Billing dan subscription | Sedang | Bergantung kompleksitas integrasi payment gateway |
-| Dashboard pengguna | Rendah-Sedang | CRUD standar |
-| RBAC dan admin operations | Sedang | Memerlukan server authorization, RLS, custom claims, dan moderation workflow |
-| Designer submission workflow | Sedang-Tinggi | Fase 2; mencakup upload artefak, review, QA, dan code integration |
+| N1 | Cron subscription tidak boleh fail-open | `CRON_SECRET` wajib di-set di production; endpoint return 503 kalau kosong, 401 kalau salah — bukan jalan tanpa auth |
+| N2 | Quota "1 website published per akun" atomic | Enforcement dipindah ke dalam satu transaksi/RPC dengan lock, bukan check-lalu-insert dua langkah terpisah |
+| N3 | Rate limiting durable | Bukan `Map` in-memory (hilang tiap cold start Vercel) — pindah ke counter atomic di Postgres atau limiter terkelola; berlaku juga untuk `/api/track` |
+| N4 | Public path tidak pakai service-role | `sites/[subdomain]`, `/api/track`, dan jalur publik lain pakai client anon/server dengan RLS, bukan `createAdminClient()` |
+| N5 | Validasi skema URL & gambar | Scheme allowlist (`http`/`https`/`mailto`/`tel`) di semua field URL; upload gambar divalidasi magic-byte + dimensi, bukan cuma MIME string |
+| N6 | Redirect parameter di-allowlist | Hanya terima path relatif, tolak `//` dan scheme asing (cegah open redirect) |
+| N7 | Dependency bersih | `npm audit --audit-level=high` nol temuan high sebelum go-live |
+| N8 | Email transaksional terbukti jalan di production | SMTP + template Supabase Confirm/Reset diverifikasi end-to-end dengan akun nyata, bukan cuma lolos build |
+| N9 | Monitoring & error tracking aktif | Nama tool eksplisit (mis. Sentry) + alert untuk kegagalan webhook/cron terpasang dan teruji |
+| N10 | Backup & restore terbukti | Bukan sekadar "terjadwal" — ada log restore drill yang berhasil, dengan RPO/RTO yang dinyatakan angkanya |
+| N11 | Advisor keamanan Supabase bersih | Mutable search_path, publicly executable SECURITY DEFINER, leaked-password protection — semua ditinjau dan grants dibatasi |
+| N12 | Performa | Render halaman publik < 2 detik (dipertahankan dari v1.9) |
+| N13 | Responsif | Template yang aktif (minimum 5) lulus QA visual di ukuran layar mobile & desktop |
 
-## 10. Monetisasi dan Pricing
+## 9. Arsitektur Teknis
 
-Model: **gratis membuat, berbayar untuk publish** melalui tiga tier. Harga final masih perlu validasi willingness-to-pay pasar Indonesia.
+Tidak berubah dari v1.9 Section 9 — arsitekturnya sudah tepat dan audit teknik secara eksplisit bilang **jangan ganti stack**:
 
-| Akses | Harga | Yang didapat |
-|---|---|---|
-| Tanpa langganan | Rp0 | Buat akun, isi data portofolio, pilih template yang tersedia untuk preview, dan live preview. Tidak bisa publish |
-| Basic | Rp[X_B]/bulan atau Rp[Y_B]/tahun | Publish 1 website ke subdomain Portofio, watermark kecil, Basic templates, basic analytics |
-| Premium | Rp[X_P]/bulan atau Rp[Y_P]/tahun | Publish 1 website ke subdomain atau custom domain, tanpa watermark, Premium templates, advanced analytics |
-| Enterprise | Rp[X_E]/bulan atau Rp[Y_E]/tahun | Publish 1 website, self-service checkout, entitlement Premium yang tersedia, fitur organisasi berada di roadmap |
+- Next.js (App Router) + TypeScript, Tailwind, Supabase (Postgres/Auth/Storage/RLS), Midtrans, Vercel wildcard subdomain.
+- **Hybrid Template Storage**: renderer/schema/defaults di codebase (`TEMPLATE_REGISTRY`), database hanya simpan visibility katalog. Ini keputusan arsitektur paling penting yang benar — mencegah eksekusi kode tak tepercaya dari database.
+- Dynamic rendering per subdomain (bukan static build per user) — skalabel tanpa proses build terpisah per akun.
+- Publish via RPC `publish_project()` (SECURITY DEFINER) — snapshot atomic draft→published. Pola ini benar; yang perlu diperbaiki adalah enforcement quota-nya (N2), bukan mekanisme publish-nya.
 
-Saat langganan berakhir: grace period 7 hari, lalu website auto-unpublish; data tetap tersimpan (lihat 7.6).
+**Satu catatan untuk v1**: skema `workspaces`/`workspace_profile` tidak perlu dibongkar untuk mendukung "1 portofolio per akun". Cukup: (a) signup otomatis membuat tepat satu workspace, (b) UI tidak menyediakan tombol tambah workspace, (c) server action menolak permintaan buat workspace kedua kecuali akun punya entitlement add-on yang relevan (disiapkan sebagai gate kosong dulu, diisi logikanya saat Fase 1.5 dibuka). Ini pendekatan gating yang sama seperti billing dan template — murah dibalik kalau riset lanjutan menunjukkan demand lebih cepat dari perkiraan.
 
-Catatan: harga final, diskon annual, dan persentase revenue sharing perlu riset kompetitor serta validasi willingness-to-pay. Semua tier sementara hanya mengizinkan satu website live per akun.
+## 10. Skema Data (ringkas — DDL persis tetap di `supabase/migrations/`)
 
-## 11. Asumsi dan Batasan
+Entitas utama dipertahankan dari v1.9 Section 9.4: `profiles`, `workspaces`, `workspace_profile`, `projects` (`draft_json`/`published_json`, `status`, `subdomain`), `templates` (katalog + `is_active`), `plans`, `subscriptions`, `entitlements`.
 
-- Basic menggunakan subdomain di root domain platform; custom domain tersedia mulai Premium.
-- Template bersifat struktur tetap (bukan drag-and-drop bebas) untuk mempercepat development
-- Fokus pasar awal adalah Indonesia, mencakup payment gateway lokal
-- UI aplikasi dua bahasa (Indonesia default + English); website hasil pengguna satu bahasa mengikuti konten yang diisi
-- Auth MVP hanya email/password; OAuth Google menyusul di Fase 2
-- Hanya pelanggan Basic, Premium, atau Enterprise yang bisa mem-publish; tidak ada website live dari akun gratis
-- Signup biasa menghasilkan User. Status Designer dan Admin diberikan melalui proses internal terproteksi.
-- Designer Portal dan revenue sharing bukan syarat launch billing tier awal; role foundation dan permission boundary tetap harus aman.
-- Enterprise self-service tersedia sebagai tier, tetapi team collaboration dan governance berada di roadmap setelah tiered billing stabil.
+**Perubahan status untuk v1**: `plans` hanya berisi satu baris aktif (Basic) yang terlihat di checkout publik; baris Premium/Enterprise boleh tetap ada di tabel (tidak perlu dihapus) tapi tidak ditampilkan di UI sampai Fase 1.5.
 
-## 12. Risiko dan Mitigasi
+**Isu yang perlu diputuskan, bukan dihindari**: v1.9 mencatat ada dua sumber data profil yang tumpang tindih (`profiles` akun + `workspace_profile`), yang membuat user berpotensi mengisi data yang sama dua kali — bertentangan dengan janji "isi data sekali" di Section 1. Karena v1 hanya punya satu workspace per akun, ini saat yang tepat untuk menyatukan alur input (auto-fill penuh dari satu sumber, bukan tambal lewat `syncFromProfileAction`) sebelum kompleksitasnya bertambah lagi di Fase 1.5.
+
+## 11. Keamanan
+
+Daftar di bawah adalah subset actionable dari Section 8 (N1–N11), dikelompokkan sesuai prioritas audit asli untuk memudahkan tracking:
+
+**P0 — wajib sebelum akun nyata pertama publish:** N1, N2, N3, N4, N5, N6.
+**P1 — wajib sebelum buka ke publik luas (boleh setelah kohort tertutup 10–20 user):** N7, N8, N9, N10, N11.
+
+Prinsip yang dipertahankan dari v1.9 (masih benar, tidak berubah): RLS berbasis kepemilikan (`auth.uid()`), RBAC server-side (client-side hiding bukan security boundary), service-role key hanya di server action yang sudah `requireRole()`, source template Designer diperlakukan sebagai untrusted content.
+
+## 12. Monetisasi & Pricing v1
+
+Satu plan: **Basic** — publish 1 website ke subdomain Portofio, watermark kecil, akses ke template yang sudah `is_active`, basic analytics. Billing monthly & annual via Midtrans (skema `plans`/`entitlements` yang sudah ada dipakai apa adanya, cukup satu baris aktif).
+
+Harga final belum diisi di sini secara sengaja — lihat Section 17. Rekomendasi proses: uji willingness-to-pay pada kohort 10–20 user pertama sebelum mengunci angka, bukan menebak dari awal seperti placeholder `Rp[X_B]` di v1.9 yang sampai versi 1.9 pun belum terisi.
+
+Saat langganan berakhir/gagal bayar: grace period 7 hari lalu auto-unpublish (dipertahankan dari v1.9 — ini keputusan yang sudah masuk akal, tinggal dikonfirmasi angkanya, lihat Section 17).
+
+## 13. Risiko & Mitigasi (v1)
 
 | Risiko | Mitigasi |
 |---|---|
-| Kompetitor besar (Framer, Wix, Canva) sudah mapan | Diferensiasi lewat kesederhanaan alur dan harga lebih terjangkau untuk pasar lokal |
-| Subdomain rentan disalahgunakan (spam, konten tidak pantas) | Hanya pelanggan berbayar yang bisa publish (menaikkan biaya penyalahgunaan), filter kata terlarang, rate limiting, terms of service yang jelas |
-| Biaya infrastruktur membengkak seiring pertumbuhan akun gratis | Akun gratis tidak menghasilkan website live (hanya data + preview), monitoring biaya hosting berkala |
-| Gerbang bayar di publish menekan konversi | Pastikan preview meyakinkan (identik dengan hasil akhir), pertimbangkan trial/diskon peluncuran bila konversi rendah |
-| Designer mengirim source berbahaya atau template berkualitas rendah | Submission tidak dieksekusi langsung; admin review, automated checks, visual QA, dan merge manual ke codebase |
-| Admin privilege disalahgunakan atau data customer terbaca tanpa alasan | Least privilege, service-role hanya di server, audit log, dan pembatasan data yang terlihat di admin panel |
-| Tier terlalu mirip sehingga user tidak punya alasan upgrade | Bedakan Premium melalui custom domain, watermark removal, template access, analytics, dan support; validasi melalui conversion dan upgrade rate |
-| Enterprise terlihat tidak memiliki nilai karena masih satu website live | Posisikan Enterprise sebagai tier self-service organisasi; team collaboration dan governance ditulis sebagai roadmap berikutnya, bukan janji MVP |
+| Scope masih terlalu besar walau sudah dipangkas | Rolling activation template + gating billing/workspace membuat semuanya reversibel — tidak ada keputusan di sini yang permanen kalau ternyata salah |
+| Kohort kecil tidak cukup representatif untuk validasi harga | Pilih 10–20 user dari persona beragam (fresh graduate, freelancer, job seeker) bukan dari satu sumber saja |
+| Subdomain disalahgunakan | Hanya pelanggan berbayar bisa publish, filter kata terlarang, rate limiting durable (N3) |
+| Kompetitor besar (Framer, Wix, Canva, Adobe Portfolio) sudah mapan | Diferensiasi: form+template lebih cepat dari drag-and-drop, harga lokal, variasi karakter template — dikonfirmasi relevan lewat riset Section 3 |
+| Menunda multi-portofolio mengecewakan user yang butuh lebih dari satu | Section 3 menunjukkan pola industri memang menjual ini sebagai add-on, bukan gratis — jadi menunda bukan penyimpangan dari pasar, justru mengikuti pola yang terbukti jalan |
 
-## 13. Roadmap Tingkat Tinggi
+## 14. Roadmap
 
-- **Fase 1 (MVP)**: User portfolio flow, Basic/Premium/Enterprise billing tier awal, publish gate, 8 built-in templates, account-global Content Library, visitor analytics dasar, serta RBAC dan Admin operations inti.
-- **Fase 2**: Designer Portal, submission/revision workflow, template attribution, revenue sharing, OAuth Google, analytics lanjutan, dan penambahan template.
-- **Fase 3**: Enterprise team collaboration, organization roles, approval workflow, governance, drag-and-drop editor terbatas, marketplace template penuh, dan dukungan multi-bahasa untuk website hasil.
+- **Fase 1 (v1, dokumen ini)**: satu plan, satu portofolio per akun, 5+ template, security P0 tuntas, kohort 10–20 user.
+- **Fase 1.5**: buka Premium/Enterprise, portofolio kedua sebagai paid add-on (mengikuti pola Adobe Portfolio/Journo Portfolio di Section 3), sisa template, template switching pada project existing.
+- **Fase 2**: Designer Portal, submission/revision workflow, revenue sharing, OAuth Google, analytics lanjutan.
+- **Fase 3**: Enterprise team collaboration, governance, marketplace template, multi-bahasa output.
 
-## 14. Definition of Done (DoD)
+## 15. Definition of Done
 
-Checklist yang berlaku untuk setiap fitur/task sebelum dianggap selesai dikerjakan:
+Dipertahankan dari v1.9 Section 14 tanpa perubahan — checklist ini sudah baik: acceptance criteria terpenuhi, teruji manual (happy path + edge case), tanpa error/warning kritis, responsif mobile/desktop, sudah di-deploy staging dan diverifikasi, untuk fitur role-sensitive sudah diuji cross-tenant.
 
-- Fungsionalitas sesuai acceptance criteria pada user story/backlog terkait
-- Sudah diuji manual pada happy path dan minimal satu edge case
-- Tidak ada error atau warning kritis di console/log
-- Tampilan responsif di mobile dan desktop (untuk fitur yang menyentuh UI)
-- Sudah di-deploy ke environment staging dan diverifikasi berjalan normal sebelum masuk ke branch utama
-- Untuk fitur role-sensitive, sudah diuji dengan minimal satu akun per role dan dibuktikan tidak ada cross-role atau cross-tenant access
+## 16. Kriteria Go-Live v1 (evidence-based)
 
-## 15. Kriteria Go-Live MVP
+| Kriteria | Bukti yang dibutuhkan |
+|---|---|
+| Security P0 tuntas | N1–N6 di Section 11 masing-masing punya bukti verifikasi (bukan cuma "sudah dikerjakan") |
+| Minimum 5 template lulus QA | Screenshot/hasil test responsif per template, per breakpoint |
+| Alur signup→publish < 15 menit | Hasil pengukuran manual/E2E timing, bukan estimasi |
+| Midtrans teruji end-to-end | Checkout sandbox berhasil, webhook idempotent teruji dengan request duplikat sengaja dikirim |
+| Email production proven | Minimal satu signup + satu reset password nyata berhasil di production, bukan di local dev |
+| Monitoring aktif | Dashboard Sentry (atau setara) menunjukkan data masuk, alert Slack/email teruji trigger |
+| Backup/restore | Log restore drill sukses dengan timestamp, RPO/RTO dinyatakan |
+| RBAC diuji | Minimal satu akun `user` mencoba akses resource akun lain dan ditolak (bukti cross-tenant isolation) |
+| Kebijakan privasi & ToS | Dipublikasikan di aplikasi, sudah direview |
+| npm audit bersih | N7 terpenuhi, output audit dilampirkan |
 
-Checklist tingkat produk yang harus terpenuhi sebelum MVP diluncurkan ke publik:
+Tidak ada item di sini yang boleh dicentang tanpa artefak (screenshot, log, hasil test) yang bisa ditunjukkan — ini beda paling penting dari checklist v1.9 yang sudah "terpenuhi" di atas kertas tapi terbukti belum di audit nyata.
 
-- Seluruh functional requirement di section 7 sudah diimplementasi dan lulus DoD
-- Kedelapan template sudah siap dan lulus QA visual di berbagai ukuran layar
-- Alur signup sampai publish (termasuk checkout langganan) bisa diselesaikan di bawah 15 menit, sesuai target KPI di section 3
-- Integrasi Midtrans sudah diuji end-to-end, termasuk penanganan webhook untuk status pembayaran dan alur langganan berakhir (grace period → auto-unpublish)
-- Checkout monthly dan annual untuk Basic, Premium, dan Enterprise sudah diuji end-to-end; webhook menyimpan plan, billing cycle, dan subscription status secara idempotent.
-- Entitlement diuji untuk publish quota, watermark, custom domain, analytics, dan template access.
-- Terjemahan UI lengkap untuk kedua bahasa (id/en) di seluruh alur inti
-- Kebijakan privasi dan syarat & ketentuan sudah dipublikasikan di aplikasi
-- Moderasi dasar aktif: filter kata terlarang untuk nama subdomain dan rate limiting pada signup/publish
-- Monitoring dan error tracking dasar sudah terpasang
-- Backup database terjadwal sudah aktif
-- RBAC diuji untuk tiga role; `/admin` dan Designer Portal tidak dapat diakses role yang salah
-- Admin moderation dan suspend flow memiliki audit trail minimum serta tidak mengubah atau menghapus draft user
-- Security review memastikan source template Designer tidak dapat mengeksekusi kode langsung dari database
+## 17. Keputusan Terkunci & Open Decisions
 
-## 16. Keputusan Produk dan Open Questions
+### 17.1 Terkunci lewat dokumen ini
 
-### 16.1 Keputusan yang Sudah Terkunci
+- Launch v1 = satu plan (Basic), satu portofolio per akun, role `user` saja yang publik.
+- Template rolling activation, minimum 5 dari 8 sebelum launch.
+- Multi-portofolio dan tier Premium/Enterprise dipindah ke Fase 1.5 sebagai paid add-on (bukan dihapus dari visi).
+- Terminologi user-facing wajib non-teknis (Portofolio/Publish/Isi Data).
+- Kriteria go-live wajib berbukti, bukan checkbox aspirasional.
 
-- Role akun ada tiga: `user`, `designer`, dan `admin`.
-- Signup biasa selalu membuat akun `user`; role `designer`/`admin` diberikan melalui proses internal yang terproteksi.
-- Designer mewarisi kemampuan membuat portofolio sendiri, tetapi hanya dapat mengakses submission template miliknya.
-- Admin adalah operator platform, bukan editor portofolio customer. Admin dapat melakukan moderation dan support sesuai permission, bukan mengubah konten customer secara normal.
-- Tersedia tiga tier subscription: Basic, Premium, dan Enterprise.
-- Satu subscription berlaku per akun dan maksimal satu website aktif dapat berstatus `published` pada satu waktu untuk semua tier sampai ada keputusan baru.
-- Basic menggunakan subdomain Portofio dan watermark kecil; Premium dapat memakai custom domain dan tidak menampilkan watermark.
-- Enterprise tersedia self-service; team collaboration dan governance berada di roadmap setelah tiered billing stabil.
-- Draft project dan workspace boleh lebih dari satu; hanya satu website aktif yang boleh live.
-- Template renderer, schema, defaults, migration, dan source code berada di codebase. Database hanya menyimpan katalog visibility dan workflow submission.
-- Designer Portal dan marketplace submission adalah Fase 2; fondasi RBAC dan admin moderation adalah bagian dari kesiapan MVP.
+### 17.2 Masih perlu keputusan pemilik produk
 
-### 16.2 Open Questions Sebelum Go-Live
+- Harga plan Basic (monthly & annual) — direkomendasikan divalidasi lewat kohort 10–20 user, bukan ditebak dulu.
+- Target waktu launch dan target jumlah user 3 bulan pertama.
+- Nama domain produksi (pengganti placeholder `appku.com`).
+- Konfirmasi grace period 7 hari saat langganan berakhir.
+- Siapa yang mengerjakan closure N1–N11 di Section 8 dan target tanggalnya.
+- Kriteria eksplisit untuk "kapan Fase 1.5 dibuka" (mis. jumlah publish, feedback demand multi-portofolio dari kohort).
 
-- Harga final monthly dan annual untuk Basic, Premium, dan Enterprise?
-- Berapa diskon annual yang akan digunakan?
-- Nama domain produksi (pengganti placeholder `appku.com`)?
-- Durasi grace period saat langganan berakhir — default usulan 7 hari, dikonfirmasi?
-- Target bisnis: `[X bulan]` waktu peluncuran MVP dan `[Z]` jumlah pengguna 3 bulan pertama (section 3)?
-- Berapa persentase revenue sharing, payout threshold, masa hold, dan metode payout Designer?
-- Apakah recurring Midtrans memakai recurring native atau monthly transaction renewal dengan reminder? Ini harus dikonfirmasi sebelum production billing.
-- Siapa yang menjadi reviewer template secara operasional dan berapa SLA review submission pada Fase 2?
-- Apakah admin support boleh melakukan impersonation terbatas untuk troubleshooting? Default: tidak; gunakan audit log dan akses read-only bila kebutuhan ini muncul.
+## 18. Lampiran — Sumber Riset Kompetitor (21 Agustus 2026)
+
+- Framer — Site Plans Explained, framer.com/help/articles/site-plans-explained
+- Framer Pricing, framer.com/pricing
+- Adobe Portfolio — Create and manage multiple sites, help.myportfolio.com/hc/en-us/articles/360036117214
+- Adobe Portfolio Pricing, josephnilo.com/blog/adobe-portfolio-pricing
+- Journo Portfolio — Pricing, journoportfolio.com/pricing
+- Journo Portfolio — Create a Stunning Online Writing Portfolio (testimonial multi-skill), journoportfolio.com/writing-portfolio
+- Pixpa — Pricing, pixpa.com/pricing

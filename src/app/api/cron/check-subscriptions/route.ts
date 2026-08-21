@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { softUnpublishUserProjects } from "@/lib/billing/unpublish";
 import { cleanupRateLimits } from "@/lib/rate-limit";
+import { cleanupOldAnalytics } from "@/lib/analytics/store";
 
 const GRACE_PERIOD_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -100,12 +101,21 @@ export async function GET(request: Request) {
       console.error("[CronCheckSubscriptions] Rate-limit cleanup failed:", err);
     }
 
+    // 4. Best-effort retention cleanup for analytics tables (never blocks the rest).
+    let cleanedAnalytics = { visits: 0, sectionVisits: 0 };
+    try {
+      cleanedAnalytics = await cleanupOldAnalytics();
+    } catch (err) {
+      console.error("[CronCheckSubscriptions] Analytics cleanup failed:", err);
+    }
+
     return NextResponse.json({
       success: true,
       enteredGraceUsers: enteredGraceCount,
       processedUsers: processedCount,
       unpublishedSitesTotal: unpublishedTotal,
       cleanedRateLimitRows: cleanedRateLimits,
+      cleanedAnalyticsRows: cleanedAnalytics,
       timestamp: now,
     });
   } catch (err) {

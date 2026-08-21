@@ -959,6 +959,27 @@
         "2026-08-21: Wired into uploadContentImageAction: after decoding the base64 payload, sniffImage(bytes) must return a non-null result whose type matches the client-declared MIME subtype, or the upload is rejected before it reaches Supabase Storage."
       ],
       "notes": "This closes the last open P0 from PRD v2 Section 11 (N1–N6 all now passing). Next recommended work per PRD v2 priority order is P1 (N7–N11): re-verify npm audit, prove production email end-to-end, wire monitoring/alerting, run a backup/restore drill, and clear Supabase advisor findings."
+    },
+    {
+      "id": "analytics-003",
+      "priority": 20,
+      "area": "analytics",
+      "title": "Retention cleanup for page_visits / section_visits",
+      "user_visible_behavior": "No user-facing behavior change (the analytics dashboard's \"all\" range already only looks back 365 days). Internally, page_visits and section_visits rows older than 400 days are deleted daily so the tables do not grow forever.",
+      "status": "passing",
+      "verification": [
+        "npx tsc --noEmit clean.",
+        "npm run lint clean (0 errors).",
+        "npm run build clean (34 routes).",
+        "npx playwright test: 31 passed / 3 skipped / 0 failed.",
+        "git diff --check clean."
+      ],
+      "evidence": [
+        "2026-08-21: Senior-engineer backend/DB review flagged that page_visits and section_visits (supabase/migrations/20260810000004_visitor_analytics.sql, 20260811000006_section_engagement.sql) had no automated purge — every page view and section-engagement beacon accumulates forever. PRD v2 Section 6.1 separately flags analytics 'retention' as a P1 gap that has not been implemented at all.",
+        "2026-08-21: Added cleanupOldAnalytics() to src/lib/analytics/store.ts (createAdminClient, deletes rows older than a 400-day cutoff from both tables in parallel; 400 = the 365-day 'all' dashboard range plus a safety margin, since data past that range is already never shown to anyone). Mirrors the existing cleanupRateLimits() pattern in src/lib/rate-limit.ts (best-effort, logs and returns 0 on error rather than throwing).",
+        "2026-08-21: Wired into the existing daily src/app/api/cron/check-subscriptions/route.ts cron (step 4, after the pre-existing rate-limit cleanup) instead of standing up a new cron endpoint or job scheduler — one route, several cheap best-effort deletes, failures in one step never block the others."
+      ],
+      "notes": "No new migration needed — both tables already had created_at indexes (page_visits_project_created_idx, section_visits_project_created_idx) from their original migrations, so the delete-by-cutoff query is index-backed. Confirmed hardening-005's rate_limits cleanup (cleanupRateLimits) was already shipped and already wired into this same cron prior to this session — only the analytics tables were the actual gap."
     }
   ]
 }

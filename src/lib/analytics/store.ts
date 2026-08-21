@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { AnalyticsRange, AnalyticsSite, AnalyticsSummary, DayBucket, SectionEngagement } from "./types";
 import { requireRole } from "@/lib/auth/roles";
 
@@ -135,6 +136,39 @@ export async function getRecentViewsByWorkspace(
     if (wid) map.set(wid, (map.get(wid) ?? 0) + 1);
   }
   return map;
+}
+
+// Retention cleanup -------------------------------------------------------
+
+// The "all" range only ever looks back 365 days (RANGE_META.all.days above),
+// so rows older than that are never shown to anyone. Keep a safety margin
+// past that instead of deleting the instant a row stops being visible.
+const ANALYTICS_RETENTION_DAYS = 400;
+
+/**
+ * Best-effort cleanup of old page_visits/section_visits rows across all
+ * accounts. Called from the daily cron so these tables do not grow forever —
+ * mirrors cleanupRateLimits() in src/lib/rate-limit.ts.
+ */
+export async function cleanupOldAnalytics(retentionDays = ANALYTICS_RETENTION_DAYS): Promise<{
+  visits: number;
+  sectionVisits: number;
+}> {
+  const cutoff = new Date(Date.now() - retentionDays * DAY_MS).toISOString();
+  const supabase = createAdminClient();
+
+  const [visits, sectionVisits] = await Promise.all([
+    supabase.from("page_visits").delete({ count: "exact" }).lt("created_at", cutoff).select("id"),
+    supabase.from("section_visits").delete({ count: "exact" }).lt("created_at", cutoff).select("id"),
+  ]);
+
+  if (visits.error) console.error("[Analytics] page_visits cleanup failed:", visits.error);
+  if (sectionVisits.error) console.error("[Analytics] section_visits cleanup failed:", sectionVisits.error);
+
+  return {
+    visits: visits.error ? 0 : visits.data?.length ?? 0,
+    sectionVisits: sectionVisits.error ? 0 : sectionVisits.data?.length ?? 0,
+  };
 }
 
 interface SectionRow {

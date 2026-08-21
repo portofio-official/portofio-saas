@@ -11,8 +11,8 @@
 
 v1.9 adalah PRD yang matang dan sangat detail, tapi scope di section 5-nya (RBAC 3 role, 3 tier billing × 2 siklus, revenue sharing designer, 8 template, workspace multi-tenant per akun, admin ops penuh) sudah lebih besar dari definisi wajar sebuah MVP. Dua audit teknik internal memverifikasi ini lewat inspeksi kode langsung, bukan opini:
 
-- `docs/DEEP_PRODUCT_ENGINEERING_AUDIT.md` (15 Agustus 2026) — skor kesiapan rata-rata **~6/10**, verdict: jangan tambah fitur, tutup dulu blocker keamanan/data-consistency.
-- `docs/READINESS_AUDIT_2026-08-17.md` (17 Agustus 2026) — verdict eksplisit: **belum siap production/public launch**.
+- `docs/archive/DEEP_PRODUCT_ENGINEERING_AUDIT.md` (15 Agustus 2026) — skor kesiapan rata-rata **~6/10**, verdict: jangan tambah fitur, tutup dulu blocker keamanan/data-consistency.
+- `docs/archive/READINESS_AUDIT_2026-08-17.md` (17 Agustus 2026) — verdict eksplisit: **belum siap production/public launch**.
 
 Dokumen ini melakukan tiga hal: (1) mempersempit scope launch pertama menjadi benar-benar minimal dengan cara **gating**, bukan membongkar apa yang sudah dibangun — 38 dari 41 fitur di `feature_list.json` sudah berstatus *passing*, jadi memotong scope di sini artinya menyembunyikan/menunda expose ke publik, bukan menghapus kerja; (2) menyilangkan satu keputusan produk yang belum tervalidasi (multi-portfolio per akun) dengan riset kompetitor singkat; (3) mengubah kriteria go-live dari kalimat aspirasional ("sudah terpasang") menjadi checklist yang butuh bukti konkret.
 
@@ -125,7 +125,7 @@ Tidak ada lagi percabangan pilih-plan (cuma satu plan) atau pilih-workspace (cum
 
 ## 8. Non-Functional Requirements (v1 — ditulis supaya bisa diverifikasi, bukan aspirasional)
 
-Setiap baris di bawah ini punya bentuk "syarat" + "bukti yang harus ada sebelum dicentang", diambil langsung dari temuan P0/P1 di `DEEP_PRODUCT_ENGINEERING_AUDIT.md` dan `READINESS_AUDIT_2026-08-17.md`.
+Setiap baris di bawah ini punya bentuk "syarat" + "bukti yang harus ada sebelum dicentang", diambil langsung dari temuan P0/P1 di `docs/archive/DEEP_PRODUCT_ENGINEERING_AUDIT.md` dan `docs/archive/READINESS_AUDIT_2026-08-17.md`.
 
 | # | Syarat | Bukti minimum sebelum go-live |
 |---|---|---|

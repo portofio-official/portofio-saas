@@ -827,3 +827,16 @@
 
 **Next Steps:**
 - All MVP launch sprints (Sprint 0–3) codebase requirements are complete! Optional Sprint 4 (Google OAuth / Custom Domain) available for Fase 2 expansion.
+
+# Session 035: PRD v2 — Pivot arsitektur template (kode → data)
+**Status:** Dokumen usulan, belum disetujui untuk implementasi
+**Latest state:**
+- Audit struktural atas jalur template/designer/admin (tanpa membaca PRD v1, atas permintaan user). Empat temuan: (1) template di-hardcode di `src/templates/types.ts` + glob registry, sehingga tiap template baru butuh review kode + merge + deploy — marketplace mentok ~20 template; (2) schema data per-template membuat user kehilangan data saat berganti template; (3) `TemplateMeta.price` hanya stub, tidak ada ekonomi designer sama sekali; (4) admin berperan sebagai integrator kode, bukan operator katalog.
+- Bukti pendukung: 8 template existing hanya memakai 13 jenis section yang sama berulang — perbedaan antar template adalah presentasi, bukan struktur.
+- Menulis `docs/PRD-v2.md` (413 baris): template sebagai data (`templates` + `template_versions` dengan `layout_json`), satu schema konten kanonik, satu `SectionRenderer` untuk kanvas/preview/situs live, situs terkunci ke `template_version_id`.
+- Keputusan user pada sesi ini: authoring designer lewat kanvas visual bergaya Figma (unit section, bukan geometri bebas); semua template gratis dulu (monetisasi ditunda); 8 template existing di-port ke section kit (bukan dua sistem berdampingan).
+- Fase: F1 model konten kanonik → F2 section kit + port 8 template → F3 galeri dengan data user sendiri → F4 Designer Studio → F5 gate otomatis + konsol admin → F6 profil designer.
+
+**Next Steps:**
+- `docs/PRD-v2.md` butuh persetujuan user sebelum `feature_list.json` diubah. Belum ada baris feature yang ditambah/diubah pada sesi ini — tidak ada pekerjaan implementasi yang dimulai.
+- Kalau disetujui, mulai dari Fase 1 (model konten kanonik + migrasi `portfolio_data`), karena F2–F6 semuanya bergantung padanya.

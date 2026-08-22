@@ -840,3 +840,16 @@
 **Next Steps:**
 - `docs/PRD-v2.md` butuh persetujuan user sebelum `feature_list.json` diubah. Belum ada baris feature yang ditambah/diubah pada sesi ini — tidak ada pekerjaan implementasi yang dimulai.
 - Kalau disetujui, mulai dari Fase 1 (model konten kanonik + migrasi `portfolio_data`), karena F2–F6 semuanya bergantung padanya.
+
+# Session 036: Merge PRD-v2 ke docs/PRD.md, hapus PRD-v2.md
+**Status:** Dokumen usulan, masih belum disetujui untuk implementasi
+**Latest state:**
+- Atas permintaan user, PRD-v2.md (audit arsitektur template/designer/admin, sesi sebelumnya) dilebur ke docs/PRD.md sebagai Section 9A baru, bukan dibiarkan jadi dua file terpisah — CLAUDE.md menyatakan spec produk tunggal ada di docs/PRD.md.
+- Koreksi eksplisit ditandai di tempat yang relevan, bukan silent-overwrite: Section 9 (Hybrid Template Storage — prinsip keamanan tetap benar, mekanismenya dikoreksi), Section 10 (isu profil ganda sekarang punya jawaban via skema konten kanonik F1), Section 11 (prinsip "ZIP designer = untrusted content" pensiun karena layout_json tidak pernah dieksekusi), Section 6.3/14 (roadmap Designer Portal), Section 13 (risiko tambahan).
+- Konflik nyata ditandai, TIDAK diputuskan sepihak: designer-001 (ZIP-upload workflow) sudah berstatus *passing* di feature_list.json dengan migration/RLS/storage/E2E lengkap. Section 9A mengusulkan arsitektur berbeda (data-driven). Section 17.2 menambahkan tiga opsi eksplisit (pensiunkan / pertahankan sebagai jalur advanced / migrasi parsial pertahankan metadata-review, ganti isi kontennya) dengan rekomendasi kerja (opsi c) tapi bukan keputusan terkunci — butuh instruksi eksplisit pemilik produk seperti pivot designer-001 2026-08-21.
+- docs/PRD-v2.md dihapus (isinya sudah pindah utuh ke Section 9A). Versi PRD dinaikkan ke 2.1.
+- feature_list.json TIDAK disentuh pada sesi ini.
+
+**Next Steps:**
+- Menunggu keputusan pemilik produk atas dua open decision baru di Section 17.2: (1) nasib designer-001, (2) kapan Fase 1 Section 9A (model konten kanonik) mulai relatif ke P1 hardening N7–N11.
+- Tidak ada pekerjaan implementasi yang dimulai pada sesi ini — murni dokumentasi.

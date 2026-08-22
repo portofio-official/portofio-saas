@@ -853,3 +853,18 @@
 **Next Steps:**
 - Menunggu keputusan pemilik produk atas dua open decision baru di Section 17.2: (1) nasib designer-001, (2) kapan Fase 1 Section 9A (model konten kanonik) mulai relatif ke P1 hardening N7–N11.
 - Tidak ada pekerjaan implementasi yang dimulai pada sesi ini — murni dokumentasi.
+
+# Session 037: Retire designer-001 (ZIP-upload Designer Portal)
+**Status:** Verified — tsc/lint/build clean
+**Latest state:**
+- User picked option (a) from PRD Section 17.2 (retire) for the designer-001 vs Section 9A architecture conflict flagged last session.
+- Deleted: src/app/[locale]/designer/** (all routes), src/components/designer/** (SubmissionForm, DesignerSidebar, DesignerDashboard), src/lib/designer/** (types/store/actions/index), 3 admin submission-review components (ReviewTemplateDropdown, TemplateIntegrationStatusButton, TemplateSourceDownloadButton), 5 admin server actions in src/lib/admin/actions.ts (updateTemplateStatusAction, getTemplateSubmissionsAction, createTemplateSourceDownloadUrlAction, updateTemplateIntegrationAction, AdminTemplateSubmissionView type), the Submissions section + its imports in /admin/templates page, the /designer proxy.ts guard, the "Designer Dashboard" navbar link, e2e/flows/13-designer-portal.spec.ts, /designer paths in e2e/flows/02-auth.spec.ts, and the Designer + Admin.templates.submissions* i18n keys in messages/{en,id}.json.
+- Kept untouched (different feature, same file/area): toggleTemplateVisibilityAction + ToggleTemplateVisibilityButton + "Active Templates" section (v1 catalog is_active gating), AppRole type + "designer" option in UpdateUserRoleButton (cheap RBAC scaffolding per PRD Section 5, orthogonal to the ZIP workflow), e2e/flows/14-admin-portal.spec.ts (only exercises the role dropdown value, never visits /designer).
+- New migration supabase/migrations/20260822000001_drop_designer_submissions.sql drops the template_submissions table, its protect-review-fields trigger/function, the 4 storage.objects policies scoped to the template-submissions bucket, and the bucket itself. Already-applied migration files were not edited or deleted.
+- feature_list.json: added a "retired" status to status_legend, set designer-001.status = "retired" (row kept, not deleted, per CLAUDE.md "system of record" rule), added retirement_evidence array documenting exactly what was deleted and the verification run, updated notes to point future Fase 2 Designer Portal work at a new feature id instead of reopening this row.
+- docs/PRD.md updated: Section 17.1 records the retirement decision as locked (dated same day as the Section 9A merge); Section 17.2's designer-001 open question struck through with a pointer to 17.1; Section 9A.8 and Section 11 updated from "will retire" to "already deleted" with a pointer to the migration.
+- Verification: `rm -rf .next && npx tsc --noEmit` clean, `npm run lint` clean, `npm run build` compiled successfully — /designer absent from the route table, all 29 other routes unaffected. grep for every deleted symbol/path across src/messages/e2e returned zero hits.
+
+**Next Steps:**
+- Open decision still outstanding in PRD Section 17.2: when Fase 1 (Section 9A canonical content model) starts relative to the still-pending P1 hardening (N7–N11).
+- The new migration is untested against a live Supabase project in this session (no DB credentials touched) — apply and confirm it runs clean before it's treated as done in the same sense as other applied migrations.

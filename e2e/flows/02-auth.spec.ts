@@ -59,10 +59,8 @@ test.describe("Flow 2 — Authentication & Onboarding Protection", () => {
   });
 
   test("Unauthenticated access to role-restricted areas redirects to /login", async ({ page }) => {
-    for (const path of ["/id/admin", "/id/designer", "/id/designer/submissions", "/id/designer/submissions/new"]) {
-      await page.goto(path);
-      await page.waitForURL("**/login**");
-      expect(page.url()).toContain("/login");
-    }
+    await page.goto("/id/admin");
+    await page.waitForURL("**/login**");
+    expect(page.url()).toContain("/login");
   });
 });

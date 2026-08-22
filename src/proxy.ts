@@ -28,7 +28,7 @@ async function refreshSupabaseSession(request: NextRequest, response: NextRespon
   const role = user?.app_metadata?.role || null;
   const pathname = request.nextUrl.pathname;
 
-  const isProtected = pathname.includes('/admin') || pathname.includes('/designer');
+  const isProtected = pathname.includes('/admin');
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
@@ -39,12 +39,6 @@ async function refreshSupabaseSession(request: NextRequest, response: NextRespon
   if (isSuperuserTestEmail(user?.email)) return response;
 
   if (pathname.includes('/admin') && role !== 'admin') {
-    const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
-    return NextResponse.redirect(url);
-  }
-
-  if (pathname.includes('/designer') && role !== 'designer' && role !== 'admin') {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     return NextResponse.redirect(url);

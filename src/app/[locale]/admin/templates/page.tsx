@@ -1,10 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getTemplateSubmissionsAction } from "@/lib/admin";
-import { ReviewTemplateDropdown } from "@/components/admin/ReviewTemplateDropdown";
 import { ToggleTemplateVisibilityButton } from "@/components/admin/ToggleTemplateVisibilityButton";
-import { TemplateIntegrationStatusButton } from "@/components/admin/TemplateIntegrationStatusButton";
-import { TemplateSourceDownloadButton } from "@/components/admin/TemplateSourceDownloadButton";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function TemplatesPage() {
@@ -16,8 +12,6 @@ export default async function TemplatesPage() {
     .from("templates")
     .select("id, name, is_active, created_at")
     .order("created_at", { ascending: true });
-
-  const submissions = await getTemplateSubmissionsAction();
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -74,81 +68,6 @@ export default async function TemplatesPage() {
                 <tr>
                   <td colSpan={4} className="py-8 text-center text-ink-soft">
                     {t("templates.emptyActive")}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Submissions Section */}
-        <div className="overflow-x-auto rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
-          <div className="mb-4">
-            <h2 className="font-display text-[16px] font-bold text-ink">{t("templates.submissionsTitle")}</h2>
-            <p className="mt-1 text-[13px] font-medium text-ink-soft">
-              {t("templates.submissionsSubtitle")}
-            </p>
-          </div>
-
-          <table className="w-full text-left text-[14px]">
-            <thead>
-              <tr className="border-b border-black/5 text-ink-faint">
-                <th className="pb-3 font-semibold">{t("templates.colName")}</th>
-                <th className="pb-3 font-semibold">{t("templates.colDesigner")}</th>
-                <th className="pb-3 font-semibold">{t("templates.colPreview")}</th>
-                <th className="pb-3 font-semibold">{t("templates.colStatus")}</th>
-                <th className="pb-3 font-semibold">{t("templates.colIntegration")}</th>
-                <th className="pb-3 font-semibold">{t("templates.colSubmitted")}</th>
-                <th className="pb-3 text-right font-semibold">{t("templates.colAction")}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/5">
-              {submissions?.map((sub) => (
-                <tr key={sub.id} className="group transition-colors hover:bg-black/[0.02]">
-                  <td className="py-4 font-semibold text-ink">{sub.name}</td>
-                  <td className="py-4">
-                    <div className="flex flex-col">
-                      <span className="font-medium text-ink">{sub.designerName || t("templates.unknownDesigner")}</span>
-                      <span className="text-xs text-ink-soft">{sub.designerEmail}</span>
-                    </div>
-                  </td>
-                  <td className="py-4">
-                    <div className="flex min-w-[170px] flex-col items-start gap-2">
-                      <div className="flex flex-wrap gap-2">
-                        {sub.previewUrl && (
-                          <a href={sub.previewUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-accent-deep hover:underline">
-                            {t("templates.desktopPreview")}
-                          </a>
-                        )}
-                        {sub.previewMobileUrl && (
-                          <a href={sub.previewMobileUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-accent-deep hover:underline">
-                            {t("templates.mobilePreview")}
-                          </a>
-                        )}
-                      </div>
-                      <TemplateSourceDownloadButton submissionId={sub.id} filename={sub.sourceFilename} />
-                    </div>
-                  </td>
-                  <td className="py-4">
-                    <span className="inline-flex items-center rounded-full bg-ink/[0.05] px-2.5 py-1 text-[12px] font-medium capitalize text-ink">
-                      {sub.status}
-                    </span>
-                  </td>
-                  <td className="py-4">
-                    <TemplateIntegrationStatusButton submissionId={sub.id} initialStatus={sub.integrationStatus as "not_started" | "in_review" | "merged" | "failed"} />
-                  </td>
-                  <td className="py-4 text-ink-soft">
-                    {sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString("id-ID") : t("templates.statusDraft")}
-                  </td>
-                  <td className="py-4 text-right">
-                    <ReviewTemplateDropdown submissionId={sub.id} />
-                  </td>
-                </tr>
-              ))}
-              {(!submissions || submissions.length === 0) && (
-                <tr>
-                    <td colSpan={7} className="py-8 text-center text-ink-soft">
-                    {t("templates.emptySubmissions")}
                   </td>
                 </tr>
               )}

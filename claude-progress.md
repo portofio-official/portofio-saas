@@ -172,6 +172,14 @@
 - **Not started yet:** no P0 (N1–N6), P1 UX, or P2 item from the prompt's backlog has been picked up this session — this session was scoped to the PRD swap + gating bootstrap only, per "one feature at a time." Also outstanding: the open product decision on Content Library (merge into Editor vs. keep separate — PRD v2 prompt Section 4) has NOT been asked yet; ask before touching `content-library-001`.
 - **Next session:** per the prompt's priority order, start P0 — recommend **N1 (cron fail-open)** first since it's the smallest, most self-contained blocker (`src/app/api/cron/check-subscriptions/route.ts`, already has grace/expiry logic per Session 073 — this is specifically about the missing-`CRON_SECRET` fail-open path, 503/401 behavior).
 
+# Session 114: Superuser email moved to env var
+**Status:** Done + verified (tsc clean)
+- User asked to put `superuser@test.com` / `Superuser123!` in `.env` instead of hardcoded.
+- `src/lib/auth/superuser.ts`: `SUPERUSER_TEST_EMAIL` now reads `NEXT_PUBLIC_SUPERUSER_TEST_EMAIL` (falls back to the same `"superuser@test.com"` default). Kept `NEXT_PUBLIC_` — this file is imported by the client-side `Navbar.tsx`, so a server-only var would be `undefined` in the browser bundle.
+- Added `NEXT_PUBLIC_SUPERUSER_TEST_EMAIL`/`SUPERUSER_TEST_PASSWORD` to `.env` (real values) and `.env.example` (blank placeholders + comment). Password isn't read anywhere in app code — Supabase Auth owns password verification — so it's stored in `.env` only as a local reference, not a consumed config value.
+- Did NOT touch `supabase/functions/custom-claims/index.ts`'s own hardcoded `TEST_EMAIL` — that's a separate Deno edge-function runtime with its own secrets mechanism, out of scope for this Next.js `.env` change unless asked.
+- Verification: `npx tsc --noEmit` clean.
+
 # Session 100: Superuser Navbar all-dashboard access
 **Status:** Done + verified (tsc/lint/build clean)
 - Moved `SUPERUSER_TEST_EMAIL`/`isSuperuserTestEmail` into the client-safe `src/lib/auth/superuser.ts`; `roles.ts` re-exports it so proxy.ts keeps working.

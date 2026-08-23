@@ -29,6 +29,11 @@ you either verify it or document why it is blocked.
 
 ## Rules
 
+- Claude is not the author of this project. Claude may run `git push` when
+  asked, but every commit's author/committer stays the human user's identity
+  (already the case via local `git config user.name`/`user.email` — do not
+  override it with a Claude identity). Claude is a contributor, not the
+  author of record.
 - One active feature at a time.
 - Do not claim completion without runnable evidence.
 - Do not rewrite the feature list to hide unfinished work.

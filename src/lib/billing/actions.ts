@@ -53,15 +53,16 @@ export async function getSubscriptionStatusAction() {
 }
 
 /**
- * Self-service cancellation: does NOT unpublish or revoke access immediately.
+ * Self-service cancel/resume: does NOT unpublish or revoke access immediately.
  * There is no recurring auto-charge to stop in this prepaid-period billing
  * model (each checkout extends `expires_at`) — cancelling just flags that the
  * period should not be treated as an unintentional lapse when it ends. The
  * cron worker (check-subscriptions) reads this flag: cancelled periods expire
  * straight to `canceled` at `expires_at`, skipping the 7-day grace period
- * that's meant for accidental non-renewal.
+ * that's meant for accidental non-renewal. cancelSubscriptionAction/
+ * resumeSubscriptionAction are both this one toggle in opposite directions.
  */
-export async function cancelSubscriptionAction(): Promise<{ ok: boolean; error?: string }> {
+async function setCancelAtPeriodEnd(cancel: boolean): Promise<{ ok: boolean; error?: string }> {
   await requireRole(["user", "designer"]);
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -69,39 +70,26 @@ export async function cancelSubscriptionAction(): Promise<{ ok: boolean; error?:
 
   const { error } = await supabase
     .from("subscriptions")
-    .update({ cancel_at_period_end: true, updated_at: new Date().toISOString() })
+    .update({ cancel_at_period_end: cancel, updated_at: new Date().toISOString() })
     .eq("user_id", user.id)
     .in("status", ["active", "grace_period"]);
 
   if (error) {
-    console.error("[Billing] Failed to cancel subscription:", error);
-    return { ok: false, error: "Failed to cancel subscription" };
+    console.error(`[Billing] Failed to ${cancel ? "cancel" : "resume"} subscription:`, error);
+    return { ok: false, error: `Failed to ${cancel ? "cancel" : "resume"} subscription` };
   }
 
   revalidatePath("/dashboard/billing");
   return { ok: true };
 }
 
+export async function cancelSubscriptionAction(): Promise<{ ok: boolean; error?: string }> {
+  return setCancelAtPeriodEnd(true);
+}
+
 /** Undo a pending cancellation while the current paid period is still active. */
 export async function resumeSubscriptionAction(): Promise<{ ok: boolean; error?: string }> {
-  await requireRole(["user", "designer"]);
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Authentication required" };
-
-  const { error } = await supabase
-    .from("subscriptions")
-    .update({ cancel_at_period_end: false, updated_at: new Date().toISOString() })
-    .eq("user_id", user.id)
-    .in("status", ["active", "grace_period"]);
-
-  if (error) {
-    console.error("[Billing] Failed to resume subscription:", error);
-    return { ok: false, error: "Failed to resume subscription" };
-  }
-
-  revalidatePath("/dashboard/billing");
-  return { ok: true };
+  return setCancelAtPeriodEnd(false);
 }
 
 export async function activateDevSubscriptionAction(): Promise<{ ok: boolean; error?: string }> {

@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { addCustomDomainAction, checkCustomDomainStatusAction, removeCustomDomainAction } from "@/lib/domains/actions";
 import type { CustomDomainStatus, DnsInstruction } from "@/lib/domains/types";
+
+interface DomainActionResult {
+  ok: boolean;
+  error?: string;
+  verification?: DnsInstruction[];
+}
 
 interface CustomDomainCardProps {
   hasCustomDomainEntitlement: boolean;
@@ -47,14 +54,13 @@ export function CustomDomainCard({
     );
   }
 
-  async function handleAdd() {
+  async function runAction(action: () => Promise<DomainActionResult>, onOk?: (res: DomainActionResult) => void) {
     setLoading(true);
     setError(null);
     try {
-      const { addCustomDomainAction } = await import("@/lib/domains/actions");
-      const res = await addCustomDomainAction(projectId!, domainInput);
+      const res = await action();
       if (res.ok) {
-        setInstructions(res.verification ?? []);
+        onOk?.(res);
         router.refresh();
       } else {
         setError(res.error === "custom_domain_requires_upgrade" ? t("upsell") : (res.error ?? t("errors.generic")));
@@ -66,42 +72,13 @@ export function CustomDomainCard({
     }
   }
 
-  async function handleCheck() {
-    setLoading(true);
-    setError(null);
-    try {
-      const { checkCustomDomainStatusAction } = await import("@/lib/domains/actions");
-      const res = await checkCustomDomainStatusAction(projectId!);
-      if (res.ok) {
-        router.refresh();
-      } else {
-        setError(res.error ?? t("errors.generic"));
-      }
-    } catch {
-      setError(t("errors.generic"));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleRemove() {
-    setLoading(true);
-    setError(null);
-    try {
-      const { removeCustomDomainAction } = await import("@/lib/domains/actions");
-      const res = await removeCustomDomainAction(projectId!);
-      if (res.ok) {
-        setInstructions(null);
-        router.refresh();
-      } else {
-        setError(res.error ?? t("errors.generic"));
-      }
-    } catch {
-      setError(t("errors.generic"));
-    } finally {
-      setLoading(false);
-    }
-  }
+  const handleAdd = () =>
+    runAction(
+      () => addCustomDomainAction(projectId!, domainInput),
+      (res) => setInstructions(res.verification ?? []),
+    );
+  const handleCheck = () => runAction(() => checkCustomDomainStatusAction(projectId!));
+  const handleRemove = () => runAction(() => removeCustomDomainAction(projectId!), () => setInstructions(null));
 
   return (
     <div className="rounded-2xl bg-black/[0.02] p-1.5 ring-1 ring-black/5">

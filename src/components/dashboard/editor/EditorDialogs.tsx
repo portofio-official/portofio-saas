@@ -5,6 +5,25 @@ import { PreviewTemplateRenderer as TemplateRenderer } from "@/templates/registr
 import type { TemplateId } from "@/templates/types";
 import type { EditorData, ReadinessIssue, VersionListItem } from "./types";
 
+// Shared upsell CTA shape for the publish-dialog billing gates below
+// (subscription required / template needs a higher plan) — same card,
+// different copy and target action.
+function GateCta({ title, hint, icon, label, locale }: { title: string; hint: string; icon: string; label: string; locale: string }) {
+  return (
+    <div className="mt-4 rounded-xl bg-accent/[0.06] px-4 py-4 ring-1 ring-accent/20">
+      <p className="text-sm font-semibold text-ink">{title}</p>
+      <p className="mt-0.5 text-[12px] text-ink-soft">{hint}</p>
+      <a
+        href={`/${locale}/dashboard/billing`}
+        className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-deep"
+      >
+        <span className="material-symbols-outlined text-[16px]">{icon}</span>
+        {label}
+      </a>
+    </div>
+  );
+}
+
 export interface EditorDialogsProps {
   locale: string;
   domain: string;
@@ -335,38 +354,24 @@ export function EditorDialogs(props: EditorDialogsProps) {
 
             {/* Subscription gate CTA */}
             {publishError === "subscription_required" && (
-              <div className="mt-4 rounded-xl bg-accent/[0.06] px-4 py-4 ring-1 ring-accent/20">
-                <p className="text-sm font-semibold text-ink">
-                  Berlangganan untuk publish website kamu.
-                </p>
-                <p className="mt-0.5 text-[12px] text-ink-soft">
-                  Rp 49.000/bulan - satu paket, tanpa tier. Publish, update, unpublish bebas selama aktif.
-                </p>
-                <a
-                  href={`/${locale}/dashboard/billing`}
-                  className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-deep"
-                >
-                  <span className="material-symbols-outlined text-[16px]">credit_card</span>
-                  Berlangganan Sekarang
-                </a>
-              </div>
+              <GateCta
+                title={t("subscriptionRequiredTitle")}
+                hint={t("subscriptionRequiredHint")}
+                icon="credit_card"
+                label={t("subscribeNow")}
+                locale={locale}
+              />
             )}
 
             {/* Template tier gate CTA — this template needs a higher plan than the account has */}
             {publishError?.startsWith("template_requires_") && (
-              <div className="mt-4 rounded-xl bg-accent/[0.06] px-4 py-4 ring-1 ring-accent/20">
-                <p className="text-sm font-semibold text-ink">
-                  {t("templateTierRequired", { plan: publishError.replace("template_requires_", "") })}
-                </p>
-                <p className="mt-0.5 text-[12px] text-ink-soft">{t("templateTierUpgradeHint")}</p>
-                <a
-                  href={`/${locale}/dashboard/billing`}
-                  className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-deep"
-                >
-                  <span className="material-symbols-outlined text-[16px]">upgrade</span>
-                  {t("upgradePlan")}
-                </a>
-              </div>
+              <GateCta
+                title={t("templateTierRequired", { plan: publishError.replace("template_requires_", "") })}
+                hint={t("templateTierUpgradeHint")}
+                icon="upgrade"
+                label={t("upgradePlan")}
+                locale={locale}
+              />
             )}
 
             {/* Actions */}

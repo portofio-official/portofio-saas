@@ -199,7 +199,11 @@ export function mapDocumentBase(
   oldData: Record<string, unknown>,
 ): Record<string, unknown> {
   const merged: Record<string, unknown> = { ...newDefaults };
-  const carry = ["profile", "contact", "socials", "hiddenSections", "experiences", "educations", "skills", "projects"];
+  // Derived from the schema itself (minus theme) rather than hand-copied, so
+  // a future field added to baseProfileSchema/basePortfolioSchema is carried
+  // over automatically instead of silently dropped until someone remembers
+  // to update a second list.
+  const carry = Object.keys(basePortfolioSchema.shape).filter((key) => key !== "theme");
   for (const key of carry) {
     if (oldData[key] === undefined) continue;
     if (key === "profile" || key === "contact") {

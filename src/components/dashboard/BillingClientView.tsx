@@ -101,28 +101,11 @@ export function BillingClientView({
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [cycle, setCycle] = useState<BillingCycle>(billingCycle ?? "monthly");
 
-  async function handleCancel() {
+  async function handleToggleCancel(cancel: boolean) {
     setCancelLoading(true);
     try {
-      const { cancelSubscriptionAction } = await import("@/lib/billing/actions");
-      const res = await cancelSubscriptionAction();
-      if (res.ok) {
-        router.refresh();
-      } else {
-        setCheckoutError(res.error ?? t("errors.unexpected"));
-      }
-    } catch {
-      setCheckoutError(t("errors.unexpected"));
-    } finally {
-      setCancelLoading(false);
-    }
-  }
-
-  async function handleResume() {
-    setCancelLoading(true);
-    try {
-      const { resumeSubscriptionAction } = await import("@/lib/billing/actions");
-      const res = await resumeSubscriptionAction();
+      const { cancelSubscriptionAction, resumeSubscriptionAction } = await import("@/lib/billing/actions");
+      const res = await (cancel ? cancelSubscriptionAction() : resumeSubscriptionAction());
       if (res.ok) {
         router.refresh();
       } else {
@@ -414,7 +397,7 @@ export function BillingClientView({
                 </p>
                 <button
                   type="button"
-                  onClick={handleResume}
+                  onClick={() => handleToggleCancel(false)}
                   disabled={cancelLoading}
                   className="mt-4 inline-flex h-9 items-center justify-center rounded-full bg-accent px-4 text-[13px] font-bold text-white shadow-sm transition-all hover:bg-accent-deep active:scale-[0.98] disabled:opacity-60"
                 >
@@ -435,7 +418,7 @@ export function BillingClientView({
                 </p>
                 <button
                   type="button"
-                  onClick={handleCancel}
+                  onClick={() => handleToggleCancel(true)}
                   disabled={cancelLoading}
                   className="mt-4 inline-flex h-9 items-center justify-center rounded-full bg-danger/10 px-4 text-[13px] font-bold text-danger transition-colors hover:bg-danger/15 disabled:opacity-60"
                 >

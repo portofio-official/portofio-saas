@@ -18,9 +18,9 @@ SP2-016,Website Publishing,Implementasi URL publik dan routing berdasarkan subdo
 SP2-017,Website Publishing,Implementasi validasi dan pembatasan satu website aktif per akun,Backend,Irawan,5 Hours,Done
 SP2-018,Website Management,Implementasi Dashboard Website Management,Frontend,Irawan,1 Day,Done
 SP2-019,Website Management,"Implementasi aksi Edit, Preview, Publish, Unpublish, dan Delete website",Full Stack,Irawan,1 Day,Done
-SP2-020,Template Switching,Implementasi pemilihan template dari website yang sudah memiliki konten,Frontend,Irawan,6 Hours,To Do
-SP2-021,Template Switching,Implementasi mapping data existing ke schema template baru,Full Stack,Irawan,1 Day,To Do
-SP2-022,Template Switching,Implementasi Preview template baru tanpa mengubah Published Website,Full Stack,Irawan,6 Hours,To Do
+SP2-020,Template Switching,Implementasi pemilihan template dari website yang sudah memiliki konten,Frontend,Irawan,6 Hours,Done
+SP2-021,Template Switching,Implementasi mapping data existing ke schema template baru,Full Stack,Irawan,1 Day,Done
+SP2-022,Template Switching,Implementasi Preview template baru tanpa mengubah Published Website,Full Stack,Irawan,6 Hours,Done
 SP2-023,Subscription & Billing,Mendesain halaman Subscription & Billing,Frontend,Irawan,1 Day,Done
 SP2-024,Subscription & Billing,Implementasi integrasi pembayaran Premium,Full Stack,Irawan,1 Day,Done
 SP2-025,Subscription & Billing,Implementasi status dan sinkronisasi Subscription setelah pembayaran,Backend,Irawan,6 Hours,Done

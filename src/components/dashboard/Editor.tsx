@@ -48,6 +48,7 @@ import { EditorLeftPanel } from "./editor/EditorLeftPanel";
 import { EditorCenterCanvas, type HoveredActionCard } from "./editor/EditorCenterCanvas";
 import { EditorRightPanel } from "./editor/EditorRightPanel";
 import { EditorDialogs } from "./editor/EditorDialogs";
+import { SwitchTemplateModal } from "./editor/SwitchTemplateModal";
 import { DEVICE_CONFIG, type EditorData, type PreviewDevice, type PreviewZoom } from "./editor/types";
 import type { EditorProps, ReadinessIssue, VersionListItem } from "./editor/types";
 
@@ -169,6 +170,7 @@ export function Editor({
   const [versionHistory, setVersionHistory] = useState<VersionListItem[]>([]);
   const [versionHistoryLoading, setVersionHistoryLoading] = useState(false);
   const [restoringVersionId, setRestoringVersionId] = useState<string | null>(null);
+  const [showSwitchTemplate, setShowSwitchTemplate] = useState(false);
 
   const draftDiverged =
     publishStatus === "published" &&
@@ -851,9 +853,19 @@ export function Editor({
             subdomain={subdomain}
             mobileRightOpen={mobileRightOpen}
             setMobileRightOpen={setMobileRightOpen}
+            onOpenSwitchTemplate={() => setShowSwitchTemplate(true)}
           />
         </div>
       </div>
+
+      {showSwitchTemplate && (
+        <SwitchTemplateModal
+          projectId={projectId}
+          currentTemplateId={templateId}
+          currentDocument={documentForSave()}
+          onClose={() => setShowSwitchTemplate(false)}
+        />
+      )}
 
       {/* Mobile drawer backdrops */}
       {(mobileLeftOpen || mobileRightOpen) && (

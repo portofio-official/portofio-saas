@@ -1011,6 +1011,18 @@
     "templateTierRequired": "Template ini butuh plan {plan}.",
     "templateTierUpgradeHint": "Upgrade plan kamu untuk publish dengan template ini, atau pilih template lain.",
     "upgradePlan": "Upgrade Plan",
+    "switchTemplate": {
+      "title": "Template",
+      "hint": "Pindahkan website ini ke template lain. Konten kamu ikut dipindahkan sebisa mungkin.",
+      "button": "Ganti template",
+      "pickTitle": "Pilih template baru",
+      "pickHint": "Pilih template untuk melihat pratinjau kontenmu di sana sebelum berpindah. Belum ada yang tersimpan sampai kamu konfirmasi.",
+      "previewTitle": "Pratinjau: {name}",
+      "currentBadge": "Sedang dipakai",
+      "confirmSwitch": "Pindah ke template ini",
+      "saving": "Memindahkan…",
+      "saveFailed": "Gagal memindahkan template. Coba lagi."
+    },
     "closePanel": "Tutup panel",
     "closeVersionHistory": "Tutup riwayat versi",
     "openContentPanel": "Buka panel konten",

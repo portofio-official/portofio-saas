@@ -174,6 +174,46 @@ export function mapProfileBase<T extends BaseProfileData>(
   };
 }
 
+// Shared mapper: maps an EXISTING document's data (from a project already
+// being edited under some other template) onto a new template's defaults —
+// used for switching a project's template (SP2-021). Unlike mapProfileBase
+// (which seeds a brand-new project from a WorkspaceProfile), the source here
+// is already a template's `data`, which — since every built-in template's
+// schema extends baseProfileSchema/basePortfolioSchema — already carries the
+// same shared fields, just possibly under a schema with different extra
+// fields layered on top.
+//
+// Untyped Record in/out (not generic over T) on purpose: `data` is treated as
+// Record<string, unknown> everywhere else in this file (buildInitialDocument,
+// runMigrations, parseDocumentData) until the target template's own
+// `schema.safeParse()` validates it — same pattern here. The caller MUST run
+// the result through the new template's schema before using/saving it; that
+// safeParse is what strips anything the new template doesn't recognize and
+// catches a malformed shared field instead of silently corrupting the draft.
+//
+// theme is intentionally NOT carried over — variant ids (e.g. Studio's
+// "signal"/"mineral") are meaningful only within their own template, so the
+// new template's own default variant is correct as-is, not a guess.
+export function mapDocumentBase(
+  newDefaults: Record<string, unknown>,
+  oldData: Record<string, unknown>,
+): Record<string, unknown> {
+  const merged: Record<string, unknown> = { ...newDefaults };
+  const carry = ["profile", "contact", "socials", "hiddenSections", "experiences", "educations", "skills", "projects"];
+  for (const key of carry) {
+    if (oldData[key] === undefined) continue;
+    if (key === "profile" || key === "contact") {
+      // Shallow-merge onto the new template's own defaults for that block —
+      // preserves any default sub-field the old data didn't have (rare, but
+      // schemas can add fields over time) instead of blindly overwriting.
+      merged[key] = { ...(newDefaults[key] as object | undefined), ...(oldData[key] as object) };
+    } else {
+      merged[key] = oldData[key];
+    }
+  }
+  return merged;
+}
+
 export const SOCIAL_PLATFORMS = [
   "linkedin",
   "github",

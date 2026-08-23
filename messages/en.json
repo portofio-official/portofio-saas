@@ -1011,6 +1011,18 @@
     "templateTierRequired": "This template needs the {plan} plan.",
     "templateTierUpgradeHint": "Upgrade your plan to publish with this template, or choose another one.",
     "upgradePlan": "Upgrade Plan",
+    "switchTemplate": {
+      "title": "Template",
+      "hint": "Move this website to a different template. Your content is carried over where it fits.",
+      "button": "Switch template",
+      "pickTitle": "Choose a new template",
+      "pickHint": "Pick a template to preview your content in it before switching. Nothing is saved until you confirm.",
+      "previewTitle": "Preview: {name}",
+      "currentBadge": "Current",
+      "confirmSwitch": "Switch to this template",
+      "saving": "Switching…",
+      "saveFailed": "Couldn't switch template. Please try again."
+    },
     "closePanel": "Close panel",
     "closeVersionHistory": "Close version history",
     "openContentPanel": "Open content panel",

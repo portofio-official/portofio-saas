@@ -21,6 +21,7 @@ export interface EditorRightPanelProps {
   subdomain: string;
   mobileRightOpen: boolean;
   setMobileRightOpen: (open: boolean) => void;
+  onOpenSwitchTemplate: () => void;
 }
 
 export function EditorRightPanel(props: EditorRightPanelProps) {
@@ -37,6 +38,7 @@ export function EditorRightPanel(props: EditorRightPanelProps) {
     subdomain,
     mobileRightOpen,
     setMobileRightOpen,
+    onOpenSwitchTemplate,
   } = props;
 
   return (
@@ -74,6 +76,20 @@ export function EditorRightPanel(props: EditorRightPanelProps) {
       <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin">
         {activeRightTab === "appearance" ? (
           <div className="flex flex-col gap-8 pb-6">
+            {/* Switch template */}
+            <div className="flex flex-col gap-2 rounded-2xl bg-white p-4 ring-1 ring-black/5 shadow-sm">
+              <span className="text-[12px] font-bold text-ink">{t("switchTemplate.title")}</span>
+              <p className="text-[11px] text-ink-soft">{t("switchTemplate.hint")}</p>
+              <button
+                type="button"
+                onClick={onOpenSwitchTemplate}
+                className="mt-1 inline-flex items-center gap-1.5 self-start rounded-full bg-black/5 px-3.5 py-1.5 text-[12px] font-bold text-ink transition-colors hover:bg-black/10"
+              >
+                <span className="material-symbols-outlined text-[15px]">swap_horiz</span>
+                {t("switchTemplate.button")}
+              </button>
+            </div>
+
             {/* Appearance Variants Section */}
             <div className="flex flex-col gap-4">
               <span className="text-[12px] font-bold text-ink">{t("appearance")}</span>

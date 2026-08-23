@@ -38,7 +38,7 @@ export default async function AdminLayout({
       <AdminSidebar email={email} />
       <main
         id="admin-main-content"
-        className="relative flex flex-1 flex-col overflow-hidden border-l border-black/5 bg-surface"
+        className="relative flex flex-1 flex-col overflow-hidden border-l border-black/5 bg-canvas"
       >
         {children}
       </main>

@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { toggleTemplateVisibilityAction } from "@/lib/admin";
 import { useTranslations } from "next-intl";
+import { Eye, EyeSlash } from "@phosphor-icons/react/dist/ssr";
 
 export function ToggleTemplateVisibilityButton({
   templateId,
@@ -30,9 +31,7 @@ export function ToggleTemplateVisibilityButton({
       aria-label={isActive ? t("visibility.hide") : t("visibility.show")}
       title={isActive ? t("visibility.hide") : t("visibility.show")}
     >
-      <span className="material-symbols-outlined text-[18px]">
-        {isActive ? "visibility" : "visibility_off"}
-      </span>
+      {isActive ? <Eye weight="duotone" size={18} /> : <EyeSlash size={18} />}
     </button>
   );
 }

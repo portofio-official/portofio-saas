@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toggleUserSuspensionAction } from "@/lib/admin";
 import { useTranslations } from "next-intl";
+import { ArrowClockwise, Prohibit } from "@phosphor-icons/react/dist/ssr";
 
 interface Props {
   userId: string;
@@ -72,9 +73,7 @@ export function SuspendUserButton({ userId, isSuspended }: Props) {
               : "bg-danger/10 text-danger hover:bg-danger/20"
           }`}
         >
-          <span className="material-symbols-outlined text-[16px]">
-            {isSuspended ? "settings_backup_restore" : "block"}
-          </span>
+          {isSuspended ? <ArrowClockwise size={15} /> : <Prohibit size={15} />}
           {isPending ? t("users.loading") : actionText}
         </button>
       )}

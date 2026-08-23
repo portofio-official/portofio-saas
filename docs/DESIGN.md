@@ -15,6 +15,18 @@ landing component files.
 
 **Mode:** light only. The app UI does not ship a dark mode in MVP. Do not add `dark:` variants or `prefers-color-scheme` handling to app UI code.
 
+**Exception — `/admin` (Session 111, 2026-08-23):** the Admin Portal's visual
+layer (iconography, numeric typography, card shape/layout, motion) is an
+explicit, user-approved deviation from this document — it uses
+`@phosphor-icons/react` instead of Material Symbols, `font-mono tabular-nums`
+for data figures, an asymmetric bento stat layout, and framer-motion entrance
+animation. **The color tokens in §2 still apply to `/admin` unchanged** —
+only icons/type-treatment/shape/motion are exempted. Do not "fix" admin back
+to Material Symbols / the flat 3-card grid thinking it's drifted from spec;
+that divergence from the rest of this document is intentional and scoped to
+`/admin` only. `/dashboard` and `/editor` still follow this document exactly
+as written.
+
 Every screen built for `auth-001` → `billing-001` must follow this document.
 
 ---

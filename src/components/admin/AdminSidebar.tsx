@@ -7,10 +7,24 @@ import { signOutAction } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
+import type { Icon } from "@phosphor-icons/react";
+import {
+  GridFour,
+  Users,
+  Palette,
+  Prohibit,
+  ClockCounterClockwise,
+  ShieldCheck,
+  SidebarSimple,
+  X,
+  List,
+  User,
+  SignOut,
+} from "@phosphor-icons/react/dist/ssr";
 
 interface NavItem {
   href: string;
-  icon: string;
+  icon: Icon;
   label: string;
   active: boolean;
 }
@@ -29,11 +43,11 @@ export function AdminSidebar({ email }: { email: string }) {
   const isOverview = path === "/admin";
 
   const navItems: NavItem[] = [
-    { href: "/admin", icon: "space_dashboard", label: t("navOverview"), active: isOverview },
-    { href: "/admin/users", icon: "group", label: t("navUsers"), active: isUsers },
-    { href: "/admin/templates", icon: "dashboard_customize", label: t("navTemplates"), active: isTemplates },
-    { href: "/admin/blocklist", icon: "block", label: t("navBlocklist"), active: isBlocklist },
-    { href: "/admin/audit-log", icon: "history", label: t("navAuditLog"), active: isAudit },
+    { href: "/admin", icon: GridFour, label: t("navOverview"), active: isOverview },
+    { href: "/admin/users", icon: Users, label: t("navUsers"), active: isUsers },
+    { href: "/admin/templates", icon: Palette, label: t("navTemplates"), active: isTemplates },
+    { href: "/admin/blocklist", icon: Prohibit, label: t("navBlocklist"), active: isBlocklist },
+    { href: "/admin/audit-log", icon: ClockCounterClockwise, label: t("navAuditLog"), active: isAudit },
   ];
 
   // Desktop: sidebar can collapse to an icon rail. Default = expanded.
@@ -142,31 +156,34 @@ export function AdminSidebar({ email }: { email: string }) {
 
   const initials = email.charAt(0).toUpperCase();
 
-  const renderItem = (item: NavItem, compact = collapsed) => (
-    <Link
-      key={item.href}
-      href={item.href}
-      aria-current={item.active ? "page" : undefined}
-      title={compact ? item.label : undefined}
-      className={`group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-200 active:scale-[0.98] ${
-        item.active
-          ? "bg-accent/[0.1] text-accent-deep font-bold"
-          : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink"
-      } ${compact ? "justify-center px-0" : ""}`}
-    >
-      {item.active && (
-        <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
-      )}
-      <span
-        className={`material-symbols-outlined text-[19px] transition-transform duration-200 group-hover:scale-105 ${
-          item.active ? "text-accent" : "text-ink-faint group-hover:text-ink"
-        }`}
+  const renderItem = (item: NavItem, compact = collapsed) => {
+    const ItemIcon = item.icon;
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        aria-current={item.active ? "page" : undefined}
+        title={compact ? item.label : undefined}
+        className={`group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-200 active:scale-[0.98] ${
+          item.active
+            ? "bg-accent/[0.1] text-accent-deep font-bold"
+            : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink"
+        } ${compact ? "justify-center px-0" : ""}`}
       >
-        {item.icon}
-      </span>
-      <span className={`flex-1 truncate ${compact ? "hidden" : ""}`}>{item.label}</span>
-    </Link>
-  );
+        {item.active && (
+          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
+        )}
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all duration-200 group-hover:scale-105 ${
+            item.active ? "bg-accent/15 text-accent" : "text-ink-faint group-hover:text-ink"
+          }`}
+        >
+          <ItemIcon weight={item.active ? "fill" : "regular"} size={17} />
+        </span>
+        <span className={`flex-1 truncate ${compact ? "hidden" : ""}`}>{item.label}</span>
+      </Link>
+    );
+  };
 
   const brand = (showLabel = !collapsed) => (
     <div
@@ -181,7 +198,7 @@ export function AdminSidebar({ email }: { email: string }) {
           collapsed ? "group-hover:scale-105 active:scale-95" : ""
         }`}
       >
-        <span className="material-symbols-outlined text-[20px]">shield</span>
+        <ShieldCheck weight="fill" size={19} />
       </div>
       {showLabel && (
         <div className="min-w-0">
@@ -241,7 +258,7 @@ export function AdminSidebar({ email }: { email: string }) {
             aria-label={t("logout")}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-danger/10 hover:text-danger active:scale-95"
           >
-            <span className="material-symbols-outlined text-[17px]">logout</span>
+            <SignOut size={17} />
           </button>
         </form>
 
@@ -261,7 +278,7 @@ export function AdminSidebar({ email }: { email: string }) {
                 onClick={closeProfileMenu}
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-ink transition-colors hover:bg-ink/[0.04]"
               >
-                <span className="material-symbols-outlined text-[17px] text-ink-faint">person</span>
+                <User size={17} className="text-ink-faint" />
                 {t("profileLabel")}
               </Link>
               <Link
@@ -270,7 +287,7 @@ export function AdminSidebar({ email }: { email: string }) {
                 onClick={closeProfileMenu}
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-ink transition-colors hover:bg-ink/[0.04]"
               >
-                <span className="material-symbols-outlined text-[17px] text-ink-faint">shield</span>
+                <ShieldCheck size={17} className="text-ink-faint" />
                 {t("adminDashboard")}
               </Link>
             </div>
@@ -288,7 +305,7 @@ export function AdminSidebar({ email }: { email: string }) {
       aria-label={t("collapseSidebar")}
       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-ink/[0.06] hover:text-ink active:scale-95"
     >
-      <span className="material-symbols-outlined text-[18px]">left_panel_close</span>
+      <SidebarSimple size={18} />
     </button>
   );
 
@@ -299,7 +316,7 @@ export function AdminSidebar({ email }: { email: string }) {
       aria-label={t("closeMenu")}
       className="flex h-10 w-10 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink active:scale-95"
     >
-      <span className="material-symbols-outlined text-[20px]">close</span>
+      <X size={20} />
     </button>
   );
 
@@ -314,11 +331,11 @@ export function AdminSidebar({ email }: { email: string }) {
             aria-label={t("openMenu")}
             className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink/[0.05] text-ink hover:bg-ink/[0.08] active:scale-95 transition-all ring-1 ring-black/5"
           >
-            <span className="material-symbols-outlined text-[20px]">menu</span>
+            <List size={20} />
           </button>
           <div className="flex items-center gap-2">
             <div className="grid h-7 w-7 place-items-center rounded-lg bg-accent text-white font-bold text-[13px] ring-1 ring-black/5">
-              <span className="material-symbols-outlined text-[16px]">shield</span>
+              <ShieldCheck weight="fill" size={16} />
             </div>
             <span className="font-display font-bold text-[15px] tracking-tight text-ink">
               {t("portalLabel")}

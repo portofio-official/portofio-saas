@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { AdminUserView } from "@/lib/admin/actions";
 import { SuspendUserButton } from "@/components/admin/SuspendUserButton";
 import { UpdateUserRoleButton } from "@/components/admin/UpdateUserRoleButton";
+import { MagnifyingGlass, X, UserCircle } from "@phosphor-icons/react/dist/ssr";
 
 export function AdminUsersTable({ users }: { users: AdminUserView[] }) {
   const t = useTranslations("Admin");
@@ -28,9 +29,7 @@ export function AdminUsersTable({ users }: { users: AdminUserView[] }) {
           {t("users.searchLabel")}
         </label>
         <div className="flex w-full items-center gap-2 rounded-xl bg-shell px-3 py-2 ring-1 ring-black/10 transition focus-within:ring-2 focus-within:ring-accent sm:max-w-sm">
-          <span aria-hidden="true" className="material-symbols-outlined text-[20px] text-ink-faint">
-            search
-          </span>
+          <MagnifyingGlass aria-hidden="true" size={18} className="shrink-0 text-ink-faint" />
           <input
             id="admin-user-search"
             type="search"
@@ -46,7 +45,7 @@ export function AdminUsersTable({ users }: { users: AdminUserView[] }) {
               aria-label={t("users.clearSearch")}
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-black/5 hover:text-ink active:scale-95"
             >
-              <span aria-hidden="true" className="material-symbols-outlined text-[18px]">close</span>
+              <X aria-hidden="true" size={16} />
             </button>
           )}
         </div>
@@ -66,13 +65,18 @@ export function AdminUsersTable({ users }: { users: AdminUserView[] }) {
           {filteredUsers.map((user) => (
             <tr key={user.id} className="group transition-colors hover:bg-black/[0.02]">
               <td className="py-4">
-                <div className="flex flex-col">
-                  <span className="font-semibold text-ink">{user.fullName || t("users.unnamed")}</span>
-                  <span className="text-[13px] text-ink-soft">{user.email}</span>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent-deep">
+                    <UserCircle weight="duotone" size={20} />
+                  </span>
+                  <div className="flex min-w-0 flex-col">
+                    <span className="truncate font-semibold text-ink">{user.fullName || t("users.unnamed")}</span>
+                    <span className="truncate text-[13px] text-ink-soft">{user.email}</span>
+                  </div>
                 </div>
               </td>
               <td className="py-4"><UpdateUserRoleButton userId={user.id} role={user.role} /></td>
-              <td className="py-4 text-ink-soft">
+              <td className="py-4 font-mono text-[13px] tabular-nums text-ink-soft">
                 {new Date(user.createdAt).toLocaleDateString("id-ID", {
                   year: "numeric",
                   month: "short",

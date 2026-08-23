@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { addBlocklistWordAction, removeBlocklistWordAction } from "@/lib/admin";
 import { useToast } from "@/components/ui/Toast";
 import { useTranslations } from "next-intl";
+import { X, Prohibit } from "@phosphor-icons/react/dist/ssr";
 
 interface BlocklistClientViewProps {
   initialBlocklist: string[];
@@ -65,10 +66,17 @@ export function BlocklistClientView({ initialBlocklist }: BlocklistClientViewPro
       <div className="mx-auto max-w-4xl space-y-6">
         {/* Header & Controls Card */}
         <div className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
-          <h2 className="font-display text-[17px] font-bold text-ink">{t("blocklist.addTitle")}</h2>
-          <p className="mt-1 mb-4 text-[13px] font-medium text-ink-soft">
-            {t("blocklist.addSubtitle")}
-          </p>
+          <div className="mb-4 flex items-start gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger/10 text-danger">
+              <Prohibit weight="duotone" size={20} />
+            </span>
+            <div>
+              <h2 className="font-display text-[17px] font-bold text-ink">{t("blocklist.addTitle")}</h2>
+              <p className="mt-1 text-[13px] font-medium text-ink-soft">
+                {t("blocklist.addSubtitle")}
+              </p>
+            </div>
+          </div>
 
           {error && (
             <div className="mb-4 rounded-xl bg-danger/10 p-3 text-sm font-medium text-danger ring-1 ring-danger/20">
@@ -143,7 +151,7 @@ export function BlocklistClientView({ initialBlocklist }: BlocklistClientViewPro
                     aria-label={`${t("blocklist.remove")} ${slug}`}
                     className="flex h-8 w-8 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-danger/10 hover:text-danger active:bg-danger/15 active:text-danger"
                   >
-                    <span className="material-symbols-outlined text-[16px]">close</span>
+                    <X size={15} />
                   </button>
                 )}
               </div>

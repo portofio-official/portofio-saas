@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ToggleTemplateVisibilityButton } from "@/components/admin/ToggleTemplateVisibilityButton";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Palette } from "@phosphor-icons/react/dist/ssr";
 
 export default async function TemplatesPage() {
   const t = await getTranslations("Admin");
@@ -28,13 +29,18 @@ export default async function TemplatesPage() {
         {/* Active Templates Section */}
         <div className="overflow-x-auto rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
           <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="font-display text-[16px] font-bold text-ink">{t("templates.activeTitle")}</h2>
-              <p className="mt-1 text-[13px] font-medium text-ink-soft">
-                {t("templates.activeSubtitle")}
-              </p>
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-info-soft text-info">
+                <Palette weight="duotone" size={20} />
+              </span>
+              <div>
+                <h2 className="font-display text-[16px] font-bold text-ink">{t("templates.activeTitle")}</h2>
+                <p className="mt-1 text-[13px] font-medium text-ink-soft">
+                  {t("templates.activeSubtitle")}
+                </p>
+              </div>
             </div>
-            <span className="shrink-0 rounded-full bg-ink/[0.05] px-3 py-1 text-[12px] font-semibold text-ink-soft">
+            <span className="shrink-0 rounded-full bg-ink/[0.05] px-3 py-1 font-mono text-[12px] font-semibold tabular-nums text-ink-soft">
               {t("templates.countSummary", { active: activeCount, hidden: hiddenCount })}
             </span>
           </div>

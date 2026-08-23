@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { WarningCircle } from "@phosphor-icons/react/dist/ssr";
 
 export default function AdminError({
   error,
@@ -15,7 +16,7 @@ export default function AdminError({
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center">
-      <span className="material-symbols-outlined text-4xl text-ink-faint">error</span>
+      <WarningCircle weight="duotone" size={40} className="text-ink-faint" />
       <h2 className="text-lg font-semibold text-ink">Terjadi kesalahan di Admin Panel</h2>
       <p className="max-w-sm text-sm text-ink-soft">
         Halaman ini mengalami error. Coba muat ulang.

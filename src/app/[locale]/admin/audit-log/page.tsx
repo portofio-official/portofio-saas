@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { getAdminAuditLogsAction } from "@/lib/admin";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { getActivityVisual } from "@/components/admin/activityIcon";
 
 function formatMetadata(metadata: Record<string, unknown>): string {
   const entries = Object.entries(metadata).filter(([key]) => key !== "outcome");
@@ -46,18 +47,30 @@ export default async function AdminAuditLogPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
-              {logs.map((log) => (
-                <tr key={log.id} className="align-top transition-colors hover:bg-black/[0.02]">
-                  <td className="whitespace-nowrap py-4 text-ink-soft">{formatter.format(new Date(log.createdAt))}</td>
-                  <td className="py-4 font-semibold text-ink">{log.action}</td>
-                  <td className="py-4 text-ink-soft">
-                    <span className="font-medium text-ink">{log.targetType}</span>
-                    {log.targetId && <span className="ml-1 font-mono text-[11px]">{log.targetId}</span>}
-                  </td>
-                  <td className="max-w-[420px] py-4 text-ink-soft">{formatMetadata(log.metadata)}</td>
-                  <td className="py-4 font-mono text-[11px] text-ink-faint">{log.actorId ?? "-"}</td>
-                </tr>
-              ))}
+              {logs.map((log) => {
+                const { icon: ActivityIcon, tone, bg } = getActivityVisual(log.action);
+                return (
+                  <tr key={log.id} className="align-top transition-colors hover:bg-black/[0.02]">
+                    <td className="whitespace-nowrap py-4 font-mono text-[12px] tabular-nums text-ink-soft">
+                      {formatter.format(new Date(log.createdAt))}
+                    </td>
+                    <td className="py-4">
+                      <div className="flex items-center gap-2.5">
+                        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${bg} ${tone}`}>
+                          <ActivityIcon weight="duotone" size={14} />
+                        </span>
+                        <span className="font-semibold text-ink">{log.action}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 text-ink-soft">
+                      <span className="font-medium text-ink">{log.targetType}</span>
+                      {log.targetId && <span className="ml-1 font-mono text-[11px]">{log.targetId}</span>}
+                    </td>
+                    <td className="max-w-[420px] py-4 text-ink-soft">{formatMetadata(log.metadata)}</td>
+                    <td className="py-4 font-mono text-[11px] text-ink-faint">{log.actorId ?? "-"}</td>
+                  </tr>
+                );
+              })}
               {logs.length === 0 && (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-ink-soft">{t("audit.empty")}</td>

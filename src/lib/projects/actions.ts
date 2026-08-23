@@ -192,6 +192,13 @@ export async function publishProjectAction(
   // checked inside a single transaction.
   const result = await publishProject(projectId, subdomain);
   if (!result.ok) {
+    // The RPC now enforces the same template-tier gate as the pre-check
+    // above (defense in depth) — recognize its dynamic `template_requires_*`
+    // exception the same way the pre-check's own error is already handled
+    // by the caller, instead of falling through to the generic message.
+    if (result.error?.startsWith("template_requires_")) {
+      return { ok: false, error: result.error, requiresSubscription: false };
+    }
     switch (result.error) {
       case "subscription_required":
         return { ok: false, error: "subscription_required", requiresSubscription: true };

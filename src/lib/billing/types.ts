@@ -65,8 +65,10 @@ export interface SubscriptionStateDetails {
   expiresAt: Date | null;
   planId?: string | null;
   planName?: string | null;
+  tier?: PlanTier | null;
   billingCycle?: BillingCycle | null;
   daysRemainingInGracePeriod?: number;
+  cancelAtPeriodEnd?: boolean;
 }
 
 export interface MidtransNotificationPayload {

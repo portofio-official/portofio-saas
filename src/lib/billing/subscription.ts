@@ -35,7 +35,7 @@ export async function getSubscriptionState(targetUserId?: string): Promise<Subsc
   const supabase = await createClient();
   const { data } = await supabase
     .from("subscriptions")
-    .select("status, plan_id, billing_cycle, expires_at, current_period_end")
+    .select("status, plan_id, billing_cycle, expires_at, current_period_end, cancel_at_period_end")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -51,14 +51,17 @@ export async function getSubscriptionState(targetUserId?: string): Promise<Subsc
   }
 
   let planName: string | null = null;
+  let tier: SubscriptionStateDetails["tier"] = null;
   if (record.plan_id) {
     const { data: plan } = await supabase
       .from("plans")
-      .select("name")
+      .select("name, tier")
       .eq("id", record.plan_id)
       .maybeSingle();
     planName = plan?.name ?? null;
+    tier = (plan?.tier as SubscriptionStateDetails["tier"]) ?? null;
   }
+  const cancelAtPeriodEnd = record.cancel_at_period_end === true;
 
   const now = new Date();
   const rawExpires = record.expires_at || record.current_period_end;
@@ -67,7 +70,9 @@ export async function getSubscriptionState(targetUserId?: string): Promise<Subsc
   const base = {
     planId: record.plan_id,
     planName,
+    tier,
     billingCycle: record.billing_cycle ?? null,
+    cancelAtPeriodEnd,
   };
 
   // Active status check

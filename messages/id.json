@@ -522,7 +522,12 @@
     },
     "manage": {
       "title": "Kelola Langganan",
-      "desc": "Untuk membatalkan langganan, hubungi support di {email}. Situs kamu akan tetap live sampai periode langganan berakhir."
+      "desc": "Butuh bantuan soal langganan? Hubungi support di {email}, atau batalkan di bawah ini — website Anda tetap live sampai periode saat ini berakhir.",
+      "cancelBtn": "Batalkan langganan",
+      "cancelledTitle": "Langganan akan berakhir",
+      "cancelledDesc": "Plan Anda tidak akan diperpanjang dan tetap aktif sampai {date}. Berubah pikiran?",
+      "resumeBtn": "Lanjutkan langganan",
+      "working": "Memproses…"
     },
     "dev": {
       "label": "Dev Tools:",
@@ -578,6 +583,24 @@
       "checkoutFail": "Gagal memulai checkout. Coba lagi.",
       "unexpected": "Terjadi kesalahan yang tidak terduga. Coba lagi.",
       "devActivateFail": "Gagal mengaktifkan subscription uji coba."
+    },
+    "domain": {
+      "title": "Custom Domain",
+      "subtitle": "Hubungkan domain milik Anda sendiri ke website yang sudah dipublikasikan (Premium/Enterprise).",
+      "upsell": "Upgrade ke Premium atau Enterprise untuk menghubungkan custom domain.",
+      "noProject": "Publish website terlebih dahulu, baru hubungkan custom domain.",
+      "addBtn": "Hubungkan",
+      "adding": "Menghubungkan…",
+      "checkBtn": "Cek status",
+      "removeBtn": "Hapus",
+      "dnsTitle": "Tambahkan DNS record berikut di registrar domain Anda:",
+      "status": {
+        "verified": "Terverifikasi",
+        "pending": "Menunggu DNS"
+      },
+      "errors": {
+        "generic": "Terjadi kesalahan. Silakan coba lagi."
+      }
     }
   },
   "Dashboard": {
@@ -985,6 +1008,9 @@
     "subdomain": "Subdomain",
     "previewLabel": "Pratinjau:",
     "publishDialogHint": "Hanya huruf kecil, angka, dan strip (-). 3-63 karakter.",
+    "templateTierRequired": "Template ini butuh plan {plan}.",
+    "templateTierUpgradeHint": "Upgrade plan kamu untuk publish dengan template ini, atau pilih template lain.",
+    "upgradePlan": "Upgrade Plan",
     "closePanel": "Tutup panel",
     "closeVersionHistory": "Tutup riwayat versi",
     "openContentPanel": "Buka panel konten",

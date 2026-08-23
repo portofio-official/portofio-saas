@@ -522,7 +522,12 @@
     },
     "manage": {
       "title": "Manage Subscription",
-      "desc": "To cancel your subscription, contact support at {email}. Your sites will remain live until your subscription period ends."
+      "desc": "Need help with your subscription? Contact support at {email}, or cancel below — your sites stay live until the current period ends.",
+      "cancelBtn": "Cancel subscription",
+      "cancelledTitle": "Subscription set to end",
+      "cancelledDesc": "Your plan will not renew and stays active until {date}. Change your mind before then?",
+      "resumeBtn": "Keep my subscription",
+      "working": "Working…"
     },
     "dev": {
       "label": "Dev Tools:",
@@ -578,6 +583,24 @@
       "checkoutFail": "Failed to start checkout. Please try again.",
       "unexpected": "An unexpected error occurred. Please try again.",
       "devActivateFail": "Failed to activate dev subscription."
+    },
+    "domain": {
+      "title": "Custom Domain",
+      "subtitle": "Point your own domain at your published site (Premium/Enterprise).",
+      "upsell": "Upgrade to Premium or Enterprise to connect a custom domain.",
+      "noProject": "Publish a website first, then connect a custom domain to it.",
+      "addBtn": "Connect",
+      "adding": "Connecting…",
+      "checkBtn": "Check status",
+      "removeBtn": "Remove",
+      "dnsTitle": "Add these DNS records at your domain registrar:",
+      "status": {
+        "verified": "Verified",
+        "pending": "Pending DNS"
+      },
+      "errors": {
+        "generic": "Something went wrong. Please try again."
+      }
     }
   },
   "Dashboard": {
@@ -985,6 +1008,9 @@
     "subdomain": "Subdomain",
     "previewLabel": "Preview:",
     "publishDialogHint": "Only lowercase letters, numbers, and hyphens. 3-63 characters.",
+    "templateTierRequired": "This template needs the {plan} plan.",
+    "templateTierUpgradeHint": "Upgrade your plan to publish with this template, or choose another one.",
+    "upgradePlan": "Upgrade Plan",
     "closePanel": "Close panel",
     "closeVersionHistory": "Close version history",
     "openContentPanel": "Open content panel",

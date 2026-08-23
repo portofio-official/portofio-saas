@@ -324,7 +324,9 @@ export function EditorDialogs(props: EditorDialogsProps) {
             </p>
 
             {/* Error display */}
-            {publishError && publishError !== "subscription_required" && (
+            {publishError
+              && publishError !== "subscription_required"
+              && !publishError.startsWith("template_requires_") && (
               <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-rose-50 px-3.5 py-2.5 text-sm font-medium text-rose-600">
                 <span className="material-symbols-outlined text-[18px]">error_outline</span>
                 {publishError}
@@ -346,6 +348,23 @@ export function EditorDialogs(props: EditorDialogsProps) {
                 >
                   <span className="material-symbols-outlined text-[16px]">credit_card</span>
                   Berlangganan Sekarang
+                </a>
+              </div>
+            )}
+
+            {/* Template tier gate CTA — this template needs a higher plan than the account has */}
+            {publishError?.startsWith("template_requires_") && (
+              <div className="mt-4 rounded-xl bg-accent/[0.06] px-4 py-4 ring-1 ring-accent/20">
+                <p className="text-sm font-semibold text-ink">
+                  {t("templateTierRequired", { plan: publishError.replace("template_requires_", "") })}
+                </p>
+                <p className="mt-0.5 text-[12px] text-ink-soft">{t("templateTierUpgradeHint")}</p>
+                <a
+                  href={`/${locale}/dashboard/billing`}
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-deep"
+                >
+                  <span className="material-symbols-outlined text-[16px]">upgrade</span>
+                  {t("upgradePlan")}
                 </a>
               </div>
             )}

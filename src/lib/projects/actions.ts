@@ -12,7 +12,7 @@ import {
 import { buildInitialDocument, type WebsiteDocument } from "@/templates/definition";
 import { getDefinition } from "@/templates/registry";
 import { getUserProfile } from "@/lib/profile/queries";
-import { checkSubscription } from "@/lib/billing/subscription";
+import { getEntitlements, getTemplateMinimumPlan, tierMeetsMinimum } from "@/lib/billing/entitlements";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeObjectData } from "@/lib/utils";
@@ -160,12 +160,23 @@ export async function publishProjectAction(
   }
 
   // Early billing gate so the UI can route to checkout without heavy work.
-  // The RPC re-enforces this atomically (defense in depth).
-  const hasSubscription = await checkSubscription(email);
-  if (!hasSubscription) return { ok: false, error: "subscription_required", requiresSubscription: true };
+  // The RPC re-enforces the "has a subscription" half atomically (defense in
+  // depth); the template minimum-plan check below has no RPC-level twin yet,
+  // so this server action is its only enforcement point.
+  const entitlements = await getEntitlements();
+  if (!entitlements) return { ok: false, error: "subscription_required", requiresSubscription: true };
 
   const projectWithDraft = await getProjectWithDraft(projectId);
   if (!projectWithDraft) return { ok: false, error: "Project not found." };
+
+  const requiredPlan = await getTemplateMinimumPlan(projectWithDraft.templateId);
+  if (!tierMeetsMinimum(entitlements.tier, requiredPlan)) {
+    return {
+      ok: false,
+      error: `template_requires_${requiredPlan}`,
+      requiresSubscription: false,
+    };
+  }
 
   const libraryItems = await listContentItems();
   const resolvedDraft: WebsiteDocument = {

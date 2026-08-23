@@ -43,21 +43,62 @@ export async function GET(request: Request) {
     let processedCount = 0;
     let unpublishedTotal = 0;
 
-    // 1. Active subscriptions past their period enter the grace period.
-    //    The site stays live during grace (getSubscriptionState mirrors this).
-    const { data: enteredGrace, error: graceError } = await supabase
+    // 1. Active subscriptions past their period either enter the grace period
+    //    (unintentional non-renewal — site stays live, getSubscriptionState
+    //    mirrors this) or, if the user explicitly cancelled, expire straight
+    //    to `canceled` with an immediate soft-unpublish — a cancelled period
+    //    shouldn't get a 7-day grace window meant for accidental lapses.
+    const { data: expiredActive, error: expiredActiveError } = await supabase
       .from("subscriptions")
-      .update({ status: "grace_period", updated_at: now })
+      .select("user_id, cancel_at_period_end")
       .eq("status", "active")
-      .lt("expires_at", now)
-      .select("id");
+      .lt("expires_at", now);
 
-    if (graceError) {
-      console.error("[CronCheckSubscriptions] Failed to move expired subscriptions into grace:", graceError);
-      return NextResponse.json({ error: graceError.message }, { status: 500 });
+    if (expiredActiveError) {
+      console.error("[CronCheckSubscriptions] Failed to read expired active subscriptions:", expiredActiveError);
+      return NextResponse.json({ error: expiredActiveError.message }, { status: 500 });
     }
 
-    const enteredGraceCount = enteredGrace?.length ?? 0;
+    const graceUserIds = (expiredActive ?? [])
+      .filter((s) => !s.cancel_at_period_end)
+      .map((s) => s.user_id);
+    const cancelUserIds = (expiredActive ?? [])
+      .filter((s) => s.cancel_at_period_end)
+      .map((s) => s.user_id);
+
+    let enteredGraceCount = 0;
+    if (graceUserIds.length > 0) {
+      const { data: enteredGrace, error: graceError } = await supabase
+        .from("subscriptions")
+        .update({ status: "grace_period", updated_at: now })
+        .in("user_id", graceUserIds)
+        .select("id");
+
+      if (graceError) {
+        console.error("[CronCheckSubscriptions] Failed to move expired subscriptions into grace:", graceError);
+        return NextResponse.json({ error: graceError.message }, { status: 500 });
+      }
+      enteredGraceCount = enteredGrace?.length ?? 0;
+    }
+
+    let canceledAtPeriodEndCount = 0;
+    for (const userId of cancelUserIds) {
+      const res = await softUnpublishUserProjects(userId);
+      if (!res.success) {
+        console.error(`[CronCheckSubscriptions] Soft-unpublish failed for cancelled user ${userId}:`, res.error);
+        continue;
+      }
+      const { error: updateError } = await supabase
+        .from("subscriptions")
+        .update({ status: "canceled", updated_at: now })
+        .eq("user_id", userId);
+      if (updateError) {
+        console.error(`[CronCheckSubscriptions] Failed to mark cancelled user ${userId} canceled:`, updateError);
+        continue;
+      }
+      canceledAtPeriodEndCount++;
+      unpublishedTotal += res.unpublishedCount;
+    }
 
     // 2. Grace-period subscriptions whose 7-day window has fully lapsed get
     //    expired and their published sites soft-unpublished (data is kept).
@@ -112,6 +153,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       enteredGraceUsers: enteredGraceCount,
+      canceledAtPeriodEndUsers: canceledAtPeriodEndCount,
       processedUsers: processedCount,
       unpublishedSitesTotal: unpublishedTotal,
       cleanedRateLimitRows: cleanedRateLimits,

@@ -14,6 +14,7 @@ interface BillingClientViewProps {
   planName?: string | null;
   billingCycle?: BillingCycle | null;
   daysRemainingInGracePeriod?: number;
+  cancelAtPeriodEnd?: boolean;
   checkoutNotice?: "success" | "failed" | "stub" | null;
   plans: PlanRecord[];
 }
@@ -88,6 +89,7 @@ export function BillingClientView({
   planName,
   billingCycle,
   daysRemainingInGracePeriod,
+  cancelAtPeriodEnd = false,
   checkoutNotice,
   plans,
 }: BillingClientViewProps) {
@@ -95,8 +97,43 @@ export function BillingClientView({
   const router = useRouter();
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [devLoading, setDevLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [cycle, setCycle] = useState<BillingCycle>(billingCycle ?? "monthly");
+
+  async function handleCancel() {
+    setCancelLoading(true);
+    try {
+      const { cancelSubscriptionAction } = await import("@/lib/billing/actions");
+      const res = await cancelSubscriptionAction();
+      if (res.ok) {
+        router.refresh();
+      } else {
+        setCheckoutError(res.error ?? t("errors.unexpected"));
+      }
+    } catch {
+      setCheckoutError(t("errors.unexpected"));
+    } finally {
+      setCancelLoading(false);
+    }
+  }
+
+  async function handleResume() {
+    setCancelLoading(true);
+    try {
+      const { resumeSubscriptionAction } = await import("@/lib/billing/actions");
+      const res = await resumeSubscriptionAction();
+      if (res.ok) {
+        router.refresh();
+      } else {
+        setCheckoutError(res.error ?? t("errors.unexpected"));
+      }
+    } catch {
+      setCheckoutError(t("errors.unexpected"));
+    } finally {
+      setCancelLoading(false);
+    }
+  }
 
   async function handleCheckout(selectedPlanId: string) {
     setLoadingPlanId(selectedPlanId);
@@ -367,18 +404,45 @@ export function BillingClientView({
         </div>
 
         {/* Active subscription management */}
-        {isActive && !isGracePeriod && (
+        {isActive && (
           <div className="rounded-2xl bg-surface ring-1 ring-black/5 p-6 shadow-sm">
-            <p className="font-display text-[15px] font-bold text-ink">{t("manage.title")}</p>
-            <p className="mt-1 text-[13px] text-ink-soft leading-relaxed">
-              {t("manage.desc", { email: "support@portofio.id" })}{" "}
-              <a
-                href="mailto:support@portofio.id"
-                className="font-semibold text-accent underline-offset-2 hover:underline"
-              >
-                support@portofio.id
-              </a>
-            </p>
+            {cancelAtPeriodEnd ? (
+              <>
+                <p className="font-display text-[15px] font-bold text-ink">{t("manage.cancelledTitle")}</p>
+                <p className="mt-1 text-[13px] text-ink-soft leading-relaxed">
+                  {t("manage.cancelledDesc", { date: formatDate(expiresAt) })}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleResume}
+                  disabled={cancelLoading}
+                  className="mt-4 inline-flex h-9 items-center justify-center rounded-full bg-accent px-4 text-[13px] font-bold text-white shadow-sm transition-all hover:bg-accent-deep active:scale-[0.98] disabled:opacity-60"
+                >
+                  {cancelLoading ? t("manage.working") : t("manage.resumeBtn")}
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="font-display text-[15px] font-bold text-ink">{t("manage.title")}</p>
+                <p className="mt-1 text-[13px] text-ink-soft leading-relaxed">
+                  {t("manage.desc", { email: "support@portofio.id" })}{" "}
+                  <a
+                    href="mailto:support@portofio.id"
+                    className="font-semibold text-accent underline-offset-2 hover:underline"
+                  >
+                    support@portofio.id
+                  </a>
+                </p>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  disabled={cancelLoading}
+                  className="mt-4 inline-flex h-9 items-center justify-center rounded-full bg-danger/10 px-4 text-[13px] font-bold text-danger transition-colors hover:bg-danger/15 disabled:opacity-60"
+                >
+                  {cancelLoading ? t("manage.working") : t("manage.cancelBtn")}
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>

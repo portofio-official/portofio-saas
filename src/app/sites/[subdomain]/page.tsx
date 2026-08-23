@@ -5,15 +5,20 @@ import { getDefinition } from "@/templates/registry";
 import { parseDocumentData, type WebsiteDocument, type WorkspaceProfile } from "@/templates/definition";
 import { TEMPLATE_IDS, type TemplateId } from "@/templates/types";
 import { sanitizeObjectData } from "@/lib/utils";
+import { getEntitlementsByAdmin } from "@/lib/billing/entitlements";
+import { Watermark } from "@/components/portfolio/Watermark";
 
 // Revalidate public site pages every 60 seconds (ISR caching)
 export const revalidate = 60;
 
 async function getPublishedProject(subdomain: string) {
   const supabase = createPublicClient();
+  // workspaces(user_id) rides on the existing anon-read policy
+  // ("workspaces_public_read_published" — any workspace with a published
+  // project), so the owner id comes back without needing the admin client.
   const { data, error } = await supabase
     .from("projects")
-    .select("template_id, template_version, published_version_id, workspace_id")
+    .select("template_id, template_version, published_version_id, workspace_id, workspaces(user_id)")
     .eq("subdomain", subdomain)
     .eq("status", "published")
     .maybeSingle();
@@ -28,10 +33,18 @@ async function getPublishedProject(subdomain: string) {
 
   if (versionError || !versionData) return null;
 
+  // supabase-js returns a single embedded object for a many-to-one FK
+  // (projects.workspace_id -> workspaces.id), but stay defensive.
+  const workspacesEmbed = data.workspaces as { user_id: string } | { user_id: string }[] | null;
+  const ownerUserId = Array.isArray(workspacesEmbed)
+    ? (workspacesEmbed[0]?.user_id ?? null)
+    : (workspacesEmbed?.user_id ?? null);
+
   return {
     template_id: data.template_id,
     template_version: data.template_version,
     workspace_id: data.workspace_id,
+    owner_user_id: ownerUserId,
     published_json: versionData.content_json,
   };
 }
@@ -103,6 +116,13 @@ export default async function PublicSitePage({
   const doc = sanitizeObjectData(rawDoc);
   const data = parseDocumentData(doc, definition);
 
+  // Default to showing the watermark (fails safe): only an explicit
+  // Premium/Enterprise entitlement (watermark: false) hides it.
+  const ownerEntitlements = project.owner_user_id
+    ? await getEntitlementsByAdmin(project.owner_user_id)
+    : null;
+  const showWatermark = ownerEntitlements?.watermark !== false;
+
   // Extract structured data info
   const docData = (doc?.data ?? {}) as Record<string, unknown>;
   const profile = (docData.profile ?? {}) as Record<string, unknown>;
@@ -159,6 +179,7 @@ export default async function PublicSitePage({
       />
       <script dangerouslySetInnerHTML={{ __html: trackScript }} />
       <Renderer data={data} workspaceProfile={workspaceProfile} />
+      {showWatermark && <Watermark />}
     </>
   );
 }

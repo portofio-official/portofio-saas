@@ -3,6 +3,7 @@ import createIntlMiddleware from "next-intl/middleware";
 import { createServerClient } from "@supabase/ssr";
 import { routing } from "@/i18n/routing";
 import { isSuperuserTestEmail } from "@/lib/auth/roles";
+import { createPublicClient } from "@/lib/supabase/public";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -54,29 +55,53 @@ const ROOT_DOMAIN = (
   process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000"
 ).replace(/^https?:\/\//, "");
 
+function isAppRootHost(hostWithoutPort: string): boolean {
+  const rootWithoutPort = ROOT_DOMAIN.split(":")[0];
+  return hostWithoutPort === rootWithoutPort || hostWithoutPort === `www.${rootWithoutPort}`;
+}
+
 function extractSubdomain(host: string): string | null {
   const hostWithoutPort = host.split(":")[0];
   const rootWithoutPort = ROOT_DOMAIN.split(":")[0];
 
-  if (hostWithoutPort === rootWithoutPort || hostWithoutPort === `www.${rootWithoutPort}`) {
-    return null;
-  }
-
-  if (!hostWithoutPort.endsWith(`.${rootWithoutPort}`)) {
-    return null;
-  }
+  if (isAppRootHost(hostWithoutPort)) return null;
+  if (!hostWithoutPort.endsWith(`.${rootWithoutPort}`)) return null;
 
   return hostWithoutPort.slice(0, -(`.${rootWithoutPort}`.length));
 }
 
+// A connected custom domain (Premium/Enterprise, PRD §9A billing-002) has no
+// `.${ROOT_DOMAIN}` suffix to parse — it's resolved against the
+// `custom_domain_routes` view instead (verified custom domains only; see
+// supabase/migrations/20260822000002_custom_domains.sql).
+async function resolveCustomDomain(hostWithoutPort: string): Promise<string | null> {
+  const supabase = createPublicClient();
+  const { data } = await supabase
+    .from("custom_domain_routes")
+    .select("subdomain")
+    .eq("domain", hostWithoutPort)
+    .maybeSingle();
+  return (data?.subdomain as string | undefined) ?? null;
+}
+
 export default async function proxy(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
+  const hostWithoutPort = host.split(":")[0];
   const subdomain = extractSubdomain(host);
 
   if (subdomain) {
     const url = request.nextUrl.clone();
     url.pathname = `/sites/${subdomain}${url.pathname}`;
     return NextResponse.rewrite(url);
+  }
+
+  if (!isAppRootHost(hostWithoutPort)) {
+    const routedSubdomain = await resolveCustomDomain(hostWithoutPort);
+    if (routedSubdomain) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/sites/${routedSubdomain}${url.pathname}`;
+      return NextResponse.rewrite(url);
+    }
   }
 
   if (request.nextUrl.pathname.startsWith("/sites/")) {

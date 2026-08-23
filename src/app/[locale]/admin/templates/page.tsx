@@ -13,6 +13,9 @@ export default async function TemplatesPage() {
     .select("id, name, is_active, created_at")
     .order("created_at", { ascending: true });
 
+  const activeCount = templates?.filter((tpl) => tpl.is_active).length ?? 0;
+  const hiddenCount = (templates?.length ?? 0) - activeCount;
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <PageHeader
@@ -24,11 +27,16 @@ export default async function TemplatesPage() {
       <div className="flex-1 overflow-y-auto p-6 sm:p-8 flex flex-col gap-6">
         {/* Active Templates Section */}
         <div className="overflow-x-auto rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
-          <div className="mb-4">
-            <h2 className="font-display text-[16px] font-bold text-ink">{t("templates.activeTitle")}</h2>
-            <p className="mt-1 text-[13px] font-medium text-ink-soft">
-              {t("templates.activeSubtitle")}
-            </p>
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="font-display text-[16px] font-bold text-ink">{t("templates.activeTitle")}</h2>
+              <p className="mt-1 text-[13px] font-medium text-ink-soft">
+                {t("templates.activeSubtitle")}
+              </p>
+            </div>
+            <span className="shrink-0 rounded-full bg-ink/[0.05] px-3 py-1 text-[12px] font-semibold text-ink-soft">
+              {t("templates.countSummary", { active: activeCount, hidden: hiddenCount })}
+            </span>
           </div>
 
           <table className="w-full text-left text-[14px]">

@@ -741,6 +741,7 @@
     "portalTagline": "Platform moderation",
     "eyebrow": "Admin",
     "navLabel": "Navigation",
+    "navOverview": "Overview",
     "navUsers": "Users",
     "navTemplates": "Templates",
     "navBlocklist": "Blocklist",
@@ -753,6 +754,18 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "comingSoon": "Coming soon",
+    "overview": {
+      "title": "Overview",
+      "subtitle": "A snapshot of platform activity and growth",
+      "statTotal": "Total Users",
+      "statNew7d": "New (7 days)",
+      "statNew30d": "New (30 days)",
+      "statAdmins": "Admins",
+      "statDesigners": "Designers",
+      "statUsers": "Users",
+      "recentActivity": "Recent Activity",
+      "viewAll": "View all"
+    },
     "users": {
       "title": "Users",
       "subtitle": "Manage platform users and moderation",
@@ -806,6 +819,7 @@
       "colVisibility": "Visibility",
       "statusVisible": "Visible",
       "statusHidden": "Hidden",
+      "countSummary": "{active} active · {hidden} hidden",
       "emptyActive": "No built-in templates found. Run the database migration."
     },
     "audit": {

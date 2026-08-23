@@ -77,7 +77,7 @@ test.describe("Flow 14 — Admin control plane", () => {
       originalTemplateVisibility = template?.is_active ?? true;
 
       await login(page, adminUser.email, adminUser.password);
-      await page.goto("/en/admin");
+      await page.goto("/en/admin/users");
       const userRow = page.locator("tr", { hasText: targetUser.email });
       await expect(userRow).toBeVisible();
 

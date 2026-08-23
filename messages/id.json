@@ -741,6 +741,7 @@
     "portalTagline": "Moderasi platform",
     "eyebrow": "Admin",
     "navLabel": "Navigasi",
+    "navOverview": "Ringkasan",
     "navUsers": "Pengguna",
     "navTemplates": "Template",
     "navBlocklist": "Blocklist",
@@ -753,6 +754,18 @@
     "openMenu": "Buka menu",
     "closeMenu": "Tutup menu",
     "comingSoon": "Segera",
+    "overview": {
+      "title": "Ringkasan",
+      "subtitle": "Sekilas aktivitas dan pertumbuhan platform",
+      "statTotal": "Total Pengguna",
+      "statNew7d": "Baru (7 hari)",
+      "statNew30d": "Baru (30 hari)",
+      "statAdmins": "Admin",
+      "statDesigners": "Designer",
+      "statUsers": "User",
+      "recentActivity": "Aktivitas Terbaru",
+      "viewAll": "Lihat semua"
+    },
     "users": {
       "title": "Pengguna",
       "subtitle": "Kelola pengguna dan moderasi platform",
@@ -806,6 +819,7 @@
       "colVisibility": "Visibilitas",
       "statusVisible": "Tampil",
       "statusHidden": "Sembunyi",
+      "countSummary": "{active} aktif · {hidden} disembunyikan",
       "emptyActive": "Tidak ada template bawaan ditemukan. Jalankan migrasi database."
     },
     "audit": {

@@ -22,12 +22,15 @@ export function AdminSidebar({ email }: { email: string }) {
   // Normalize "/id/admin/..." → "/admin/..."
   const path = pathname?.replace(/^\/(id|en)(?=\/|$)/, "") ?? "/admin";
 
+  const isUsers = path.startsWith("/admin/users");
   const isTemplates = path.startsWith("/admin/templates");
   const isBlocklist = path.startsWith("/admin/blocklist");
   const isAudit = path.startsWith("/admin/audit-log");
+  const isOverview = path === "/admin";
 
   const navItems: NavItem[] = [
-    { href: "/admin", icon: "group", label: t("navUsers"), active: !isTemplates && !isBlocklist && !isAudit && path === "/admin" },
+    { href: "/admin", icon: "space_dashboard", label: t("navOverview"), active: isOverview },
+    { href: "/admin/users", icon: "group", label: t("navUsers"), active: isUsers },
     { href: "/admin/templates", icon: "dashboard_customize", label: t("navTemplates"), active: isTemplates },
     { href: "/admin/blocklist", icon: "block", label: t("navBlocklist"), active: isBlocklist },
     { href: "/admin/audit-log", icon: "history", label: t("navAuditLog"), active: isAudit },

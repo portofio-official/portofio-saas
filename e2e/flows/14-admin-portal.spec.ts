@@ -120,15 +120,15 @@ test.describe("Flow 14 — Admin control plane", () => {
       }).toBeNull();
 
       await page.goto("/en/admin/templates");
-      const templateRow = page.locator("tr", { hasText: "minimal" }).first();
-      const visibilityButton = templateRow.getByRole("button");
+      const templateCard = page.getByTestId("template-card-minimal");
+      const visibilityButton = templateCard.getByRole("button");
       await visibilityButton.click();
       await expect.poll(async () => {
         const { data } = await admin.from("templates").select("is_active").eq("id", "minimal").single();
         return data?.is_active;
       }).toBe(!originalTemplateVisibility);
       await page.reload();
-      await page.locator("tr", { hasText: "minimal" }).first().getByRole("button").click();
+      await page.getByTestId("template-card-minimal").getByRole("button").click();
 
       await page.goto("/en/admin/audit-log");
       await expect(page.getByRole("heading", { name: /audit/i })).toBeVisible();

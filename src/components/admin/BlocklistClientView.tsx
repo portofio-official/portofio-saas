@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { addBlocklistWordAction, removeBlocklistWordAction } from "@/lib/admin";
 import { useToast } from "@/components/ui/Toast";
 import { useTranslations } from "next-intl";
-import { X, Prohibit } from "@phosphor-icons/react/dist/ssr";
+import { X } from "@phosphor-icons/react/dist/ssr";
 
 interface BlocklistClientViewProps {
   initialBlocklist: string[];
@@ -66,17 +66,10 @@ export function BlocklistClientView({ initialBlocklist }: BlocklistClientViewPro
       <div className="mx-auto max-w-4xl space-y-6">
         {/* Header & Controls Card */}
         <div className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
-          <div className="mb-4 flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger/10 text-danger">
-              <Prohibit weight="duotone" size={20} />
-            </span>
-            <div>
-              <h2 className="font-display text-[17px] font-bold text-ink">{t("blocklist.addTitle")}</h2>
-              <p className="mt-1 text-[13px] font-medium text-ink-soft">
-                {t("blocklist.addSubtitle")}
-              </p>
-            </div>
-          </div>
+          <h2 className="font-display text-[17px] font-bold text-ink">{t("blocklist.addTitle")}</h2>
+          <p className="mb-4 mt-1 text-[13px] font-medium text-ink-soft">
+            {t("blocklist.addSubtitle")}
+          </p>
 
           {error && (
             <div className="mb-4 rounded-xl bg-danger/10 p-3 text-sm font-medium text-danger ring-1 ring-danger/20">

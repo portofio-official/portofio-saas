@@ -1,7 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { getUsersAction } from "@/lib/admin";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminUsersTable } from "@/components/admin/AdminUsersTable";
+import { Users } from "@phosphor-icons/react/dist/ssr";
 
 export default async function AdminUsersPage() {
   const t = await getTranslations("Admin");
@@ -9,7 +10,8 @@ export default async function AdminUsersPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <PageHeader
+      <AdminPageHeader
+        icon={Users}
         eyebrow={t("eyebrow")}
         title={t("users.title")}
         subtitle={t("users.subtitle")}

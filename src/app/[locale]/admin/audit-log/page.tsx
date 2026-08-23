@@ -1,7 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { getAdminAuditLogsAction } from "@/lib/admin";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { getActivityVisual } from "@/components/admin/activityIcon";
+import { ClockCounterClockwise } from "@phosphor-icons/react/dist/ssr";
 
 function formatMetadata(metadata: Record<string, unknown>): string {
   const entries = Object.entries(metadata).filter(([key]) => key !== "outcome");
@@ -28,7 +29,9 @@ export default async function AdminAuditLogPage({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <PageHeader
+      <AdminPageHeader
+        icon={ClockCounterClockwise}
+        tone="bg-ink/[0.06] text-ink-soft"
         eyebrow={t("eyebrow")}
         title={t("audit.title")}
         subtitle={t("audit.subtitle")}

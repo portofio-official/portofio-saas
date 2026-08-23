@@ -1,7 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { getUsersAction, getAdminAuditLogsAction } from "@/lib/admin";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminOverviewClientView, type OverviewMetric } from "@/components/admin/AdminOverviewClientView";
+import { GridFour } from "@phosphor-icons/react/dist/ssr";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -53,7 +54,8 @@ export default async function AdminOverviewPage({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <PageHeader
+      <AdminPageHeader
+        icon={GridFour}
         eyebrow={t("eyebrow")}
         title={t("overview.title")}
         subtitle={t("overview.subtitle")}

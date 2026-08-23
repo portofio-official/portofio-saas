@@ -2,7 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { requireRole } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BlocklistClientView } from "@/components/admin/BlocklistClientView";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { Prohibit } from "@phosphor-icons/react/dist/ssr";
 
 export default async function BlocklistPage() {
   await requireRole(["admin"]);
@@ -18,7 +19,9 @@ export default async function BlocklistPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <PageHeader
+      <AdminPageHeader
+        icon={Prohibit}
+        tone="bg-danger/10 text-danger"
         eyebrow={t("eyebrow")}
         title={t("blocklist.title")}
         subtitle={t("blocklist.subtitle")}

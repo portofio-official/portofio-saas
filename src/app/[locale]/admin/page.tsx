@@ -1,26 +1,63 @@
 import { getTranslations } from "next-intl/server";
-import { getUsersAction, getAdminAuditLogsAction } from "@/lib/admin";
+import {
+  getUsersAction,
+  getAdminAuditLogsAction,
+  getAdminAttentionSummaryAction,
+} from "@/lib/admin";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { AdminOverviewClientView, type OverviewMetric } from "@/components/admin/AdminOverviewClientView";
-import { GridFour } from "@phosphor-icons/react/dist/ssr";
+import { AdminOverviewClientView } from "@/components/admin/AdminOverviewClientView";
+import { buildUserLabelMap, getActivityTone, describeActivity, dedupeConsecutive, timeAgo } from "@/components/admin/activity";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const RANGE_DAYS: Record<string, number> = { "7d": 7, "30d": 30, "90d": 90 };
 
-function countSince(users: { createdAt: string }[], days: number): number {
-  const cutoff = Date.now() - days * DAY_MS;
-  return users.filter((u) => new Date(u.createdAt).getTime() >= cutoff).length;
+function countInWindow(users: { createdAt: string }[], startDaysAgo: number, endDaysAgo: number): number {
+  const now = Date.now();
+  return users.filter((u) => {
+    const age = now - new Date(u.createdAt).getTime();
+    return age >= endDaysAgo * DAY_MS && age < startDaysAgo * DAY_MS;
+  }).length;
+}
+
+function delta(current: number, previous: number): number | null {
+  if (previous <= 0) return null;
+  return Math.round(((current - previous) / previous) * 100);
+}
+
+function filterLogsInRange<T extends { createdAt: string }>(logs: T[], days: number): T[] {
+  const now = Date.now();
+  return logs.filter((log) => now - new Date(log.createdAt).getTime() <= days * DAY_MS);
+}
+
+function dailyBuckets(users: { createdAt: string }[], days: number): number[] {
+  const buckets = new Array(days).fill(0);
+  const now = Date.now();
+  for (const u of users) {
+    const diffDays = Math.floor((now - new Date(u.createdAt).getTime()) / DAY_MS);
+    if (diffDays >= 0 && diffDays < days) {
+      buckets[days - 1 - diffDays] += 1;
+    }
+  }
+  return buckets;
 }
 
 export default async function AdminOverviewPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ range?: string }>;
 }) {
   const { locale } = await params;
-  const [t, users, logs] = await Promise.all([
+  const { range: rangeParam } = await searchParams;
+  const range = rangeParam && rangeParam in RANGE_DAYS ? rangeParam : "30d";
+  const rangeDays = RANGE_DAYS[range];
+
+  const [t, users, logs, attention] = await Promise.all([
     getTranslations("Admin"),
     getUsersAction(),
     getAdminAuditLogsAction(),
+    getAdminAttentionSummaryAction(),
   ]);
 
   const roleCounts = users.reduce(
@@ -32,44 +69,48 @@ export default async function AdminOverviewPage({
     { admin: 0, designer: 0, user: 0 },
   );
 
-  const total: OverviewMetric = { key: "users", label: t("overview.statTotal"), value: users.length };
-  const companions: OverviewMetric[] = [
-    { key: "userPlus", label: t("overview.statNew7d"), value: countSince(users, 7) },
-    { key: "calendar", label: t("overview.statNew30d"), value: countSince(users, 30) },
-  ];
-  const roles: OverviewMetric[] = [
-    { key: "shield", label: t("overview.statAdmins"), value: roleCounts.admin },
-    { key: "palette", label: t("overview.statDesigners"), value: roleCounts.designer },
-    { key: "userCircle", label: t("overview.statUsers"), value: roleCounts.user },
-  ];
+  const new7 = countInWindow(users, 7, 0);
+  const prev7 = countInWindow(users, 14, 7);
+  const new30 = countInWindow(users, 30, 0);
+  const prev30 = countInWindow(users, 60, 30);
 
-  const formatter = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
-  const recentLogs = logs.slice(0, 5).map((log) => ({
-    id: log.id,
-    action: log.action,
-    targetType: log.targetType,
-    targetId: log.targetId,
-    timeLabel: formatter.format(new Date(log.createdAt)),
-  }));
+  const labels = buildUserLabelMap(users);
+  const inRangeLogs = filterLogsInRange(logs, rangeDays);
+  const deduped = dedupeConsecutive(inRangeLogs);
+  const activity = deduped.slice(0, 40).map((log) => {
+    const { actorLabel, text, target } = describeActivity(log, labels, t);
+    return {
+      id: log.id,
+      action: log.action,
+      tone: getActivityTone(log.action, log.metadata),
+      actorLabel,
+      text,
+      target,
+      count: log.count,
+      timeLabel: timeAgo(log.createdAt, locale),
+      timeTitle: new Date(log.createdAt).toISOString(),
+    };
+  });
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <AdminPageHeader
-        icon={GridFour}
-        eyebrow={t("eyebrow")}
-        title={t("overview.title")}
-        subtitle={t("overview.subtitle")}
-      />
-
+      <AdminPageHeader title={t("overview.title")} subtitle={t("overview.subtitle")} />
       <div className="flex-1 overflow-y-auto p-6 sm:p-8">
         <AdminOverviewClientView
-          total={total}
-          companions={companions}
-          roles={roles}
-          recentLogs={recentLogs}
-          emptyLabel={t("audit.empty")}
-          recentActivityLabel={t("overview.recentActivity")}
-          viewAllLabel={t("overview.viewAll")}
+          total={users.length}
+          composition={[
+            { label: t("overview.statAdmins"), value: roleCounts.admin, className: "bg-admin-ink" },
+            { label: t("overview.statDesigners"), value: roleCounts.designer, className: "bg-admin-primary" },
+            { label: t("overview.statUsers"), value: roleCounts.user, className: "bg-admin-ink/25" },
+          ]}
+          pulse={dailyBuckets(users, 30)}
+          new7={new7}
+          delta7={delta(new7, prev7)}
+          new30={new30}
+          delta30={delta(new30, prev30)}
+          attention={attention}
+          activity={activity}
+          range={range}
         />
       </div>
     </div>

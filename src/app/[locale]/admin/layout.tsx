@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { getCurrentUserEmail } from "@/lib/auth/session";
 import { requireRole } from "@/lib/auth/roles";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminTopbar } from "@/components/admin/AdminTopbar";
 
 export default async function AdminLayout({
   children,
@@ -28,20 +29,20 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="relative flex flex-col md:flex-row h-dvh w-full overflow-hidden bg-canvas font-sans">
+    <div className="relative flex flex-col lg:flex-row h-dvh w-full overflow-hidden bg-admin-canvas font-sans">
       <a
         href="#admin-main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-[12px] focus:font-bold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-admin-sm focus:bg-admin-primary focus:px-4 focus:py-2 focus:text-[12px] focus:font-bold focus:text-white"
       >
         {t("skipToContent")}
       </a>
       <AdminSidebar email={email} />
-      <main
-        id="admin-main-content"
-        className="relative flex flex-1 flex-col overflow-hidden border-l border-black/5 bg-canvas"
-      >
-        {children}
-      </main>
+      <div className="relative flex flex-1 flex-col overflow-hidden">
+        <AdminTopbar />
+        <main id="admin-main-content" className="relative flex flex-1 flex-col overflow-hidden">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

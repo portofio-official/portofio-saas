@@ -37,6 +37,28 @@
   --color-info:        #0369A1;
   --color-info-soft:   #F0F9FF;
 
+  /* Admin Portal — "instrument panel" tokens, deliberately separate from the
+     app-wide palette above. See docs/DESIGN.md's "Exception — /admin" note.
+     -text variants are the ones actually verified >=4.5:1 against white for
+     body-sized text; the plain variant is for icons/dots/bars (>=3:1 only). */
+  --color-admin-ink:          #0C1512;
+  --color-admin-ink-soft:     #4B5750;
+  --color-admin-ink-faint:    #8B958F;
+  --color-admin-canvas:       #F6F7F5;
+  --color-admin-surface:      #FFFFFF;
+  --color-admin-border:       #E4E8E4;
+  --color-admin-primary:      #15A05C;
+  --color-admin-primary-text: #0E7A45;
+  --color-admin-primary-tint: #E7F5EC;
+  --color-admin-amber:        #B4690E;
+  --color-admin-amber-text:   #92570B;
+  --color-admin-amber-tint:   #FBF1E6;
+  --color-admin-rose:         #B3261E;
+  --color-admin-rose-tint:    #FBEAEA;
+  --radius-admin-sm: 8px;
+  --radius-admin-md: 12px;
+  --radius-admin-lg: 16px;
+
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-outfit);

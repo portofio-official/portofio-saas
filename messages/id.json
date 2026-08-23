@@ -764,7 +764,10 @@
       "statDesigners": "Designer",
       "statUsers": "User",
       "recentActivity": "Aktivitas Terbaru",
-      "viewAll": "Lihat semua"
+      "viewAll": "Lihat semua",
+      "card7d": "7 hari",
+      "card30d": "30 hari",
+      "newNoBaseline": "Baru"
     },
     "users": {
       "title": "Pengguna",
@@ -870,6 +873,51 @@
       "revision": "Minta Revisi",
       "reject": "Tolak",
       "errorGeneric": "Terjadi kesalahan"
+    },
+    "activity": {
+      "title": "Aktivitas terbaru",
+      "filterLabel": "Filter aktivitas",
+      "filter_all": "Semua",
+      "filter_user": "Pengguna",
+      "filter_template": "Template",
+      "filter_blocklist": "Blocklist",
+      "emptyTitle": "Belum ada aktivitas",
+      "emptyHint": "Tidak ada aktivitas dalam {range} terakhir. Perluas rentang waktu untuk melihat riwayat lama.",
+      "unknownActor": "Admin",
+      "userSuspended": "menangguhkan akun",
+      "userReactivated": "mengaktifkan kembali akun",
+      "userRoleChanged": "mengubah peran menjadi {role}",
+      "templateShown": "mengaktifkan template",
+      "templateHidden": "menyembunyikan template",
+      "blocklistAdded": "menambahkan subdomain ke blocklist",
+      "blocklistRemoved": "melepas subdomain dari blocklist",
+      "generic": "melakukan {action}"
+    },
+    "attention": {
+      "title": "Perlu perhatian",
+      "suspended": "{count} akun ditangguhkan",
+      "pendingDomains": "{count} domain menunggu verifikasi",
+      "hiddenTemplates": "{count} template disembunyikan",
+      "allClear": "Semua aman, tidak ada yang butuh tindakan."
+    },
+    "command": {
+      "trigger": "Cari pengguna, template, blocklist...",
+      "placeholder": "Ketik untuk mencari...",
+      "empty": "Tidak ada hasil.",
+      "groupPages": "Halaman",
+      "groupUsers": "Pengguna",
+      "groupTemplates": "Template",
+      "groupBlocklist": "Blocklist"
+    },
+    "timeRange": {
+      "label": "Rentang waktu",
+      "7d": "7 hari",
+      "30d": "30 hari",
+      "90d": "90 hari"
+    },
+    "error": {
+      "message": "Halaman ini gagal dimuat.",
+      "retry": "Coba lagi"
     }
   },
   "ContentLibrary": {

@@ -5,7 +5,7 @@ import type { CSSProperties } from "react";
 import { Link } from "@/i18n/navigation";
 import { signOutAction } from "@/lib/auth";
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import type { Icon } from "@phosphor-icons/react";
 import {
@@ -29,9 +29,13 @@ interface NavItem {
   active: boolean;
 }
 
+const FOCUS_RING =
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-primary";
+
 export function AdminSidebar({ email }: { email: string }) {
   const pathname = usePathname();
   const t = useTranslations("Admin");
+  const reducedMotion = useReducedMotion();
 
   // Normalize "/id/admin/..." → "/admin/..."
   const path = pathname?.replace(/^\/(id|en)(?=\/|$)/, "") ?? "/admin";
@@ -164,22 +168,16 @@ export function AdminSidebar({ email }: { email: string }) {
         href={item.href}
         aria-current={item.active ? "page" : undefined}
         title={compact ? item.label : undefined}
-        className={`group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition-all duration-200 active:scale-[0.98] ${
+        className={`group relative flex items-center gap-2.5 rounded-admin-sm px-3 py-2 text-[13px] transition-colors ${FOCUS_RING} ${
           item.active
-            ? "bg-accent/[0.1] text-accent-deep font-bold"
-            : "text-ink-soft font-medium hover:bg-ink/[0.04] hover:text-ink"
+            ? "bg-admin-primary-tint font-bold text-admin-primary-text"
+            : "font-medium text-admin-ink-soft hover:bg-admin-ink/[0.04] hover:text-admin-ink"
         } ${compact ? "justify-center px-0" : ""}`}
       >
         {item.active && (
-          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
+          <span className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 bg-admin-primary" />
         )}
-        <span
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all duration-200 group-hover:scale-105 ${
-            item.active ? "bg-accent/15 text-accent" : "text-ink-faint group-hover:text-ink"
-          }`}
-        >
-          <ItemIcon weight={item.active ? "fill" : "regular"} size={17} />
-        </span>
+        <ItemIcon weight={item.active ? "fill" : "regular"} size={17} className="shrink-0" />
         <span className={`flex-1 truncate ${compact ? "hidden" : ""}`}>{item.label}</span>
       </Link>
     );
@@ -189,23 +187,17 @@ export function AdminSidebar({ email }: { email: string }) {
     <div
       onClick={collapsed ? toggleCollapsed : undefined}
       title={collapsed ? t("expandSidebar") : undefined}
-      className={`flex items-center gap-3 min-w-0 ${
-        collapsed ? "cursor-pointer group" : ""
-      }`}
+      className={`flex items-center gap-3 min-w-0 ${collapsed ? "cursor-pointer" : ""}`}
     >
-      <div
-        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-accent text-white ring-1 ring-black/5 transition-transform duration-300 ${
-          collapsed ? "group-hover:scale-105 active:scale-95" : ""
-        }`}
-      >
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-admin-md bg-admin-primary text-white">
         <ShieldCheck weight="fill" size={19} />
       </div>
       {showLabel && (
         <div className="min-w-0">
-          <p className="truncate font-display text-[15px] font-bold leading-none tracking-tight text-ink">
+          <p className="truncate font-display text-[15px] font-bold leading-none tracking-tight text-admin-ink">
             {t("portalLabel")}
           </p>
-          <p className="mt-1 truncate text-[11px] font-medium text-ink-faint">
+          <p className="mt-1 truncate text-[11px] font-medium text-admin-ink-faint">
             {t("portalTagline")}
           </p>
         </div>
@@ -216,7 +208,7 @@ export function AdminSidebar({ email }: { email: string }) {
   const nav = (compact = collapsed) => (
     <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-2.5 py-3">
       <p
-        className={`mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-ink-faint ${
+        className={`mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-admin-ink-faint ${
           compact ? "sr-only" : ""
         }`}
       >
@@ -227,10 +219,10 @@ export function AdminSidebar({ email }: { email: string }) {
   );
 
   const profile = (compact = collapsed) => (
-    <div className="border-t border-black/5 p-2.5 bg-surface">
+    <div className="border-t border-admin-border p-2.5">
       <div
-        className={`flex items-center rounded-xl p-1.5 transition-colors ${
-          compact ? "flex-col gap-2 justify-center" : "justify-between gap-2 hover:bg-ink/[0.04]"
+        className={`flex items-center rounded-admin-sm p-1.5 transition-colors ${
+          compact ? "flex-col gap-2 justify-center" : "justify-between gap-2 hover:bg-admin-ink/[0.04]"
         }`}
       >
         <button
@@ -239,15 +231,18 @@ export function AdminSidebar({ email }: { email: string }) {
           onClick={toggleProfileMenu}
           aria-haspopup="menu"
           aria-expanded={profileMenuOpen}
-          title={compact ? `${t("profileLabel")} (${email})` : undefined}
-          className={`flex min-w-0 items-center gap-2.5 rounded-lg transition-all active:scale-[0.98] ${
-            compact ? "justify-center" : "flex-1 hover:bg-ink/[0.04]"
+          title={`${t("profileLabel")} (${email})`}
+          className={`flex min-w-0 items-center gap-2.5 rounded-admin-sm transition-colors ${FOCUS_RING} ${
+            compact ? "justify-center" : "flex-1 hover:bg-admin-ink/[0.04]"
           }`}
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/15 font-display text-[13px] font-bold text-accent-deep ring-1 ring-accent/20">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-admin-primary-tint font-display text-[13px] font-bold text-admin-primary-text">
             {initials}
           </span>
-          <span className={`min-w-0 truncate text-left text-[12px] font-semibold text-ink ${compact ? "hidden" : ""}`}>
+          <span
+            title={email}
+            className={`min-w-0 truncate text-left text-[12px] font-semibold text-admin-ink ${compact ? "hidden" : ""}`}
+          >
             {email}
           </span>
         </button>
@@ -256,7 +251,7 @@ export function AdminSidebar({ email }: { email: string }) {
             type="submit"
             title={t("logout")}
             aria-label={t("logout")}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-danger/10 hover:text-danger active:scale-95"
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-admin-sm text-admin-ink-faint transition-colors hover:bg-admin-rose-tint hover:text-admin-rose ${FOCUS_RING}`}
           >
             <SignOut size={17} />
           </button>
@@ -268,7 +263,7 @@ export function AdminSidebar({ email }: { email: string }) {
             <div className="fixed inset-0 z-40" onClick={closeProfileMenu} aria-hidden />
             <div
               style={profileMenuStyle}
-              className="fixed z-50 w-56 -translate-y-full rounded-xl bg-surface p-1 shadow-floating ring-1 ring-black/5"
+              className="fixed z-50 w-56 -translate-y-full rounded-admin-md border border-admin-border bg-admin-surface p-1"
               role="menu"
               aria-label={t("profileLabel")}
             >
@@ -276,18 +271,18 @@ export function AdminSidebar({ email }: { email: string }) {
                 href="/admin/profile"
                 role="menuitem"
                 onClick={closeProfileMenu}
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-ink transition-colors hover:bg-ink/[0.04]"
+                className={`flex w-full items-center gap-2.5 rounded-admin-sm px-3 py-2 text-left text-[13px] font-medium text-admin-ink transition-colors hover:bg-admin-ink/[0.04] ${FOCUS_RING}`}
               >
-                <User size={17} className="text-ink-faint" />
+                <User size={17} className="text-admin-ink-faint" />
                 {t("profileLabel")}
               </Link>
               <Link
                 href="/admin"
                 role="menuitem"
                 onClick={closeProfileMenu}
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-ink transition-colors hover:bg-ink/[0.04]"
+                className={`flex w-full items-center gap-2.5 rounded-admin-sm px-3 py-2 text-left text-[13px] font-medium text-admin-ink transition-colors hover:bg-admin-ink/[0.04] ${FOCUS_RING}`}
               >
-                <ShieldCheck size={17} className="text-ink-faint" />
+                <ShieldCheck size={17} className="text-admin-ink-faint" />
                 {t("adminDashboard")}
               </Link>
             </div>
@@ -303,7 +298,7 @@ export function AdminSidebar({ email }: { email: string }) {
       onClick={toggleCollapsed}
       title={t("collapseSidebar")}
       aria-label={t("collapseSidebar")}
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-faint transition-all duration-200 hover:bg-ink/[0.06] hover:text-ink active:scale-95"
+      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-admin-sm text-admin-ink-faint transition-colors hover:bg-admin-ink/[0.06] hover:text-admin-ink ${FOCUS_RING}`}
     >
       <SidebarSimple size={18} />
     </button>
@@ -314,7 +309,7 @@ export function AdminSidebar({ email }: { email: string }) {
       type="button"
       onClick={closeMobile}
       aria-label={t("closeMenu")}
-      className="flex h-10 w-10 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-ink/[0.05] hover:text-ink active:scale-95"
+      className={`flex h-11 w-11 items-center justify-center rounded-admin-sm text-admin-ink-soft transition-colors hover:bg-admin-ink/[0.05] hover:text-admin-ink ${FOCUS_RING}`}
     >
       <X size={20} />
     </button>
@@ -322,32 +317,30 @@ export function AdminSidebar({ email }: { email: string }) {
 
   return (
     <>
-      {/* Mobile: Integrated Top Bar (< md) */}
-      <div className="flex md:hidden items-center justify-between gap-3 px-3.5 py-2.5 border-b border-black/5 bg-surface shrink-0">
+      {/* Mobile: Integrated Top Bar (< lg) */}
+      <div className="flex lg:hidden items-center justify-between gap-3 px-3.5 py-2.5 border-b border-admin-border bg-admin-surface shrink-0">
         <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
             aria-label={t("openMenu")}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink/[0.05] text-ink hover:bg-ink/[0.08] active:scale-95 transition-all ring-1 ring-black/5"
+            className={`flex h-11 w-11 items-center justify-center rounded-admin-sm border border-admin-border text-admin-ink hover:bg-admin-ink/[0.05] ${FOCUS_RING}`}
           >
             <List size={20} />
           </button>
           <div className="flex items-center gap-2">
-            <div className="grid h-7 w-7 place-items-center rounded-lg bg-accent text-white font-bold text-[13px] ring-1 ring-black/5">
+            <div className="grid h-7 w-7 place-items-center rounded-admin-sm bg-admin-primary text-white">
               <ShieldCheck weight="fill" size={16} />
             </div>
-            <span className="font-display font-bold text-[15px] tracking-tight text-ink">
+            <span className="font-display font-bold text-[15px] tracking-tight text-admin-ink">
               {t("portalLabel")}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/15 text-accent-deep font-display text-[12px] font-bold ring-1 ring-accent/20">
-            {initials}
-          </span>
-        </div>
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-admin-primary-tint font-display text-[12px] font-bold text-admin-primary-text">
+          {initials}
+        </span>
       </div>
 
       {/* Mobile: Drawer + Backdrop */}
@@ -358,23 +351,23 @@ export function AdminSidebar({ email }: { email: string }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: reducedMotion ? 0 : 0.2 }}
               onClick={closeMobile}
-              className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-40 bg-admin-ink/30 lg:hidden"
               aria-hidden
             />
             <motion.aside
-              initial={{ x: -280 }}
+              initial={{ x: reducedMotion ? 0 : -280 }}
               animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              transition={{ type: "spring", stiffness: 380, damping: 34 }}
-              className="fixed inset-y-0 left-0 z-50 flex w-[280px] shrink-0 flex-col overflow-hidden bg-surface shadow-floating ring-1 ring-black/5 md:hidden"
+              exit={{ x: reducedMotion ? 0 : -280 }}
+              transition={reducedMotion ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 34 }}
+              className="fixed inset-y-0 left-0 z-50 flex w-[280px] shrink-0 flex-col overflow-hidden border-r border-admin-border bg-admin-surface lg:hidden"
               data-admin-drawer="mobile"
               role="dialog"
               aria-modal="true"
               aria-label={t("openMenu")}
             >
-              <div className="flex items-center justify-between gap-2 border-b border-black/5 px-4 py-4">
+              <div className="flex items-center justify-between gap-2 border-b border-admin-border px-4 py-4">
                 <div className="flex items-center gap-2.5">{brand(true)}</div>
                 {closeButton}
               </div>
@@ -385,17 +378,14 @@ export function AdminSidebar({ email }: { email: string }) {
         )}
       </AnimatePresence>
 
-      {/* Desktop: Inline Sidebar (md+) */}
-      <motion.aside
-        initial={{ x: -16, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-        className={`relative hidden h-full shrink-0 flex-col overflow-hidden border-r border-black/5 bg-surface transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:flex ${
-          collapsed ? "w-[72px]" : "w-[248px]"
+      {/* Desktop: Inline Sidebar (lg+) */}
+      <aside
+        className={`relative hidden h-full shrink-0 flex-col overflow-hidden border-r border-admin-border bg-admin-surface transition-[width] duration-200 lg:flex ${
+          collapsed ? "w-[64px]" : "w-[240px]"
         }`}
       >
         <div
-          className={`flex border-b border-black/5 transition-all duration-300 ${
+          className={`flex border-b border-admin-border transition-all duration-200 ${
             collapsed ? "justify-center px-2 py-3.5" : "items-center justify-between px-4 py-3.5"
           }`}
         >
@@ -404,7 +394,7 @@ export function AdminSidebar({ email }: { email: string }) {
         </div>
         {nav()}
         {profile()}
-      </motion.aside>
+      </aside>
     </>
   );
 }

@@ -17,16 +17,17 @@ export function ToggleTemplateVisibilityButton({
 
   return (
     <button
+      type="button"
       onClick={() => {
         startTransition(() => {
           toggleTemplateVisibilityAction(templateId, !isActive);
         });
       }}
       disabled={isPending}
-      className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors disabled:opacity-50 ${
+      className={`flex h-11 w-11 items-center justify-center rounded-admin-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-primary disabled:opacity-50 ${
         isActive
-          ? "text-positive hover:bg-positive/10 active:bg-positive/10"
-          : "text-ink-faint hover:bg-ink/[0.05] active:bg-ink/[0.08]"
+          ? "text-admin-primary-text hover:bg-admin-primary-tint"
+          : "text-admin-ink-faint hover:bg-admin-ink/[0.05]"
       }`}
       aria-label={isActive ? t("visibility.hide") : t("visibility.show")}
       title={isActive ? t("visibility.hide") : t("visibility.show")}

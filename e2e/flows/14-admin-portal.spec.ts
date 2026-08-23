@@ -132,10 +132,12 @@ test.describe("Flow 14 — Admin control plane", () => {
 
       await page.goto("/en/admin/audit-log");
       await expect(page.getByRole("heading", { name: /audit/i })).toBeVisible();
-      await expect(page.getByText("user.role_change", { exact: true }).first()).toBeVisible();
-      await expect(page.getByText("user.suspension", { exact: true }).first()).toBeVisible();
-      await expect(page.getByText("blocklist.add", { exact: true }).first()).toBeVisible();
-      await expect(page.getByText("template.visibility", { exact: true }).first()).toBeVisible();
+      // Audit log now renders human-readable sentences (Session 113 redesign)
+      // instead of raw action strings — assert on the translated copy.
+      await expect(page.getByText(/changed the role to/).first()).toBeVisible();
+      await expect(page.getByText(/(suspended|reactivated) the account/).first()).toBeVisible();
+      await expect(page.getByText(/subdomain to the blocklist/).first()).toBeVisible();
+      await expect(page.getByText(/(made the template visible|hid the template)/).first()).toBeVisible();
 
       await login(targetPage, targetUser.email, targetUser.password);
       await targetPage.goto("/en/admin", { waitUntil: "domcontentloaded" });

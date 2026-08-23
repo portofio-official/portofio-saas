@@ -764,7 +764,10 @@
       "statDesigners": "Designers",
       "statUsers": "Users",
       "recentActivity": "Recent Activity",
-      "viewAll": "View all"
+      "viewAll": "View all",
+      "card7d": "7 days",
+      "card30d": "30 days",
+      "newNoBaseline": "New"
     },
     "users": {
       "title": "Users",
@@ -870,6 +873,51 @@
       "revision": "Request Revision",
       "reject": "Reject",
       "errorGeneric": "An error occurred"
+    },
+    "activity": {
+      "title": "Recent activity",
+      "filterLabel": "Filter activity",
+      "filter_all": "All",
+      "filter_user": "Users",
+      "filter_template": "Templates",
+      "filter_blocklist": "Blocklist",
+      "emptyTitle": "No activity yet",
+      "emptyHint": "No activity in the last {range}. Expand the time range to see older history.",
+      "unknownActor": "Admin",
+      "userSuspended": "suspended the account",
+      "userReactivated": "reactivated the account",
+      "userRoleChanged": "changed the role to {role}",
+      "templateShown": "made the template visible",
+      "templateHidden": "hid the template",
+      "blocklistAdded": "added a subdomain to the blocklist",
+      "blocklistRemoved": "removed a subdomain from the blocklist",
+      "generic": "performed {action}"
+    },
+    "attention": {
+      "title": "Needs attention",
+      "suspended": "{count} suspended accounts",
+      "pendingDomains": "{count} domains pending verification",
+      "hiddenTemplates": "{count} hidden templates",
+      "allClear": "All clear, nothing needs attention."
+    },
+    "command": {
+      "trigger": "Search users, templates, blocklist...",
+      "placeholder": "Type to search...",
+      "empty": "No results.",
+      "groupPages": "Pages",
+      "groupUsers": "Users",
+      "groupTemplates": "Templates",
+      "groupBlocklist": "Blocklist"
+    },
+    "timeRange": {
+      "label": "Time range",
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days"
+    },
+    "error": {
+      "message": "This page failed to load.",
+      "retry": "Try again"
     }
   },
   "ContentLibrary": {

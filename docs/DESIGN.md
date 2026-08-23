@@ -15,17 +15,21 @@ landing component files.
 
 **Mode:** light only. The app UI does not ship a dark mode in MVP. Do not add `dark:` variants or `prefers-color-scheme` handling to app UI code.
 
-**Exception — `/admin` (Session 111, 2026-08-23):** the Admin Portal's visual
-layer (iconography, numeric typography, card shape/layout, motion) is an
-explicit, user-approved deviation from this document — it uses
+**Exception — `/admin` (Sessions 111–113, 2026-08-23):** the Admin Portal is a
+full, explicit, user-directed departure from this document — "instrument
+panel," not the "clean modern SaaS" archetype in §1. It has its **own**
+token set (`--color-admin-*` / `--radius-admin-*` in `globals.css`, generating
+`bg-admin-canvas`, `text-admin-ink`, `rounded-admin-md`, etc.) — do not
+reach for `bg-canvas`/`text-ink`/the §2 palette inside `src/app/[locale]/admin/**`
+or `src/components/admin/**`; use the `admin-*` tokens instead. It uses
 `@phosphor-icons/react` instead of Material Symbols, `font-mono tabular-nums`
-for data figures, an asymmetric bento stat layout, and framer-motion entrance
-animation. **The color tokens in §2 still apply to `/admin` unchanged** —
-only icons/type-treatment/shape/motion are exempted. Do not "fix" admin back
-to Material Symbols / the flat 3-card grid thinking it's drifted from spec;
-that divergence from the rest of this document is intentional and scoped to
-`/admin` only. `/dashboard` and `/editor` still follow this document exactly
-as written.
+for every data figure, flat 1px borders instead of `shadow-sm`/`ring-1`, and
+minimal motion (no page-load stagger, no decorative gradients/blobs/sparkle —
+those were tried in Session 111 and explicitly reversed in Session 113 per a
+detailed redesign brief). Do not "fix" admin back toward §2–§7 thinking it's
+drifted from spec — that divergence is intentional and scoped to `/admin`
+only. `/dashboard` and `/editor` still follow this document exactly as
+written.
 
 Every screen built for `auth-001` → `billing-001` must follow this document.
 

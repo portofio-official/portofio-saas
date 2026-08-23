@@ -241,3 +241,82 @@ export async function getAdminAuditLogsAction(): Promise<AdminAuditLogView[]> {
     createdAt: row.created_at,
   }));
 }
+
+export type AdminTemplateView = { id: string; name: string; isActive: boolean; createdAt: string };
+
+export async function getAdminTemplatesAction(): Promise<AdminTemplateView[]> {
+  await requireRole(["admin"]);
+  const { data, error } = await createAdminClient()
+    .from("templates")
+    .select("id, name, is_active, created_at")
+    .order("created_at", { ascending: true });
+  if (error) {
+    console.error("Failed to fetch templates:", error);
+    throw new Error("Failed to fetch templates");
+  }
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    isActive: row.is_active,
+    createdAt: row.created_at,
+  }));
+}
+
+export async function getAdminBlocklistAction(): Promise<string[]> {
+  await requireRole(["admin"]);
+  const { data, error } = await createAdminClient().from("subdomain_blocklist").select("slug").order("slug");
+  if (error) {
+    console.error("Failed to fetch blocklist:", error);
+    throw new Error("Failed to fetch blocklist");
+  }
+  return (data ?? []).map((row) => row.slug);
+}
+
+export type AdminAttentionSummary = {
+  suspendedUsers: number;
+  pendingDomains: number;
+  hiddenTemplates: number;
+};
+
+/**
+ * Real, currently-available signals only — no fabricated moderation queue.
+ * A dedicated Designer-submission review queue existed once
+ * (20260811000008_designer_submissions.sql) but was deliberately dropped
+ * (20260822000001_drop_designer_submissions.sql); there is no pending-QA
+ * data source to surface here until that (or a replacement) exists.
+ */
+export async function getAdminAttentionSummaryAction(): Promise<AdminAttentionSummary> {
+  await requireRole(["admin"]);
+  const admin = createAdminClient();
+  const [{ data: { users } = { users: [] } }, { count: pendingDomains }, { data: templates }] = await Promise.all([
+    admin.auth.admin.listUsers(),
+    admin.from("custom_domains").select("id", { count: "exact", head: true }).eq("status", "pending_verification"),
+    admin.from("templates").select("is_active"),
+  ]);
+
+  return {
+    suspendedUsers: users.filter((u) => !!u.banned_until).length,
+    pendingDomains: pendingDomains ?? 0,
+    hiddenTemplates: (templates ?? []).filter((t) => !t.is_active).length,
+  };
+}
+
+export type AdminSearchIndex = {
+  users: { id: string; label: string; email: string }[];
+  templates: { id: string; name: string }[];
+  blocklist: string[];
+};
+
+/** One combined, read-only fetch for the command palette — reuses existing queries, no new endpoint. */
+export async function getAdminSearchIndexAction(): Promise<AdminSearchIndex> {
+  const [users, templates, blocklist] = await Promise.all([
+    getUsersAction(),
+    getAdminTemplatesAction(),
+    getAdminBlocklistAction(),
+  ]);
+  return {
+    users: users.map((u) => ({ id: u.id, label: u.fullName || u.email, email: u.email })),
+    templates: templates.map((t) => ({ id: t.id, name: t.name })),
+    blocklist,
+  };
+}

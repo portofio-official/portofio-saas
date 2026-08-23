@@ -1,182 +1,176 @@
 "use client";
 
-import { motion } from "framer-motion";
-import type { Icon } from "@phosphor-icons/react";
-import { Users, UserPlus, CalendarBlank, ShieldCheck, Palette, UserCircle, Sparkle } from "@phosphor-icons/react/dist/ssr";
-import { Link } from "@/i18n/navigation";
-import { getActivityVisual } from "./activityIcon";
+import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { AdminCard, AdminBadge, AdminEmptyState, CompositionBar, Sparkline, ActivityRow } from "./primitives";
+import type { ActivityTone } from "./activity";
+import type { AdminAttentionSummary } from "@/lib/admin";
+import { CalendarBlank, ClockCounterClockwise } from "@phosphor-icons/react/dist/ssr";
 
-const ICONS: Record<string, Icon> = {
-  users: Users,
-  userPlus: UserPlus,
-  calendar: CalendarBlank,
-  shield: ShieldCheck,
-  palette: Palette,
-  userCircle: UserCircle,
-};
-
-export interface OverviewMetric {
-  key: keyof typeof ICONS;
-  label: string;
-  value: number;
-}
-
-export interface OverviewActivity {
+type ActivityItem = {
   id: string;
   action: string;
-  targetType: string;
-  targetId: string | null;
+  tone: ActivityTone;
+  actorLabel: string;
+  text: string;
+  target: string | null;
+  count: number;
   timeLabel: string;
-}
+  timeTitle: string;
+};
 
-const EASE = [0.32, 0.72, 0, 1] as const;
+function DeltaTag({ value }: { value: number | null }) {
+  const t = useTranslations("Admin");
+  if (value === null) return <span className="text-[12px] text-admin-ink-faint">{t("overview.newNoBaseline")}</span>;
+  const positive = value >= 0;
+  return (
+    <span className={`text-[12px] font-semibold ${positive ? "text-admin-primary-text" : "text-admin-rose"}`}>
+      {positive ? "▲" : "▼"} {Math.abs(value)}%
+    </span>
+  );
+}
 
 export function AdminOverviewClientView({
   total,
-  companions,
-  roles,
-  recentLogs,
-  emptyLabel,
-  recentActivityLabel,
-  viewAllLabel,
+  composition,
+  pulse,
+  new7,
+  delta7,
+  new30,
+  delta30,
+  attention,
+  activity,
+  range,
 }: {
-  total: OverviewMetric;
-  companions: OverviewMetric[];
-  roles: OverviewMetric[];
-  recentLogs: OverviewActivity[];
-  emptyLabel: string;
-  recentActivityLabel: string;
-  viewAllLabel: string;
+  total: number;
+  composition: { label: string; value: number; className: string }[];
+  pulse: number[];
+  new7: number;
+  delta7: number | null;
+  new30: number;
+  delta30: number | null;
+  attention: AdminAttentionSummary;
+  activity: ActivityItem[];
+  range: string;
 }) {
-  const TotalIcon = ICONS[total.key];
+  const t = useTranslations("Admin");
+  const [filter, setFilter] = useState<"all" | "user" | "template" | "blocklist">("all");
+
+  const filtered = useMemo(
+    () => (filter === "all" ? activity : activity.filter((a) => a.action.startsWith(filter))),
+    [activity, filter],
+  );
+
+  const attentionItems = [
+    attention.suspendedUsers > 0
+      ? { key: "suspended", tone: "rose" as const, text: t("attention.suspended", { count: attention.suspendedUsers }) }
+      : null,
+    attention.pendingDomains > 0
+      ? { key: "domains", tone: "amber" as const, text: t("attention.pendingDomains", { count: attention.pendingDomains }) }
+      : null,
+    attention.hiddenTemplates > 0
+      ? { key: "hidden", tone: "neutral" as const, text: t("attention.hiddenTemplates", { count: attention.hiddenTemplates }) }
+      : null,
+  ].filter((x): x is NonNullable<typeof x> => x !== null);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Bento row: hero total + companion metrics */}
+      {/* Hero + two fixed comparison cards */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: EASE }}
-          className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-accent-tint via-white to-white p-1.5 ring-1 ring-black/5 lg:col-span-2"
-        >
-          <div className="relative overflow-hidden rounded-[22px] bg-white/60 p-7 sm:p-8">
-            <Sparkle
-              weight="fill"
-              className="pointer-events-none absolute -right-6 -top-6 text-accent/[0.08]"
-              size={180}
-            />
-            <div className="relative flex items-start justify-between">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/[0.12] text-accent-deep ring-1 ring-accent/20">
-                <TotalIcon weight="duotone" size={24} />
-              </div>
-              <span className="h-2 w-2 rounded-full bg-accent" />
+        <AdminCard className="flex max-h-[260px] flex-col justify-between p-6 lg:col-span-2">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p aria-live="polite" className="font-display text-[44px] font-bold leading-none tracking-tight tabular-nums text-admin-ink">
+                {total}
+              </p>
+              <p className="mt-2 text-[13px] font-medium text-admin-ink-soft">{t("overview.statTotal")}</p>
             </div>
-            <p className="relative mt-6 font-mono text-[52px] font-bold leading-none tracking-tight tabular-nums text-ink sm:text-[64px]">
-              {total.value}
-            </p>
-            <p className="relative mt-2 text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-soft">
-              {total.label}
-            </p>
+            <Sparkline values={pulse} className="h-6 w-24 shrink-0" />
           </div>
-        </motion.div>
+          <div className="mt-5">
+            <CompositionBar segments={composition} />
+          </div>
+        </AdminCard>
 
         <div className="flex flex-col gap-4">
-          {companions.map((metric, i) => {
-            const MetricIcon = ICONS[metric.key];
-            return (
-              <motion.div
-                key={metric.key}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.08 + i * 0.06, ease: EASE }}
-                whileHover={{ y: -2 }}
-                className="flex flex-1 items-center gap-4 rounded-2xl bg-surface p-5 shadow-sm ring-1 ring-black/5 transition-shadow duration-200 hover:shadow-md"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-positive/10 text-positive">
-                  <MetricIcon weight="duotone" size={20} />
-                </div>
-                <div>
-                  <p className="font-mono text-[24px] font-bold leading-none tabular-nums text-ink">
-                    {metric.value}
-                  </p>
-                  <p className="mt-1 text-[12px] font-medium text-ink-faint">{metric.label}</p>
-                </div>
-              </motion.div>
-            );
-          })}
+          <AdminCard className="flex flex-1 flex-col justify-between p-5">
+            <p className="font-mono text-[28px] font-bold leading-none tabular-nums text-admin-ink">+{new7}</p>
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-[12px] text-admin-ink-faint">{t("overview.card7d")}</p>
+              <DeltaTag value={delta7} />
+            </div>
+          </AdminCard>
+          <AdminCard className="flex flex-1 flex-col justify-between p-5">
+            <p className="font-mono text-[28px] font-bold leading-none tabular-nums text-admin-ink">+{new30}</p>
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-[12px] text-admin-ink-faint">{t("overview.card30d")}</p>
+              <DeltaTag value={delta30} />
+            </div>
+          </AdminCard>
         </div>
       </div>
 
-      {/* Role breakdown row: dense secondary metrics */}
-      <div className="grid grid-cols-3 gap-3.5">
-        {roles.map((metric, i) => {
-          const MetricIcon = ICONS[metric.key];
-          return (
-            <motion.div
-              key={metric.key}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.2 + i * 0.05, ease: EASE }}
-              whileHover={{ y: -1 }}
-              className="rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5 transition-shadow duration-200 hover:shadow-md"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-info-soft text-info">
-                  <MetricIcon weight="duotone" size={16} />
-                </div>
-                <p className="font-mono text-[20px] font-bold leading-none tabular-nums text-ink">
-                  {metric.value}
-                </p>
-              </div>
-              <p className="mt-2 text-[11px] font-medium text-ink-faint">{metric.label}</p>
-            </motion.div>
-          );
-        })}
-      </div>
+      {/* Activity + Attention */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <AdminCard className="p-5 lg:col-span-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-display text-[15px] font-bold text-admin-ink">{t("activity.title")}</p>
+            <div role="group" aria-label={t("activity.filterLabel")} className="flex items-center gap-1">
+              {(["all", "user", "template", "blocklist"] as const).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setFilter(f)}
+                  aria-pressed={filter === f}
+                  className={`rounded-admin-sm px-2.5 py-1 text-[12px] font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-primary ${
+                    filter === f ? "bg-admin-ink text-white" : "text-admin-ink-soft hover:bg-admin-ink/5"
+                  }`}
+                >
+                  {t(`activity.filter_${f}`)}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      {/* Recent activity */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3, ease: EASE }}
-        className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5"
-      >
-        <div className="flex items-center justify-between gap-3">
-          <p className="font-display text-[15px] font-bold text-ink">{recentActivityLabel}</p>
-          <Link
-            href="/admin/audit-log"
-            className="text-[13px] font-semibold text-accent-deep transition-colors hover:text-accent"
-          >
-            {viewAllLabel}
-          </Link>
-        </div>
+          {filtered.length === 0 ? (
+            <AdminEmptyState
+              icon={ClockCounterClockwise}
+              title={t("activity.emptyTitle")}
+              hint={t("activity.emptyHint", { range: t(`timeRange.${range}`) })}
+            />
+          ) : (
+            <ul aria-live="polite" className="mt-3 divide-y divide-admin-border">
+              {filtered.map((item) => (
+                <ActivityRow
+                  key={item.id}
+                  tone={item.tone}
+                  text={item.text}
+                  target={item.target ?? undefined}
+                  actorLabel={item.actorLabel}
+                  timeLabel={item.timeLabel}
+                  timeTitle={item.timeTitle}
+                  countBadge={item.count}
+                />
+              ))}
+            </ul>
+          )}
+        </AdminCard>
 
-        {recentLogs.length === 0 ? (
-          <p className="mt-6 text-center text-[13px] font-medium text-ink-soft">{emptyLabel}</p>
-        ) : (
-          <ul className="mt-4 divide-y divide-black/5">
-            {recentLogs.map((log) => {
-              const { icon: ActivityIcon, tone, bg } = getActivityVisual(log.action);
-              return (
-                <li key={log.id} className="flex items-center gap-3 py-3">
-                  <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${bg} ${tone}`}>
-                    <ActivityIcon weight="duotone" size={16} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-semibold text-ink">{log.action}</p>
-                    <p className="truncate text-[12px] text-ink-soft">
-                      {log.targetType}
-                      {log.targetId ? ` · ${log.targetId}` : ""}
-                    </p>
-                  </div>
-                  <span className="shrink-0 font-mono text-[11px] tabular-nums text-ink-faint">{log.timeLabel}</span>
+        <AdminCard className="p-5">
+          <p className="font-display text-[15px] font-bold text-admin-ink">{t("attention.title")}</p>
+          {attentionItems.length === 0 ? (
+            <AdminEmptyState icon={CalendarBlank} title={t("attention.allClear")} />
+          ) : (
+            <ul className="mt-3 flex flex-col gap-2.5">
+              {attentionItems.map((item) => (
+                <li key={item.key}>
+                  <AdminBadge tone={item.tone}>{item.text}</AdminBadge>
                 </li>
-              );
-            })}
-          </ul>
-        )}
-      </motion.div>
+              ))}
+            </ul>
+          )}
+        </AdminCard>
+      </div>
     </div>
   );
 }

@@ -11,6 +11,9 @@ interface Props {
   isSuspended: boolean;
 }
 
+const FOCUS_RING =
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-primary";
+
 export function SuspendUserButton({ userId, isSuspended }: Props) {
   const t = useTranslations("Admin");
   const [isPending, startTransition] = useTransition();
@@ -40,17 +43,15 @@ export function SuspendUserButton({ userId, isSuspended }: Props) {
       {showConfirm ? (
         /* Inline confirmation — replaces window.confirm() */
         <div className="flex items-center gap-1.5">
-          <span className="text-[11px] font-medium text-ink-soft mr-1">
-            {confirmText}
-          </span>
+          <span className="mr-1 text-[11px] font-medium text-admin-ink-soft">{confirmText}</span>
           <button
             type="button"
             onClick={handleToggle}
             disabled={isPending}
-            className={`flex items-center rounded-full px-3.5 py-1.5 text-[11px] font-bold transition-colors active:scale-[0.97] disabled:opacity-50 ${
+            className={`flex h-9 items-center rounded-admin-sm px-3.5 text-[11px] font-bold transition-colors disabled:opacity-50 ${FOCUS_RING} ${
               isSuspended
-                ? "bg-accent/10 text-accent-deep hover:bg-accent/20"
-                : "bg-danger/10 text-danger hover:bg-danger/20"
+                ? "bg-admin-primary-tint text-admin-primary-text hover:brightness-95"
+                : "bg-admin-rose-tint text-admin-rose hover:brightness-95"
             }`}
           >
             {isPending ? t("users.loading") : t("users.yes")}
@@ -58,26 +59,27 @@ export function SuspendUserButton({ userId, isSuspended }: Props) {
           <button
             type="button"
             onClick={() => setShowConfirm(false)}
-            className="flex items-center rounded-full bg-black/5 px-3.5 py-1.5 text-[11px] font-bold text-ink hover:bg-black/10 active:scale-[0.97] transition-colors"
+            className={`flex h-9 items-center rounded-admin-sm bg-admin-ink/5 px-3.5 text-[11px] font-bold text-admin-ink transition-colors hover:bg-admin-ink/10 ${FOCUS_RING}`}
           >
             {t("users.cancel")}
           </button>
         </div>
       ) : (
         <button
+          type="button"
           onClick={() => setShowConfirm(true)}
           disabled={isPending}
-          className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] font-semibold transition-colors active:scale-[0.97] disabled:opacity-50 ${
+          className={`flex h-9 items-center gap-1.5 rounded-admin-sm px-3.5 text-[12px] font-semibold transition-colors disabled:opacity-50 ${FOCUS_RING} ${
             isSuspended
-              ? "bg-ink/[0.05] text-ink hover:bg-ink/[0.08]"
-              : "bg-danger/10 text-danger hover:bg-danger/20"
+              ? "bg-admin-ink/[0.05] text-admin-ink hover:bg-admin-ink/[0.08]"
+              : "bg-admin-rose-tint text-admin-rose hover:brightness-95"
           }`}
         >
           {isSuspended ? <ArrowClockwise size={15} /> : <Prohibit size={15} />}
           {isPending ? t("users.loading") : actionText}
         </button>
       )}
-      {error && <span className="text-[10px] font-medium text-danger">{error}</span>}
+      {error && <span className="text-[10px] font-medium text-admin-rose">{error}</span>}
     </div>
   );
 }

@@ -1,11 +1,13 @@
 // Testing-only bypass. Active only in non-production environments.
 // In production this always returns false regardless of the email value.
-// Email comes from NEXT_PUBLIC_SUPERUSER_TEST_EMAIL (not a server-only var —
-// this file is also imported by the client-side Navbar) so the account isn't
-// hardcoded in source. Falls back to the same default used since Session 099.
+// This account (superuser@test.com / Superuser123! in Supabase Auth) is
+// treated as a superuser that can reach all 3 roles (user/designer/admin)
+// simultaneously — see getUserRole()/requireRole() (roles.ts) and the
+// middleware bypass (proxy.ts). Hardcoded on purpose (Session 115 — reverted
+// the Session 114 env-var indirection back to a literal per the user's
+// explicit request).
 // TODO: delete this account from the Supabase auth.users table before go-live.
-const SUPERUSER_TEST_EMAIL =
-  process.env.NEXT_PUBLIC_SUPERUSER_TEST_EMAIL || "superuser@test.com";
+const SUPERUSER_TEST_EMAIL = "superuser@test.com";
 
 export function isSuperuserTestEmail(email: string | null | undefined): boolean {
   if (process.env.NODE_ENV === "production") return false;

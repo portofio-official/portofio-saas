@@ -6,22 +6,28 @@ import { parseDocumentData } from "./definition";
 import type { TemplateId } from "./types";
 import { TEMPLATE_IDS } from "./types";
 
-// ─── Auto-register ───────────────────────────────────────────────────────────
-// Setiap folder di bawah definitions/<id>/ yang mengekspor definitinya sebagai
-// default export otomatis terdaftar. Menambah template = cukup buat folder +
-// tambahkan id di types.ts — registry TIDAK perlu diedit.
-// Butuh Next >= 16.3 (Turbopack); lihat docs/TEMPLATE_AUTHORING.md.
-const definitionModules: Record<string, unknown> = import.meta.glob(
-  "./definitions/*/definition.ts",
-  { eager: true, import: "default" },
-);
+import minimalDef from "./definitions/minimal/definition";
+import boldDef from "./definitions/bold/definition";
+import creativeDef from "./definitions/creative/definition";
+import corporateDef from "./definitions/corporate/definition";
+import darkDef from "./definitions/dark/definition";
+import studioDef from "./definitions/studio/definition";
+import portfolioProDef from "./definitions/portfolio-pro/definition";
+import freelancerDef from "./definitions/freelancer/definition";
 
-export const TEMPLATE_REGISTRY: Record<string, TemplateDefinition<z.ZodTypeAny>> = Object.fromEntries(
-  Object.entries(definitionModules).map(([path, definition]) => {
-    const id = path.split("/").slice(-2, -1)[0];
-    return [id, definition as TemplateDefinition<z.ZodTypeAny>];
-  }),
-);
+// ─── Auto-register ───────────────────────────────────────────────────────────
+// Template sekarang di-import secara manual agar kompatibel dengan Webpack (bukan cuma Turbopack).
+// Menambah template = buat folder, tambahkan id di types.ts, dan tambahkan import di file ini.
+export const TEMPLATE_REGISTRY: Record<string, TemplateDefinition<z.ZodTypeAny>> = {
+  minimal: minimalDef as TemplateDefinition<z.ZodTypeAny>,
+  bold: boldDef as TemplateDefinition<z.ZodTypeAny>,
+  creative: creativeDef as TemplateDefinition<z.ZodTypeAny>,
+  corporate: corporateDef as TemplateDefinition<z.ZodTypeAny>,
+  dark: darkDef as TemplateDefinition<z.ZodTypeAny>,
+  studio: studioDef as TemplateDefinition<z.ZodTypeAny>,
+  "portfolio-pro": portfolioProDef as TemplateDefinition<z.ZodTypeAny>,
+  freelancer: freelancerDef as TemplateDefinition<z.ZodTypeAny>,
+};
 
 // ─── Single source of truth untuk galeri ────────────────────────────────────
 // Semua metadata tampilan (name, description, tags, accentBg, popular) dibaca

@@ -238,7 +238,24 @@
       "submit": "Daftar",
       "submitPending": "Memproses…",
       "haveAccount": "Sudah punya akun?",
-      "loginLink": "Masuk"
+      "loginLink": "Masuk",
+      "firstNameLabel": "First Name",
+      "firstNamePlaceholder": "First Name",
+      "lastNameLabel": "Last Name",
+      "lastNamePlaceholder": "Last Name",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "e.g. 6281234567890",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "leftTitleJoin": "Join Our,",
+      "leftTitleCreative": "Creative",
+      "leftTitleCommunity": "Community.",
+      "leftSubtitle": "Sign up to start building your portfolio, customizing templates, and reaching a wider audience today.",
+      "formTitle": "Create an Account",
+      "formSubtitle": "Please fill in the details below to create your account.",
+      "footerText": "Already have an account?",
+      "footerLink": "Sign in here",
+      "passwordPlaceholder": "Enter your password"
     },
     "forgotPassword": {
       "eyebrow": "Reset kata sandi",
@@ -270,11 +287,11 @@
       "generic": "Terjadi kesalahan. Coba lagi."
     },
     "rules": {
-      "minLength": "Minimal 8 karakter",
-      "lowercase": "Huruf kecil",
-      "uppercase": "Huruf besar",
-      "number": "Angka",
-      "special": "Simbol (mis. ! @ #)"
+      "minLength": "At least 8 characters",
+      "lowercase": "A lowercase letter",
+      "uppercase": "An uppercase letter",
+      "number": "A number",
+      "special": "A special character (e.g. ! @ #)"
     },
     "success": {
       "checkYourEmail": "Cek emailmu",

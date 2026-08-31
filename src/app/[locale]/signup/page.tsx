@@ -72,46 +72,25 @@ export default function SignupPage({ searchParams }: { searchParams: Promise<{ t
     <AuthSplitLayout
       leftTitle={
         <>
-          Join Our,<br />
+          {t("leftTitleJoin")} <br />
           <span className="highlight" style={{ color: "var(--accent)", fontWeight: 300, fontStyle: "italic" }}>
-            Creative
-          </span> Community.
+            {t("leftTitleCreative")}
+          </span>
+          <br />
+          {t("leftTitleCommunity")}
         </>
       }
-      leftSubtitle="Sign up to start building your portfolio, customizing templates, and reaching a wider audience today."
+      leftSubtitle={t("leftSubtitle")}
       mobileTitle="Sign Up"
-      formTitle="Create an Account"
-      formSubtitle="Please fill in the details below to create your account."
+      formTitle={t("formTitle")}
+      formSubtitle={t("formSubtitle")}
       footer={
         <p>
-          Already have an account? <Link href="/login">Sign in here</Link>
+          {t("footerText")} <Link href="/login">{t("footerLink")}</Link>
         </p>
       }
     >
       <form action={formAction} onSubmit={handleSubmit} className={styles.loginForm}>
-        <div className={styles.nameRow}>
-          <AuthInput
-            label="First Name"
-            name="firstName"
-            placeholder="First Name"
-            icon="person"
-          />
-          <AuthInput
-            label="Last Name"
-            name="lastName"
-            placeholder="Last Name"
-          />
-        </div>
-
-        <AuthInput
-          label="Phone Number"
-          name="phone"
-          type="tel"
-          placeholder="e.g. 6281234567890"
-          pattern="^62[0-9]{8,15}$"
-          title="Phone number must start with '62' without the '+' sign (e.g. 6281234567890)"
-          icon="call"
-        />
 
         <AuthInput
           label={t("emailLabel")}
@@ -125,39 +104,48 @@ export default function SignupPage({ searchParams }: { searchParams: Promise<{ t
 
         <div>
           <AuthInput
-            label={t("passwordLabel")}
+            label={
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                {t("passwordLabel")}
+                <div className={styles.passwordTooltipContainer}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "1rem", color: "var(--text-secondary)", cursor: "help" }}>info</span>
+                  <div className={styles.passwordTooltipContent}>
+                    <div className={styles.passwordRules} role="group" aria-label="Password requirements">
+                      {ruleKeys.map(({ key, passed }) => (
+                        <div key={key} className={`${styles.passwordRule} ${passed ? styles.passed : ""}`}>
+                          <span className={`${styles.ruleIcon} material-symbols-outlined`} aria-hidden style={{ color: passed ? "var(--accent)" : "var(--text-secondary)" }}>
+                            {passed ? "check_circle" : "radio_button_unchecked"}
+                          </span>
+                          {tRules(key)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
             type="password"
             name="password"
             required
             minLength={8}
             autoComplete="new-password"
             icon="lock"
-            placeholder="Enter your password"
+            placeholder={t("passwordPlaceholder")}
             isPassword
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <div className={styles.passwordRules} role="group" aria-label="Password requirements">
-            {ruleKeys.map(({ key, passed }) => (
-              <div key={key} className={`${styles.passwordRule} ${passed ? styles.passed : ""}`}>
-                <span className={`${styles.ruleIcon} material-symbols-outlined`} aria-hidden>
-                  {passed ? "check_circle" : "radio_button_unchecked"}
-                </span>
-                {tRules(key)}
-              </div>
-            ))}
-          </div>
         </div>
 
         <AuthInput
-          label="Confirm Password"
+          label={t("confirmPasswordLabel")}
           type="password"
           name="confirmPassword"
           required
           minLength={8}
           autoComplete="new-password"
           icon="lock"
-          placeholder="Confirm your password"
+          placeholder={t("confirmPasswordPlaceholder")}
           isPassword
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}

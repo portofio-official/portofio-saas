@@ -28,11 +28,12 @@ export default async function OnboardingPage({
   ]);
 
   if (workspaces.length > 0) {
-    return redirect({ href: "/dashboard", locale });
+    // [DEV BYPASS] Temporarily commented out to allow designing the onboarding page
+    // return redirect({ href: "/dashboard", locale });
   }
 
-  // Check if profile has full_name filled
-  const hasProfile = Boolean(profile?.full_name);
+  // [DEV BYPASS] Force hasProfile to false so the user can always see Step 1 of onboarding.
+  const hasProfile = false; // Boolean(profile?.full_name);
 
   return (
     <OnboardingClientView

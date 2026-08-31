@@ -60,7 +60,7 @@ export function AuthSplitLayout({
             <img src="/Logo-Portofio-white.png" alt="Portofio Logo" style={{ height: "36px", objectFit: "contain" }} />
           </div>
 
-          <div style={{ minHeight: "220px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div style={{ minHeight: "260px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <h1>{leftTitle}</h1>
             <p>{leftSubtitle}</p>
           </div>

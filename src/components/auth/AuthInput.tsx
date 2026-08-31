@@ -3,16 +3,21 @@
 import React, { useState } from "react";
 import styles from "./AuthSplitLayout.module.css";
 
-interface AuthInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
+interface AuthInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'label'> {
+  label: React.ReactNode;
   icon?: string;
   isPassword?: boolean;
 }
 
-export function AuthInput({ label, icon, isPassword, ...props }: AuthInputProps) {
+export function AuthInput({ label, icon, isPassword, value, onChange, ...props }: AuthInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   const inputType = isPassword ? (showPassword ? "text" : "password") : props.type || "text";
+  
+  // Prevent React warning about uncontrolled to controlled input
+  // If an onChange handler is provided, we assume it's controlled and ensure value is at least an empty string.
+  const isControlled = value !== undefined || onChange !== undefined;
+  const safeValue = isControlled ? (value ?? "") : undefined;
 
   return (
     <div className={styles.inputGroup}>
@@ -25,7 +30,13 @@ export function AuthInput({ label, icon, isPassword, ...props }: AuthInputProps)
             </span>
           </div>
         )}
-        <input {...props} type={inputType} className={styles.inputField} />
+        <input 
+          {...props} 
+          value={safeValue}
+          onChange={onChange}
+          type={inputType} 
+          className={styles.inputField} 
+        />
         
         {isPassword && (
           <button
